@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
-using TradeNest.Web.Models;
+using TradeNest.Web.ViewModels;
 
 namespace TradeNest.Web.Controllers;
 

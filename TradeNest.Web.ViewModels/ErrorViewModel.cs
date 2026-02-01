@@ -1,4 +1,4 @@
-namespace TradeNest.Web.Models;
+namespace TradeNest.Web.ViewModels;
 
 public class ErrorViewModel
 {
