@@ -16,11 +16,16 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TradeNest.Data\TradeNest.Data.csproj" />
     <ProjectReference Include="..\TradeNest.Web.ViewModels\TradeNest.Web.ViewModels.csproj" />
+  </ItemGroup>
+    
+  <ItemGroup>
+    <Folder Include="Areas\Identity\Pages\" />
   </ItemGroup>
 
 </Project>
