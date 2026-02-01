@@ -10,13 +10,13 @@ public class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-string? connectionString = builder.Configuration["TradeNest:ConnectionString"] 
-                           ?? builder.Configuration.GetConnectionString("DefaultConnection") 
-                           ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+        // Add services to the container.
+        string? connectionString = builder.Configuration["TradeNest:ConnectionString"] 
+                                   ?? builder.Configuration.GetConnectionString("DefaultConnection") 
+                                   ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContext<TradeNestDbContext>(options =>
-    options.UseSqlServer(connectionString));
+        builder.Services.AddDbContext<TradeNestDbContext>(options =>
+            options.UseSqlServer(connectionString));
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         
