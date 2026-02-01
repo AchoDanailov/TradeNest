@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TradeNest.Web.Data;
+using TradeNest.Data;
 
 namespace TradeNest.Web;
 
@@ -10,15 +10,18 @@ public class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
-        string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-        builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(connectionString));
+// Add services to the container.
+string? connectionString = builder.Configuration["TradeNest:ConnectionString"] 
+                           ?? builder.Configuration.GetConnectionString("DefaultConnection") 
+                           ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+builder.Services.AddDbContext<TradeNestDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-
+        
         builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
-            .AddEntityFrameworkStores<ApplicationDbContext>();
+            .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddControllersWithViews();
 
