@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
+using TradeNest.Data.Models;
 
 namespace TradeNest.Web;
 
@@ -20,7 +21,7 @@ public class Program
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         
-        builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddControllersWithViews();

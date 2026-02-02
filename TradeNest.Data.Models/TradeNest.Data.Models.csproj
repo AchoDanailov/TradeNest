@@ -10,4 +10,8 @@
     <ProjectReference Include="..\TradeNest.GCommon\TradeNest.GCommon.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.23" />
+  </ItemGroup>
+
 </Project>
