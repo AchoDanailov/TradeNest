@@ -48,4 +48,7 @@ public class Product
     [Comment("Foreign key referencing the product's owner primary key.")]
     public Guid OwnerId { get; set; }
     public virtual ApplicationUser Owner { get; set; } = null!;
+    
+    public virtual ICollection<OrderProduct> ProductsOrders { get; set; }
+        = new List<OrderProduct>();
 }
