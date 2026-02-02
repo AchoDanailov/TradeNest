@@ -10,8 +10,6 @@ public static class EntityValidationConstants
         public const byte NameMinLengthValue = 3;
         public const byte NameMaxLengthValue = 255;
 
-        public const short UrlMaxLengthValue = 2048;
-
         public const byte DescriptionMinLengthValue = 5;
         public const short DescriptionMaxLengthValue = 3000;
 
@@ -20,5 +18,10 @@ public static class EntityValidationConstants
         public const string DefaultValueForCreatedAtColumn = "GETUTCDATE()";
 
         public const bool DefaultValueForIsActiveColumn = true;
+    }
+
+    public static class Image
+    {
+        public const short UrlMaxLengthValue = 2048;
     }
 }

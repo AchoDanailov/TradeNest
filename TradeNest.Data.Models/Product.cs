@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 using static TradeNest.GCommon.EntityValidationConstants.Product;
+using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Data.Models;
 
@@ -51,4 +51,7 @@ public class Product
     
     public virtual ICollection<OrderProduct> ProductsOrders { get; set; }
         = new List<OrderProduct>();
+
+    public virtual ICollection<Image> Images { get; set; }
+        = new HashSet<Image>();
 }
