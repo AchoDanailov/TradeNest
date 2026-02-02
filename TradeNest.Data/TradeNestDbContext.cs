@@ -13,7 +13,7 @@ public class TradeNestDbContext
     {
     }
 
-    // public virtual DbSet<Product> Products { get; set; } = null!;
+    public virtual DbSet<Product> Products { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

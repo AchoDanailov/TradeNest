@@ -15,6 +15,10 @@ public static class EntityValidationConstants
         public const byte DescriptionMinLengthValue = 5;
         public const short DescriptionMaxLengthValue = 3000;
 
-        public const string SellingPriceColumnDataType = "DECIMAL(10, 2)";
+        public const string PriceColumnDataType = "DECIMAL(10, 2)";
+
+        public const string DefaultValueForCreatedAtColumn = "GETUTCDATE()";
+
+        public const bool DefaultValueForIsActiveColumn = true;
     }
 }
