@@ -18,6 +18,7 @@ public class TradeNestDbContext
     public virtual DbSet<Order> Orders { get; set; } = null!;
     public virtual DbSet<OrderProduct> OrdersProducts { get; set; } = null!;
     public virtual DbSet<UsersWishlistProduct> UsersWishlistProducts { get; set; } = null!;
+    public virtual DbSet<Category> Categories { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
