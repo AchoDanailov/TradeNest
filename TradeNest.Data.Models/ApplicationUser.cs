@@ -9,4 +9,7 @@ public class ApplicationUser : IdentityUser<Guid>
 
     public virtual ICollection<Order> Orders { get; set; }
         = new List<Order>();
+
+    public virtual ICollection<UsersWishlistProduct> WishlistProducts { get; set; }
+        = new List<UsersWishlistProduct>();
 }

@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Data.Models;
 
+// TODO: Use a file server
 [Comment("Holds Image data.")]
 public class Image
 {

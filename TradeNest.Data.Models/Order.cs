@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using static TradeNest.GCommon.EntityValidationConstants.CommonValidationConstants;
 using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Data.Models;
@@ -14,6 +15,10 @@ public class Order
     [Required]
     [Comment("Value that represents weather the order is submitted or not.")]
     public bool IsSubmitted { get; set; } = false;
+    
+    [Column(TypeName = PriceColumnDataType)]
+    [Comment("Holds the value of the order's total price when order is submitted.")]
+    public decimal? TotalPrice { get; set; }
     
     [Required]
     [ForeignKey(nameof(User))]

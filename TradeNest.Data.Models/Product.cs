@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using static TradeNest.GCommon.EntityValidationConstants.Product;
+using static TradeNest.GCommon.EntityValidationConstants.CommonValidationConstants;
 using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Data.Models;
@@ -54,4 +55,7 @@ public class Product
 
     public virtual ICollection<Image> Images { get; set; }
         = new HashSet<Image>();
+
+    public virtual ICollection<UsersWishlistProduct> ProductsWishlists { get; set; }
+        = new List<UsersWishlistProduct>();
 }

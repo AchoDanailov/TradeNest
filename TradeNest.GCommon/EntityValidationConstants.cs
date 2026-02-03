@@ -5,6 +5,11 @@ namespace TradeNest.GCommon;
 /// </summary>
 public static class EntityValidationConstants
 {
+    public static class CommonValidationConstants
+    {
+        public const string PriceColumnDataType = "DECIMAL(10, 2)";
+    }
+    
     public static class Product
     {
         public const byte NameMinLengthValue = 3;
@@ -12,8 +17,6 @@ public static class EntityValidationConstants
 
         public const byte DescriptionMinLengthValue = 5;
         public const short DescriptionMaxLengthValue = 3000;
-
-        public const string PriceColumnDataType = "DECIMAL(10, 2)";
 
         public const string DefaultValueForCreatedAtColumn = "GETUTCDATE()";
 
