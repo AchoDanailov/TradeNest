@@ -20,11 +20,10 @@ public class Order
     [Comment("Holds the value of the order's total price when order is submitted.")]
     public decimal? TotalPrice { get; set; }
     
-    [Required]
     [ForeignKey(nameof(User))]
-    [Comment("Foreign key referencing the Order's creator primary key.")]
-    public Guid UserId { get; set; }
-    public virtual ApplicationUser User { get; set; } = null!;
+    [Comment("Foreign key referencing the user making the order.")]
+    public Guid? UserId { get; set; }
+    public virtual ApplicationUser? User { get; set; } 
 
     public virtual ICollection<OrderProduct> OrderProducts { get; set; }
         = new List<OrderProduct>();
