@@ -20,11 +20,17 @@ public static class EntityValidationConstants
 
         public const string DefaultValueForCreatedAtColumn = "GETUTCDATE()";
 
-        public const bool DefaultValueForIsActiveColumn = true;
+        public const bool DefaultValueForIsEnabledColumn = true;
     }
 
     public static class Image
     {
         public const short UrlMaxLengthValue = 2048;
+    }
+
+    public static class Category
+    {
+        public const byte NameMinLengthValue = 3;
+        public const byte NameMaxLengthValue = 100;
     }
 }

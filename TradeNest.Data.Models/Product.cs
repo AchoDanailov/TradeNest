@@ -42,7 +42,7 @@ public class Product
 
     [Required]
     [Comment("Value is used to show weather the product is active or disabled for selling.")]
-    public bool IsActive { get; set; } = true;
+    public bool IsEnabled { get; set; } = true;
 
     [Required]
     [ForeignKey(nameof(Owner))]
