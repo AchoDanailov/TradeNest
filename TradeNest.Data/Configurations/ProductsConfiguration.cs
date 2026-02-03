@@ -14,7 +14,5 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.IsActive)
             .HasDefaultValue(DefaultValueForIsActiveColumn);
-
-        builder.HasQueryFilter(p => p.IsActive == true);
     }
 }
