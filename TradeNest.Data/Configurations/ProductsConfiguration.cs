@@ -5,7 +5,6 @@ using static TradeNest.GCommon.EntityValidationConstants.Product;
 
 namespace TradeNest.Data.Configurations;
 
-//TODO: Add Soft Deletion
 public class ProductsConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
@@ -25,5 +24,7 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
 
         builder.Property(p => p.IsEnabled)
             .HasDefaultValue(DefaultValueForIsEnabledColumn);
+
+        builder.HasQueryFilter(p => p.IsDeleted);
     }
 }

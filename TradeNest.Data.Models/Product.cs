@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Data.Models;
 
-//TODO: Add Soft Deletion
 [Comment("Holds product's data.")]
 public class Product
 {
@@ -42,8 +41,12 @@ public class Product
     public DateTime CreatedAt { get; set; }
 
     [Required]
-    [Comment("Value is used to show weather the product is active or disabled for selling.")]
+    [Comment("Value is used to show weather the product is enabled or disabled for selling.")]
     public bool IsEnabled { get; set; } = true;
+
+    [Required]
+    [Comment("Value is used to show weather the product deleted.")]
+    public bool IsDeleted { get; set; } = false;
 
     [ForeignKey(nameof(Owner))]
     [Comment("Foreign key referencing the product's owner primary key.")]
