@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Data.Models;
 
+//TODO: Add Soft Deletion
 [Comment("Holds product's data.")]
 public class Product
 {
@@ -47,8 +48,8 @@ public class Product
     [Required]
     [ForeignKey(nameof(Owner))]
     [Comment("Foreign key referencing the product's owner primary key.")]
-    public Guid OwnerId { get; set; }
-    public virtual ApplicationUser Owner { get; set; } = null!;
+    public Guid? OwnerId { get; set; }
+    public virtual ApplicationUser? Owner { get; set; } = null!;
     
     [Required]
     [ForeignKey(nameof(Category))]
