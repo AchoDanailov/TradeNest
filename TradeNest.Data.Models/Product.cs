@@ -45,11 +45,10 @@ public class Product
     [Comment("Value is used to show weather the product is active or disabled for selling.")]
     public bool IsEnabled { get; set; } = true;
 
-    [Required]
     [ForeignKey(nameof(Owner))]
     [Comment("Foreign key referencing the product's owner primary key.")]
     public Guid? OwnerId { get; set; }
-    public virtual ApplicationUser? Owner { get; set; } = null!;
+    public virtual ApplicationUser? Owner { get; set; }
     
     [Required]
     [ForeignKey(nameof(Category))]
