@@ -34,7 +34,7 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
     {
         Guid hariboApplicationUserId = Guid.Parse("d05a8fe7-cf0a-4895-89aa-9068c334ec1b");
         Guid mirkoApplicationUserId = Guid.Parse("a8e18a83-adfb-4116-9e35-3be16446f9b8");
-        Guid electronicsCategoryId = Guid.Parse("c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f3g");
+        Guid electronicsCategoryId = Guid.Parse("c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30");
         Guid booksCategoryId = Guid.Parse("a1b2c3d4-e5f6-7890-1234-567890abcdef");
         Guid homeGardenCategoryId = Guid.Parse("f0e9d8c7-b6a5-4321-fedc-ba9876543210");
 
