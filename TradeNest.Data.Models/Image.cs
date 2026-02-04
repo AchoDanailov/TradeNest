@@ -17,6 +17,10 @@ public class Image
     [MaxLength(UrlMaxLengthValue)]
     [Comment("Image's Url")]
     public string Url { get; set; } = null!;
+
+    [Required]
+    [Comment("Value represents weather the image is used as a front image for the product or not.")]
+    public bool IsFrontImage { get; set; } = false;
     
     [Required]
     [ForeignKey(nameof(Product))]
