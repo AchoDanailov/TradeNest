@@ -3,10 +3,10 @@ using TradeNest.Data.Models;
 
 namespace TradeNest.Data.Utilities;
 
-public static class DbContextOptimizationHelpers
+public static class DbContextOptimizationHelper
 {
     /// <summary>
-    /// Check
+    /// Updates product's property IsEnabled value as required.
     /// </summary>
     /// <param name="productsToModifyIsEnabledProperty"></param>
     public static void UpdateProductIsEnabledPropertyAsRequired(
