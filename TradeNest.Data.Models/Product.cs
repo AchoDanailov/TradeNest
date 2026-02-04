@@ -38,7 +38,7 @@ public class Product
 
     [Required]
     [Comment("Date of creating. Has default universal time set on record insertion to date and time of insertion.")]
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedOn { get; set; }
 
     [Required]
     [Comment("Value is used to show weather the product is enabled or disabled for selling.")]
