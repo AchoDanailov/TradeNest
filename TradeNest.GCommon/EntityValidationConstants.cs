@@ -18,7 +18,7 @@ public static class EntityValidationConstants
         public const byte DescriptionMinLengthValue = 5;
         public const short DescriptionMaxLengthValue = 3000;
 
-        public const string DefaultValueForCreatedAtColumn = "GETUTCDATE()";
+        public const string DefaultValueForCreatedOnColumn = "GETUTCDATE()";
 
         public const bool DefaultValueForIsEnabledColumn = true;
     }
