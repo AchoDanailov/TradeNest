@@ -19,26 +19,26 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
             new ApplicationUser()
             {
                 Id = Guid.Parse("d05a8fe7-cf0a-4895-89aa-9068c334ec1b"),
-                UserName = "Haribo",
-                NormalizedUserName = "HARIBO",
+                UserName = "Har1b0@gmail.com",
+                NormalizedUserName = "HAR1B0@GMAIL.COM",
                 Email = "Har1b0@gmail.com",
                 NormalizedEmail = "HAR1B0@GMAIL.COM",
                 EmailConfirmed = true,
-                PasswordHash = new PasswordHasher<ApplicationUser>().HashPassword(
-                    new ApplicationUser() { UserName = "Har1b0@gmail.com" },
-                    "Har1b0!")
+                PasswordHash = new PasswordHasher<ApplicationUser>()
+                    .HashPassword(new ApplicationUser() { UserName = "Har1b0@gmail.com" }, "Har1b0o"),
+                SecurityStamp = Guid.NewGuid().ToString()
             },
             new ApplicationUser()
             {
                 Id = Guid.Parse("a8e18a83-adfb-4116-9e35-3be16446f9b8"),
-                UserName = "Mirko",
-                NormalizedUserName = "MIRKO",
+                UserName = "M1rk0@gmail.com",
+                NormalizedUserName = "M1RK0@GMAIL.COM",
                 Email = "M1rk0@gmail.com",
                 NormalizedEmail = "M1RK0@GMAIL.COM",
                 EmailConfirmed = true,
-                PasswordHash = new PasswordHasher<ApplicationUser>().HashPassword(
-                    new ApplicationUser() { UserName = "M1rk0@gmail.com" },
-                    "M1rk0!")
+                PasswordHash = new PasswordHasher<ApplicationUser>()
+                    .HashPassword(new ApplicationUser() { UserName = "M1rk0@gmail.com" }, "M1rk0o"),
+                SecurityStamp = Guid.NewGuid().ToString()
             }
         };
 
