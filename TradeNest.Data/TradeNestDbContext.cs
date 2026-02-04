@@ -22,7 +22,6 @@ public class TradeNestDbContext
     public virtual DbSet<UsersWishlistProduct> UsersWishlistProducts { get; set; } = null!;
     public virtual DbSet<Category> Categories { get; set; } = null!;
     
-    // TODO: Setup automatic query filtering for product IsDeleted.
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         //ChangeTracker.Entries<TEntity>() calls DetectChanges() internally.
