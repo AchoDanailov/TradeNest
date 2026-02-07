@@ -6,11 +6,11 @@
 
 
 <div class="container-lg site-sections-bg ps-5 py-3 mt-5 d-flex justify-content-center flex-column shadow rounded">
-    <h1>@ViewData["Title"]</h1>
+    <h1 class="text-navy">@ViewData["Title"]</h1>
     <div class="row">
         <div class="col-md-5">
             <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-                <h2>Create a new account.</h2>
+                <h2 class="text-teal">Create a new account.</h2>
                 <hr />
                 <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
                 <div class="form-floating mb-3">
@@ -33,13 +33,13 @@
         </div>
         <div class="col-md-6 col-md-offset-2">
             <section>
-                <h3>Use another service to register.</h3>
+                <h3 class="text-navy">Use another service to register.</h3>
                 <hr />
                 @{
                     if ((Model.ExternalLogins?.Count ?? 0) == 0)
                     {
                         <div>
-                            <p>
+                            <p class="text-muted">
                                 There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
                                     about setting up this ASP.NET application to support logging in via external services</a>.
                             </p>
