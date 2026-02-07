@@ -3,9 +3,8 @@
 }
 
 <div class="container-lg py-5 mt-5">
-
-    <div class="row align-items-center g-5 mb-5 px-3 site-sections-bg shadow rounded">
-        <div class="col-lg-6 text-center text-lg-start">
+    <div class="row align-items-center g-5 mb-5 p-3 site-sections-bg shadow rounded">
+        <div class="col-md-6 text-center text-md-start">
             <h1 class="display-5 fw-bold text-navy">
                 Welcome to <span class="text-teal">TradeNest</span>
             </h1>
@@ -14,13 +13,14 @@
                 Buy, sell, and trade smarter — all in one trusted marketplace.
             </p>
 
-            <div class="d-flex gap-3 mt-4 justify-content-center justify-content-lg-start">
-                <a class="btn btn-teal btn-lg px-4">Shop Now</a>
+            <div class="d-flex gap-3 mt-4 justify-content-center justify-content-md-start">
+                <a class="btn btn-teal btn-lg px-4" 
+                   asp-controller="Catalog" asp-action="Index">Shop Now</a>
                 <a class="btn btn-outline-teal btn-lg px-4">Become a Seller</a>
             </div>
         </div>
 
-        <div class="col-lg-6 text-center">
+        <div class="col-md-6 text-center">
             <img src="~/images/tradenest-logo/tradenest-logo.png"
                  class="img-fluid hero-logo"
                  alt="TradeNest" />
