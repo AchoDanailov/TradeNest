@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradeNest.Web.ViewModels;
 
@@ -13,11 +14,15 @@ public class HomeController : Controller
         _logger = logger;
     }
 
+    [HttpGet]
+    [AllowAnonymous]
     public IActionResult Index()
     {
         return View();
     }
 
+    [HttpGet]
+    [AllowAnonymous]
     public IActionResult Privacy()
     {
         return View();

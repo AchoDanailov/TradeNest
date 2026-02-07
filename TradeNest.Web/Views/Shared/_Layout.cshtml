@@ -1,4 +1,8 @@
-﻿<!DOCTYPE html>
+﻿@{
+    int currentYear = DateTime.UtcNow.Year;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -31,10 +35,12 @@
                 <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between align-items-center" id="navbarContent">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="btn btn-outline-light ms-1 my-1" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="btn btn-outline-light ms-1 my-1" 
+                              asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link navbar-dark mx-2 my-1" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+                            <a class="nav-link navbar-dark mx-2 my-1" 
+                              asp-area="" asp-controller="Catalog" asp-action="Index">Catalog</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -50,7 +56,7 @@
 
     <footer class="border-top footer text-muted">
         <div class="container-lg">
-            &copy; 2026 - TradeNest - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @currentYear - TradeNest - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
