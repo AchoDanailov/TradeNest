@@ -2,7 +2,88 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-lg py-5 mt-5">
+
+    <div class="row align-items-center g-5 mb-5 px-3 site-sections-bg shadow rounded">
+        <div class="col-lg-6 text-center text-lg-start">
+            <h1 class="display-5 fw-bold text-navy">
+                Welcome to <span class="text-teal">TradeNest</span>
+            </h1>
+
+            <p class="lead text-muted">
+                Buy, sell, and trade smarter — all in one trusted marketplace.
+            </p>
+
+            <div class="d-flex gap-3 mt-4 justify-content-center justify-content-lg-start">
+                <a class="btn btn-teal btn-lg px-4">Shop Now</a>
+                <a class="btn btn-outline-teal btn-lg px-4">Become a Seller</a>
+            </div>
+        </div>
+
+        <div class="col-lg-6 text-center">
+            <img src="~/images/tradenest-logo/tradenest-logo.png"
+                 class="img-fluid hero-logo"
+                 alt="TradeNest" />
+        </div>
+    </div>
+
+    <div class="row g-4 px-3">
+        <div class="col-md-4">
+            <a href="">
+                <div class="card h-100 site-sections-bg shadow border-0 rounded feature-card">
+                    <div class="card-body text-center">
+                        <h4 class="card-title text-navy fw-semibold">
+                            <span class="text-teal">Hot Right Now</span>
+                        </h4>
+                        <p class="card-text text-muted">
+                            See what is most popular right now.
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                        <button class="btn btn-teal">Go Now</button>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="">
+                <div class="card h-100 site-sections-bg shadow border-0 rounded feature-card">
+                    <div class="card-body text-center">
+                        <h4 class="card-title text-navy fw-semibold">
+                            <span class="text-teal">See Categories</span>
+                        </h4>
+                        <p class="card-text text-muted">
+                            Explore a wide range of product categories. 
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                        <button class="btn btn-teal">Go Now</button>
+                    </div>
+                </div>
+            </a>
+        </div>
+
+        <div class="col-md-4">
+            <a href="">
+                <div class="card h-100 site-sections-bg shadow border-0 rounded feature-card">
+                    <div class="card-body text-center">
+                        <h4 class="card-title text-navy fw-semibold">
+                            <span class="text-teal">Have Something To Sell?</span>
+                        </h4>
+                        <p class="card-text text-muted">
+                            See how we can help you.
+                        </p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-center">
+                        <button class="btn btn-teal">Go Now</button>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
 </div>
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/home.css" asp-append-version="true"/>
+}
