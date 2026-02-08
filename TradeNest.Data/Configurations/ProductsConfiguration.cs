@@ -25,7 +25,7 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.IsEnabled)
             .HasDefaultValue(DefaultValueForIsEnabledColumn);
 
-        builder.HasQueryFilter(p => p.IsDeleted);
+        builder.HasQueryFilter(p => p.IsDeleted == false);
 
         builder.HasData(this.SeedProducts());
     }
