@@ -4,6 +4,51 @@
 }
 
 <div class="container-lg pt-5">
+    <div class="row text-center text-md-start ms-md-2">
+        <div class="col">
+            <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
+        </div>
+    </div>
+    
+    <div class="row d-flex gap-1 my-2 align-items-center">
+        <div class="col-3 d-md-none">
+            <div class="btn-group">
+                <a type="button"
+                   asp-controller="Catalog" asp-action="Categories"
+                   class="btn btn-teal">All Categories</a>
+                <button type="button" class="btn btn-teal dropdown-toggle dropdown-toggle-split"
+                        data-bs-toggle="dropdown" aria-expanded="false"></button>
+                <ul class="dropdown-menu">
+                    @foreach (CategoryViewModel category in this.Model.AllCategories)
+                    {
+                        <li class="nav-item">
+                            <a asp-controller="Catalog"
+                               asp-action="Index"
+                               asp-route-category="@category.Name"
+                               class="dropdown-item">@category.Name</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+
+        <div class="col d-flex flex-column align-items-center justify-content-center">
+            <form method="get" asp-controller="Catalog" asp-action="Index"
+                  asp-route-search="">
+                <div class="input-group">
+                    <label for="searchInput" class="form-label text-navy text-center">
+                        Search for everything you need
+                    </label>
+                    <input name="search" type="search" id="searchInput"
+                           class="form-control" placeholder="Search..." 
+                           aria-label="Search" />
+                    <button class="btn btn-outline-teal" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+
+    </div>
+
     <div class="row d-flex gap-1">
         <div class="col-md-3 col-xl-2 nav navbar navbar-nav-scroll d-none d-md-flex site-sections-bg border rounded-3 shadow justify-content-center align-content-start flex-grow-0">
             <h5 class="text-navy pb-1 border-bottom">All Categories</h5>
@@ -19,15 +64,15 @@
                 }
             </ul>
         </div>
-        
+
         <div class="col d-flex flex-column gap-1">
             @if (this.Model.Products.Any() == false)
             {
                 <div class="row p-5 site-sections-bg shadow rounded-3 d-flex justify-content-center gap-2">
                     <h4 class="text-navy display-4 text-center">No products are available at the moment</h4>
-                    <a class="btn btn-teal btn-lg px-4 mx-auto w-auto" 
+                    <a class="btn btn-teal btn-lg px-4 mx-auto w-auto"
                        asp-controller="Products" asp-action="Create">Be The First To Sell Your Products</a>
-                </div>   
+                </div>
             }
             else
             {

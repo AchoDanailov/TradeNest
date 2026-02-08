@@ -17,7 +17,9 @@ public class CatalogController : Controller
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Index()
+    public IActionResult Index(
+        [FromQuery] string? category = null,
+        [FromQuery] string? search = null)
     {
         CategoriesAndProductsViewModel categoriesAndProductsViewModel
             = new CategoriesAndProductsViewModel()
