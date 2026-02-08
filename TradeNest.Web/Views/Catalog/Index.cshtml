@@ -1,0 +1,41 @@
+@model CategoriesAndProductsViewModel
+@{
+    ViewData["Title"] = "Catalog";
+}
+
+<div class="container-lg pt-5">
+    <div class="row d-flex gap-1">
+        <div class="col-md-3 col-xl-2 nav navbar navbar-nav-scroll d-none d-md-flex site-sections-bg border rounded-3 shadow justify-content-center align-content-start flex-grow-0">
+            <h5 class="text-navy pb-1 border-bottom">All Categories</h5>
+            <ul class="d-flex flex-column justify-content-center text-center gap-1">
+                @foreach (CategoryViewModel category in this.Model.AllCategories)
+                {
+                    <li class="nav-item">
+                        <a asp-controller="Catalog"
+                           asp-action="Index"
+                           asp-route-category="@category.Name"
+                           class="nav-link">@category.Name</a>
+                    </li>
+                }
+            </ul>
+        </div>
+        
+        <div class="col d-flex flex-column gap-1">
+            @if (this.Model.Products.Any() == false)
+            {
+                <div class="row p-5 site-sections-bg shadow rounded-3 d-flex justify-content-center gap-2">
+                    <h4 class="text-navy display-4 text-center">No products are available at the moment</h4>
+                    <a class="btn btn-teal btn-lg px-4 mx-auto w-auto" 
+                       asp-controller="Products" asp-action="Create">Be The First To Sell Your Products</a>
+                </div>   
+            }
+            else
+            {
+                @foreach (ProductViewModel product in this.Model.Products)
+                {
+                    <partial name="_ProductCardPartial" model="@product"/>
+                }
+            }
+        </div>
+    </div>
+</div>

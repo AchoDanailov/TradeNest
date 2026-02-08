@@ -17,15 +17,14 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    
-    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-md navbar-toggleable-md navbar-dark bg-dark border-bottom border-light box-shadow">
             <div class="container-lg px-3">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/tradenest-logo/logo-transparent-small.png" class="d-inline-block" alt="TradeNest" width="50" height="43">
+                    <img src="~/images/tradenest-logo/logo-transparent-small.png" 
+                         class="d-inline-block" alt="TradeNest" width="50" height="43" />
                     Trade<span class="text-success">Nest</span>
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarSupportedContent"
@@ -48,13 +47,13 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid">
-        <main role="main" class="pb-3">
+    <div class="container-fluid pb-3">
+        <main role="main">
             @RenderBody()
         </main>
     </div>
 
-    <footer class="border-top footer text-muted">
+    <footer class="border-top footer text-muted site-sections-bg-teal">
         <div class="container-lg">
             &copy; @currentYear - TradeNest - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
