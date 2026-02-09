@@ -3,16 +3,16 @@
     ViewData["Title"] = "Catalog";
 }
 
-<div class="container-lg pt-5">
-    <div class="row text-center text-md-start ms-md-2">
-        <div class="col">
-            <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
+<div class="container-lg pt-3">
+    <div class="row d-flex flex-row gap-1 my-2 align-items-center">
+        <div class="text-center text-md-start ms-md-2 col-md-4">
+            <div class="col">
+                <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
+            </div>
         </div>
-    </div>
-    
-    <div class="row d-flex gap-1 my-2 align-items-center">
-        <div class="col-3 d-md-none">
+        <div class="col d-md-none">
             <div class="btn-group">
+                @*TODO: Add action*@
                 <a type="button"
                    asp-controller="Catalog" asp-action="Categories"
                    class="btn btn-teal">All Categories</a>
@@ -32,13 +32,10 @@
             </div>
         </div>
 
-        <div class="col d-flex flex-column align-items-center justify-content-center">
-            <form method="get" asp-controller="Catalog" asp-action="Index"
-                  asp-route-search="">
+        <div class="col d-flex flex-column align-items-center justify-content-center justify-content-md-start align-items-sm-start ms-md-5 ">
+            <label for="searchInput" class="form-label text-navy text-center ms-sm-5">Search for everything</label>
+            <form method="get" asp-controller="Catalog" asp-action="Index">
                 <div class="input-group">
-                    <label for="searchInput" class="form-label text-navy text-center">
-                        Search for everything you need
-                    </label>
                     <input name="search" type="search" id="searchInput"
                            class="form-control" placeholder="Search..." 
                            aria-label="Search" />
@@ -70,6 +67,7 @@
             {
                 <div class="row p-5 site-sections-bg shadow rounded-3 d-flex justify-content-center gap-2">
                     <h4 class="text-navy display-4 text-center">No products are available at the moment</h4>
+                    @*TODO: Add action*@
                     <a class="btn btn-teal btn-lg px-4 mx-auto w-auto"
                        asp-controller="Products" asp-action="Create">Be The First To Sell Your Products</a>
                 </div>
