@@ -1,0 +1,92 @@
+@model ProductDetailsViewModel
+@{
+    ViewData["Title"] = "Product details";
+}
+
+<div class="container-lg pt-4">
+    <div class="row text-center justify-content-center mb-4">
+        <div class="col d-flex flex-column align-items-center justify-content-center">
+            <label for="searchInput" class="form-label text-navy text-center">Search for everything</label>
+            <form method="get" asp-controller="Catalog" asp-action="Index">
+                <div class="input-group">
+                    <input name="search" type="search" id="searchInput"
+                           class="form-control" placeholder="Search..." 
+                           aria-label="Search" />
+                    <button class="btn btn-outline-teal" type="submit">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div class="row d-flex flex-row gap-4 align-items-start">
+        <div class="col d-flex flex-column align-items-center">
+            <div class="product-image-wrapper rounded-3 site-sections-bg border shadow mb-3">
+                <img src="@Model.FrontImageUrl"
+                     alt="@Model.Name"
+                     class="img-fluid product-main-image" />
+            </div>
+
+            <div class="d-flex gap-2">
+                @foreach (string imgUrl in this.Model.ImagesUrls)
+                {
+                    <img src="@imgUrl" class="product-thumb rounded border" alt="Thumbnail" />
+                }
+            </div>
+        </div>
+
+        <div class="col-md-4 col-xl-4 text-center d-flex flex-column gap-1 site-sections-bg justify-content-center align-items-center flex-grow-0">
+            @if (this.Model.IsEnabled == false)
+            {
+                <p class="text-danger text-center pb-0 mt-2 mb-0">Currently not available</p>
+            }
+            <h4 class="text-navy fw-bold py-2 border-2 border-bottom">@this.Model.Name</h4>
+            <p class="text-navy text-center fw-bold border-2 border-bottom">@this.Model.Owner</p>
+            <p class="text-navy text-center fw-bold border-2 border-bottom">€@this.Model.SellingPrice</p>
+            
+            <div class="d-flex flex-column row align-items-center">
+                <label for="quantityInput" class="form-label text-navy mb-0">Quantity: </label>
+                @if (this.Model.IsEnabled == false || this.Model.IsOwner == true)
+                {
+                    @*TODO: Add to req*@
+                    <input id="quantityInput" class="form-control-sm" type="number"
+                           value=0 aria-label="Quantity" disabled/>
+                }
+                else
+                {
+                    @*TODO: Add to req*@
+                    <input id="quantityInput" class="form-control-sm" type="number"
+                           value=1 aria-label="Quantity"/>
+                }
+                <p class="text-navy text-muted mt-2">@this.Model.QuantityInStock available</p>
+            </div>
+            
+            <div class="btn-group-vertical align-items-stretch flex-grow-1">
+                @if (this.Model.IsOwner == true)
+                {
+                    <a asp-controller="Product" asp-action="Edit" asp-route-id="@this.Model.Id"
+                       class="rounded-pill btn-teal p-2">Make Changes</a>
+                    @*TODO: add modal*@
+                    <a class="rounded-pill btn btn-outline-danger mt-2 p-2">Delete</a>
+                }
+                else
+                {
+                    @*TODO: Add hrefs*@
+                    <a class="rounded-pill btn-teal p-2">Order Now</a>
+                    <a class="rounded-pill btn-outline-teal mt-2 p-2">Add To Watchlist</a>
+                }
+            </div>
+            
+            <div class="d-flex flex-column mt-4 flex-grow-1 w-100">
+                <h4 class="text-navy py-2 border-2 border-bottom">Description</h4>
+
+                <p class="text-navy mt-2 text-start mx-3 overflow-auto flex-grow-1"> 
+                    @Model.Description 
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/prodDetailsFrontImageSwapper.js" asp-append-version="true"></script>
+}
