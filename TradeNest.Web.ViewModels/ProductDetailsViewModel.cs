@@ -12,6 +12,4 @@ public class ProductDetailsViewModel : ProductViewModel
 
     public IEnumerable<string> ImagesUrls { get; set; }
         = new List<string>();
-    
-    public bool IsOwner { get; set; }
 }
