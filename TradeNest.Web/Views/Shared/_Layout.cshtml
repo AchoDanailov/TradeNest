@@ -27,8 +27,9 @@
                          class="d-inline-block" alt="TradeNest" width="50" height="43" />
                     Trade<span class="text-success">Nest</span>
                 </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" 
+                        data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between align-items-center" id="navbarContent">
@@ -39,7 +40,7 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link navbar-dark mx-2 my-1" 
-                              asp-area="" asp-controller="Catalog" asp-action="Index">Catalog</a>
+                               asp-controller="Products" asp-action="Index">Catalog</a>
                         </li>
                     </ul>
                     <partial name="_LoginPartial" />
@@ -55,7 +56,7 @@
 
     <footer class="border-top footer text-muted site-sections-bg-teal">
         <div class="container-lg">
-            &copy; @currentYear - TradeNest - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @currentYear - TradeNest - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

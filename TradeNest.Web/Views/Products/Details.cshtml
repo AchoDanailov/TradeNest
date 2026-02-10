@@ -7,7 +7,7 @@
     <div class="row text-center justify-content-center mb-4">
         <div class="col d-flex flex-column align-items-center justify-content-center">
             <label for="searchInput" class="form-label text-navy text-center">Search for everything</label>
-            <form method="get" asp-controller="Products" asp-action="All">
+            <form method="get" asp-controller="Products" asp-action="Index">
                 <div class="input-group">
                     <input name="search" type="search" id="searchInput"
                            class="form-control" placeholder="Search..." 
@@ -93,7 +93,6 @@
             
             <div class="d-flex flex-column mt-4 flex-grow-1 w-100">
                 <h4 class="text-navy py-2 border-2 border-bottom">Description</h4>
-
                 <p class="text-navy mt-2 text-start mx-3 overflow-auto flex-grow-1"> 
                     @this.Model.Description 
                 </p>
