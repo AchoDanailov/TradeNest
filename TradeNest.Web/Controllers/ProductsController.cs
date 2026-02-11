@@ -2,6 +2,7 @@ using System.Security.Claims;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using static TradeNest.GCommon.ApplicationConstants;
+using static TradeNest.Web.Utilities.ErrorMessages;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +16,8 @@ public class ProductsController : Controller
 {
     private TradeNestDbContext _dbContext;
     private ILogger<ProductsController> _logger;
+    
     public ProductsController(TradeNestDbContext dbContext, ILogger<ProductsController> logger)
-        
     {
         this._dbContext = dbContext;
         this._logger = logger;
@@ -216,8 +217,7 @@ public class ProductsController : Controller
         catch (Exception err)
         {
             this._logger.LogError(err.Message);
-            ViewData["ProductCreationError"] 
-                = "Oops. Something went wrong while trying to add your new product. Please try again.";
+            ViewData["ProductCreationError"] = ProductCreationUnexpectedErrorMessage;
             return View(productCreateFormModel);
         }
     }
