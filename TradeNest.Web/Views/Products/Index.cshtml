@@ -31,18 +31,7 @@
             </div>
         </div>
 
-        <div class="col d-flex flex-column align-items-center justify-content-center justify-content-md-start align-items-sm-start ms-md-5 ">
-            <label for="searchInput" class="form-label text-navy text-center ms-sm-5">Search for everything</label>
-            <form method="get" asp-controller="Products" asp-action="Index">
-                <div class="input-group">
-                    <input name="search" type="search" id="searchInput"
-                           class="form-control" placeholder="Search..." 
-                           aria-label="Search" />
-                    <button class="btn btn-outline-teal" type="submit">Search</button>
-                </div>
-            </form>
-        </div>
-
+        <partial name="_SearchFormPartial" />
     </div>
 
     <div class="row d-flex gap-1">
