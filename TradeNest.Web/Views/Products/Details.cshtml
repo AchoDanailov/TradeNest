@@ -4,28 +4,37 @@
 }
 
 <div class="container-lg pt-4">
-    <div class="row text-center justify-content-center mb-4">
+    <div class="row d-none d-md-flex flex-column justify-content-center mb-4">
+        <partial name="_SearchFormPartial" />
+        <div class="mt-3 mt-md-0">
+            <partial name="_BackToCatalogButtonPartial" />
+        </div>
+    </div>
+    <div class="row d-md-none d-flex flex-column justify-content-center mb-4">
+        <div class="mb-3">
+            <partial name="_BackToCatalogButtonPartial"/>
+        </div>
         <partial name="_SearchFormPartial"/>
     </div>
-    
+
     <div class="row d-flex flex-row gap-4 align-items-start">
         <div class="col d-flex flex-column align-items-center">
             <div class="product-image-wrapper rounded-3 site-sections-bg border shadow mb-3">
                 <img src="@Model.FrontImageUrl"
                      alt="@Model.Name"
-                     class="img-fluid product-main-image" />
+                     class="img-fluid product-main-image"/>
             </div>
 
             <div class="d-flex gap-2">
                 @foreach (string imgUrl in this.Model.ImagesUrls)
                 {
-                    <img src="@imgUrl" class="product-thumb rounded border" alt="Thumbnail" />
+                    <img src="@imgUrl" class="product-thumb rounded border" alt="Thumbnail"/>
                 }
             </div>
         </div>
 
         <div class="col-md-4 col-xl-4 text-center d-flex flex-column gap-1 site-sections-bg justify-content-center align-items-center flex-grow-0">
-            @if (this.Model.IsEnabled == false)
+            @if (!this.Model.IsEnabled && this.User.Identity?.Name != this.Model.Owner)
             {
                 <p class="text-danger text-center pb-0 mt-2 mb-0">Currently not available</p>
             }
@@ -43,7 +52,7 @@
                     <div class="rounded-pill p-2 bg-danger text-light mb-2">Disabled</div>
                 }
             }
-            
+
             <div class="d-flex flex-column row align-items-center">
                 <label for="quantityInput" class="form-label text-navy mb-0">Quantity: </label>
                 @if (this.Model.IsEnabled == false || this.User?.Identity?.Name == this.Model.Owner)
@@ -59,7 +68,7 @@
                 }
                 <p class="text-navy text-muted mt-2">@this.Model.QuantityInStock available</p>
             </div>
-            
+
             <div class="btn-group-vertical align-items-stretch flex-grow-1">
                 @if (this.User?.Identity?.Name == this.Model.Owner)
                 {
@@ -80,11 +89,11 @@
                     }
                 }
             </div>
-            
+
             <div class="d-flex flex-column mt-4 flex-grow-1 w-100">
                 <h4 class="text-navy py-2 border-2 border-bottom">Description</h4>
-                <p class="text-navy mt-2 text-start mx-3 overflow-auto flex-grow-1"> 
-                    @this.Model.Description 
+                <p class="text-navy mt-2 text-start mx-3 overflow-auto flex-grow-1">
+                    @this.Model.Description
                 </p>
             </div>
         </div>

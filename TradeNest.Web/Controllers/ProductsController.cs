@@ -15,8 +15,8 @@ public class ProductsController : Controller
 {
     private TradeNestDbContext _dbContext;
     private ILogger<ProductsController> _logger;
-        
     public ProductsController(TradeNestDbContext dbContext, ILogger<ProductsController> logger)
+        
     {
         this._dbContext = dbContext;
         this._logger = logger;
@@ -171,7 +171,7 @@ public class ProductsController : Controller
     {
         productCreateFormModel.AllCategoriesForSelectInputFieldOptions
             = this.GetAllCategoriesViewModels();
-
+        
         bool isValidCategory = Guid.TryParse(productCreateFormModel.CategoryId,
             out Guid categoryGuidIdValue);
         bool categoryExists = productCreateFormModel.AllCategoriesForSelectInputFieldOptions
@@ -181,10 +181,10 @@ public class ProductsController : Controller
             string errorMessage = "Invalid category";
             ModelState.AddModelError(nameof(productCreateFormModel.CategoryId), errorMessage);
         }
-
+        
         if (!ModelState.IsValid)
             return View(productCreateFormModel);
-
+        
         try
         {
             Product newProduct = new Product()
@@ -208,7 +208,7 @@ public class ProductsController : Controller
                     }
                     : new HashSet<Image>(),
             };
-
+        
             this._dbContext.Products.Add(newProduct);
             this._dbContext.SaveChanges();
             return RedirectToAction(nameof(Details), new { newProduct.Id });

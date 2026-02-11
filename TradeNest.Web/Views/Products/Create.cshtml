@@ -3,26 +3,42 @@
 
 @{
     ViewData["Title"] = "Add A New Product";
+    string? productCreationErrorMessage = ViewData["ProductCreationError"] as string 
+                                          ?? string.Empty;
 }
 
-<div class="container-lg py-4">
+
+<div class="container-lg pb-4 pt-2">
+    @if (!string.IsNullOrEmpty(productCreationErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            @productCreationErrorMessage
+        </div>
+    }
+<div class="d-md-none mb-1">
+    <partial name="_BackToCatalogButtonPartial"/>
+</div>
     <div class="row mx-3 mb-5 px-4 pb-4">
-        <h1 class="display-5 text-teal text-center text-md-start fw-bold mb-4">@ViewData["Title"]</h1>
-        <form asp-controller="Products" asp-action="Create" method="post" 
+        <div class="d-none d-md-block">
+            <partial name="_BackToCatalogButtonPartial"/>
+        </div>
+        <h1 class="display-5 text-teal text-center text-md-start fw-bold mb-2">@ViewData["Title"]</h1>
+        <form asp-controller="Products" asp-action="Create" method="post"
               class="site-sections-bg p-2 p-md-5 rounded-3 shadow border d-flex flex-column gap-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div>
-                <label asp-for="@Model.ProductName" 
+                <label asp-for="@Model.ProductName"
                        class="form-label text-navy fw-bold">Product Name: </label>
-                <input type="text" asp-for="@Model.ProductName" class="form-control" aria-required="true" />
+                <input type="text" asp-for="@Model.ProductName" class="form-control" aria-required="true"/>
                 <span asp-validation-for="@Model.ProductName" class="text-danger"></span>
             </div>
             <div>
-                <label asp-for="@Model.SellingPrice" 
+                <label asp-for="@Model.SellingPrice"
                        class="form-label text-navy fw-bold">Selling Price: </label>
                 <div class="input-group">
                     <span class="input-group-text">€</span>
-                    <input type="number" asp-for="@Model.SellingPrice" class="form-control" aria-required="true" />
+                    <input type="number" asp-for="@Model.SellingPrice" class="form-control" aria-required="true"/>
                     <span asp-validation-for="@Model.SellingPrice" class="text-danger"></span>
                 </div>
             </div>
@@ -37,7 +53,7 @@
                 </div>
             </div>
             <div>
-                <label asp-for="@Model.CategoryId" 
+                <label asp-for="@Model.CategoryId"
                        class="form-label text-navy fw-bold">Category: </label>
                 <select asp-for="@Model.CategoryId" class="form-select">
                     <option value="" selected="selected">-- Select Category --</option>
@@ -51,7 +67,7 @@
             <div class="row mb-1 mb-md-0 mt-2 align-items-center mx-auto">
                 <div class="col-12 col-md-6">
                     <div class="form-check form-switch">
-                        <input asp-for="IsEnabled" class="form-check-input" type="checkbox" />
+                        <input asp-for="IsEnabled" class="form-check-input" type="checkbox"/>
                         <label asp-for="IsEnabled" class="form-check-label text-navy fw-bold">
                             Is the product up for sale?
                         </label>
@@ -63,12 +79,12 @@
                             Quantity:
                         </label>
                         <input asp-for="QuantityInStock" type="number"
-                               class="form-control form-control-sm w-auto" value="1" />
+                               class="form-control form-control-sm w-auto" value="1"/>
                     </div>
                 </div>
             </div>
             <div>
-                <label asp-for="@Model.Description" 
+                <label asp-for="@Model.Description"
                        class="form-label text-navy fw-bold">Description: </label>
                 <textarea asp-for="@Model.Description" class="form-control" aria-required="true" rows="5"></textarea>
                 <span asp-validation-for="@Model.Description" class="text-danger"></span>
@@ -77,14 +93,18 @@
                 <label asp-for="@Model.FrontImageUrl" class="form-label text-navy fw-bold">
                     Front Image Url: <span class="fw-lighter text-muted">(optional)</span>
                 </label>
-                <input type="url" asp-for="@Model.FrontImageUrl" class="form-control" aria-required="true" />
+                <input type="url" asp-for="@Model.FrontImageUrl" class="form-control" aria-required="true"/>
                 <span asp-validation-for="@Model.FrontImageUrl" class="text-danger"></span>
             </div>
             <div class="btn-group-lg mt-3 d-flex justify-content-end gap-3 mb-3 mb-md-0">
                 <a asp-controller="Products" asp-action="Index"
-                    class="btn-lg rounded-pill btn-secondary p-2">Cancel</a>
+                   class="btn-lg rounded-pill btn-secondary p-2">Cancel</a>
                 <button type="submit" class="btn-lg rounded-pill btn-teal p-2">Submit</button>
             </div>
         </form>
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial"/>
+}
