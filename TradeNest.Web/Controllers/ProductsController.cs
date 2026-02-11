@@ -1,10 +1,10 @@
 using TradeNest.Data;
 using TradeNest.Data.Models;
-using TradeNest.Web.ViewModels;
 using static TradeNest.GCommon.ApplicationConstants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Product;
 
 namespace TradeNest.Web.Controllers;
@@ -61,9 +61,11 @@ public class ProductsController : Controller
                 Id = p.Id,
                 Name = p.Name,
                 SellingPrice = p.SellingPrice.ToString(PricesFormat),
-                FrontImageUrl = p.Images
-                    .SingleOrDefault(i => i.IsFrontImage)!
-                    .Url,
+                FrontImageUrl = p.Images.Any()
+                    ? p.Images
+                        .SingleOrDefault(i => i.IsFrontImage)!
+                        .Url
+                    : DefaultProductImageUrl,
                 CategoryName = p.Category.Name,
             })
             .ToArray();
@@ -92,9 +94,11 @@ public class ProductsController : Controller
                 Id = p.Id,
                 Name = p.Name,
                 SellingPrice = p.SellingPrice.ToString(PricesFormat),
-                FrontImageUrl = p.Images
-                    .SingleOrDefault(i => i.IsFrontImage)!
-                    .Url,
+                FrontImageUrl = p.Images.Any()
+                    ? p.Images
+                        .SingleOrDefault(i => i.IsFrontImage)!
+                        .Url
+                    : DefaultProductImageUrl,
                 CategoryName = p.Category.Name,
             })
             .ToArray();
@@ -134,9 +138,11 @@ public class ProductsController : Controller
             IsEnabled = product.IsEnabled,
             Owner = product.Owner?.UserName ?? string.Empty,
             CategoryName = product.Category.Name,
-            FrontImageUrl = product.Images
-                .SingleOrDefault(i => i.IsFrontImage)!
-                .Url,
+            FrontImageUrl = product.Images.Any()
+                ? product.Images
+                    .SingleOrDefault(i => i.IsFrontImage)!
+                    .Url
+                : DefaultProductImageUrl,
             ImagesUrls = product.Images
                 .Select(i => i.Url),
         };
@@ -148,8 +154,32 @@ public class ProductsController : Controller
     [Authorize]
     public IActionResult Create()
     {
+        ProductCreateFormModel productCreateFormModel = new ProductCreateFormModel()
+        {
+            AllCategoriesForSelectInputFieldOptions = this.GetAllCategoriesViewModels()
+        };
         
-        return View();
+        return View(productCreateFormModel);
+    }
+
+    [HttpPost]
+    [Authorize]
+    public IActionResult Create([FromForm] ProductCreateFormModel productCreateFormModel)
+    {
+        throw new NotImplementedException();
+    }
+
+    private IEnumerable<AllCategoriesViewModel> GetAllCategoriesViewModels()
+    {
+        return this._dbContext.Categories
+            .AsNoTracking()
+            .OrderBy(c => c.Name)
+            .Select(c => new AllCategoriesViewModel()
+            {
+                Id = c.Id,
+                CategoryName = c.Name,
+            })
+            .ToArray();
     }
 
     private IEnumerable<string> GetCategoriesNames()

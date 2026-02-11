@@ -1,5 +1,3 @@
-using System.Security.Cryptography;
-
 namespace TradeNest.GCommon;
 
 /// <summary>
@@ -10,15 +8,6 @@ public static class EntityValidationConstants
     public static class CommonValidationConstants
     {
         public const string PriceColumnDataType = "DECIMAL(10, 2)";
-    }
-
-    public static class User
-    {
-        public const byte UserNameMinValidLengthValue = 4;
-        /// <summary>
-        /// Value is taken from Identity System's AspNetUser entity model's UserName column max length value.
-        /// </summary>
-        public const short UserNameMaxValidLengthValue = 256;
     }
     
     public static class Product

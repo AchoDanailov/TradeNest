@@ -6,4 +6,6 @@ namespace TradeNest.GCommon;
 public static class ApplicationConstants
 {
     public const string PricesFormat = "F2";
+
+    public const string DefaultProductImageUrl = "/images/products/default-image.png";
 }

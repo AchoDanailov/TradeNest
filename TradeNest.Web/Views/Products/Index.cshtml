@@ -4,34 +4,40 @@
 }
 
 <div class="container-lg pt-3">
-    <div class="row d-flex flex-row gap-1 my-2 align-items-center">
+    <div class="row d-flex flex-row my-2 align-items-center">
         <div class="text-center text-md-start ms-md-2 col-md-4">
             <div class="col">
                 <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
             </div>
         </div>
         <div class="col d-md-none">
-            <div class="btn-group">
-                @*TODO: Add action*@
+            <div class="btn-group ">
                 <a type="button" asp-controller="Categories" asp-action="Index"
-                   class="btn btn-teal">All Categories</a>
-                <button type="button" class="btn btn-teal dropdown-toggle dropdown-toggle-split"
+                   class="btn btn-teal mt-4">All Categories</a>
+                <button type="button" class="btn btn-teal mt-4 dropdown-toggle dropdown-toggle-split"
                         data-bs-toggle="dropdown" aria-expanded="false"></button>
                 <ul class="dropdown-menu">
                     @foreach (string category in this.Model.CategoriesNames)
                     {
                         <li class="nav-item">
-                            <a asp-controller="Products"
-                               asp-action="Index"
-                               asp-route-category="@category"
-                               class="dropdown-item">@category</a>
+                            <a asp-controller="Products" asp-action="Index"
+                               asp-route-category="@category" class="dropdown-item">
+                                @category
+                            </a>
                         </li>
                     }
                 </ul>
             </div>
         </div>
 
-        <partial name="_SearchFormPartial" />
+        <div class="col mt-2 mt-md-0">
+            <partial name="_SearchFormPartial" />
+        </div>
+        
+        <div class="col-md-2 me-4 d-flex mt-md-4">
+            <a asp-controller="Products" asp-action="Create"
+                class="btn btn-teal mt-0">Add A New Product</a>
+        </div>
     </div>
 
     <div class="row d-flex gap-1">
