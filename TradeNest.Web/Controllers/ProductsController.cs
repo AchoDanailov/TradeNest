@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using static TradeNest.GCommon.ApplicationConstants;
@@ -13,10 +14,12 @@ namespace TradeNest.Web.Controllers;
 public class ProductsController : Controller
 {
     private TradeNestDbContext _dbContext;
+    private ILogger<ProductsController> _logger;
         
-    public ProductsController(TradeNestDbContext dbContext)
+    public ProductsController(TradeNestDbContext dbContext, ILogger<ProductsController> logger)
     {
         this._dbContext = dbContext;
+        this._logger = logger;
     }
 
     [HttpGet]
@@ -166,7 +169,57 @@ public class ProductsController : Controller
     [Authorize]
     public IActionResult Create([FromForm] ProductCreateFormModel productCreateFormModel)
     {
-        throw new NotImplementedException();
+        productCreateFormModel.AllCategoriesForSelectInputFieldOptions
+            = this.GetAllCategoriesViewModels();
+
+        bool isValidCategory = Guid.TryParse(productCreateFormModel.CategoryId,
+            out Guid categoryGuidIdValue);
+        bool categoryExists = productCreateFormModel.AllCategoriesForSelectInputFieldOptions
+            .Any(c => c.Id == categoryGuidIdValue);
+        if (!isValidCategory || !categoryExists)
+        {
+            string errorMessage = "Invalid category";
+            ModelState.AddModelError(nameof(productCreateFormModel.CategoryId), errorMessage);
+        }
+
+        if (!ModelState.IsValid)
+            return View(productCreateFormModel);
+
+        try
+        {
+            Product newProduct = new Product()
+            {
+                Name = productCreateFormModel.ProductName,
+                Description = productCreateFormModel.Description,
+                QuantityInStock = productCreateFormModel.QuantityInStock,
+                CostPrice = productCreateFormModel.CostPrice,
+                SellingPrice = productCreateFormModel.SellingPrice,
+                IsEnabled = productCreateFormModel.IsEnabled,
+                OwnerId = this.GetUserId(),
+                CategoryId = categoryGuidIdValue,
+                Images = productCreateFormModel.FrontImageUrl != null
+                    ? new HashSet<Image>()
+                    {
+                        new Image()
+                        {
+                            Url = productCreateFormModel.FrontImageUrl,
+                            IsFrontImage = true,
+                        }
+                    }
+                    : new HashSet<Image>(),
+            };
+
+            this._dbContext.Products.Add(newProduct);
+            this._dbContext.SaveChanges();
+            return RedirectToAction(nameof(Details), new { newProduct.Id });
+        }
+        catch (Exception err)
+        {
+            this._logger.LogError(err.Message);
+            ViewData["ProductCreationError"] 
+                = "Oops. Something went wrong while trying to add your new product. Please try again.";
+            return View(productCreateFormModel);
+        }
     }
 
     private IEnumerable<AllCategoriesViewModel> GetAllCategoriesViewModels()
@@ -189,5 +242,11 @@ public class ProductsController : Controller
             .OrderBy(c => c.Name)
             .Select(c => c.Name)
             .ToArray();
+    }
+
+    private Guid GetUserId()
+    {
+        string? userId = this.User?.FindFirstValue(ClaimTypes.NameIdentifier)!;
+        return Guid.Parse(userId);
     }
 }
