@@ -5,6 +5,7 @@ using static TradeNest.GCommon.ApplicationConstants;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TradeNest.Web.ViewModels.Product;
 
 namespace TradeNest.Web.Controllers;
 
@@ -12,12 +13,10 @@ namespace TradeNest.Web.Controllers;
 public class ProductsController : Controller
 {
     private TradeNestDbContext _dbContext;
-    private IEnumerable<string> _categoriesNames;
         
     public ProductsController(TradeNestDbContext dbContext)
     {
         this._dbContext = dbContext;
-        this._categoriesNames = this.GetCategoriesNames();
     }
 
     [HttpGet]
@@ -29,7 +28,7 @@ public class ProductsController : Controller
         CatalogProductsAndCategoriesViewModel viewModel
             = new CatalogProductsAndCategoriesViewModel()
             {
-                CategoriesNames = this._categoriesNames,
+                CategoriesNames = this.GetCategoriesNames()
             };
         
         IQueryable<Product> products = this._dbContext.Products
@@ -41,16 +40,19 @@ public class ProductsController : Controller
                 .Where(p => p.Name.Contains(search));
         }
 
-        bool isValidCategory = viewModel.CategoriesNames
-            .Any(categoryName => categoryName == category);
-        if (string.IsNullOrEmpty(category) || isValidCategory)
+        if (!string.IsNullOrEmpty(category))
         {
-            return NotFound();
-        }
+            bool isValidCategory = viewModel.CategoriesNames
+                .Any(categoryName => categoryName == category);
+            if (!isValidCategory)
+            {
+                return NotFound();
+            }
         
-        products = products
-            .Include(p => p.Category)
-            .Where(p => p.Category.Name == category);
+            products = products
+                .Include(p => p.Category)
+                .Where(p => p.Category.Name == category);
+        }
 
         IEnumerable<ProductViewModel> productsViewModels = products
             .OrderByDescending(p => p.CreatedOn)
@@ -60,7 +62,7 @@ public class ProductsController : Controller
                 Name = p.Name,
                 SellingPrice = p.SellingPrice.ToString(PricesFormat),
                 FrontImageUrl = p.Images
-                    .SingleOrDefault(i => i.IsFrontImage == true)!
+                    .SingleOrDefault(i => i.IsFrontImage)!
                     .Url,
                 CategoryName = p.Category.Name,
             })
@@ -78,7 +80,7 @@ public class ProductsController : Controller
         CatalogProductsAndCategoriesViewModel viewModel
             = new CatalogProductsAndCategoriesViewModel()
             {
-                CategoriesNames = this._categoriesNames,
+                CategoriesNames = this.GetCategoriesNames(),
                 IsSearchResultSet = false,
             };
         
@@ -91,7 +93,7 @@ public class ProductsController : Controller
                 Name = p.Name,
                 SellingPrice = p.SellingPrice.ToString(PricesFormat),
                 FrontImageUrl = p.Images
-                    .SingleOrDefault(i => i.IsFrontImage == true)!
+                    .SingleOrDefault(i => i.IsFrontImage)!
                     .Url,
                 CategoryName = p.Category.Name,
             })
@@ -140,6 +142,14 @@ public class ProductsController : Controller
         };
         
         return View(productDetailsViewModel);
+    }
+
+    [HttpGet]
+    [Authorize]
+    public IActionResult Create()
+    {
+        
+        return View();
     }
 
     private IEnumerable<string> GetCategoriesNames()

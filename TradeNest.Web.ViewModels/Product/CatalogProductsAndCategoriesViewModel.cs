@@ -1,4 +1,4 @@
-namespace TradeNest.Web.ViewModels;
+namespace TradeNest.Web.ViewModels.Product;
 
 public class CatalogProductsAndCategoriesViewModel
 {
