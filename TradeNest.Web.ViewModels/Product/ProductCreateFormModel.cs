@@ -31,6 +31,8 @@ public class ProductCreateFormModel
     [StringLength(UrlMaxLengthValue, MinimumLength = UrlMinLengthValue)]
     [DataType(DataType.ImageUrl)]
     public string? FrontImageUrl { get; set; } 
+    
+    public string? ExtraImagesUrls { get; set; }
 
     [Required]
     public string CategoryId { get; set; } = null!;

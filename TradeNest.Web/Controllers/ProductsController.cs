@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Security.Claims;
 using TradeNest.Data;
 using TradeNest.Data.Models;
@@ -188,6 +189,11 @@ public class ProductsController : Controller
         
         try
         {
+            ICollection<Image> images = this.HandleImagesInputOnProdCreation(
+                    productCreateFormModel.FrontImageUrl,
+                    productCreateFormModel.ExtraImagesUrls)
+                .ToHashSet();
+                
             Product newProduct = new Product()
             {
                 Name = productCreateFormModel.ProductName,
@@ -198,16 +204,7 @@ public class ProductsController : Controller
                 IsEnabled = productCreateFormModel.IsEnabled,
                 OwnerId = this.GetUserId(),
                 CategoryId = categoryGuidIdValue,
-                Images = productCreateFormModel.FrontImageUrl != null
-                    ? new HashSet<Image>()
-                    {
-                        new Image()
-                        {
-                            Url = productCreateFormModel.FrontImageUrl,
-                            IsFrontImage = true,
-                        }
-                    }
-                    : new HashSet<Image>(),
+                Images = images.ToHashSet()
             };
         
             this._dbContext.Products.Add(newProduct);
@@ -248,5 +245,41 @@ public class ProductsController : Controller
     {
         string? userId = this.User?.FindFirstValue(ClaimTypes.NameIdentifier)!;
         return Guid.Parse(userId);
+    }
+
+    private ICollection<Image> HandleImagesInputOnProdCreation(string? frontImageUrl, string? extraImagesUrls)
+    {
+        ICollection<Image> images = new List<Image>();
+        
+        if (!string.IsNullOrEmpty(frontImageUrl))
+        {
+            images.Add(new Image()
+            {
+                Url = frontImageUrl.Trim(),
+                IsFrontImage = true,
+            });
+        }
+            
+        if (!string.IsNullOrEmpty(extraImagesUrls))
+        {
+            IEnumerable<string> extraImagesUrlsSplit = extraImagesUrls
+                .Split("\n", StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string imageUrl in extraImagesUrlsSplit)
+            {
+                images.Add(new Image()
+                {
+                    Url = imageUrl.Trim(),
+                    IsFrontImage = false,
+                });
+            }
+        }
+
+        if (!images.Any(i => i.IsFrontImage))
+        {
+            images.First().IsFrontImage = true;
+        }
+
+        return images;
     }
 }
