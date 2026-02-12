@@ -28,6 +28,10 @@ public static class EntityValidationConstants
         public const byte ExtraImagesUrlsMinLengthValue = 1;
         public const short ExtraImagesUrlsMaxLengthValue 
             = Image.UrlMaxLengthValue * 10;
+        
+        public const byte NewImagesUrlsMinLengthValue = 1;
+        public const short NewImagesUrlsMaxLengthValue 
+            = Image.UrlMaxLengthValue * 10;
 
         public const string DefaultValueForCreatedOnColumn = "GETUTCDATE()";
 

@@ -1,14 +1,14 @@
-using System.Collections;
 using System.Security.Claims;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using static TradeNest.GCommon.ApplicationConstants;
 using static TradeNest.Web.Utilities.ErrorMessages;
+using TradeNest.Web.ViewModels.Category;
+using TradeNest.Web.ViewModels.Product;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TradeNest.Web.ViewModels.Category;
-using TradeNest.Web.ViewModels.Product;
+using TradeNest.Web.ViewModels.Image;
 
 namespace TradeNest.Web.Controllers;
 
@@ -217,6 +217,48 @@ public class ProductsController : Controller
             ViewData["ProductCreationError"] = ProductCreationUnexpectedErrorMessage;
             return View(productCreateFormModel);
         }
+    }
+
+    [HttpGet]
+    [Authorize]
+    public IActionResult Edit([FromRoute] string? id)
+    {
+        bool idIsValidGuid = Guid.TryParse(id, out Guid guidIdValue);
+        if (!idIsValidGuid)
+            return BadRequest();
+        
+        Product? product = this._dbContext.Products
+            .AsNoTracking()
+            .Include(p => p.Images)
+            .SingleOrDefault(p => p.Id == guidIdValue);
+        
+        if (product == null)
+            return NotFound();
+
+        Guid userId = this.GetUserId();
+        if (userId != product.OwnerId)
+            return Forbid();
+
+        ProductEditFormModel productEditFormModel = new ProductEditFormModel()
+        {
+            ProductId = product.Id.ToString(),
+            ProductName = product.Name,
+            Description = product.Description,
+            QuantityInStock = product.QuantityInStock,
+            SellingPrice = product.SellingPrice,
+            CostPrice = product.CostPrice,
+            IsEnabled = product.IsEnabled,
+            CurrentProductImages = product.Images
+                .Select(i => new ImageViewModel()
+                {
+                    Id = i.Id,
+                    Url = i.Url
+                }),
+            CategoryId = product.CategoryId.ToString(),
+            AllCategoriesForSelectInputFieldOptions = this.GetAllCategoriesViewModels()
+        };
+        
+        return View(productEditFormModel);
     }
 
     private IEnumerable<AllCategoriesViewModel> GetAllCategoriesViewModels()
