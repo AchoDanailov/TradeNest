@@ -23,6 +23,12 @@ public static class EntityValidationConstants
 
         public const decimal MinSellingPriceValue = 0.01m;
 
+        public const decimal MinCostPriceValue = 0.01m;
+
+        public const byte ExtraImagesUrlsMinLengthValue = 1;
+        public const short ExtraImagesUrlsMaxLengthValue 
+            = Image.UrlMaxLengthValue * 10;
+
         public const string DefaultValueForCreatedOnColumn = "GETUTCDATE()";
 
         public const bool DefaultValueForIsEnabledColumn = true;

@@ -23,6 +23,7 @@ public class ProductCreateFormModel
     [Range(minimum: (double)MinSellingPriceValue, maximum: Double.MaxValue)]
     public decimal SellingPrice { get; set; }
     
+    [Range(minimum: (double)MinCostPriceValue, maximum: Double.MaxValue)]
     public decimal? CostPrice { get; set; }
     
     [Required]
@@ -32,6 +33,7 @@ public class ProductCreateFormModel
     [DataType(DataType.ImageUrl)]
     public string? FrontImageUrl { get; set; } 
     
+    [StringLength(ExtraImagesUrlsMaxLengthValue, MinimumLength = ExtraImagesUrlsMinLengthValue)]
     public string? ExtraImagesUrls { get; set; }
 
     [Required]
