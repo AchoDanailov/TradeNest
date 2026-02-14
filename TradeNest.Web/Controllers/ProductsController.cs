@@ -2,7 +2,7 @@ using System.Security.Claims;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using static TradeNest.GCommon.ApplicationConstants;
-using static TradeNest.Web.Utilities.ErrorMessages;
+using static TradeNest.Web.Utilities.OperationsStatusMessages;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Product;
 using TradeNest.Web.ViewModels.Image;
@@ -338,6 +338,43 @@ public class ProductsController : Controller
                 = ProductModificationUnexpectedErrorMessage;
             
             return View(productEditFormModel);
+        }
+    }
+
+    [HttpPost]
+    [Authorize]
+    public IActionResult Delete([FromRoute] string? id = null)
+    {
+        if(string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid productIdGuidValue)) 
+            return BadRequest();
+        
+        Product? product = this._dbContext.Products
+            .AsNoTracking()
+            .SingleOrDefault(p => p.Id == productIdGuidValue);
+        if (product == null)
+            return NotFound();
+        
+        Guid userId = this.GetUserId();
+        if (userId != product.OwnerId)
+            return Unauthorized();
+
+        try
+        {
+            product.IsDeleted = true;
+            
+            this._dbContext.Update(product);
+            this._dbContext.SaveChanges();
+
+            TempData["ProductDeletionSuccessMessage"] = ProductDeletionSuccessMessage;
+            return RedirectToAction(nameof(Index), controllerName: "Products");
+        }
+        catch (Exception err)
+        {
+            this._logger.LogError(err.Message);
+            ViewData["ProductModificationErrorMessage"]
+                = ProductModificationUnexpectedErrorMessage;
+
+            return View(nameof(Details), new { id });
         }
     }
 

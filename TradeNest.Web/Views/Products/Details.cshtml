@@ -1,6 +1,8 @@
 @model ProductDetailsViewModel
 @{
     ViewData["Title"] = "Product details";
+    string productModificationErrorMessage = ViewData["ProductModificationErrorMessage"] as string 
+                                          ?? string.Empty;
 }
 
 <div class="container-lg pt-4">
@@ -74,8 +76,35 @@
                 {
                     <a asp-controller="Products" asp-action="Edit" asp-route-id="@this.Model.Id"
                        class="rounded-pill btn-teal p-2">Make Changes</a>
-                    @*TODO: add modal*@
-                    <a class="rounded-pill btn btn-outline-danger mt-2 p-2">Delete</a>
+                    <button type="button" class="rounded-pill btn btn-outline-danger mt-2 p-2"
+                            data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+                    
+                    <div class="modal fade" id="deleteModal" data-bs-backdrop="static"
+                         data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" 
+                         aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                              <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                                  Confirm Deletion
+                              </h1>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                                      aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                              Are you sure you want to delete @Model.Name from your inventory?
+                          </div>
+                          <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" 
+                                      data-bs-dismiss="modal">No</button>
+                              <form method="post" asp-controller="Products" 
+                                    asp-action="Delete" asp-route-id="@Model.Id">
+                                  <button type="submit" class="btn btn-danger">Yes</button>
+                              </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                 }
                 else
                 {

@@ -1,9 +1,18 @@
 @model CatalogProductsAndCategoriesViewModel
 @{
     ViewData["Title"] = "Catalog";
+    string productDeletionSuccessMessage = TempData["ProductDeletionSuccessMessage"] as string 
+                                          ?? string.Empty;
 }
 
 <div class="container-lg pt-3">
+    @if (!string.IsNullOrEmpty(productDeletionSuccessMessage))
+    {
+        <div class="alert alert-success alert-dismissible" role="status">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            @productDeletionSuccessMessage
+        </div>
+    }
     <div class="row d-flex flex-row my-2 align-items-center">
         <div class="text-center text-md-start ms-md-2 col-md-4">
             <div class="col">
