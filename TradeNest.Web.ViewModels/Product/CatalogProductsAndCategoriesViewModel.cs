@@ -1,3 +1,5 @@
+using TradeNest.Web.ViewModels.Category;
+
 namespace TradeNest.Web.ViewModels.Product;
 
 public class CatalogProductsAndCategoriesViewModel
@@ -5,8 +7,8 @@ public class CatalogProductsAndCategoriesViewModel
     public IEnumerable<ProductViewModel> Products { get; set; }
         = new List<ProductViewModel>();
         
-    public IEnumerable<string> CategoriesNames { get; set; }
-        = new List<string>();
+    public IEnumerable<AllCategoriesViewModel> Categories { get; set; }
+        = new List<AllCategoriesViewModel>();
 
     public bool IsSearchResultSet { get; set; }
 }

@@ -28,13 +28,13 @@ public class ProductsController : Controller
     [HttpGet]
     [AllowAnonymous]
     public IActionResult Index(
-        [FromQuery] string? category = null,
+        [FromQuery] string? categoryId = null,
         [FromQuery] string? search = null)
     {
         CatalogProductsAndCategoriesViewModel viewModel
             = new CatalogProductsAndCategoriesViewModel()
             {
-                CategoriesNames = this.GetCategoriesNames()
+                Categories = this.GetAllCategoriesViewModels()
             };
         
         IQueryable<Product> products = this._dbContext.Products
@@ -46,18 +46,16 @@ public class ProductsController : Controller
                 .Where(p => p.Name.Contains(search));
         }
 
-        if (!string.IsNullOrEmpty(category))
+        if (!string.IsNullOrEmpty(categoryId))
         {
-            bool isValidCategory = viewModel.CategoriesNames
-                .Any(categoryName => categoryName == category);
+            bool isValidCategory = this.IsValidCategory(categoryId,
+                viewModel.Categories, out Guid categoryIdGuidValue);
             if (!isValidCategory)
-            {
                 return NotFound();
-            }
         
             products = products
                 .Include(p => p.Category)
-                .Where(p => p.Category.Name == category);
+                .Where(p => p.Category.Id == categoryIdGuidValue);
         }
 
         IEnumerable<ProductViewModel> productsViewModels = products
@@ -69,7 +67,7 @@ public class ProductsController : Controller
                 SellingPrice = p.SellingPrice.ToString(PricesFormat),
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
-                        .SingleOrDefault(i => i.IsFrontImage)!
+                        .Single(i => i.IsFrontImage)!
                         .Url
                     : DefaultProductImageUrl,
                 CategoryName = p.Category.Name,
@@ -88,7 +86,7 @@ public class ProductsController : Controller
         CatalogProductsAndCategoriesViewModel viewModel
             = new CatalogProductsAndCategoriesViewModel()
             {
-                CategoriesNames = this.GetCategoriesNames(),
+                Categories = this.GetAllCategoriesViewModels(),
                 IsSearchResultSet = false,
             };
         
@@ -102,7 +100,7 @@ public class ProductsController : Controller
                 SellingPrice = p.SellingPrice.ToString(PricesFormat),
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
-                        .SingleOrDefault(i => i.IsFrontImage)!
+                        .Single(i => i.IsFrontImage)!
                         .Url
                     : DefaultProductImageUrl,
                 CategoryName = p.Category.Name,
@@ -175,8 +173,8 @@ public class ProductsController : Controller
             productCreateFormModel.AllCategoriesForSelectInputFieldOptions, out Guid guidCategoryIdValue);
         if (!isValidCategory)
         {
-            string errorMessage = "Invalid category";
-            ModelState.AddModelError(nameof(productCreateFormModel.CategoryId), errorMessage);
+            ModelState
+                .AddModelError(nameof(productCreateFormModel.CategoryId), "Invalid category");
         }       
         
         if (!ModelState.IsValid)
@@ -289,7 +287,10 @@ public class ProductsController : Controller
             productEditFormModel.AllCategoriesForSelectInputFieldOptions,
             out Guid categoryIdGuidValue);
         if (!isValidCategory)
-            ModelState.AddModelError(nameof(productEditFormModel.CategoryId), "Invalid category");
+        {
+            ModelState
+                .AddModelError(nameof(productEditFormModel.CategoryId), "Invalid category");
+        }
 
         if (!ModelState.IsValid)
             return View(productEditFormModel);
@@ -387,16 +388,20 @@ public class ProductsController : Controller
             
         if (frontImageIsMarkedForDeletion && productHasImagesLeft)
         {
-            imagesToDelete.Single(i => i.IsFrontImage).IsFrontImage = false;
-                
             /* first image that doesn't have state "Deleted" in the change tracker is made front image.
             (images with state "Added" and "Deleted" in the change tracker are included in the product's
             images collection at this point) */
+            
+            /* using the imagesToDelete collection directly since it's essentially the same reference
+            no need for long inline linq expression */
+            imagesToDelete.Single(i => i.IsFrontImage).IsFrontImage = false;
+                
             productImages
                 .First(img => imagesToDelete.All(delImg => img.Id != delImg.Id))
                 .IsFrontImage = true;
         }
 
+        // handles case where we edit product without images to now give it images
         bool isFrontImageSet = productImages.Any(i => i.IsFrontImage);
         if (!isFrontImageSet && productHasImagesLeft)
         {
@@ -414,7 +419,7 @@ public class ProductsController : Controller
             .ToArray();
         if (!imageViewModelsMarkedForDeletion.Any())
             return Array.Empty<Image>();
-        
+
         ICollection<Image> imagesToDelete = new List<Image>();
         
         foreach (ImageViewModel imageViewModel in imageViewModelsMarkedForDeletion)
@@ -437,15 +442,6 @@ public class ProductsController : Controller
                 Id = c.Id,
                 CategoryName = c.Name,
             })
-            .ToArray();
-    }
-
-    private IEnumerable<string> GetCategoriesNames()
-    {
-        return this._dbContext.Categories
-            .AsNoTracking()
-            .OrderBy(c => c.Name)
-            .Select(c => c.Name)
             .ToArray();
     }
 
@@ -499,6 +495,12 @@ public class ProductsController : Controller
     private bool IsValidCategory(string? id, IEnumerable<AllCategoriesViewModel> allCategoriesViewModels,
         out Guid categoryIdGuidValue)
     {
+        if (string.IsNullOrEmpty(id))
+        {
+            categoryIdGuidValue = Guid.Empty;
+            return false;
+        }
+        
         bool isValidGuidValue = Guid.TryParse(id, out Guid categoryIdValidGuidValue);
         bool categoryExists = allCategoriesViewModels.Any(c => c.Id == categoryIdValidGuidValue);
         
