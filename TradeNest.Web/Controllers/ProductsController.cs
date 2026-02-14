@@ -5,10 +5,11 @@ using static TradeNest.GCommon.ApplicationConstants;
 using static TradeNest.Web.Utilities.ErrorMessages;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Product;
+using TradeNest.Web.ViewModels.Image;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TradeNest.Web.ViewModels.Image;
+using NuGet.Packaging;
 
 namespace TradeNest.Web.Controllers;
 
@@ -118,9 +119,7 @@ public class ProductsController : Controller
     public IActionResult Details([FromRoute] string? id = null)
     {
         if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid guidIdValue))
-        {
             return BadRequest();
-        }
 
         Product? product = this._dbContext.Products
             .Include(p => p.Owner)
@@ -129,9 +128,7 @@ public class ProductsController : Controller
             .AsNoTracking()
             .FirstOrDefault(p => p.Id == guidIdValue);
         if (product == null)
-        {
             return NotFound();
-        }
 
         ProductDetailsViewModel productDetailsViewModel = new ProductDetailsViewModel()
         {
@@ -173,26 +170,28 @@ public class ProductsController : Controller
     {
         productCreateFormModel.AllCategoriesForSelectInputFieldOptions
             = this.GetAllCategoriesViewModels();
-        
-        bool isValidCategory = Guid.TryParse(productCreateFormModel.CategoryId,
-            out Guid categoryGuidIdValue);
-        bool categoryExists = productCreateFormModel.AllCategoriesForSelectInputFieldOptions
-            .Any(c => c.Id == categoryGuidIdValue);
-        if (!isValidCategory || !categoryExists)
+
+        bool isValidCategory = this.IsValidCategory(productCreateFormModel.CategoryId,
+            productCreateFormModel.AllCategoriesForSelectInputFieldOptions, out Guid guidCategoryIdValue);
+        if (!isValidCategory)
         {
             string errorMessage = "Invalid category";
             ModelState.AddModelError(nameof(productCreateFormModel.CategoryId), errorMessage);
-        }
+        }       
         
         if (!ModelState.IsValid)
             return View(productCreateFormModel);
         
         try
         {
-            ICollection<Image> images = this.HandleImagesInputOnProdCreation(
-                    productCreateFormModel.FrontImageUrl,
-                    productCreateFormModel.ExtraImagesUrls)
+            ICollection<Image> images = this.ParseImagesInputOnImageAdding(
+                    frontImageUrl: productCreateFormModel.FrontImageUrl,
+                    extraImagesUrls: productCreateFormModel.ExtraImagesUrls)
                 .ToHashSet();
+            if (images.Any() && !images.Any(i => i.IsFrontImage))
+            {
+                images.First().IsFrontImage = true;
+            }
                 
             Product newProduct = new Product()
             {
@@ -203,8 +202,8 @@ public class ProductsController : Controller
                 SellingPrice = productCreateFormModel.SellingPrice,
                 IsEnabled = productCreateFormModel.IsEnabled,
                 OwnerId = this.GetUserId(),
-                CategoryId = categoryGuidIdValue,
-                Images = images.ToHashSet()
+                CategoryId = guidCategoryIdValue,
+                Images = images
             };
         
             this._dbContext.Products.Add(newProduct);
@@ -237,7 +236,7 @@ public class ProductsController : Controller
 
         Guid userId = this.GetUserId();
         if (userId != product.OwnerId)
-            return Forbid();
+            return Unauthorized();
 
         ProductEditFormModel productEditFormModel = new ProductEditFormModel()
         {
@@ -248,17 +247,147 @@ public class ProductsController : Controller
             SellingPrice = product.SellingPrice,
             CostPrice = product.CostPrice,
             IsEnabled = product.IsEnabled,
-            CurrentProductImages = product.Images
+            ProductImages = product.Images
                 .Select(i => new ImageViewModel()
                 {
                     Id = i.Id,
                     Url = i.Url
-                }),
+                })
+                .ToList(),
             CategoryId = product.CategoryId.ToString(),
             AllCategoriesForSelectInputFieldOptions = this.GetAllCategoriesViewModels()
+                .ToList(),
         };
         
         return View(productEditFormModel);
+    }
+    
+    [HttpPost]
+    [Authorize]
+    public IActionResult Edit(
+        [FromForm] ProductEditFormModel productEditFormModel,
+        [FromRoute] string? id = null)
+    {
+        if(string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid productIdGuidValue)) 
+            return BadRequest();
+
+        Product? product = this._dbContext.Products
+            .Include(p => p.Images)
+            .SingleOrDefault(p => p.Id == productIdGuidValue);
+        if (product == null)
+            return NotFound();
+        
+        Guid userId = this.GetUserId();
+        if (userId != product.OwnerId)
+            return Unauthorized();
+
+        productEditFormModel.AllCategoriesForSelectInputFieldOptions
+            = this.GetAllCategoriesViewModels();
+        
+        bool isValidCategory = this.IsValidCategory(
+            productEditFormModel.CategoryId,
+            productEditFormModel.AllCategoriesForSelectInputFieldOptions,
+            out Guid categoryIdGuidValue);
+        if (!isValidCategory)
+            ModelState.AddModelError(nameof(productEditFormModel.CategoryId), "Invalid category");
+
+        if (!ModelState.IsValid)
+            return View(productEditFormModel);
+        
+        if (productEditFormModel.ProductImages.Any())
+        {
+            bool allImagesAreValid = productEditFormModel.ProductImages
+                .All(editImg => product.Images.Any(dbImg => dbImg.Id == editImg.Id));
+            if (!allImagesAreValid)
+                return BadRequest();
+        }
+        
+        try
+        {
+            ICollection<Image> imagesToDelete
+                = this.GetImagesForDeletionIfAny(productEditFormModel.ProductImages).ToArray();
+            if (imagesToDelete.Any())
+                this._dbContext.Images.RemoveRange(imagesToDelete);
+
+            product.Name = productEditFormModel.ProductName;
+            product.Description = productEditFormModel.Description;
+            product.QuantityInStock = productEditFormModel.QuantityInStock;
+            product.SellingPrice = productEditFormModel.SellingPrice;
+            product.CostPrice = productEditFormModel.CostPrice;
+            product.IsEnabled = productEditFormModel.IsEnabled;
+            product.CategoryId = categoryIdGuidValue;
+
+            if (!string.IsNullOrEmpty(productEditFormModel.NewImagesUrls))
+            {
+                IEnumerable<Image> imagesToAdd = this.ParseImagesInputOnImageAdding(
+                    extraImagesUrls: productEditFormModel.NewImagesUrls,
+                    productId: product.Id);
+                
+                this._dbContext.Images.AddRange(imagesToAdd);
+            }
+
+            this.EnsureProductHasFrontImage(imagesToDelete, product.Images);
+            
+            this._dbContext.SaveChanges();
+            return RedirectToAction(nameof(Details), new { product.Id });
+        }
+        catch (Exception err)
+        {
+            this._logger.LogError(err.Message);
+            ViewData["ProductModificationErrorMessage"] 
+                = ProductModificationUnexpectedErrorMessage;
+            
+            return View(productEditFormModel);
+        }
+    }
+
+    private void EnsureProductHasFrontImage(ICollection<Image> imagesToDelete,
+        ICollection<Image> productImages)
+    {
+        bool frontImageIsMarkedForDeletion = imagesToDelete.Any(i => i.IsFrontImage);
+        bool productHasImagesLeft = productImages
+            .Any(prodImgs => imagesToDelete.All(delImgs => delImgs.Id != prodImgs.Id));
+            
+        if (frontImageIsMarkedForDeletion && productHasImagesLeft)
+        {
+            imagesToDelete.Single(i => i.IsFrontImage).IsFrontImage = false;
+                
+            /* first image that doesn't have state "Deleted" in the change tracker is made front image.
+            (images with state "Added" and "Deleted" in the change tracker are included in the product's
+            images collection at this point) */
+            productImages
+                .First(img => imagesToDelete.All(delImg => img.Id != delImg.Id))
+                .IsFrontImage = true;
+        }
+
+        bool isFrontImageSet = productImages.Any(i => i.IsFrontImage);
+        if (!isFrontImageSet && productHasImagesLeft)
+        {
+            productImages
+                .First(img => imagesToDelete.All(delImg => img.Id != delImg.Id))
+                .IsFrontImage = true;
+        }
+    }
+
+    private IEnumerable<Image> GetImagesForDeletionIfAny(
+        IEnumerable<ImageViewModel> imagesComingFromEditForm)
+    {
+        IEnumerable<ImageViewModel> imageViewModelsMarkedForDeletion = imagesComingFromEditForm
+            .Where(i => i.IsMarkedToStay == false)
+            .ToArray();
+        if (!imageViewModelsMarkedForDeletion.Any())
+            return Array.Empty<Image>();
+        
+        ICollection<Image> imagesToDelete = new List<Image>();
+        
+        foreach (ImageViewModel imageViewModel in imageViewModelsMarkedForDeletion)
+        {
+            // already loaded in memory
+            Image imageToDel = this._dbContext.Images.Find(imageViewModel.Id)!;
+            imagesToDelete.Add(imageToDel);
+        }
+
+        return imagesToDelete;
     }
 
     private IEnumerable<AllCategoriesViewModel> GetAllCategoriesViewModels()
@@ -289,8 +418,12 @@ public class ProductsController : Controller
         return Guid.Parse(userId);
     }
 
-    private ICollection<Image> HandleImagesInputOnProdCreation(string? frontImageUrl, string? extraImagesUrls)
+    private IEnumerable<Image> ParseImagesInputOnImageAdding(string? frontImageUrl = null,
+        string? extraImagesUrls = null, Guid? productId = null)
     {
+        if (frontImageUrl == null && extraImagesUrls == null)
+            return Array.Empty<Image>();
+        
         ICollection<Image> images = new List<Image>();
         
         if (!string.IsNullOrEmpty(frontImageUrl))
@@ -317,11 +450,22 @@ public class ProductsController : Controller
             }
         }
 
-        if (!images.Any(i => i.IsFrontImage))
+        if (productId != null && productId != Guid.Empty)
         {
-            images.First().IsFrontImage = true;
+            foreach (Image image in images)
+                image.ProductId = productId.Value;
         }
 
         return images;
+    }
+
+    private bool IsValidCategory(string? id, IEnumerable<AllCategoriesViewModel> allCategoriesViewModels,
+        out Guid categoryIdGuidValue)
+    {
+        bool isValidGuidValue = Guid.TryParse(id, out Guid categoryIdValidGuidValue);
+        bool categoryExists = allCategoriesViewModels.Any(c => c.Id == categoryIdValidGuidValue);
+        
+        categoryIdGuidValue = categoryIdValidGuidValue;
+        return isValidGuidValue && categoryExists;
     }
 }

@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Product";
-    string? productModificationErrorMessage = ViewData["ProductModificationErrorMessage"] as string 
+    string productModificationErrorMessage = ViewData["ProductModificationErrorMessage"] as string 
                                           ?? string.Empty;
 }
 
@@ -22,9 +22,10 @@
             <partial name="_BackToDetailsButtonPartial" model="@Model.ProductId"/>
         </div>
         <h1 class="display-5 text-teal text-center text-md-start fw-bold mb-2">@ViewData["Title"]</h1>
-        <form method="post" asp-controller="Products" asp-action="Edit"
+        <form method="post" asp-controller="Products" asp-action="Edit" asp-route-id="@Model.ProductId"
               class="site-sections-bg p-2 p-md-5 rounded-3 shadow border d-flex flex-column gap-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="ProductId" />
             <div>
                 <label asp-for="@Model.ProductName"
                        class="form-label text-navy fw-bold">Product Name: </label>
@@ -69,6 +70,7 @@
                         <label asp-for="IsEnabled" class="form-check-label text-navy fw-bold">
                             Is the product up for sale?
                         </label>
+                        <span asp-validation-for="@Model.IsEnabled" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-12 col-md-6">
@@ -78,6 +80,7 @@
                         </label>
                         <input asp-for="QuantityInStock" type="number"
                                class="form-control form-control-sm w-auto" value="@Model.QuantityInStock"/>
+                        <span asp-validation-for="@Model.QuantityInStock" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -89,23 +92,37 @@
             </div>
             <div>
                 <h4 class="fw-bold text-navy mb-0"> Product's current images </h4>
-                <span class="text-muted text-navy ">
-                    (To remove an image - mark the switch button under the image to off)
-                </span>
+                @if (this.Model.ProductImages.Any())
+                {
+                    <span class="text-muted text-navy ">
+                        (To remove an image - mark the switch button under the image to off)
+                    </span>
+                }
+                else
+                {
+                    <span class="text-muted text-navy ">
+                        Currently the product has no images
+                    </span>
+                }
                 <div class="d-flex flex-wrap justify-content-center mt-2">
-                    @foreach (ImageViewModel imageViewModel in this.Model.CurrentProductImages)
+                    @for (int i = 0; i < this.Model.ProductImages.Count; i++)
                     {
+                        <input type="hidden" asp-for="@Model.ProductImages[i].Id"/>
+                        <input type="hidden" asp-for="@Model.ProductImages[i].Url"/>
+
                         <div class="d-flex flex-column gap-2 align-items-center">
                             <div class="p-2 product product-image-wrapper">
-                                <img src="@imageViewModel.Url" alt="Product" class="img-thumbnail product-image"/>
+                                <img src="@Model.ProductImages[i].Url" alt="Product"
+                                     class="img-thumbnail product-image"/>
                             </div>
                             <div class="form-check form-switch">
-                                <input asp-for="@imageViewModel.IsMarkedToStay" class="form-check-input" type="checkbox"/>
+                                <input asp-for="@Model.ProductImages[i].IsMarkedToStay"
+                                       class="form-check-input" type="checkbox"/>
                             </div>
                         </div>
                     }
                 </div>
-                <input type="hidden" value="@Model.CurrentProductImages" />
+                <span asp-validation-for="@Model.ProductImages" class="text-danger"></span>
             </div>
             <div>
                 <label asp-for="@Model.NewImagesUrls" class="form-label text-navy fw-bold">
@@ -125,5 +142,5 @@
 </div>
 
 @section Scripts {
-    <partial name="_ValidationScriptsPartial"/>
+    <partial name="_ValidationScriptsPartial" />
 }

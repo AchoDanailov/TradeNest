@@ -32,7 +32,7 @@ public class ProductEditFormModel
     [Required]
     public bool IsEnabled { get; set; }
 
-    public IEnumerable<ImageViewModel> CurrentProductImages { get; set; }
+    public List<ImageViewModel> ProductImages { get; set; }
         = new List<ImageViewModel>();
     
     [StringLength(NewImagesUrlsMaxLengthValue, MinimumLength = NewImagesUrlsMinLengthValue)]
