@@ -1,14 +1,14 @@
 using TradeNest.Data;
 using TradeNest.Web.ViewModels.Category;
+using TradeNest.GCommon;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using TradeNest.GCommon;
 
 namespace TradeNest.Web.Controllers;
 
 [Authorize]
-public class CategoriesController : Controller
+public class CategoriesController : BaseController
 {
     private TradeNestDbContext _dbContext;
 

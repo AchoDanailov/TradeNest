@@ -1,4 +1,3 @@
-using System.Security.Claims;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using static TradeNest.GCommon.ApplicationConstants;
@@ -9,12 +8,11 @@ using TradeNest.Web.ViewModels.Image;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using NuGet.Packaging;
 
 namespace TradeNest.Web.Controllers;
 
 [Authorize]
-public class ProductsController : Controller
+public class ProductsController : BaseController
 {
     private TradeNestDbContext _dbContext;
     private ILogger<ProductsController> _logger;
@@ -443,12 +441,6 @@ public class ProductsController : Controller
                 CategoryName = c.Name,
             })
             .ToArray();
-    }
-
-    private Guid GetUserId()
-    {
-        string? userId = this.User?.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        return Guid.Parse(userId);
     }
 
     private IEnumerable<Image> ParseImagesInputOnImageAdding(string? frontImageUrl = null,
