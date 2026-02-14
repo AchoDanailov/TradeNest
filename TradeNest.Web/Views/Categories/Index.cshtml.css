@@ -1,0 +1,15 @@
+.categories-card {
+    width: 300px;
+}
+
+.category-image-wrapper {
+    height: 100%;
+    width: 200px;
+    aspect-ratio: 1 / 1;
+}
+
+.category-img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+}
