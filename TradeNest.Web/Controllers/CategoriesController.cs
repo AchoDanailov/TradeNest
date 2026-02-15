@@ -31,13 +31,11 @@ public class CategoriesController : BaseController
                     CategoryName = c.Name,
                     MostSoldProductFrontImageUrl = c.Products.Any() 
                         ? c.Products
-                            .OrderBy(p => p.ProductsOrders.Count)
-                            .First()
+                            .OrderByDescending(p => p.ProductsOrders.Count).First()
                             .Images.Any()
                             ? c.Products
-                                .OrderBy(p => p.ProductsOrders.Count)
-                                .First()
-                                .Images.First(i => i.IsFrontImage).Url
+                                .OrderByDescending(p => p.ProductsOrders.Count).First()
+                                .Images.Single(i => i.IsFrontImage).Url
                             : ApplicationConstants.DefaultProductImageUrl
                         : ApplicationConstants.DefaultProductImageUrl
                 })
