@@ -36,7 +36,7 @@ public class ProductsService : IProductsService
         return viewModel;
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllProductVmsOrderedByCreatedOnAsync()
+    public async Task<IEnumerable<ProductViewModel>> GetAllProductVmsOrderedByCreatedOnDescAsync()
     {
         IEnumerable<ProductViewModel> productsViewModels = await this._dbContext.Products
             .AsNoTracking()
@@ -169,7 +169,7 @@ public class ProductsService : IProductsService
 
     public ProductCreateFormModel GetEmptyProductCreateFormModel()
     {
-       return new ProductCreateFormModel();
+        return new ProductCreateFormModel();
     }
 
     public async Task<ProductCreateFormModel> GetProdCreateFormModelWithLoadedCategoriesAsync()
@@ -183,6 +183,45 @@ public class ProductsService : IProductsService
         return productCreateFormModel;
     }
 
+    public async Task<string> CreateProductAsync(Guid userId,
+        ProductCreateFormModel productCreateFormModel)
+    {
+        string passedInCategoryId = productCreateFormModel.CategoryId;
+        if (string.IsNullOrEmpty(passedInCategoryId) ||
+            !Guid.TryParse(passedInCategoryId, out Guid categoryIdGuidValue))
+        {
+            throw new ArgumentException("Invalid category.",
+                nameof(productCreateFormModel.CategoryId));
+        }
+        
+        ICollection<Image> images = this.ParseImagesInputOnImageAdding(
+                frontImageUrl: productCreateFormModel.FrontImageUrl,
+                extraImagesUrls: productCreateFormModel.ExtraImagesUrls)
+            .ToHashSet();
+        if (images.Any() && !images.Any(i => i.IsFrontImage))
+        {
+            images.First().IsFrontImage = true;
+        }
+                
+        Product newProduct = new Product()
+        {
+            Name = productCreateFormModel.ProductName,
+            Description = productCreateFormModel.Description,
+            QuantityInStock = productCreateFormModel.QuantityInStock,
+            CostPrice = productCreateFormModel.CostPrice,
+            SellingPrice = productCreateFormModel.SellingPrice,
+            IsEnabled = productCreateFormModel.IsEnabled,
+            OwnerId = userId,
+            CategoryId = categoryIdGuidValue,
+            Images = images
+        };
+        
+        await this._dbContext.Products.AddAsync(newProduct);
+        await this._dbContext.SaveChangesAsync();
+
+        return newProduct.Id.ToString();
+    }
+
     private async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModels()
     {
         return await this._dbContext.Categories
@@ -194,5 +233,46 @@ public class ProductsService : IProductsService
                 CategoryName = c.Name,
             })
             .ToArrayAsync();
+    }
+    
+    private IEnumerable<Image> ParseImagesInputOnImageAdding(string? frontImageUrl = null,
+        string? extraImagesUrls = null, Guid? productId = null)
+    {
+        if (frontImageUrl == null && extraImagesUrls == null)
+            return Array.Empty<Image>();
+        
+        ICollection<Image> images = new List<Image>();
+        
+        if (!string.IsNullOrEmpty(frontImageUrl))
+        {
+            images.Add(new Image()
+            {
+                Url = frontImageUrl.Trim(),
+                IsFrontImage = true,
+            });
+        }
+            
+        if (!string.IsNullOrEmpty(extraImagesUrls))
+        {
+            IEnumerable<string> extraImagesUrlsSplit = extraImagesUrls
+                .Split("\n", StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (string imageUrl in extraImagesUrlsSplit)
+            {
+                images.Add(new Image()
+                {
+                    Url = imageUrl.Trim(),
+                    IsFrontImage = false,
+                });
+            }
+        }
+
+        if (productId != null && productId != Guid.Empty)
+        {
+            foreach (Image image in images)
+                image.ProductId = productId.Value;
+        }
+
+        return images;
     }
 }

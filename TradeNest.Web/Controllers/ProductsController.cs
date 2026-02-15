@@ -1,6 +1,5 @@
 using TradeNest.Data;
 using TradeNest.Data.Models;
-using static TradeNest.GCommon.ApplicationConstants;
 using static TradeNest.Web.Utilities.OperationsStatusMessages;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Product;
@@ -42,7 +41,7 @@ public class ProductsController : BaseController
         if (string.IsNullOrEmpty(search) && string.IsNullOrEmpty(categoryId))
         {
             viewModel.Products = await this._productsService
-                .GetAllProductVmsOrderedByCreatedOnAsync();
+                .GetAllProductVmsOrderedByCreatedOnDescAsync();
         }
         else if (!string.IsNullOrWhiteSpace(search))
         {
@@ -103,13 +102,13 @@ public class ProductsController : BaseController
 
     [HttpPost]
     [Authorize]
-    public IActionResult Create([FromForm] ProductCreateFormModel productCreateFormModel)
+    public async Task<IActionResult> Create([FromForm] ProductCreateFormModel productCreateFormModel)
     {
         productCreateFormModel.AllCategoriesForSelectInputFieldOptions
-            = this.GetAllCategoriesViewModels();
+            = await this._categoriesService.GetAllCategoriesViewModels();
 
         bool isValidCategory = this.IsValidCategory(productCreateFormModel.CategoryId,
-            productCreateFormModel.AllCategoriesForSelectInputFieldOptions, out Guid guidCategoryIdValue);
+            productCreateFormModel.AllCategoriesForSelectInputFieldOptions, out _);
         if (!isValidCategory)
         {
             ModelState
@@ -121,36 +120,17 @@ public class ProductsController : BaseController
         
         try
         {
-            ICollection<Image> images = this.ParseImagesInputOnImageAdding(
-                    frontImageUrl: productCreateFormModel.FrontImageUrl,
-                    extraImagesUrls: productCreateFormModel.ExtraImagesUrls)
-                .ToHashSet();
-            if (images.Any() && !images.Any(i => i.IsFrontImage))
-            {
-                images.First().IsFrontImage = true;
-            }
-                
-            Product newProduct = new Product()
-            {
-                Name = productCreateFormModel.ProductName,
-                Description = productCreateFormModel.Description,
-                QuantityInStock = productCreateFormModel.QuantityInStock,
-                CostPrice = productCreateFormModel.CostPrice,
-                SellingPrice = productCreateFormModel.SellingPrice,
-                IsEnabled = productCreateFormModel.IsEnabled,
-                OwnerId = this.GetUserId(),
-                CategoryId = guidCategoryIdValue,
-                Images = images
-            };
-        
-            this._dbContext.Products.Add(newProduct);
-            this._dbContext.SaveChanges();
-            return RedirectToAction(nameof(Details), new { newProduct.Id });
+            string id = await this._productsService
+                .CreateProductAsync(this.GetUserId(), productCreateFormModel);
+
+            return RedirectToAction(nameof(Details), new { id });
         }
         catch (Exception err)
         {
-            this._logger.LogError(err.Message);
+            this._logger.LogError(err.Message,
+                "An unexpected error occured while trying to create a product.");
             ViewData["ProductCreationError"] = ProductCreationUnexpectedErrorMessage;
+            
             return View(productCreateFormModel);
         }
     }
@@ -425,6 +405,16 @@ public class ProductsController : BaseController
         return images;
     }
 
+    /// <summary>
+    /// This method checks if the the given id parameter's value can be parsed to valid Guid type
+    /// and if it can be found as a value for the Id property of an instance in a collection
+    /// with AllCategoriesViewModel type. 
+    /// </summary>
+    /// <param name="id">The category id string value</param>
+    /// <param name="allCategoriesViewModels">Collection of AllCategoriesViewModel types</param>
+    /// <param name="categoryIdGuidValue">Valid category id guid value</param>
+    /// <returns>Value that represents if the passed in id parameter value can be parsed to
+    /// valid Guid type and if there is an instance's property Id value that matches it.</returns>
     private bool IsValidCategory(string? id, IEnumerable<AllCategoriesViewModel> allCategoriesViewModels,
         out Guid categoryIdGuidValue)
     {

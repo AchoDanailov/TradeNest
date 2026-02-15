@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Web.ViewModels.Category;
 
 namespace TradeNest.Services.Core;
 
@@ -21,5 +22,18 @@ public class CategoriesService : ICategoriesService
         return await this._dbContext
             .Categories
             .AnyAsync(c => c.Id == id);
+    }
+    
+    public async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModels()
+    {
+        return await this._dbContext.Categories
+            .AsNoTracking()
+            .OrderBy(c => c.Name)
+            .Select(c => new AllCategoriesViewModel()
+            {
+                Id = c.Id,
+                CategoryName = c.Name,
+            })
+            .ToArrayAsync();
     }
 }
