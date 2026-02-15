@@ -65,83 +65,38 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult BestSellers()
+    public async Task<IActionResult> BestSellers()
     {
-        CatalogProductsAndCategoriesViewModel viewModel
-            = new CatalogProductsAndCategoriesViewModel()
-            {
-                Categories = this.GetAllCategoriesViewModels(),
-                IsSearchResultSet = false,
-            };
-        
-        IEnumerable<ProductViewModel> products = this._dbContext.Products
-            .AsNoTracking()
-            .OrderByDescending(p => p.CreatedOn)
-            .Select(p => new ProductViewModel()
-            {
-                Id = p.Id,
-                Name = p.Name,
-                SellingPrice = p.SellingPrice.ToString(PricesFormat),
-                FrontImageUrl = p.Images.Any()
-                    ? p.Images
-                        .Single(i => i.IsFrontImage)!
-                        .Url
-                    : DefaultProductImageUrl,
-                CategoryName = p.Category.Name,
-            })
-            .ToArray();
+        CatalogProductsAndCategoriesViewModel viewModel = await this._productsService
+            .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync();
 
-        viewModel.Products = products;
+        viewModel.Products = await this._productsService
+            .GetAllProdsVmsOrderedByOrdersCountDescAsync();
         
         return View(nameof(Index), viewModel);
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Details([FromRoute] string? id = null)
+    public async Task<IActionResult> Details([FromRoute] string? id = null)
     {
         if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid guidIdValue))
             return BadRequest();
 
-        Product? product = this._dbContext.Products
-            .Include(p => p.Owner)
-            .Include(p => p.Category)
-            .Include(p => p.Images)
-            .AsNoTracking()
-            .FirstOrDefault(p => p.Id == guidIdValue);
-        if (product == null)
+        ProductDetailsViewModel? productDetailsViewModel = await this._productsService
+            .GetProductDetailsViewModelById(guidIdValue);
+        if (productDetailsViewModel == null)
             return NotFound();
-
-        ProductDetailsViewModel productDetailsViewModel = new ProductDetailsViewModel()
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            QuantityInStock = product.QuantityInStock,
-            SellingPrice = product.SellingPrice.ToString(PricesFormat),
-            IsEnabled = product.IsEnabled,
-            Owner = product.Owner?.UserName ?? string.Empty,
-            CategoryName = product.Category.Name,
-            FrontImageUrl = product.Images.Any()
-                ? product.Images
-                    .SingleOrDefault(i => i.IsFrontImage)!
-                    .Url
-                : DefaultProductImageUrl,
-            ImagesUrls = product.Images
-                .Select(i => i.Url),
-        };
         
         return View(productDetailsViewModel);
     }
 
     [HttpGet]
     [Authorize]
-    public IActionResult Create()
+    public async Task<IActionResult> Create()
     {
-        ProductCreateFormModel productCreateFormModel = new ProductCreateFormModel()
-        {
-            AllCategoriesForSelectInputFieldOptions = this.GetAllCategoriesViewModels()
-        };
+        ProductCreateFormModel productCreateFormModel = await this._productsService
+            .GetProdCreateFormModelWithLoadedCategoriesAsync();
         
         return View(productCreateFormModel);
     }
