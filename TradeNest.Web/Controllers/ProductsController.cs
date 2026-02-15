@@ -8,71 +8,57 @@ using TradeNest.Web.ViewModels.Image;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using TradeNest.Services.Core.Interfaces;
 
 namespace TradeNest.Web.Controllers;
 
 [Authorize]
 public class ProductsController : BaseController
 {
+    private readonly IProductsService _productsService;
+    private readonly ICategoriesService _categoriesService;
+    
     private TradeNestDbContext _dbContext;
     private ILogger<ProductsController> _logger;
     
-    public ProductsController(TradeNestDbContext dbContext, ILogger<ProductsController> logger)
+    public ProductsController(TradeNestDbContext dbContext, ILogger<ProductsController> logger,
+        IProductsService productsService, ICategoriesService categoriesService)
     {
         this._dbContext = dbContext;
         this._logger = logger;
+        this._productsService = productsService;
+        this._categoriesService = categoriesService;
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Index(
+    public async Task<IActionResult> Index(
         [FromQuery] string? categoryId = null,
         [FromQuery] string? search = null)
     {
-        CatalogProductsAndCategoriesViewModel viewModel
-            = new CatalogProductsAndCategoriesViewModel()
-            {
-                Categories = this.GetAllCategoriesViewModels()
-            };
+        CatalogProductsAndCategoriesViewModel viewModel = await this._productsService
+            .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync();
         
-        IQueryable<Product> products = this._dbContext.Products
-            .AsNoTracking();
-        if (!string.IsNullOrWhiteSpace(search))
+        if (string.IsNullOrEmpty(search) && string.IsNullOrEmpty(categoryId))
+        {
+            viewModel.Products = await this._productsService
+                .GetAllProductVmsOrderedByCreatedOnAsync();
+        }
+        else if (!string.IsNullOrWhiteSpace(search))
         {
             viewModel.IsSearchResultSet = true;
-            products = products
-                .Where(p => p.Name.Contains(search));
+            viewModel.Products = await this._productsService
+                .GetAllProdsVmsWithSearchQueryForNameAsync(search);
         }
-
-        if (!string.IsNullOrEmpty(categoryId))
+        else if (!string.IsNullOrEmpty(categoryId) && Guid.TryParse(categoryId, out Guid id))
         {
-            bool isValidCategory = this.IsValidCategory(categoryId,
-                viewModel.Categories, out Guid categoryIdGuidValue);
-            if (!isValidCategory)
+            bool categoryExists = await this._categoriesService.CategoryExists(id);
+            if (!categoryExists)
                 return NotFound();
-        
-            products = products
-                .Include(p => p.Category)
-                .Where(p => p.Category.Id == categoryIdGuidValue);
+
+            viewModel.Products = await this._productsService
+                .GetAllProdsVmsByCategoryAsync(id);
         }
-
-        IEnumerable<ProductViewModel> productsViewModels = products
-            .OrderByDescending(p => p.CreatedOn)
-            .Select(p => new ProductViewModel()
-            {
-                Id = p.Id,
-                Name = p.Name,
-                SellingPrice = p.SellingPrice.ToString(PricesFormat),
-                FrontImageUrl = p.Images.Any()
-                    ? p.Images
-                        .Single(i => i.IsFrontImage)!
-                        .Url
-                    : DefaultProductImageUrl,
-                CategoryName = p.Category.Name,
-            })
-            .ToArray();
-
-        viewModel.Products = productsViewModels;
         
         return View(viewModel);
     }

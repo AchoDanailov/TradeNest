@@ -1,7 +1,8 @@
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
 using TradeNest.Data.Models;
+using TradeNest.Services.Core;
+using TradeNest.Services.Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Web;
 
@@ -11,7 +12,6 @@ public class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        // Add services to the container.
         string? connectionString = builder.Configuration["TradeNest:ConnectionString"] 
                                    ?? builder.Configuration.GetConnectionString("DefaultConnection") 
                                    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
@@ -26,9 +26,11 @@ public class Program
 
         builder.Services.AddControllersWithViews();
 
+        builder.Services.AddScoped<IProductsService, ProductsService>();
+        builder.Services.AddScoped<ICategoriesService, CategoriesService>();
+
         WebApplication app = builder.Build();
 
-        // Configure the HTTP request pipeline.
         if (app.Environment.IsDevelopment())
         {
             app.UseMigrationsEndPoint();

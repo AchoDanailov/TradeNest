@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Data.Models", "Tr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.GCommon", "TradeNest.GCommon\TradeNest.GCommon.csproj", "{EAD3EB4C-CE68-4933-B9CD-2614B1BA214C}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Services", "Services", "{4AFEFE11-CFB4-4232-BC7D-E7EE90C9DBB8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Services.Core", "TradeNest.Services.Core\TradeNest.Services.Core.csproj", "{C3D0BA05-78F4-4087-9FAE-1E779E4DBC04}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,6 +34,7 @@ Global
 		{97EDD34A-D4FD-4176-8385-0D248AF17F6D} = {810F347F-EB02-4A67-A70B-394D3018F4E8}
 		{AFBF263D-3496-41F1-AC94-E8D53456578B} = {6800AD4F-1609-47A6-B2A6-B44B14EC6098}
 		{192771BF-3AF4-4C21-8B7A-F1D2E259820B} = {6800AD4F-1609-47A6-B2A6-B44B14EC6098}
+		{C3D0BA05-78F4-4087-9FAE-1E779E4DBC04} = {4AFEFE11-CFB4-4232-BC7D-E7EE90C9DBB8}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{BFF5E5BB-6A6C-4A91-9626-0C6097E5C738}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -52,5 +57,9 @@ Global
 		{EAD3EB4C-CE68-4933-B9CD-2614B1BA214C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EAD3EB4C-CE68-4933-B9CD-2614B1BA214C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EAD3EB4C-CE68-4933-B9CD-2614B1BA214C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3D0BA05-78F4-4087-9FAE-1E779E4DBC04}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3D0BA05-78F4-4087-9FAE-1E779E4DBC04}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3D0BA05-78F4-4087-9FAE-1E779E4DBC04}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3D0BA05-78F4-4087-9FAE-1E779E4DBC04}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

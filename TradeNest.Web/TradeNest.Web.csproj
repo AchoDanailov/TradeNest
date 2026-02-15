@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\TradeNest.Data\TradeNest.Data.csproj" />
+    <ProjectReference Include="..\TradeNest.Services.Core\TradeNest.Services.Core.csproj" />
     <ProjectReference Include="..\TradeNest.Web.ViewModels\TradeNest.Web.ViewModels.csproj" />
   </ItemGroup>
     
