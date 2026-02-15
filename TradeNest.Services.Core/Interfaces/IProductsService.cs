@@ -81,7 +81,7 @@ public interface IProductsService
     /// given id exists.
     /// </returns>
     /// <remarks>This method makes a connection to the given data store.</remarks>
-    Task<bool> ProductExists(Guid id);
+    Task<bool> ProductExistsAsync(Guid id);
 
     /// <summary>
     /// Gets the ProductDetailsViewModel instance for the product with id equal to the given
@@ -93,7 +93,7 @@ public interface IProductsService
     /// The task result contains the corresponding ProductDetailsViewModel instance.
     /// </returns>
     /// <remarks>If the method can not find a match it returns null.</remarks>
-    Task<ProductDetailsViewModel?> GetProductDetailsViewModelById(Guid id);
+    Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id);
 
     /// <summary>
     /// Provides an empty instance of the ProductCreateFormModel type.
@@ -136,7 +136,7 @@ public interface IProductsService
     /// The task result contains the corresponding ProductEditFormModel instance.
     /// </returns>
     /// <remarks>If no product is found with the given id the method returns null.</remarks>
-    Task<ProductEditFormModel?> GetProductEditFormModel(Guid userId, Guid id);
+    Task<ProductEditFormModel?> GetProductEditFormModelAsync(Guid userId, Guid id);
     
     /// <summary>
     /// The operation deletes a product with the given id from the data store.
@@ -144,5 +144,15 @@ public interface IProductsService
     /// <param name="id">The product's identifier.</param>
     /// <param name="userId">The user's identifier trying to perform the operation.</param>
     /// <returns>A Task that represents the asynchronous operation.</returns>
-    Task DeleteProduct(Guid userId, Guid id);
+    Task DeleteProductAsync(Guid userId, Guid id);
+
+    /// <summary>
+    /// The operation makes changes to the product, specified in the given
+    /// ProductEditFormModel instance.
+    /// </summary>
+    /// <param name="userId">The user's identifier trying to perform the operation.</param>
+    /// <param name="productId">The product's identifier.</param>
+    /// <param name="productEditFormModel">The instance carrying the changes that should be persisted.</param>
+    /// <returns>A Task that represents the asynchronous operation.</returns>
+    Task EditProductAsync(Guid userId, Guid productId, ProductEditFormModel productEditFormModel);
 }

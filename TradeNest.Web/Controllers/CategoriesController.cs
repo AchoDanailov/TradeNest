@@ -1,46 +1,27 @@
-using TradeNest.Data;
 using TradeNest.Web.ViewModels.Category;
-using TradeNest.GCommon;
+using TradeNest.Services.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Web.Controllers;
 
 [Authorize]
 public class CategoriesController : BaseController
 {
-    private TradeNestDbContext _dbContext;
+    private readonly ICategoriesService _categoriesService;
 
-    public CategoriesController(TradeNestDbContext dbContext)
+    public CategoriesController(ICategoriesService categoriesService)
     {
-        this._dbContext = dbContext;
+        this._categoriesService = categoriesService;
     }
 
     [HttpGet]
     [AllowAnonymous]
-    public IActionResult Index()
+    public async Task<IActionResult> Index()
     {
-        IEnumerable<AllCategoriesWithMostSoldProductFrontImageViewModel> categoriesViewModels 
-            = this._dbContext.Categories
-                .AsNoTracking()
-                .OrderBy(c => c.Name)
-                .Select(c => new AllCategoriesWithMostSoldProductFrontImageViewModel()
-                {
-                    Id = c.Id,
-                    CategoryName = c.Name,
-                    MostSoldProductFrontImageUrl = c.Products.Any() 
-                        ? c.Products
-                            .OrderByDescending(p => p.ProductsOrders.Count).First()
-                            .Images.Any()
-                            ? c.Products
-                                .OrderByDescending(p => p.ProductsOrders.Count).First()
-                                .Images.Single(i => i.IsFrontImage).Url
-                            : ApplicationConstants.DefaultProductImageUrl
-                        : ApplicationConstants.DefaultProductImageUrl
-                })
-                .ToArray();
-
-        return View(categoriesViewModels);
+        IEnumerable<AllCategoriesWithMostSoldProductFrontImageViewModel> model
+            = await this._categoriesService.GetAllCategoriesWithBestSellerImageVm();
+        
+        return View(model);
     }
 }

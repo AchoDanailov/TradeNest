@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
+using TradeNest.GCommon;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Category;
 
@@ -35,5 +36,28 @@ public class CategoriesService : ICategoriesService
                 CategoryName = c.Name,
             })
             .ToArrayAsync();
+    }
+
+    public async Task<IEnumerable<AllCategoriesWithMostSoldProductFrontImageViewModel>>
+        GetAllCategoriesWithBestSellerImageVm()
+    {
+        return await this._dbContext.Categories
+                .AsNoTracking()
+                .OrderBy(c => c.Name)
+                .Select(c => new AllCategoriesWithMostSoldProductFrontImageViewModel()
+                {
+                    Id = c.Id,
+                    CategoryName = c.Name,
+                    MostSoldProductFrontImageUrl = c.Products.Any() 
+                        ? c.Products
+                            .OrderByDescending(p => p.ProductsOrders.Count).First()
+                            .Images.Any()
+                            ? c.Products
+                                .OrderByDescending(p => p.ProductsOrders.Count).First()
+                                .Images.Single(i => i.IsFrontImage).Url
+                            : ApplicationConstants.DefaultProductImageUrl
+                        : ApplicationConstants.DefaultProductImageUrl
+                })
+                .ToArrayAsync();
     }
 }

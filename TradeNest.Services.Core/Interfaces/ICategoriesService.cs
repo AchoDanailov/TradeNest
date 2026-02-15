@@ -25,4 +25,15 @@ public interface ICategoriesService
     /// </returns>
     /// <remarks>If no categories are found the method returns an empty collection.</remarks>
     Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModels();
+
+    /// <summary>
+    /// Provides with a collection with all the
+    /// AllCategoriesWithMostSoldProductFrontImageViewModel types.
+    /// </summary>
+    /// <returns>
+    /// A Task that represents the asynchronous operation.
+    /// The task result contains a AllCategoriesWithMostSoldProductFrontImageViewModel
+    /// collection
+    /// </returns>
+    Task<IEnumerable<AllCategoriesWithMostSoldProductFrontImageViewModel>> GetAllCategoriesWithBestSellerImageVm();
 }

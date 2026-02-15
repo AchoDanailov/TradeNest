@@ -127,7 +127,7 @@ public class ProductsService : IProductsService
             .ToArrayAsync();
     }
 
-    public async Task<bool> ProductExists(Guid id)
+    public async Task<bool> ProductExistsAsync(Guid id)
     {
         if (id == Guid.Empty)
             return false;
@@ -136,7 +136,7 @@ public class ProductsService : IProductsService
             .AnyAsync(p => p.Id == id);
     }
 
-    public async Task<ProductDetailsViewModel?> GetProductDetailsViewModelById(Guid id)
+    public async Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id)
     {
         Product? product = await this._dbContext.Products
             .Include(p => p.Owner)
@@ -223,7 +223,7 @@ public class ProductsService : IProductsService
         return newProduct.Id.ToString();
     }
 
-    public async Task<ProductEditFormModel?> GetProductEditFormModel(Guid userId, Guid id)
+    public async Task<ProductEditFormModel?> GetProductEditFormModelAsync(Guid userId, Guid id)
     {
         Product? product = await this._dbContext.Products
             .AsNoTracking()
@@ -258,13 +258,12 @@ public class ProductsService : IProductsService
         return productEditFormModel;
     }
 
-    public async Task DeleteProduct(Guid userId, Guid id)
+    public async Task DeleteProductAsync(Guid userId, Guid id)
     {
         Product? product = await this._dbContext.Products
-            .AsNoTracking()
-            .SingleOrDefaultAsync(p => p.Id == id);
+            .FindAsync(id);
         if (product == null)
-            throw new ArgumentException("Prod not found.", nameof(userId));
+            throw new ArgumentException("Product not found.", nameof(id));
 
         if (userId != product.OwnerId)
             throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
@@ -272,6 +271,62 @@ public class ProductsService : IProductsService
         product.IsDeleted = true;
         
         this._dbContext.Update(product);
+        await this._dbContext.SaveChangesAsync();
+    }
+
+    public async Task EditProductAsync(Guid userId, Guid productId, ProductEditFormModel productEditFormModel)
+    {
+        Product? product = await this._dbContext.Products
+            .Include(p => p.Images)
+            .SingleOrDefaultAsync(p => p.Id == productId);
+        if (product == null)
+            throw new ArgumentException("Product not found.", nameof(productId));
+        
+        if (userId != product.OwnerId)
+            throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
+        
+        if (string.IsNullOrEmpty(productEditFormModel.CategoryId) ||
+            !Guid.TryParse(productEditFormModel.CategoryId, out Guid categoryIdGuidValue))
+        {
+            throw new ArgumentException("Invalid category.",
+                nameof(productEditFormModel.CategoryId));
+        }
+        
+        if (productEditFormModel.ProductImages.Any())
+        {
+            bool allImagesAreValid = productEditFormModel.ProductImages
+                .All(editImg => product.Images.Any(dbImg => dbImg.Id == editImg.Id));
+            if (!allImagesAreValid)
+            {
+                throw new ArgumentException("Invalid images.",
+                    nameof(productEditFormModel.ProductImages));
+            }
+        }
+        
+        ICollection<Image> imagesToDelete
+            = this.GetImagesForDeletionIfAny(productEditFormModel.ProductImages).ToArray();
+        if (imagesToDelete.Any())
+            this._dbContext.Images.RemoveRange(imagesToDelete);
+
+        product.Name = productEditFormModel.ProductName;
+        product.Description = productEditFormModel.Description;
+        product.QuantityInStock = productEditFormModel.QuantityInStock;
+        product.SellingPrice = productEditFormModel.SellingPrice;
+        product.CostPrice = productEditFormModel.CostPrice;
+        product.IsEnabled = productEditFormModel.IsEnabled;
+        product.CategoryId = categoryIdGuidValue;
+
+        if (!string.IsNullOrEmpty(productEditFormModel.NewImagesUrls))
+        {
+            IEnumerable<Image> imagesToAdd = this.ParseImagesInputOnImageAdding(
+                extraImagesUrls: productEditFormModel.NewImagesUrls,
+                productId: product.Id);
+                
+            this._dbContext.Images.AddRange(imagesToAdd);
+        }
+
+        this.EnsureProductHasFrontImage(imagesToDelete, product.Images);
+            
         await this._dbContext.SaveChangesAsync();
     }
 
@@ -327,5 +382,58 @@ public class ProductsService : IProductsService
         }
 
         return images;
+    }
+    
+    private IEnumerable<Image> GetImagesForDeletionIfAny(
+        IEnumerable<ImageViewModel> imagesComingFromEditForm)
+    {
+        IEnumerable<ImageViewModel> imageViewModelsMarkedForDeletion = imagesComingFromEditForm
+            .Where(i => i.IsMarkedToStay == false)
+            .ToArray();
+        if (!imageViewModelsMarkedForDeletion.Any())
+            return Array.Empty<Image>();
+
+        ICollection<Image> imagesToDelete = new List<Image>();
+        
+        foreach (ImageViewModel imageViewModel in imageViewModelsMarkedForDeletion)
+        {
+            // already loaded in memory
+            Image imageToDel = this._dbContext.Images.Find(imageViewModel.Id)!;
+            imagesToDelete.Add(imageToDel);
+        }
+
+        return imagesToDelete;
+    }
+    
+    private void EnsureProductHasFrontImage(ICollection<Image> imagesToDelete,
+        ICollection<Image> productImages)
+    {
+        bool frontImageIsMarkedForDeletion = imagesToDelete.Any(i => i.IsFrontImage);
+        bool productHasImagesLeft = productImages
+            .Any(prodImgs => imagesToDelete.All(delImgs => delImgs.Id != prodImgs.Id));
+            
+        if (frontImageIsMarkedForDeletion && productHasImagesLeft)
+        {
+            /* first image that doesn't have state "Deleted" in the change tracker is made front image.
+            (images with state "Added" and "Deleted" in the change tracker are included in the product's
+            images collection at this point) */
+            
+            /* using the imagesToDelete collection directly since it's essentially the same reference
+            no need for long inline linq expression */
+            imagesToDelete.Single(i => i.IsFrontImage).IsFrontImage = false;
+                
+            productImages
+                .First(img => imagesToDelete.All(delImg => img.Id != delImg.Id))
+                .IsFrontImage = true;
+        }
+
+        // handles case where we edit product without images to now give it images
+        bool isFrontImageSet = productImages.Any(i => i.IsFrontImage);
+        if (!isFrontImageSet && productHasImagesLeft)
+        {
+            productImages
+                .First(img => imagesToDelete.All(delImg => img.Id != delImg.Id))
+                .IsFrontImage = true;
+        }
     }
 }
