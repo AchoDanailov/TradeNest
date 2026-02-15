@@ -4,6 +4,7 @@ using TradeNest.Data.Models;
 using TradeNest.GCommon;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Category;
+using TradeNest.Web.ViewModels.Image;
 using TradeNest.Web.ViewModels.Product;
 
 namespace TradeNest.Services.Core;
@@ -220,6 +221,58 @@ public class ProductsService : IProductsService
         await this._dbContext.SaveChangesAsync();
 
         return newProduct.Id.ToString();
+    }
+
+    public async Task<ProductEditFormModel?> GetProductEditFormModel(Guid userId, Guid id)
+    {
+        Product? product = await this._dbContext.Products
+            .AsNoTracking()
+            .Include(p => p.Images)
+            .SingleOrDefaultAsync(p => p.Id == id);
+        if (product == null)
+            return null;
+
+        if (userId != product.OwnerId)
+            throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
+        
+        ProductEditFormModel productEditFormModel = new ProductEditFormModel()
+        {
+            ProductId = product.Id.ToString(),
+            ProductName = product.Name,
+            Description = product.Description,
+            QuantityInStock = product.QuantityInStock,
+            SellingPrice = product.SellingPrice,
+            CostPrice = product.CostPrice,
+            IsEnabled = product.IsEnabled,
+            ProductImages = product.Images
+                .Select(i => new ImageViewModel()
+                {
+                    Id = i.Id,
+                    Url = i.Url
+                })
+                .ToList(),
+            CategoryId = product.CategoryId.ToString(),
+            AllCategoriesForSelectInputFieldOptions = await this.GetAllCategoriesViewModels(),
+        };
+
+        return productEditFormModel;
+    }
+
+    public async Task DeleteProduct(Guid userId, Guid id)
+    {
+        Product? product = await this._dbContext.Products
+            .AsNoTracking()
+            .SingleOrDefaultAsync(p => p.Id == id);
+        if (product == null)
+            throw new ArgumentException("Prod not found.", nameof(userId));
+
+        if (userId != product.OwnerId)
+            throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
+
+        product.IsDeleted = true;
+        
+        this._dbContext.Update(product);
+        await this._dbContext.SaveChangesAsync();
     }
 
     private async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModels()

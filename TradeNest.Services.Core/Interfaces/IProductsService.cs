@@ -124,4 +124,25 @@ public interface IProductsService
     /// The task result contains the string representation of the newly created product.
     /// </returns>
     Task<string> CreateProductAsync(Guid userId, ProductCreateFormModel productCreateFormModel);
+
+    /// <summary>
+    /// Provides a ProductEditFormModel with populated product data for edit that
+    /// corresponds to the product with id equal to the given id parameter.
+    /// </summary>
+    /// <param name="id">The product's id</param>
+    /// <param name="userId">The user's identifier trying to perform the operation</param>
+    /// <returns>
+    /// A Task that represents the asynchronous operation.
+    /// The task result contains the corresponding ProductEditFormModel instance.
+    /// </returns>
+    /// <remarks>If no product is found with the given id the method returns null.</remarks>
+    Task<ProductEditFormModel?> GetProductEditFormModel(Guid userId, Guid id);
+    
+    /// <summary>
+    /// The operation deletes a product with the given id from the data store.
+    /// </summary>
+    /// <param name="id">The product's identifier.</param>
+    /// <param name="userId">The user's identifier trying to perform the operation.</param>
+    /// <returns>A Task that represents the asynchronous operation.</returns>
+    Task DeleteProduct(Guid userId, Guid id);
 }

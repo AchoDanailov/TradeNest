@@ -137,46 +137,30 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [Authorize]
-    public IActionResult Edit([FromRoute] string? id)
+    public async Task<IActionResult> Edit([FromRoute] string? id)
     {
         bool idIsValidGuid = Guid.TryParse(id, out Guid guidIdValue);
         if (!idIsValidGuid)
             return BadRequest();
         
-        Product? product = this._dbContext.Products
-            .AsNoTracking()
-            .Include(p => p.Images)
-            .SingleOrDefault(p => p.Id == guidIdValue);
-        
-        if (product == null)
-            return NotFound();
-
         Guid userId = this.GetUserId();
-        if (userId != product.OwnerId)
-            return Unauthorized();
 
-        ProductEditFormModel productEditFormModel = new ProductEditFormModel()
+        try
         {
-            ProductId = product.Id.ToString(),
-            ProductName = product.Name,
-            Description = product.Description,
-            QuantityInStock = product.QuantityInStock,
-            SellingPrice = product.SellingPrice,
-            CostPrice = product.CostPrice,
-            IsEnabled = product.IsEnabled,
-            ProductImages = product.Images
-                .Select(i => new ImageViewModel()
-                {
-                    Id = i.Id,
-                    Url = i.Url
-                })
-                .ToList(),
-            CategoryId = product.CategoryId.ToString(),
-            AllCategoriesForSelectInputFieldOptions = this.GetAllCategoriesViewModels()
-                .ToList(),
-        };
+            ProductEditFormModel? model = await this._productsService
+                .GetProductEditFormModel(userId, guidIdValue);
+            if (model == null)
+                return NotFound();
         
-        return View(productEditFormModel);
+            return View(model);
+        }
+        catch (Exception err)
+        {
+            this._logger.LogCritical(err.Message,
+                $"An unexpected error occured while trying to access ProductEditFormModel for product with id: {id}.");
+
+            return BadRequest();
+        }
     }
     
     [HttpPost]
@@ -268,29 +252,19 @@ public class ProductsController : BaseController
         if(string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid productIdGuidValue)) 
             return BadRequest();
         
-        Product? product = this._dbContext.Products
-            .AsNoTracking()
-            .SingleOrDefault(p => p.Id == productIdGuidValue);
-        if (product == null)
-            return NotFound();
-        
         Guid userId = this.GetUserId();
-        if (userId != product.OwnerId)
-            return Unauthorized();
 
         try
         {
-            product.IsDeleted = true;
-            
-            this._dbContext.Update(product);
-            this._dbContext.SaveChanges();
+            this._productsService.DeleteProduct(userId, productIdGuidValue);
 
             TempData["ProductDeletionSuccessMessage"] = ProductDeletionSuccessMessage;
             return RedirectToAction(nameof(Index), controllerName: "Products");
         }
         catch (Exception err)
         {
-            this._logger.LogError(err.Message);
+            this._logger.LogError(err.Message,
+                "An uncexpected error occured while trying to delete a product.");
             ViewData["ProductModificationErrorMessage"]
                 = ProductModificationUnexpectedErrorMessage;
 
