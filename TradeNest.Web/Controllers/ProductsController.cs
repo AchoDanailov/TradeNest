@@ -28,28 +28,35 @@ public class ProductsController : BaseController
         [FromQuery] string? categoryId = null,
         [FromQuery] string? search = null)
     {
-        CatalogProductsAndCategoriesViewModel viewModel = await this._productsService
-            .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync();
+        CatalogProductsAndCategoriesViewModel viewModel;
         
-        if (string.IsNullOrEmpty(search) && string.IsNullOrEmpty(categoryId))
+        if (!string.IsNullOrEmpty(search))
         {
-            viewModel.Products = await this._productsService
-                .GetAllProductVmsOrderedByCreatedOnDescAsync();
-        }
-        else if (!string.IsNullOrWhiteSpace(search))
-        {
-            viewModel.IsSearchResultSet = true;
+            viewModel = await this._productsService
+                .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync(isFromSearchInput: true);
+                
             viewModel.Products = await this._productsService
                 .GetAllProdsVmsWithSearchQueryForNameAsync(search);
         }
-        else if (!string.IsNullOrEmpty(categoryId) && Guid.TryParse(categoryId, out Guid id))
+        else
         {
-            bool categoryExists = await this._categoriesService.CategoryExists(id);
-            if (!categoryExists)
-                return NotFound();
+            viewModel = await this._productsService
+                .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync();
+            
+            if (string.IsNullOrEmpty(categoryId))
+            {
+                viewModel.Products = await this._productsService
+                    .GetAllProductVmsOrderedByCreatedOnDescAsync();
+            }
+            else if (!string.IsNullOrEmpty(categoryId) && Guid.TryParse(categoryId, out Guid id))
+            {
+                bool categoryExists = await this._categoriesService.CategoryExists(id);
+                if (!categoryExists)
+                    return NotFound();
 
-            viewModel.Products = await this._productsService
-                .GetAllProdsVmsByCategoryAsync(id);
+                viewModel.Products = await this._productsService
+                    .GetAllProdsVmsByCategoryAsync(id);
+            }
         }
         
         return View(viewModel);

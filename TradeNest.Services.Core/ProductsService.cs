@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.GCommon;
@@ -6,6 +5,7 @@ using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
 using TradeNest.Web.ViewModels.Product;
+using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Services.Core;
 
@@ -18,16 +18,21 @@ public class ProductsService : IProductsService
         this._dbContext = dbContext;
     }
     
-    public CatalogProductsAndCategoriesViewModel GetEmptyCatalogProdsAndCategoriesDto()
+    public CatalogProductsAndCategoriesViewModel GetEmptyCatalogProdsAndCategoriesDto(
+        bool isFromSearchInput = false)
     {
-        return new CatalogProductsAndCategoriesViewModel(); 
+        return new CatalogProductsAndCategoriesViewModel()
+        {
+            IsSearchResultSet = isFromSearchInput,
+        }; 
     }
 
     public async Task<CatalogProductsAndCategoriesViewModel> GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync(
-        IEnumerable<ProductViewModel>? productsViewModels = null)
+        IEnumerable<ProductViewModel>? productsViewModels = null,
+        bool isFromSearchInput = false)
     {
         CatalogProductsAndCategoriesViewModel viewModel
-            = this.GetEmptyCatalogProdsAndCategoriesDto();
+            = this.GetEmptyCatalogProdsAndCategoriesDto(isFromSearchInput);
         
         viewModel.Categories = await this.GetAllCategoriesViewModels();
 

@@ -7,20 +7,31 @@ public interface IProductsService
     /// <summary>
     /// Provides an empty instance of the CatalogProductsAndCategoriesViewModel type.
     /// </summary>
+    /// <param name="isFromSearchInput">
+    /// This parameter specifies weather the resources are requested from a search
+    /// operation or not
+    /// </param>
     /// <returns>an empty CatalogProductsAndCategoriesViewModel instance</returns>
-    CatalogProductsAndCategoriesViewModel GetEmptyCatalogProdsAndCategoriesDto();
+    CatalogProductsAndCategoriesViewModel GetEmptyCatalogProdsAndCategoriesDto(bool isFromSearchInput = false);
 
     /// <summary>
     /// Provides a CatalogProductsAndCategoriesViewModel instance with the relevant
     /// AllCategoriesViewModel collection. 
     /// </summary>
-    /// <param name="productsViewModels">Collection with ProductViewModel types to be added in the CatalogProductsAndCategoriesViewModel instance.</param>
+    /// <param name="productsViewModels">
+    /// Collection with ProductViewModel types to be added in the
+    /// CatalogProductsAndCategoriesViewModel instance.
+    /// </param>
+    /// <param name="isFromSearchInput">
+    /// This parameter specifies weather the resources are requested from a search
+    /// operation or not
+    /// </param>
     /// <returns>
     /// A Task that represents the asynchronous operation.
     /// The Task result contains a CatalogProductsAndCategoriesViewModel instance.
     /// </returns>
     Task<CatalogProductsAndCategoriesViewModel> GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync(
-        IEnumerable<ProductViewModel>? productsViewModels = null);
+        IEnumerable<ProductViewModel>? productsViewModels = null, bool isFromSearchInput = false);
 
     /// <summary>
     /// Provides a collection with all ProductViewModels ordered by date of creation
