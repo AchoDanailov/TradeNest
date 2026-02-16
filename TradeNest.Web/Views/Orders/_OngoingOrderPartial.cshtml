@@ -32,6 +32,8 @@
         <h5 class="text-navy">Order Total: €@this.Model.TotalPrice</h5>
     </div>
     <div class="d-flex justify-content-end gap-2 me-2">
+        <a type="submit" class="btn btn-teal"
+           asp-controller="Products" asp-action="Index">Add More Products</a>
         <button type="submit" class="btn btn-outline-danger"
                 data-bs-toggle="modal" data-bs-target="#cancel-order-modal">Cancel Order</button>
         <button type="submit" class="btn btn-success"

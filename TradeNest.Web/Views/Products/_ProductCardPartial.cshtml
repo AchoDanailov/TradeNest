@@ -24,11 +24,10 @@
         <div class="d-flex justify-content-end gap-2 mt-2">
             <a asp-controller="Products" asp-action="Details" asp-route-id="@this.Model.Id"
                class="btn btn-outline-teal btn-sm">Details</a>
-            @*TODO: Link this*@
-            @* <form method="post" asp-controller="Order" action="Index"> *@
-                @* <input type="hidden" name="productId" value="@this.Model.Id" /> *@
-                <button type="submit" class="btn btn-teal btn-md">Order Now</button>
-            @* </form> *@
+            <form method="post" asp-controller="Orders" asp-action="AddProduct">
+                <input type="hidden" name="productId" value="@this.Model.Id" />
+                <button type="submit" class="btn btn-teal btn-md">Add To Order</button>
+            </form>
         </div>
     </div>
 </div>

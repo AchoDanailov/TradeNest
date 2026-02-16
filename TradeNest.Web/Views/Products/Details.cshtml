@@ -119,7 +119,9 @@
                 {
                     if (this.Model.IsEnabled)
                     {
-                        <a class="rounded-pill btn-teal p-2">Order Now</a>
+                        <a class="rounded-pill btn-teal p-2"
+                           asp-controller="Orders" asp-action="AddProduct"
+                           asp-route-productId="@Model.Id">Add To Order</a>
                     }
                     else
                     {
