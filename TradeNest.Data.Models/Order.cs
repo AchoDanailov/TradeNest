@@ -22,8 +22,8 @@ public class Order
     
     [ForeignKey(nameof(User))]
     [Comment("Foreign key referencing the user making the order.")]
-    public Guid? UserId { get; set; }
-    public virtual ApplicationUser? User { get; set; } 
+    public Guid UserId { get; set; }
+    public virtual ApplicationUser User { get; set; } = null!;
 
     public virtual ICollection<OrderProduct> OrderProducts { get; set; }
         = new List<OrderProduct>();

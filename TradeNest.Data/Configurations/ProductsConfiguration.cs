@@ -12,7 +12,7 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
         builder.HasOne(p => p.Owner)
             .WithMany(u => u.Products)
             .HasForeignKey(p => p.OwnerId)
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasOne(p => p.Category)
             .WithMany(c => c.Products)

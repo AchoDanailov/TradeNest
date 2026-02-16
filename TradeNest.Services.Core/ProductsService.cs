@@ -1,4 +1,3 @@
-using System.ComponentModel.DataAnnotations;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.GCommon;
@@ -161,7 +160,7 @@ public class ProductsService : IProductsService
             QuantityInStock = product.QuantityInStock,
             SellingPrice = product.SellingPrice.ToString(ApplicationConstants.PricesFormat),
             IsEnabled = product.IsEnabled,
-            Owner = product.Owner?.UserName ?? string.Empty,
+            Owner = product.Owner.UserName ?? string.Empty,
             CategoryName = product.Category.Name,
             FrontImageUrl = product.Images.Any()
                 ? product.Images
