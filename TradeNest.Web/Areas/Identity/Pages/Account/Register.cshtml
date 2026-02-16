@@ -5,7 +5,7 @@
 }
 
 
-<div class="container-lg site-sections-bg ps-5 py-3 mt-5 d-flex justify-content-center flex-column shadow rounded">
+<div class="container-lg site-sections-bg px-1 px-md-5 py-5 mt-5 d-flex justify-content-center flex-column shadow rounded">
     <h1 class="text-navy">@ViewData["Title"]</h1>
     <div class="row">
         <div class="col-md-5">
@@ -30,36 +30,6 @@
                 </div>
                 <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-teal">Register</button>
             </form>
-        </div>
-        <div class="col-md-6 col-md-offset-2">
-            <section>
-                <h3 class="text-navy">Use another service to register.</h3>
-                <hr />
-                @{
-                    if ((Model.ExternalLogins?.Count ?? 0) == 0)
-                    {
-                        <div>
-                            <p class="text-muted">
-                                There are no external authentication services configured. See this <a href="https://go.microsoft.com/fwlink/?LinkID=532715">article
-                                    about setting up this ASP.NET application to support logging in via external services</a>.
-                            </p>
-                        </div>
-                    }
-                    else
-                    {
-                        <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
-                            <div>
-                                <p>
-                                    @foreach (var provider in Model.ExternalLogins!)
-                                    {
-                                        <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
-                                    }
-                                </p>
-                            </div>
-                        </form>
-                    }
-                }
-            </section>
         </div>
     </div>
 </div>
