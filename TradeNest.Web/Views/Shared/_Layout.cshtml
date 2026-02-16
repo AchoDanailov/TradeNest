@@ -46,6 +46,13 @@
                             <a class="nav-link navbar-dark ms-2 my-1" 
                                asp-controller="Categories" asp-action="Index">Categories</a>
                         </li>
+                        @if (User?.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link navbar-dark ms-2 my-1" 
+                                   asp-controller="Orders" asp-action="Index">My Orders</a>
+                            </li>
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>

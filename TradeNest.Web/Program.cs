@@ -29,6 +29,7 @@ public class Program
 
         builder.Services.AddScoped<IProductsService, ProductsService>();
         builder.Services.AddScoped<ICategoriesService, CategoriesService>();
+        builder.Services.AddScoped<IOrdersService, OrdersService>();
 
         WebApplication app = builder.Build();
 

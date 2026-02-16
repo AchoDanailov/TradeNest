@@ -1,4 +1,4 @@
-namespace TradeNest.Web.ViewModels;
+namespace TradeNest.Web.ViewModels.Order;
 
 public class AllOrdersViewModel
 {
@@ -10,6 +10,6 @@ public class AllOrdersViewModel
     
     public DateOnly? SubmittedOn { get; set; }
 
-    public IEnumerable<string> OrderProductsNames { get; set; }
-        = new HashSet<string>();
+    public IEnumerable<OrderProductViewModel> OrderProducts { get; set; }
+        = new HashSet<OrderProductViewModel>();
 }
