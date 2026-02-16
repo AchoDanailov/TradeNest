@@ -18,18 +18,13 @@
         <hr class="mt-2"/>
     </div>
 
-    <div class="row d-flex flex-column gap-2">
+    <div class="row d-flex flex-column">
         <div>
             <h5 class="display-6 text-navy ms-md-3">Ongoing</h5>
         </div>
         @if (this.Model.Any(o => !o.IsSubmitted))
         {
-            <partial name="_OngoingOrderPartial" />
-            
-            @* <div class="d-flex "> *@
-            @*     <a class="btn btn-teal ms-5" *@
-            @*        asp-controller="Orders" asp-action="OnGoing">View your order ></a> *@
-            @* </div> *@
+            <partial name="_OngoingOrderPartial" model="@Model.Single(o => !o.IsSubmitted)"/>
         }
         else 
         {
@@ -47,11 +42,9 @@
         </div>
         @if (this.Model.Any(o => o.IsSubmitted))
         {
-            <div class="d-flex flex-wrap gap-3">
-                @foreach (AllOrdersViewModel order in this.Model)
+            <div class="d-flex flex-wrap gap-3 justify-content-around mt-2">
+                @foreach (AllOrdersViewModel order in this.Model.Where(o => o.IsSubmitted))
                 {
-                    /* TODO: Come back and review this AI slop card once
-                    orders are introduced fully */
                     <partial name="_OrderCardPartial" model="order"/>
                 }
             </div>
