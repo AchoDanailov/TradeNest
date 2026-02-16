@@ -7,8 +7,8 @@ public class OrderProductViewModel
     public string Name { get; set; } = null!;
     
     public int QuantityOrdered { get; set; }
-    
-    public decimal UnitPrice { get; set; }
-    
-    public decimal TotalPrice { get; set; }
+
+    public string UnitPrice { get; set; } = null!;
+
+    public string TotalPrice { get; set; } = null!;
 }

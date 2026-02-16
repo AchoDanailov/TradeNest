@@ -8,7 +8,7 @@ public class AllOrdersViewModel
     
     public bool IsSubmitted { get; set; }
     
-    public DateOnly? SubmittedOn { get; set; }
+    public string? SubmittedOn { get; set; } 
 
     public IEnumerable<OrderProductViewModel> OrderProducts { get; set; }
         = new HashSet<OrderProductViewModel>();

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
+using TradeNest.GCommon;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Order;
 
@@ -28,8 +29,8 @@ public class OrdersService : IOrdersService
                 Id = o.Id,
                 TotalPrice = o.TotalPrice,
                 IsSubmitted = o.IsSubmitted,
-                SubmittedOn = o.SubmittedOn.HasValue
-                    ? DateOnly.FromDateTime(o.SubmittedOn.Value)
+                SubmittedOn = o.SubmittedOn.HasValue 
+                    ? o.SubmittedOn.Value.ToString(ApplicationConstants.DatesFormat)
                     : null,
                 OrderProducts = o.OrderProducts
                     .Select(op => new OrderProductViewModel()
@@ -37,8 +38,10 @@ public class OrdersService : IOrdersService
                         Id = op.Product.Id,
                         Name = op.Product.Name,
                         QuantityOrdered = op.ProductsQuantity,
-                        UnitPrice = op.Product.SellingPrice,
-                        TotalPrice = op.ProductsQuantity * op.Product.SellingPrice
+                        UnitPrice = op.Product.SellingPrice
+                            .ToString(ApplicationConstants.PricesFormat),
+                        TotalPrice = (op.ProductsQuantity * op.Product.SellingPrice)
+                            .ToString(ApplicationConstants.PricesFormat),
                     })
                     .ToArray(),
             })
