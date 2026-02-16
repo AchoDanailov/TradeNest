@@ -19,4 +19,8 @@ public class OrderProduct
     [Comment("Foreign key referencing the Product's primary key.")]
     public Guid ProductId { get; set; }
     public virtual Product Product { get; set; } = null!;
+    
+    [Required]
+    [Comment("The value describes how much quantity of the given product is added in the given order.")]
+    public int ProductsQuantity { get; set; }
 }

@@ -16,6 +16,9 @@ public class Order
     [Comment("Value that represents weather the order is submitted or not.")]
     public bool IsSubmitted { get; set; } = false;
     
+    [Comment("The date and time at which the order has been submitted.")]
+    public DateTime? SubmittedOn { get; set; }
+    
     [Column(TypeName = PriceColumnDataType)]
     [Comment("Holds the value of the order's total price when order is submitted.")]
     public decimal? TotalPrice { get; set; }
