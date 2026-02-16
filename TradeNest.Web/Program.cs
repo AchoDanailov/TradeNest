@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.Services.Core;
@@ -21,7 +22,7 @@ public class Program
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         
-        builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = true)
+        builder.Services.AddDefaultIdentity<ApplicationUser>(options => IdentityOptionsConfiguration(options))
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddControllersWithViews();
@@ -57,5 +58,23 @@ public class Program
         app.MapRazorPages();
 
         app.Run();
+    }
+
+    private static void IdentityOptionsConfiguration(IdentityOptions options)
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.SignIn.RequireConfirmedEmail = false;
+        options.SignIn.RequireConfirmedPhoneNumber = false;
+
+        options.User.RequireUniqueEmail = true;
+                
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+        options.Lockout.MaxFailedAccessAttempts = Int32.MaxValue;
+
+        options.Password.RequireDigit = false;
+        options.Password.RequiredLength = 2;
+        options.Password.RequireUppercase = false;
+        options.Password.RequireLowercase = false;
+        options.Password.RequireNonAlphanumeric = false;
     }
 }
