@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.GCommon;
@@ -42,7 +43,7 @@ public class ProductsService : IProductsService
         return viewModel;
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllProductVmsOrderedByCreatedOnDescAsync()
+    public async Task<IEnumerable<ProductViewModel>> GetAllProductsOrderedByDateOfCreationDescAsync()
     {
         IEnumerable<ProductViewModel> productsViewModels = await this._dbContext.Products
             .AsNoTracking()
@@ -63,7 +64,7 @@ public class ProductsService : IProductsService
         return productsViewModels;
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsWithSearchQueryForNameAsync(
+    public async Task<IEnumerable<ProductViewModel>> GetAllProdsBySearchQueryForNameAsync(
         string searchQuery)
     {
         if (string.IsNullOrEmpty(searchQuery))
@@ -88,7 +89,7 @@ public class ProductsService : IProductsService
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsByCategoryAsync(Guid categoryId)
+    public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsByCategoryIdAsync(Guid categoryId)
     {
         if (categoryId == Guid.Empty)
             return Array.Empty<ProductViewModel>();
@@ -132,7 +133,7 @@ public class ProductsService : IProductsService
             .ToArrayAsync();
     }
 
-    public async Task<bool> ProductExistsAsync(Guid id)
+    public async Task<bool> ProductExistsByIdAsync(Guid id)
     {
         if (id == Guid.Empty)
             return false;
@@ -183,7 +184,7 @@ public class ProductsService : IProductsService
         ProductCreateFormModel productCreateFormModel =
             this.GetEmptyProductCreateFormModel();
 
-        productCreateFormModel.AllCategoriesForSelectInputFieldOptions
+        productCreateFormModel.AllCategories
             = await this.GetAllCategoriesViewModels();
 
         return productCreateFormModel;
@@ -257,7 +258,7 @@ public class ProductsService : IProductsService
                 })
                 .ToList(),
             CategoryId = product.CategoryId.ToString(),
-            AllCategoriesForSelectInputFieldOptions = await this.GetAllCategoriesViewModels(),
+            AllCategories = await this.GetAllCategoriesViewModels(),
         };
 
         return productEditFormModel;
@@ -274,8 +275,6 @@ public class ProductsService : IProductsService
             throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
 
         product.IsDeleted = true;
-        
-        this._dbContext.Update(product);
         await this._dbContext.SaveChangesAsync();
     }
 
@@ -358,11 +357,14 @@ public class ProductsService : IProductsService
         
         if (!string.IsNullOrEmpty(frontImageUrl))
         {
-            images.Add(new Image()
+            if (this.IsValidImageUrl(frontImageUrl))
             {
-                Url = frontImageUrl.Trim(),
-                IsFrontImage = true,
-            });
+                images.Add(new Image()
+                {
+                    Url = frontImageUrl.Trim(),
+                    IsFrontImage = true,
+                });
+            }
         }
             
         if (!string.IsNullOrEmpty(extraImagesUrls))
@@ -372,11 +374,14 @@ public class ProductsService : IProductsService
 
             foreach (string imageUrl in extraImagesUrlsSplit)
             {
-                images.Add(new Image()
+                if (this.IsValidImageUrl(imageUrl))
                 {
-                    Url = imageUrl.Trim(),
-                    IsFrontImage = false,
-                });
+                    images.Add(new Image()
+                    {
+                        Url = imageUrl.Trim(),
+                        IsFrontImage = false,
+                    });
+                }
             }
         }
 
@@ -399,7 +404,6 @@ public class ProductsService : IProductsService
             return Array.Empty<Image>();
 
         ICollection<Image> imagesToDelete = new List<Image>();
-        
         foreach (ImageViewModel imageViewModel in imageViewModelsMarkedForDeletion)
         {
             // already loaded in memory
@@ -413,11 +417,11 @@ public class ProductsService : IProductsService
     private void EnsureProductHasFrontImage(ICollection<Image> imagesToDelete,
         ICollection<Image> productImages)
     {
-        bool frontImageIsMarkedForDeletion = imagesToDelete.Any(i => i.IsFrontImage);
+        bool isFrontImageMarkedForDeletion = imagesToDelete.Any(i => i.IsFrontImage);
         bool productHasImagesLeft = productImages
-            .Any(prodImgs => imagesToDelete.All(delImgs => delImgs.Id != prodImgs.Id));
+            .Any(prodImg => imagesToDelete.All(delImg => delImg.Id != prodImg.Id));
             
-        if (frontImageIsMarkedForDeletion && productHasImagesLeft)
+        if (isFrontImageMarkedForDeletion && productHasImagesLeft)
         {
             /* first image that doesn't have state "Deleted" in the change tracker is made front image.
             (images with state "Added" and "Deleted" in the change tracker are included in the product's
@@ -433,6 +437,7 @@ public class ProductsService : IProductsService
         }
 
         // handles case where we edit product without images to now give it images
+        // also acts as the final check
         bool isFrontImageSet = productImages.Any(i => i.IsFrontImage);
         if (!isFrontImageSet && productHasImagesLeft)
         {
@@ -440,5 +445,17 @@ public class ProductsService : IProductsService
                 .First(img => imagesToDelete.All(delImg => img.Id != delImg.Id))
                 .IsFrontImage = true;
         }
+    }
+
+    private bool IsValidImageUrl(string? url)
+    {
+        if (string.IsNullOrEmpty(url))
+            return false;
+
+        return url.Length >= EntityValidationConstants.Image.UrlMinLengthValue &&
+               url.Length <= EntityValidationConstants.Image.UrlMaxLengthValue &&
+               (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
+                url.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase));
     }
 }

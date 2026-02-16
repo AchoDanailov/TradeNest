@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Edit Product";
-    string productModificationErrorMessage = ViewData["ProductModificationErrorMessage"] as string 
+    string productModificationErrorMessage = TempData["ProductModificationErrorMessage"] as string 
                                           ?? string.Empty;
 }
 
@@ -25,6 +25,7 @@
         <form method="post" asp-controller="Products" asp-action="Edit" asp-route-id="@Model.ProductId"
               class="site-sections-bg p-2 p-md-5 rounded-3 shadow border d-flex flex-column gap-4">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" name="returnUrl" value="@Url.Action("Edit", controller: "Products")"/>
             <input type="hidden" asp-for="ProductId" />
             <div>
                 <label asp-for="@Model.ProductName"
@@ -56,7 +57,7 @@
                        class="form-label text-navy fw-bold">Category: </label>
                 <select asp-for="@Model.CategoryId" class="form-select">
                     <option value="" selected="selected">-- Select Category --</option>
-                    @foreach (AllCategoriesViewModel category in this.Model.AllCategoriesForSelectInputFieldOptions)
+                    @foreach (AllCategoriesViewModel category in this.Model.AllCategories)
                     {
                         <option value="@category.Id">@category.CategoryName</option>
                     }

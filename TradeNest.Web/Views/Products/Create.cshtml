@@ -55,7 +55,7 @@
                        class="form-label text-navy fw-bold">Category: </label>
                 <select asp-for="@Model.CategoryId" class="form-select">
                     <option value="" selected="selected">-- Select Category --</option>
-                    @foreach (AllCategoriesViewModel category in this.Model.AllCategoriesForSelectInputFieldOptions)
+                    @foreach (AllCategoriesViewModel category in this.Model.AllCategories)
                     {
                         <option value="@category.Id">@category.CategoryName</option>
                     }

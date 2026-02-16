@@ -15,7 +15,7 @@ public class CategoriesService : ICategoriesService
         this._dbContext = dbContext;
     }
     
-    public async Task<bool> CategoryExists(Guid id)
+    public async Task<bool> CategoryExistsByIdAsync(Guid id)
     {
         if (id == Guid.Empty)
             return false;
@@ -25,7 +25,7 @@ public class CategoriesService : ICategoriesService
             .AnyAsync(c => c.Id == id);
     }
     
-    public async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModels()
+    public async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModelsAsync()
     {
         return await this._dbContext.Categories
             .AsNoTracking()
@@ -38,13 +38,13 @@ public class CategoriesService : ICategoriesService
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<AllCategoriesWithMostSoldProductFrontImageViewModel>>
-        GetAllCategoriesWithBestSellerImageVm()
+    public async Task<IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel>>
+        GetAllCategoriesWithBestSellerImageVmAsync()
     {
         return await this._dbContext.Categories
                 .AsNoTracking()
                 .OrderBy(c => c.Name)
-                .Select(c => new AllCategoriesWithMostSoldProductFrontImageViewModel()
+                .Select(c => new AllCategoriesWithBestSellerFrontImageViewModel()
                 {
                     Id = c.Id,
                     CategoryName = c.Name,

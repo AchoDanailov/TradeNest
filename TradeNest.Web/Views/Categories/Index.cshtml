@@ -1,4 +1,4 @@
-@model IEnumerable<AllCategoriesWithMostSoldProductFrontImageViewModel>
+@model IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel>
 @{
     ViewData["Title"] = "Categories";
 }
@@ -23,7 +23,7 @@
     <hr class="mb-5 mt-3"/>
 
     <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-2 justify-content-center pb-2">
-        @foreach (AllCategoriesWithMostSoldProductFrontImageViewModel category in this.Model)
+        @foreach (AllCategoriesWithBestSellerFrontImageViewModel category in this.Model)
         {
             <div class="col d-flex justify-content-center">
                 <div class="categories-card card shadow-sm border rounded-3 text-center d-flex flex-column justify-content-center align-items-center py-2">

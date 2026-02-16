@@ -41,6 +41,6 @@ public class ProductEditFormModel
     [Required]
     public string CategoryId { get; set; } = null!;
 
-    public IEnumerable<AllCategoriesViewModel> AllCategoriesForSelectInputFieldOptions { get; set; }
+    public IEnumerable<AllCategoriesViewModel> AllCategories { get; set; }
         = new List<AllCategoriesViewModel>();
 }

@@ -33,10 +33,11 @@ public class ProductsController : BaseController
         if (!string.IsNullOrEmpty(search))
         {
             viewModel = await this._productsService
-                .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync(isFromSearchInput: true);
+                .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync(
+                    isFromSearchInput: true);
                 
             viewModel.Products = await this._productsService
-                .GetAllProdsVmsWithSearchQueryForNameAsync(search);
+                .GetAllProdsBySearchQueryForNameAsync(search);
         }
         else
         {
@@ -46,16 +47,17 @@ public class ProductsController : BaseController
             if (string.IsNullOrEmpty(categoryId))
             {
                 viewModel.Products = await this._productsService
-                    .GetAllProductVmsOrderedByCreatedOnDescAsync();
+                    .GetAllProductsOrderedByDateOfCreationDescAsync();
             }
-            else if (!string.IsNullOrEmpty(categoryId) && Guid.TryParse(categoryId, out Guid id))
+            else if (!string.IsNullOrEmpty(categoryId))
             {
-                bool categoryExists = await this._categoriesService.CategoryExists(id);
-                if (!categoryExists)
+                bool isValidCategory = this.IsValidCategory(categoryId,
+                    viewModel.Categories, out Guid categoryIdGuidValue);
+                if (!isValidCategory)
                     return NotFound();
 
                 viewModel.Products = await this._productsService
-                    .GetAllProdsVmsByCategoryAsync(id);
+                    .GetAllProdsVmsByCategoryIdAsync(categoryIdGuidValue);
             }
         }
         
@@ -77,13 +79,13 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> Details([FromRoute] string? id = null)
+    public async Task<IActionResult> Details([FromRoute] string id)
     {
-        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid guidIdValue))
+        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid prodIdGuidValue))
             return BadRequest();
 
         ProductDetailsViewModel? productDetailsViewModel = await this._productsService
-            .GetProductDetailsViewModelByIdAsync(guidIdValue);
+            .GetProductDetailsViewModelByIdAsync(prodIdGuidValue);
         if (productDetailsViewModel == null)
             return NotFound();
         
@@ -104,11 +106,11 @@ public class ProductsController : BaseController
     [Authorize]
     public async Task<IActionResult> Create([FromForm] ProductCreateFormModel productCreateFormModel)
     {
-        productCreateFormModel.AllCategoriesForSelectInputFieldOptions
-            = await this._categoriesService.GetAllCategoriesViewModels();
+        productCreateFormModel.AllCategories
+            = await this._categoriesService.GetAllCategoriesViewModelsAsync();
 
         bool isValidCategory = this.IsValidCategory(productCreateFormModel.CategoryId,
-            productCreateFormModel.AllCategoriesForSelectInputFieldOptions, out _);
+            productCreateFormModel.AllCategories, out _);
         if (!isValidCategory)
         {
             ModelState
@@ -120,10 +122,10 @@ public class ProductsController : BaseController
         
         try
         {
-            string id = await this._productsService
+            string productId = await this._productsService
                 .CreateProductAsync(this.GetUserId(), productCreateFormModel);
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details), new { id = productId });
         }
         catch (Exception err)
         {
@@ -137,7 +139,7 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Edit([FromRoute] string? id)
+    public async Task<IActionResult> Edit([FromRoute] string id)
     {
         if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid guidIdValue))
             return BadRequest();
@@ -155,7 +157,7 @@ public class ProductsController : BaseController
         catch (Exception err)
         {
             this._logger.LogCritical(err.Message,
-                $"An unexpected error occured while trying to access ProductEditFormModel for product with id: {id}.");
+                $"An unexpected error occured while trying to access product data. Provided id: {id}.");
 
             return BadRequest();
         }
@@ -164,18 +166,20 @@ public class ProductsController : BaseController
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Edit([FromForm] ProductEditFormModel productEditFormModel,
-        [FromRoute] string id)
+        [FromRoute] string id, [FromForm] string? returnUrl)
     {
         if(string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid productIdGuidValue)) 
             return BadRequest();
+        
+        returnUrl ??= Url.Action(nameof(Index), controller: "Products");
 
-        productEditFormModel.AllCategoriesForSelectInputFieldOptions
-            = await this._categoriesService.GetAllCategoriesViewModels();
+        productEditFormModel.AllCategories = await this._categoriesService
+            .GetAllCategoriesViewModelsAsync();
         
         bool isValidCategory = this.IsValidCategory(
             productEditFormModel.CategoryId,
-            productEditFormModel.AllCategoriesForSelectInputFieldOptions,
-            out Guid categoryIdGuidValue);
+            productEditFormModel.AllCategories,
+            out _);
         if (!isValidCategory)
         {
             ModelState
@@ -185,66 +189,76 @@ public class ProductsController : BaseController
         if (!ModelState.IsValid)
             return View(productEditFormModel);
 
-        bool productExists = await this._productsService.ProductExistsAsync(productIdGuidValue);
+        bool productExists = await this._productsService
+            .ProductExistsByIdAsync(productIdGuidValue);
         if (!productExists)
             return NotFound();
-        
+
         try
         {
             Guid userId = this.GetUserId();
             await this._productsService
                 .EditProductAsync(userId, productIdGuidValue, productEditFormModel);
-            
+
             return RedirectToAction(nameof(Details), new { id });
+        }
+        catch (ArgumentException argsErr)
+        {
+            this._logger.LogError(argsErr.Message, 
+                "An error occured due to invalid provided arguments while trying to modify the product. See internal error.");
+            TempData["ProductModificationErrorMessage"] 
+                = ProductModificationUnexpectedErrorMessage;
+
+            return LocalRedirect(returnUrl!);
         }
         catch (Exception err)
         {
             this._logger.LogError(err.Message,
                 "An unexpected error occured while trying modify the product.");
-            ViewData["ProductModificationErrorMessage"] 
+            TempData["ProductModificationErrorMessage"] 
                 = ProductModificationUnexpectedErrorMessage;
             
-            return View(productEditFormModel);
+            return LocalRedirect(returnUrl!);
         }
     }
 
     [HttpPost]
     [Authorize]
-    public IActionResult Delete([FromRoute] string? id = null)
+    public async Task<IActionResult> Delete([FromRoute] string id, [FromForm] string? returnUrl)
     {
         if(string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid productIdGuidValue)) 
             return BadRequest();
         
-        Guid userId = this.GetUserId();
+        returnUrl ??= Url.Action(nameof(Index), controller: "Products");
 
         try
         {
-            this._productsService.DeleteProductAsync(userId, productIdGuidValue);
+            Guid userId = this.GetUserId();
+            await this._productsService.DeleteProductAsync(userId, productIdGuidValue);
 
             TempData["ProductDeletionSuccessMessage"] = ProductDeletionSuccessMessage;
             return RedirectToAction(nameof(Index), controllerName: "Products");
         }
+        catch (ArgumentException argsErr)
+        {
+            this._logger.LogError(argsErr.Message, 
+                "An error occured due to invalid provided arguments while trying to delete the product. See internal error.");
+            TempData["ProductModificationErrorMessage"] 
+                = ProductModificationUnexpectedErrorMessage;
+
+            return LocalRedirect(returnUrl!);
+        }
         catch (Exception err)
         {
             this._logger.LogError(err.Message,
-                "An uncexpected error occured while trying to delete a product.");
-            ViewData["ProductModificationErrorMessage"]
+                "An unexpected error occured while trying to delete a product.");
+            TempData["ProductModificationErrorMessage"]
                 = ProductModificationUnexpectedErrorMessage;
 
-            return View(nameof(Details), new { id });
+            return LocalRedirect(returnUrl!);
         }
     }
 
-    /// <summary>
-    /// This method checks if the the given id parameter's value can be parsed to valid Guid type
-    /// and if it can be found as a value for the Id property of an instance in a collection
-    /// with AllCategoriesViewModel type. 
-    /// </summary>
-    /// <param name="id">The category id string value</param>
-    /// <param name="allCategoriesViewModels">Collection of AllCategoriesViewModel types</param>
-    /// <param name="categoryIdGuidValue">Valid category id guid value</param>
-    /// <returns>Value that represents if the passed in id parameter value can be parsed to
-    /// valid Guid type and if there is an instance's property Id value that matches it.</returns>
     private bool IsValidCategory(string? id, IEnumerable<AllCategoriesViewModel> allCategoriesViewModels,
         out Guid categoryIdGuidValue)
     {

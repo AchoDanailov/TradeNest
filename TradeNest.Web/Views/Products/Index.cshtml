@@ -3,6 +3,8 @@
     ViewData["Title"] = "Catalog";
     string productDeletionSuccessMessage = TempData["ProductDeletionSuccessMessage"] as string 
                                           ?? string.Empty;
+    string productModificationErrorMessage = TempData["ProductModificationErrorMessage"] as string
+                                             ?? string.Empty;
 }
 
 <div class="container-lg pt-3">
@@ -11,6 +13,13 @@
         <div class="alert alert-success alert-dismissible" role="status">
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             @productDeletionSuccessMessage
+        </div>
+    } 
+    else if (!string.IsNullOrEmpty(productModificationErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible" role="status">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            @productModificationErrorMessage
         </div>
     }
     <div class="row d-flex flex-row my-2 align-items-center">

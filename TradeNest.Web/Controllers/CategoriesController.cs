@@ -19,8 +19,8 @@ public class CategoriesController : BaseController
     [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
-        IEnumerable<AllCategoriesWithMostSoldProductFrontImageViewModel> model
-            = await this._categoriesService.GetAllCategoriesWithBestSellerImageVm();
+        IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel> model
+            = await this._categoriesService.GetAllCategoriesWithBestSellerImageVmAsync();
         
         return View(model);
     }
