@@ -42,7 +42,6 @@ public class OrdersController : BaseController
         return View(userOrders);
     }
     
-    //TODO: If left enough time try adding concurrency stamp to the product's table
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> AddProduct([FromRoute] string id,
