@@ -3,6 +3,8 @@
     ViewData["Title"] = "Product details";
     string productModificationErrorMessage = TempData["ProductModificationErrorMessage"] as string 
                                           ?? string.Empty;
+    string productAddingToOrderUnexpectedErrorMessage
+        = TempData["ProductAddingToOrderUnexpectedErrorMessage"] as string ?? string.Empty;
 }
 
 <div class="container-lg pt-4">
@@ -11,6 +13,13 @@
         <div class="alert alert-danger alert-dismissible" role="alert">
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             @productModificationErrorMessage
+        </div>
+    } 
+    else if (!string.IsNullOrEmpty(productAddingToOrderUnexpectedErrorMessage))
+    {
+        <div class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            @productAddingToOrderUnexpectedErrorMessage
         </div>
     }
     <div class="row d-none d-md-flex flex-column justify-content-center mb-4">

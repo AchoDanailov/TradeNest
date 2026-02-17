@@ -11,7 +11,7 @@
 <div class="container-lg mt-4 p-3 border rounded-3 shadow site-sections-bg d-flex flex-column gap-4">
     @if (!string.IsNullOrEmpty(productAddingToOrderUnexpectedError))
     {
-        <div class="alert alert-success alert-dismissible" role="status">
+        <div class="alert alert-danger alert-dismissible" role="status">
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             @productAddingToOrderUnexpectedError
         </div>

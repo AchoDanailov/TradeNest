@@ -20,9 +20,9 @@ public interface IOrdersService
     /// </summary>
     /// <param name="userId">The user identifier which is attempting the operation.</param>
     /// <param name="productId">The product identifier which is added to the user's ongoing order.</param>
-    /// <param name="productQuantity">The quantity of the product being added to the ongoing order.</param>
+    /// <param name="prodQtyToAdd">The quantity of the product being added to the ongoing order.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
-    Task AddProductToOrderAsync(Guid userId, Guid productId, int productQuantity);
+    Task AddProductToOrderAsync(Guid userId, Guid productId, int prodQtyToAdd);
 
     /// <summary>
     /// Gets the user's ongoing order if any.

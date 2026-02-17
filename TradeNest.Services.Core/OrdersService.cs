@@ -49,12 +49,13 @@ public class OrdersService : IOrdersService
             .ToArrayAsync();
     }
 
-    public async Task AddProductToOrderAsync(Guid userId, Guid productId, int productQuantity)
+    public async Task AddProductToOrderAsync(Guid userId, Guid productId, int prodQtyToAdd)
     {
-        if (userId == Guid.Empty || productId == Guid.Empty || productQuantity <= 0)
+        if (userId == Guid.Empty || productId == Guid.Empty || prodQtyToAdd <= 0)
             throw new ArgumentException("Invalid argument's were provided.");
 
         Order? ongoingOrder = await this._dbContext.Orders
+            .Include(o => o.OrderProducts)
             .Where(o => o.UserId == userId)
             .SingleOrDefaultAsync(o => !o.IsSubmitted);
         if (ongoingOrder == null)
@@ -64,20 +65,39 @@ public class OrdersService : IOrdersService
         if(product == null)
             throw new ArgumentException("Invalid argument were provided.", nameof(productId));
 
-        if (product.QuantityInStock < productQuantity)
+        int userAlreadyAddedProdQty = ongoingOrder
+            .OrderProducts
+            .SingleOrDefault(op => op.ProductId == productId)?.ProductsQuantity ?? 0;
+        if (product.QuantityInStock < prodQtyToAdd + userAlreadyAddedProdQty)
             throw new ArgumentException("Insufficient product quantity.");
 
-        ongoingOrder.TotalPrice += product.SellingPrice * productQuantity;
-        
-        OrderProduct orderProduct = new OrderProduct()
-        {
-            OrderId = ongoingOrder.Id,
-            ProductId = product.Id,
-            ProductsQuantity = productQuantity,
-        };
+        ongoingOrder.TotalPrice += product.SellingPrice * prodQtyToAdd;
 
-        await this._dbContext.OrdersProducts.AddAsync(orderProduct);
+        if (userAlreadyAddedProdQty > 0)
+        {
+            ongoingOrder.OrderProducts
+                .Single(op => op.ProductId == productId)
+                .ProductsQuantity += prodQtyToAdd;
+        }
+        else
+        {
+            OrderProduct orderProduct = new OrderProduct()
+            {
+                OrderId = ongoingOrder.Id,
+                ProductId = product.Id,
+                ProductsQuantity = prodQtyToAdd,
+            };
+            
+            await this._dbContext.OrdersProducts.AddAsync(orderProduct);
+        }
+        
         await this._dbContext.SaveChangesAsync();
+    }
+
+    private int GetUserProdQtyInOngoingOrderIfAny(Guid productId, Order ongoingOrder)
+    {
+        return ongoingOrder.OrderProducts
+            .FirstOrDefault(op => op.ProductId == productId)?.ProductsQuantity ?? 0;
     }
 
     public async Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId)

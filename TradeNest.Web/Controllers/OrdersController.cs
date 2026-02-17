@@ -45,7 +45,7 @@ public class OrdersController : BaseController
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> AddProduct([FromRoute] string id,
-        [FromForm] string quantity, [FromRoute] string? returnUrl)
+        [FromForm] string quantity, string? returnUrl)
     {
         if (string.IsNullOrEmpty(id) ||
             !Guid.TryParse(id, out Guid prodIdGuid) ||
@@ -54,12 +54,12 @@ public class OrdersController : BaseController
             return BadRequest();
         }
 
-        returnUrl ??= Url.Action(nameof(Index), controller: "Products");
-        
         bool productExists = await this._productsService
             .ProductExistsByIdAsync(prodIdGuid);
         if (!productExists)
             return NotFound();
+        
+        returnUrl ??= Url.Action(nameof(Index), controller: "Products");
         
         try
         {
