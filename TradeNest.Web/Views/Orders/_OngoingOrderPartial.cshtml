@@ -8,11 +8,12 @@
             <div class="d-flex flex-column flex-grow-1">
                 @if (product.Name.Length > 20)
                 {
-                    <h5 class="text-navy">@product.Name.Substring(0, 15)...</h5>
+                    <h5 class="text-navy d-md-none">@product.Name.Substring(0, 15)...</h5>
+                    <h5 class="text-navy d-none d-md-block">@product.Name</h5>
                 }
                 else
                 {
-                    <h5 class="text-navy">@product.Name</h5>
+                    <h5 class="text-navy d-none d-md-block">@product.Name</h5>
                 }
                 <p class="mb-0">Quantity: @product.QuantityOrdered</p>
                 <p class="mb-0">Unit Price: €@product.UnitPrice</p>
@@ -21,8 +22,9 @@
             <div class="d-flex align-items-center justify-content-between gap-2">
                 <a class="btn btn-teal" asp-controller="Products" asp-action="Details"
                    asp-route-id="@product.Id">Details</a>
-                <form asp-controller="Orders" asp-action="RemoveProduct"
-                      asp-route-returnUrl="@Url.Action("Index", "Orders")">
+                <form method="post" asp-controller="Orders" asp-action="RemoveProduct"
+                      asp-route-id="@product.Id">
+                    <input type="hidden" name="returnUrl" value="@Url.Action("Index", "Orders")" />
                     <button type="submit" class="btn btn-danger">Remove</button>
                 </form>
             </div>

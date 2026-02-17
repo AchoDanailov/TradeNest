@@ -133,6 +133,41 @@ public class OrdersService : IOrdersService
             .SingleOrDefaultAsync();
     }
 
+    public async Task RemoveProductFromOrderAsync(Guid userId, Guid productId)
+    {
+        if(userId == Guid.Empty || productId == Guid.Empty)
+            throw new ArgumentException("Invalid argument's were provided.");
+
+        Order? ongoingOrder = await this._dbContext.Orders
+            .Include(o => o.OrderProducts)
+            .SingleOrDefaultAsync(o => o.UserId == userId && !o.IsSubmitted);
+        if (ongoingOrder == null)
+            throw new InvalidOperationException("Can not remove product from an unexistent order.");
+
+        Product? product = await this._dbContext.Products
+            .SingleOrDefaultAsync(p => p.Id == productId);
+        bool prodExistsInOngoingOrder = ongoingOrder.OrderProducts
+            .Any(op => op.ProductId == productId);
+        if (product == null || !prodExistsInOngoingOrder)
+        {
+            throw new InvalidOperationException(
+                $"Can not remove product with id {productId} from the user's order if it isn's already there.");
+        }
+
+        OrderProduct orderProductToRemove = ongoingOrder.OrderProducts
+            .Single(op => op.ProductId == productId);
+        
+        ongoingOrder.OrderProducts.Remove(orderProductToRemove);
+        ongoingOrder.TotalPrice -= orderProductToRemove.ProductsQuantity * product.SellingPrice;
+
+        if (!ongoingOrder.OrderProducts.Any())
+        {
+            //TODO: Handle deletion (try to enable the deletion of orders and OrderProducts in db)
+        }
+
+        await this._dbContext.SaveChangesAsync();
+    }
+
     private async Task<Order> CreateOngoingOrder(Guid userId)
     {
         Order newOngoingOrder = new Order()

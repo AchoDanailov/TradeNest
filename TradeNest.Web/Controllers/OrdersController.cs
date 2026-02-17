@@ -42,6 +42,7 @@ public class OrdersController : BaseController
         return View(userOrders);
     }
     
+    //TODO: If left enough time try adding concurrency stamp to the product's table
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> AddProduct([FromRoute] string id,
@@ -73,8 +74,8 @@ public class OrdersController : BaseController
         {
             this._logger.LogError(err.Message,
                 "An unexpected error occured while trying to add a product in the user's ongoing order.");
-            TempData["ProductAddingToOrderUnexpectedErrorMessage"]
-                = OperationsStatusMessages.ProductAddingToOrderUnexpectedErrorMessage;
+            TempData["OrderModificationUnexpectedErrorMessage"]
+                = OperationsStatusMessages.OrderModificationUnexpectedErrorMessage;
 
             return LocalRedirect(returnUrl!);
         }
@@ -82,9 +83,34 @@ public class OrdersController : BaseController
     
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> RemoveProduct([FromRoute] string productId)
+    public async Task<IActionResult> RemoveProduct([FromRoute] string id,
+        [FromForm] string? returnUrl)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid prodIdGuid))
+            return BadRequest();
+
+        bool prodExists = await this._productsService.ProductExistsByIdAsync(prodIdGuid);
+        if (!prodExists)
+            return NotFound();
+
+        returnUrl ??= Url.Action(nameof(Index), controller: "Orders");
+
+        try
+        {
+            Guid userId = this.GetUserId();
+            await this._ordersService.RemoveProductFromOrderAsync(userId, prodIdGuid);
+
+            return RedirectToAction(nameof(Index), controllerName: "Orders");
+        }
+        catch (Exception err)
+        {
+            this._logger.LogError(err.Message,
+                "An unexpected error occured while trying to remove a product from the user's ongoing order.");
+            TempData["ProductRemovingFromOrderUnexpectedErrorMessage"]
+                = OperationsStatusMessages.OrderModificationUnexpectedErrorMessage;
+
+            return LocalRedirect(returnUrl!);
+        }
     }
     
     [HttpPost]

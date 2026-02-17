@@ -33,4 +33,14 @@ public interface IOrdersService
     /// If user's ongoing order is not found - the method returns null.
     /// </returns>
     Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId);
+
+    /// <summary>
+    /// Removes the product from the user's ongoing order.
+    /// </summary>
+    /// <param name="userId">The user identifier to which the orders belong.</param>
+    /// <param name="productId">
+    /// The product identifier which is being removed from the user's ongoing order.
+    /// </param>
+    /// <returns>A Task representing the asynchronous operation</returns>
+    Task RemoveProductFromOrderAsync(Guid userId, Guid productId);
 }
