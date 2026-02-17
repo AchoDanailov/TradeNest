@@ -83,11 +83,16 @@ public class OrdersController : BaseController
     
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> RemoveProduct([FromRoute] string id,
+    public async Task<IActionResult> RemoveProduct(
+        [FromRoute] string id,
+        [FromForm] string orderId,
         [FromForm] string? returnUrl)
     {
-        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid prodIdGuid))
+        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid prodIdGuid) ||
+            !Guid.TryParse(orderId, out Guid orderIdGuid))
+        {
             return BadRequest();
+        }
 
         bool prodExists = await this._productsService.ProductExistsByIdAsync(prodIdGuid);
         if (!prodExists)
@@ -98,7 +103,8 @@ public class OrdersController : BaseController
         try
         {
             Guid userId = this.GetUserId();
-            await this._ordersService.RemoveProductFromOrderAsync(userId, prodIdGuid);
+            await this._ordersService
+                .RemoveProductFromOrderAsync(userId, prodIdGuid, orderIdGuid);
 
             return RedirectToAction(nameof(Index), controllerName: "Orders");
         }
@@ -115,9 +121,31 @@ public class OrdersController : BaseController
     
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Submit([FromRoute] string productId)
+    public async Task<IActionResult> Submit([FromRoute] string id, [FromForm] string? returnUrl)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid orderIdGuid))
+            return BadRequest();
+        
+        returnUrl ??= Url.Action(nameof(Index), controller: "Orders");
+
+        try
+        {
+            Guid userId = this.GetUserId();
+            await this._ordersService.SubmitOrderAsync(userId, orderIdGuid);
+            
+            TempData["OrderSubmittionSuccessMessage"]
+                = OperationsStatusMessages.OrderSubmittionSuccessMessage;
+            return RedirectToAction(nameof(Index), controllerName: "Orders");
+        }
+        catch (Exception err)
+        {
+            this._logger.LogError(err.Message,
+                "An unexpected error occured while trying to submit the user's ongoing order.");
+            TempData["OrderModificationUnexpectedErrorMessage"]
+                = OperationsStatusMessages.OrderModificationUnexpectedErrorMessage;
+
+            return LocalRedirect(returnUrl!);
+        }
     }
 
     [HttpPost]
@@ -131,7 +159,8 @@ public class OrdersController : BaseController
         
         try
         {
-            await this._ordersService.CancelOrderAsync(orderIdGuid);
+            Guid userId = this.GetUserId();
+            await this._ordersService.CancelOrderAsync(userId, orderIdGuid);
             return RedirectToAction(nameof(Index), controllerName: "Orders");
         }
         catch (Exception err)

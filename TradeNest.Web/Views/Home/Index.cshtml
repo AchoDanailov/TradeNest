@@ -16,7 +16,8 @@
             <div class="d-flex gap-3 mt-4 justify-content-center justify-content-md-start">
                 <a class="btn btn-teal btn-lg px-4"
                    asp-controller="Products" asp-action="Index">Shop Now</a>
-                <a class="btn btn-outline-teal btn-lg px-4">Become a Seller</a>
+                <a class="btn btn-outline-teal btn-lg px-4"
+                   asp-controller="Products" asp-action="Create">Become a Seller</a>
             </div>
         </div>
 
@@ -58,7 +59,8 @@
                         </p>
                     </div>
                     <div class="card-footer d-flex justify-content-center">
-                        <button class="btn btn-teal">Go Now</button>
+                        <a class="btn btn-teal"
+                           asp-controller="Categories" asp-action="Index">Go Now</a>
                     </div>
                 </div>
             </a>
@@ -77,7 +79,8 @@
                         </p>
                     </div>
                     <div class="card-footer d-flex justify-content-center">
-                        <button class="btn btn-teal">Go Now</button>
+                        <a class="btn btn-teal"
+                                asp-controller="Products" asp-action="Create">Go Now</a>
                     </div>
                 </div>
             </a>

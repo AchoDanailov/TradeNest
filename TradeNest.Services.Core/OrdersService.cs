@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
 using TradeNest.Data.Models;
@@ -133,20 +134,19 @@ public class OrdersService : IOrdersService
             .SingleOrDefaultAsync();
     }
 
-    public async Task RemoveProductFromOrderAsync(Guid userId, Guid productId)
+    public async Task RemoveProductFromOrderAsync(Guid userId, Guid productId, Guid orderId)
     {
         if(userId == Guid.Empty || productId == Guid.Empty)
             throw new ArgumentException("Invalid argument's were provided.");
 
-        Order? ongoingOrder = await this._dbContext.Orders
-            .Include(o => o.OrderProducts)
-            .SingleOrDefaultAsync(o => o.UserId == userId && !o.IsSubmitted);
-        if (ongoingOrder == null)
-            throw new InvalidOperationException("Can not remove product from an unexistent order.");
+        Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
+            userId,
+            orderId,
+            o => o.Id == orderId && !o.IsSubmitted,
+            includeProducts: true);
 
-        Product? product = await this._dbContext.Products
-            .SingleOrDefaultAsync(p => p.Id == productId);
-        bool prodExistsInOngoingOrder = ongoingOrder.OrderProducts
+        Product? product = await this._dbContext.Products.FindAsync(productId);
+        bool prodExistsInOngoingOrder = order.OrderProducts
             .Any(op => op.ProductId == productId);
         if (product == null || !prodExistsInOngoingOrder)
         {
@@ -154,16 +154,14 @@ public class OrdersService : IOrdersService
                 $"Can not remove product with id {productId} from the user's order if it isn's already there.");
         }
 
-        OrderProduct orderProductToRemove = ongoingOrder.OrderProducts
+        OrderProduct orderProductToRemove = order.OrderProducts
             .Single(op => op.ProductId == productId);
         
-        ongoingOrder.OrderProducts.Remove(orderProductToRemove);
-        ongoingOrder.TotalPrice -= orderProductToRemove.ProductsQuantity * product.SellingPrice;
+        order.OrderProducts.Remove(orderProductToRemove);
+        order.TotalPrice -= orderProductToRemove.ProductsQuantity * product.SellingPrice;
 
-        if (!ongoingOrder.OrderProducts.Any())
-        {
-            //TODO: Handle deletion (try to enable the deletion of orders and OrderProducts in db)
-        }
+        if (!order.OrderProducts.Any())
+            this._dbContext.Orders.Remove(order);
 
         await this._dbContext.SaveChangesAsync();
     }
@@ -177,28 +175,85 @@ public class OrdersService : IOrdersService
             .AnyAsync(o => o.Id == orderId);
     }
 
-    public async Task CancelOrderAsync(Guid orderId)
+    public async Task CancelOrderAsync(Guid userId, Guid orderId)
     {
-        if(orderId == Guid.Empty)
+        if(orderId == Guid.Empty || userId == Guid.Empty)
             throw new ArgumentException("Invalid argument were provided.", nameof(orderId));
 
-        Order? orderToCancel = await this._dbContext.Orders
-            .Include(o => o.OrderProducts)
-            .SingleOrDefaultAsync(o => o.Id == orderId);
-        if (orderToCancel == null)
-            throw new ArgumentException("Order not found.", nameof(orderId));
+        Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
+            userId,
+            orderId,
+            o => o.Id == orderId,
+            includeProducts: false);
 
-        if (orderToCancel.IsSubmitted)
+        this._dbContext.Orders.Remove(order);
+        await this._dbContext.SaveChangesAsync();
+    }
+
+    public async Task SubmitOrderAsync(Guid userId, Guid orderId)
+    {
+        if(orderId == Guid.Empty || userId == Guid.Empty)
+            throw new ArgumentException("Invalid argument were provided.", nameof(orderId));
+
+        Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
+            userId,
+            orderId,
+            o => o.Id == orderId,
+            includeProducts: true);
+
+        foreach (OrderProduct orderProduct in order.OrderProducts)
         {
-            throw new InvalidOperationException(
-                $"Can not cancel order with id: {orderId}, since order is already submitted");
+            if (orderProduct.Product.QuantityInStock < orderProduct.ProductsQuantity)
+            {
+                throw new InvalidOperationException(
+                    $"Insufficient amount of stock for product {orderProduct.Product.Name}");
+            }
+
+            orderProduct.Product.QuantityInStock -= orderProduct.ProductsQuantity;
+
+            if (orderProduct.Product.QuantityInStock == 0)
+                orderProduct.Product.IsEnabled = false;
         }
 
-        //TODO: Handle deletion (try to enable the deletion of orders and OrderProducts in db)
-        orderToCancel.TotalPrice = 0m;
-        orderToCancel.OrderProducts.Clear();
+        order.IsSubmitted = true;
+        order.SubmittedOn = DateTime.UtcNow;
+        order.TotalPrice = order.OrderProducts
+            .Sum(op => op.ProductsQuantity * op.Product.SellingPrice);
 
         await this._dbContext.SaveChangesAsync();
+    }
+
+    private async Task<Order> GetOrderForModificationWithOrderProductsAttachedAsync(
+        Guid userId, 
+        Guid orderId,
+        Expression<Func<Order, bool>> filterPredicate,
+        bool includeProducts = false)
+    {
+        IQueryable<Order> orderQuery = this._dbContext.Orders;
+        if (includeProducts)
+        {
+            orderQuery = orderQuery
+                .Include(o => o.OrderProducts)
+                .ThenInclude(o => o.Product);
+        }
+        else
+        {
+            orderQuery = orderQuery
+                .Include(o => o.OrderProducts);
+        }
+        Order? order = await orderQuery
+            .SingleOrDefaultAsync(filterPredicate);
+        
+        if (order == null)
+            throw new ArgumentException("Order not found.", nameof(orderId));
+
+        if (order.UserId != userId)
+            throw new InvalidOperationException("Unauthorized operation attempt.");
+
+        if (order.IsSubmitted)
+            throw new InvalidOperationException($"Order with id: {orderId} already is submitted.");
+
+        return order;
     }
 
     private async Task<Order> CreateOngoingOrder(Guid userId)

@@ -16,5 +16,8 @@ public static class OperationsStatusMessages
         = "The product was successfully deleted.";
 
     public const string OrderModificationUnexpectedErrorMessage
-        = "Oops. Something went wrong with the last attempt to modify the order. Please try again in a moment.";
+        = "Oops. Something went wrong with the last attempt to modify your order. Please try again in a moment.";
+
+    public const string OrderSubmittionSuccessMessage
+        = "Your order was successfully submitted.";
 }

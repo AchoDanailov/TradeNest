@@ -3,6 +3,8 @@
     ViewData["Title"] = "My Orders";
     string orderModificationUnexpectedError 
         = TempData["OrderModificationUnexpectedErrorMessage"] as string ?? string.Empty;
+    string orderSubmittionSuccessMessage
+        = TempData["OrderSubmittionSuccessMessage"] as string ?? string.Empty;
 }
 
 <div class="d-md-none d-flex col justify-content-center mt-5 mb-4">
@@ -14,6 +16,13 @@
         <div class="alert alert-danger alert-dismissible" role="status">
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             @orderModificationUnexpectedError
+        </div>
+    }
+    else if (!string.IsNullOrEmpty(orderSubmittionSuccessMessage))
+    {
+        <div class="alert alert-danger alert-dismissible" role="status">
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            @orderSubmittionSuccessMessage
         </div>
     }
 

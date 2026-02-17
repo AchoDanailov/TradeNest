@@ -41,8 +41,9 @@ public interface IOrdersService
     /// <param name="productId">
     /// The product identifier which is being removed from the user's ongoing order.
     /// </param>
+    /// <param name="orderId">The user's ongoing order identifier.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
-    Task RemoveProductFromOrderAsync(Guid userId, Guid productId);
+    Task RemoveProductFromOrderAsync(Guid userId, Guid productId, Guid orderId);
 
     /// <summary>
     /// Determines whether an order with the specified identifier exists.
@@ -55,6 +56,15 @@ public interface IOrdersService
     /// Cancels the user's ongoing order.
     /// </summary>
     /// <param name="orderId">The order's identifier</param>
+    /// <param name="userId">The user identifier to which the orders belong.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
-    Task CancelOrderAsync(Guid orderId);
+    Task CancelOrderAsync(Guid userId, Guid orderId);
+
+    /// <summary>
+    /// Submits the user's ongoing order.
+    /// </summary>
+    /// <param name="orderId">The order to be submitted</param>
+    /// <param name="userId">The user identifier to which the orders belong.</param>
+    /// <returns>A Task representing the asynchronous operation</returns>
+    Task SubmitOrderAsync(Guid userId, Guid orderId);
 }
