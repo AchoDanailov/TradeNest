@@ -1,4 +1,4 @@
-@model AllOrdersViewModel
+@model OrderViewModel
 
 <div class="d-flex flex-column gap-1 p-3 mx-auto" 
      style="max-width: 95%;">
@@ -8,7 +8,7 @@
             <div class="d-flex flex-column flex-grow-1">
                 @if (product.Name.Length > 20)
                 {
-                    <h5 class="text-navy">@product.Name.Substring(0, 20)...</h5>
+                    <h5 class="text-navy">@product.Name.Substring(0, 15)...</h5>
                 }
                 else
                 {

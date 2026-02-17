@@ -68,14 +68,29 @@
                 {
                     <input id="quantityInput" class="form-control-sm" type="number"
                            value=0 aria-label="Quantity" disabled/>
+                    <p class="text-navy text-muted mt-2">@this.Model.QuantityInStock available</p>
+
+                    if (this.User?.Identity?.Name != this.Model.Owner)
+                    {
+                        <p class="rounded-pill bg-secondary p-2 text-light">
+                            Sorry can't order right now
+                        </p>
+                    }
                 }
                 else
                 {
-                    @*TODO: Add to req*@
-                    <input id="quantityInput" class="form-control-sm" type="number"
-                           value=1 aria-label="Quantity"/>
+                    <form method="post" asp-controller="Orders" asp-action="AddProduct"
+                          asp-route-id="@Model.Id">
+                        <input type="hidden" name="returnUrl" 
+                               value="@Url.Action("Details", controller: "Products", new { id = @Model.Id })"/>
+                        <input name="quantity" id="quantityInput" class="form-control-sm" type="number"
+                               value=1 aria-label="Quantity"/>
+                        <p class="text-navy text-muted mt-2">@this.Model.QuantityInStock available</p>
+                        <button type="submit" class="rounded-pill btn-teal p-2">
+                            Add To Order
+                        </button>
+                    </form>
                 }
-                <p class="text-navy text-muted mt-2">@this.Model.QuantityInStock available</p>
             </div>
 
             <div class="btn-group-vertical align-items-stretch flex-grow-1">
@@ -114,19 +129,6 @@
                         </div>
                       </div>
                     </div>
-                }
-                else
-                {
-                    if (this.Model.IsEnabled)
-                    {
-                        <a class="rounded-pill btn-teal p-2"
-                           asp-controller="Orders" asp-action="AddProduct"
-                           asp-route-productId="@Model.Id">Add To Order</a>
-                    }
-                    else
-                    {
-                        <p class="rounded-pill bg-secondary p-2 text-light">Sorry can't order right now</p>
-                    }
                 }
             </div>
 

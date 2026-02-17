@@ -1,6 +1,6 @@
 namespace TradeNest.Web.ViewModels.Order;
 
-public class AllOrdersViewModel
+public class OrderViewModel
 {
     public Guid Id { get; set; }
     

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Web.Utilities;
 using TradeNest.Web.ViewModels.Order;
 
 namespace TradeNest.Web.Controllers;
@@ -10,10 +11,12 @@ public class OrdersController : BaseController
 {
     private readonly ILogger<OrdersController> _logger;
     private readonly IOrdersService _ordersService;
+    private readonly IProductsService _productsService;
 
-    public OrdersController(IOrdersService ordersService, ILogger<OrdersController> logger)
+    public OrdersController(IOrdersService ordersService, ILogger<OrdersController> logger, IProductsService productsService)
     {
         this._logger = logger;
+        this._productsService = productsService;
         this._ordersService = ordersService;
     }
 
@@ -21,7 +24,7 @@ public class OrdersController : BaseController
     [Authorize]
     public async Task<IActionResult> Index()
     {
-        IEnumerable<AllOrdersViewModel> userOrders = Array.Empty<AllOrdersViewModel>();
+        IEnumerable<OrderViewModel> userOrders = Array.Empty<OrderViewModel>();
         
         try
         {
@@ -30,17 +33,51 @@ public class OrdersController : BaseController
         }
         catch (Exception err)
         {
-            this._logger.LogWarning(err.Message,
-                "An unexpected error occured while user tried to access his Orders. See internal error.");   
+            this._logger.LogCritical(err.Message,
+                "An unexpected error occured while user tried to access his Orders. See internal error.");
+
+            return BadRequest();
         } 
+        
         return View(userOrders);
     }
     
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> AddProduct([FromRoute] string productId)
+    public async Task<IActionResult> AddProduct([FromRoute] string id,
+        [FromForm] string quantity, [FromRoute] string? returnUrl)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(id) ||
+            !Guid.TryParse(id, out Guid prodIdGuid) ||
+            !int.TryParse(quantity, out int qtyIntValue))
+        {
+            return BadRequest();
+        }
+
+        returnUrl ??= Url.Action(nameof(Index), controller: "Products");
+        
+        bool productExists = await this._productsService
+            .ProductExistsByIdAsync(prodIdGuid);
+        if (!productExists)
+            return NotFound();
+        
+        try
+        {
+            Guid userId = this.GetUserId();
+            await this._ordersService
+                .AddProductToOrderAsync(userId, prodIdGuid, qtyIntValue);
+            
+            return RedirectToAction(nameof(Index), controllerName: "Orders");
+        }
+        catch (Exception err)
+        {
+            this._logger.LogError(err.Message,
+                "An unexpected error occured while trying to add a product in the user's ongoing order.");
+            TempData["ProductAddingToOrderUnexpectedErrorMessage"]
+                = OperationsStatusMessages.ProductAddingToOrderUnexpectedErrorMessage;
+
+            return LocalRedirect(returnUrl!);
+        }
     }
     
     [HttpPost]
