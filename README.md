@@ -9,9 +9,9 @@ buy and sell a wide variety of products.
 
 ---
 
-## Features & Tech Stack
+## Tech Stack
 - **Backend** – C# & ASP.NET Core MVC.
-- **Database** – SQL Server & Entity Framework Core for data access.
+- **Database** – SQL Server & Entity Framework Core for data access and data store.
 - **Authentication & Authorization** – Secure user login and registration powered by ASP.NET Core Identity.
 - **User Interface** – Razor Views (MVC) & Bootstrap.
 
@@ -59,6 +59,85 @@ http://localhost:{defaultAppPort}
 
 ---
 
+## Project Structure
+
+```
+TradeNest/
+│
+├── TradeNest.Data/                # DbContext, configurations and migrations
+├── TradeNest.Data.Models/         # Entity models EFCore uses
+├── TradeNest.GCommon/             # For everething with Cross-cutting concerns
+├── TradeNest.Services.Core/       # Business logic \ service layer
+├── TradeNest.Web/                 # MVC web application
+└── TradeNest.Web.ViewModels/      # ViewModels
+```
+
+---
+
+## Features
+
+- [x] User registration and login (ASP.NET Identity)
+- [x] CRUD operations for Products and Orders
+- [x] Responsive UI with Bootstrap 5
+
+---
+
+## Configuration
+
+Key settings in `appsettings.json`:
+
+```json
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=127.0.0.1;Database=TradeNestDb;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False"
+  }
+}
+```
+
+### Default users credentials you can use for developing and testing:
+1. Email: Har1b0@gmail.com  
+Password: Har1b0o
+2. Email: M1rk0@gmail.com  
+Password: M1rk0o
+
+
+### The .config directory
+The application uses a manifest file `dotnet-tools.json` for managing dotnet tools locally in the `.config/` directory. For more information see the [docs](https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
+```json
+{
+  "version": 1,
+  "isRoot": true,
+  "tools": {
+    "dotnet-ef": {
+      "version": "8.0.23",
+      "commands": [
+        "dotnet-ef"
+      ],
+      "rollForward": false
+    }
+  }
+}
+
+```
+
+---
+
+## Contributing
+
+Contributions are welcome. To contribute:
+1. Fork the repository
+2. Create a new branch: `git checkout -b feature/your-feature-name`
+3. Commit your changes: `git commit -m "Add some feature"`
+4. Push to the branch: `git push origin feature/your-feature-name`
+5. Open a Pull Request
+
 ## License
 
-This project is licensed under the MIT License—see the LICENSE file for details.
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
