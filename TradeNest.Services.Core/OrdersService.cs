@@ -168,6 +168,39 @@ public class OrdersService : IOrdersService
         await this._dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> OrderExistsByIdAsync(Guid orderId)
+    {
+        if(orderId == Guid.Empty)
+            throw new ArgumentException("Invalid argument were provided.", nameof(orderId));
+
+        return await this._dbContext.Orders
+            .AnyAsync(o => o.Id == orderId);
+    }
+
+    public async Task CancelOrderAsync(Guid orderId)
+    {
+        if(orderId == Guid.Empty)
+            throw new ArgumentException("Invalid argument were provided.", nameof(orderId));
+
+        Order? orderToCancel = await this._dbContext.Orders
+            .Include(o => o.OrderProducts)
+            .SingleOrDefaultAsync(o => o.Id == orderId);
+        if (orderToCancel == null)
+            throw new ArgumentException("Order not found.", nameof(orderId));
+
+        if (orderToCancel.IsSubmitted)
+        {
+            throw new InvalidOperationException(
+                $"Can not cancel order with id: {orderId}, since order is already submitted");
+        }
+
+        //TODO: Handle deletion (try to enable the deletion of orders and OrderProducts in db)
+        orderToCancel.TotalPrice = 0m;
+        orderToCancel.OrderProducts.Clear();
+
+        await this._dbContext.SaveChangesAsync();
+    }
+
     private async Task<Order> CreateOngoingOrder(Guid userId)
     {
         Order newOngoingOrder = new Order()

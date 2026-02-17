@@ -106,7 +106,7 @@ public class OrdersController : BaseController
         {
             this._logger.LogError(err.Message,
                 "An unexpected error occured while trying to remove a product from the user's ongoing order.");
-            TempData["ProductRemovingFromOrderUnexpectedErrorMessage"]
+            TempData["OrderModificationUnexpectedErrorMessage"]
                 = OperationsStatusMessages.OrderModificationUnexpectedErrorMessage;
 
             return LocalRedirect(returnUrl!);
@@ -120,10 +120,28 @@ public class OrdersController : BaseController
         throw new NotImplementedException();
     }
 
-    [HttpGet]
+    [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Cancel()
+    public async Task<IActionResult> Cancel([FromRoute] string id, [FromForm] string? returnUrl)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid orderIdGuid))
+            return BadRequest();
+
+        returnUrl ??= Url.Action(nameof(Index), controller: "Orders");
+        
+        try
+        {
+            await this._ordersService.CancelOrderAsync(orderIdGuid);
+            return RedirectToAction(nameof(Index), controllerName: "Orders");
+        }
+        catch (Exception err)
+        {
+            this._logger.LogError(err.Message,
+                "An unexpected error occured while trying to cancel the user's ongoing order.");
+            TempData["OrderModificationUnexpectedErrorMessage"]
+                = OperationsStatusMessages.OrderModificationUnexpectedErrorMessage;
+
+            return LocalRedirect(returnUrl!);
+        }
     }
 }

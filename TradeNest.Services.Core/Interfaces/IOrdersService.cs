@@ -43,4 +43,18 @@ public interface IOrdersService
     /// </param>
     /// <returns>A Task representing the asynchronous operation</returns>
     Task RemoveProductFromOrderAsync(Guid userId, Guid productId);
+
+    /// <summary>
+    /// Determines whether an order with the specified identifier exists.
+    /// </summary>
+    /// <param name="orderId">The order's identifier.</param>
+    /// <returns>A task that returns true if the order exists; otherwise, false.</returns>
+    Task<bool> OrderExistsByIdAsync(Guid orderId);
+
+    /// <summary>
+    /// Cancels the user's ongoing order.
+    /// </summary>
+    /// <param name="orderId">The order's identifier</param>
+    /// <returns>A Task representing the asynchronous operation</returns>
+    Task CancelOrderAsync(Guid orderId);
 }
