@@ -22,7 +22,7 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-md navbar-toggleable-md navbar-dark bg-dark border-bottom border-light box-shadow">
-            <div class="container-lg px-3">
+            <div class="container-lg ">
                 <a class="navbar-brand" asp-controller="Home" asp-action="Index">
                     <img src="~/images/tradenest-logo/logo-transparent-small.png" 
                          class="d-inline-block" alt="TradeNest" width="50" height="43" />
@@ -34,36 +34,39 @@
                         aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-md-inline-flex justify-content-between align-items-center" id="navbarContent">
+                <div class="navbar-collapse collapse d-md-inline-flex justify-content-between align-items-center my-1"
+                     id="navbarContent">
                     <ul class="navbar-nav">
                         @if (!(User?.Identity?.IsAuthenticated) ?? true)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-light ms-2 my-1"
-                                   asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                                <a class="nav-link text-light"
+                                   asp-area="" asp-controller="Home" asp-action="Index">
+                                    Home
+                                </a>
                             </li>
                         }
                         else
                         {
                             <li class="nav-item">
-                                @*Add link to MyProducts*@
-                                <a class="nav-link text-light ms-2 my-1"
+                                @*TODO: Add link to MyProducts*@
+                                <a class="nav-link text-light"
                                    asp-area="" asp-controller="Products"
                                    asp-action="MyProducts">My Nest</a>
                             </li>
                         }
                         <li class="nav-item">
-                            <a class="nav-link text-light ms-2 my-1"
+                            <a class="nav-link text-light"
                                asp-controller="Products" asp-action="Index">Catalog</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light ms-2 my-1"
+                            <a class="nav-link text-light"
                                asp-controller="Categories" asp-action="Index">Categories</a>
                         </li>
                         @if (User?.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-light ms-2 my-1"
+                                <a class="nav-link text-light"
                                    asp-controller="Orders" asp-action="Index">My Orders</a>
                             </li>
                         }
@@ -73,7 +76,7 @@
             </div>
         </nav>
     </header>
-        <div class="container-fluid pb-3 d-flex">
+        <div class="container-fluid">
         <main role="main">
             @RenderBody()
         </main>
