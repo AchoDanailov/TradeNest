@@ -1,39 +1,26 @@
 @model IEnumerable<OrderViewModel>
 @{
     ViewData["Title"] = "My Orders";
-    string orderModificationUnexpectedError 
-        = TempData["OrderModificationUnexpectedErrorMessage"] as string ?? string.Empty;
-    string orderSubmittionSuccessMessage
-        = TempData["OrderSubmittionSuccessMessage"] as string ?? string.Empty;
+    
 }
 
-<div class="d-md-none d-flex col justify-content-center mt-5 mb-4">
-    <partial name="_SearchFormPartial"/>
-</div>
+<div class="mt-3 d-md-none">
+    <partial name="_SearchFormPartial" />
+</div>   
+
 <div class="container-lg mt-4 p-3 border rounded-3 shadow site-sections-bg d-flex flex-column gap-4">
-    @if (!string.IsNullOrEmpty(orderModificationUnexpectedError))
-    {
-        <div class="alert alert-danger alert-dismissible" role="status">
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            @orderModificationUnexpectedError
-        </div>
-    }
-    else if (!string.IsNullOrEmpty(orderSubmittionSuccessMessage))
-    {
-        <div class="alert alert-danger alert-dismissible" role="status">
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            @orderSubmittionSuccessMessage
-        </div>
-    }
+    
+    <partial name="_MyOrdersAlertsPartial" />
 
     <div class="row">
         <h1 class="display-4 text-teal fw-bold text-center text-md-start col-md-4 ms-md-3">
             @ViewData["Title"]
         </h1>
+        
         <div class="d-none d-md-flex col-md-7 justify-content-start ms-lg-2 ps-lg-5">
-            <partial name="_SearchFormPartial"/>
+            <partial name="_SearchFormPartial" />
         </div>
-        <hr class="mt-2"/>
+        <hr class="mt-2" />
     </div>
 
     <div class="row d-flex flex-column">
@@ -42,14 +29,19 @@
         </div>
         @if (this.Model.Any(o => !o.IsSubmitted))
         {
-            <partial name="_OngoingOrderPartial" model="@Model.Single(o => !o.IsSubmitted)"/>
+            <partial name="_OngoingOrderPartial"
+                     model="@Model.Single(o => !o.IsSubmitted)" />
         }
         else
         {
-            <div class="d-flex flex-column">
-                <h4 class="text-navy text-center mx-auto" style="max-width: 60%">You currently have no ongoing orders.</h4>
-                <a class="btn btn-teal mx-auto" style="max-width: 60%"
-                   asp-controller="Products" asp-action="Index">Browse the catalog and make an order</a>
+            <div class="d-flex flex-column col mt-3 mt-md-4">
+                <h4 class="text-navy text-center mx-auto w-75" >
+                    You currently have no ongoing orders.
+                </h4>
+                <a class="btn btn-teal mx-auto" 
+                   asp-controller="Products" asp-action="Index">
+                    Browse the catalog and make an order
+                </a>
             </div>
         }
     </div>
@@ -70,8 +62,7 @@
         else
         {
             <div class="d-flex flex-column">
-                <h4 class="text-navy text-muted text-center mx-auto my-3"
-                    style="max-width: 60%">
+                <h4 class="text-navy text-muted text-center mx-auto my-3 w-75">
                     No history of old orders found.
                 </h4>
             </div>
