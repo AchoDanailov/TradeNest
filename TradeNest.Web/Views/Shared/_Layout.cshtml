@@ -1,5 +1,6 @@
 ﻿@{
     int currentYear = DateTime.UtcNow.Year;
+    ViewData["Title"] = "TradeNest";
 }
 
 <!DOCTYPE html>
@@ -7,7 +8,7 @@
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>@ViewData["Title"] - TradeNest</title>
+    <title>@ViewData["Title"]</title>
     
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
@@ -29,27 +30,40 @@
                 </a>
                 <button class="navbar-toggler" type="button" 
                         data-bs-toggle="collapse" data-bs-target="#navbarContent" 
-                        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                        aria-controls="navbarSupportedContent" aria-expanded="false"
+                        aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-lg-inline-flex justify-content-between align-items-center" id="navbarContent">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="navbar-collapse collapse d-md-inline-flex justify-content-between align-items-center" id="navbarContent">
+                    <ul class="navbar-nav">
+                        @if (!(User?.Identity?.IsAuthenticated) ?? true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-light ms-2 my-1"
+                                   asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                @*Add link to MyProducts*@
+                                <a class="nav-link text-light ms-2 my-1"
+                                   asp-area="" asp-controller="Products"
+                                   asp-action="MyProducts">My Nest</a>
+                            </li>
+                        }
                         <li class="nav-item">
-                            <a class="btn btn-outline-light ms-1 my-1" 
-                              asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link navbar-dark ms-2 my-1" 
+                            <a class="nav-link text-light ms-2 my-1"
                                asp-controller="Products" asp-action="Index">Catalog</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link navbar-dark ms-2 my-1" 
+                            <a class="nav-link text-light ms-2 my-1"
                                asp-controller="Categories" asp-action="Index">Categories</a>
                         </li>
                         @if (User?.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">
-                                <a class="nav-link navbar-dark ms-2 my-1" 
+                                <a class="nav-link text-light ms-2 my-1"
                                    asp-controller="Orders" asp-action="Index">My Orders</a>
                             </li>
                         }
@@ -59,7 +73,7 @@
             </div>
         </nav>
     </header>
-    <div class="container-fluid pb-3">
+        <div class="container-fluid pb-3 d-flex">
         <main role="main">
             @RenderBody()
         </main>
@@ -67,7 +81,8 @@
 
     <footer class="border-top footer text-muted site-sections-bg-teal">
         <div class="container-lg">
-            &copy; @currentYear - TradeNest - <a asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; @currentYear - TradeNest - <a asp-controller="Home" 
+                                                 asp-action="Privacy">Privacy</a>
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

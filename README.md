@@ -80,7 +80,7 @@ TradeNest/
 - [x] Responsive UI with Bootstrap 5
 - [x] CRUD operations for Products
 - [ ] Indirect CRUD for Order, Watchlist
-- [ ] My Orders Dashboard
+- [ ] My Products Dashboard
 - [ ] Admin Dashboard
 
 ---

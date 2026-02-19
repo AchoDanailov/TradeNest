@@ -28,6 +28,15 @@ ul {
     list-style-type: none;
 }
 
+.nav-link {
+    border-radius: 0.5em;
+    overflow: hidden;
+}
+
+.nav-link:hover {
+    background-color: #343a40;
+}
+
 body {
   margin-bottom: 60px;
 }
