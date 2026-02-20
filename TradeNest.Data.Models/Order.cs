@@ -19,6 +19,7 @@ public class Order
     [Comment("The date and time at which the order has been submitted.")]
     public DateTime? SubmittedOn { get; set; }
     
+    [Required]
     [Column(TypeName = PriceColumnDataType)]
     [Comment("Holds the value of the order's total price when order is submitted.")]
     public decimal TotalPrice { get; set; }
