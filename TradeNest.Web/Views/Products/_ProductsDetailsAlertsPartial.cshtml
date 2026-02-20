@@ -1,0 +1,21 @@
+@{
+    string productModificationErrorMessage 
+        = TempData["ProductModificationErrorMessage"] as string ?? string.Empty;
+    string orderModificationUnexpectedErrorMessage
+        = TempData["OrderModificationUnexpectedErrorMessage"] as string ?? string.Empty;
+}
+
+@if (!string.IsNullOrEmpty(productModificationErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @productModificationErrorMessage
+    </div>
+} 
+else if (!string.IsNullOrEmpty(orderModificationUnexpectedErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @orderModificationUnexpectedErrorMessage
+    </div>
+}
