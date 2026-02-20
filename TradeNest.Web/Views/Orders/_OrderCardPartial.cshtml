@@ -1,3 +1,4 @@
+@using TradeNest.GCommon
 @model OrderViewModel
 
 <div class="card shadow-sm border-0 rounded-3 mx-auto mb-3 p-1" 
@@ -10,13 +11,10 @@
                 Order #@Model.Id.ToString().Substring(0, 8)
             </h6>
 
-            @if (Model.IsSubmitted)
-            {
-                <span class="badge bg-success">Submitted</span>
-            }
+            <span class="badge bg-success">Submitted</span>
         </div>
 
-        @if (!string.IsNullOrEmpty(Model.SubmittedOn))
+        @if (!string.IsNullOrEmpty(this.Model.SubmittedOn))
         {
             <small class="text-muted mb-3">
                 Submitted on @Model.SubmittedOn
@@ -26,7 +24,7 @@
         <hr class="mt-2"/>
 
         <div class="d-flex flex-column gap-2 flex-grow-1">
-            @foreach (var product in Model.OrderProducts)
+            @foreach (OrderProductViewModel product in this.Model.OrderProducts)
             {
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
@@ -49,8 +47,9 @@
 
         <div class="d-flex justify-content-between align-items-center mt-2">
             <span class="fw-semibold">Total:</span>
+            
             <span class="fw-bold fs-5 text-teal">
-                €@(Model.TotalPrice?.ToString("f2") ?? "0.00")
+                €@(Model.TotalPrice?.ToString(ApplicationConstants.PricesFormat) ?? "0.00")
             </span>
         </div>
 
