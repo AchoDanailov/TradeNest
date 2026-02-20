@@ -20,8 +20,7 @@ public class CategoriesService : ICategoriesService
         if (id == Guid.Empty)
             return false;
         
-        return await this._dbContext
-            .Categories
+        return await this._dbContext.Categories
             .AnyAsync(c => c.Id == id);
     }
     
@@ -42,22 +41,26 @@ public class CategoriesService : ICategoriesService
         GetAllCategoriesWithBestSellerImageVmAsync()
     {
         return await this._dbContext.Categories
-                .AsNoTracking()
-                .OrderBy(c => c.Name)
-                .Select(c => new AllCategoriesWithBestSellerFrontImageViewModel()
-                {
-                    Id = c.Id,
-                    CategoryName = c.Name,
-                    MostSoldProductFrontImageUrl = c.Products.Any() 
+            .AsNoTracking()
+            .OrderBy(c => c.Name)
+            .Select(c => new AllCategoriesWithBestSellerFrontImageViewModel()
+            {
+                Id = c.Id,
+                CategoryName = c.Name,
+                MostSoldProductFrontImageUrl = c.Products.Any() 
+                    ? c.Products
+                        .OrderByDescending(p => p.ProductsOrders.Count)
+                        .ThenByDescending(p => p.CreatedOn)
+                        .First()
+                        .Images.Any()
                         ? c.Products
-                            .OrderByDescending(p => p.ProductsOrders.Count).First()
-                            .Images.Any()
-                            ? c.Products
-                                .OrderByDescending(p => p.ProductsOrders.Count).First()
-                                .Images.Single(i => i.IsFrontImage).Url
-                            : ApplicationConstants.DefaultProductImageUrl
-                        : ApplicationConstants.DefaultProductImageUrl
-                })
-                .ToArrayAsync();
+                            .OrderByDescending(p => p.ProductsOrders.Count)
+                            .ThenByDescending(p => p.CreatedOn)
+                            .First()
+                            .Images.Single(i => i.IsFrontImage).Url
+                        : null
+                    : null
+            })
+            .ToArrayAsync();
     }
 }

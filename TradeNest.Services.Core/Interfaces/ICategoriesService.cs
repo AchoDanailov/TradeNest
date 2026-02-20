@@ -22,7 +22,7 @@ public interface ICategoriesService
     /// </summary>
     /// <returns>
     /// A task that returns the collection of categories with best-seller image,
-    /// empty if none exist.
+    /// null if none exist.
     /// </returns>
     Task<IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel>> GetAllCategoriesWithBestSellerImageVmAsync();
 }

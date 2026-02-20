@@ -1,3 +1,4 @@
+@using TradeNest.GCommon
 @model IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel>
 @{
     ViewData["Title"] = "Categories";
@@ -34,9 +35,18 @@
                 <div class="categories-card card shadow-sm border rounded-3 text-center d-flex flex-column justify-content-center align-items-center py-2">
                     
                     <div class="category-image-wrapper">
-                        <img src="@category.MostSoldProductFrontImageUrl"
-                             alt="@category.CategoryName"
-                             class="category-img card-img-top" />
+                        @if (category.MostSoldProductFrontImageUrl != null)
+                        {
+                            <img src="@category.MostSoldProductFrontImageUrl"
+                                 alt="@category.CategoryName"
+                                 class="category-img card-img-top" />
+                        }
+                        else
+                        {
+                            <img src="@DefaultProductImageUrl" 
+                                 alt="Default Image" 
+                                 class="category-img card-img-top" />
+                        }
                     </div>
 
                     <div class="card-body">
