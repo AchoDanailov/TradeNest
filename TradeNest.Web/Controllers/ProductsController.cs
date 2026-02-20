@@ -25,7 +25,7 @@ public class ProductsController : BaseController
     [HttpGet]
     [AllowAnonymous]
     public async Task<IActionResult> Index(
-        [FromQuery] string? categoryId = null,
+        [FromQuery] Guid? categoryId = null,
         [FromQuery] string? search = null)
     {
         CatalogProductsAndCategoriesViewModel viewModel;
@@ -44,20 +44,20 @@ public class ProductsController : BaseController
             viewModel = await this._productsService
                 .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync();
             
-            if (string.IsNullOrEmpty(categoryId))
+            if (categoryId == null || categoryId == Guid.Empty)
             {
                 viewModel.Products = await this._productsService
                     .GetAllProductsOrderedByDateOfCreationDescAsync();
             }
-            else if (!string.IsNullOrEmpty(categoryId))
+            else 
             {
-                bool isValidCategory = this.IsValidCategory(categoryId,
-                    viewModel.Categories, out Guid categoryIdGuidValue);
+                bool isValidCategory = this.IsValidCategory(categoryId.Value,
+                    viewModel.Categories);
                 if (!isValidCategory)
                     return NotFound();
 
                 viewModel.Products = await this._productsService
-                    .GetAllProdsVmsByCategoryIdAsync(categoryIdGuidValue);
+                    .GetAllProdsVmsByCategoryIdAsync(categoryId.Value);
             }
         }
         
@@ -104,13 +104,15 @@ public class ProductsController : BaseController
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Create([FromForm] ProductCreateFormModel productCreateFormModel)
+    public async Task<IActionResult> Create(
+        [FromForm] ProductCreateFormModel productCreateFormModel)
     {
         productCreateFormModel.AllCategories
             = await this._categoriesService.GetAllCategoriesViewModelsAsync();
 
-        bool isValidCategory = this.IsValidCategory(productCreateFormModel.CategoryId,
-            productCreateFormModel.AllCategories, out _);
+        bool isValidCategory = this.IsValidCategory(
+            productCreateFormModel.CategoryId,
+            productCreateFormModel.AllCategories);
         if (!isValidCategory)
         {
             ModelState
@@ -122,7 +124,7 @@ public class ProductsController : BaseController
         
         try
         {
-            string productId = await this._productsService
+            Guid productId = await this._productsService
                 .CreateProductAsync(this.GetUserId(), productCreateFormModel);
 
             return RedirectToAction(nameof(Details), new { id = productId });
@@ -178,8 +180,7 @@ public class ProductsController : BaseController
         
         bool isValidCategory = this.IsValidCategory(
             productEditFormModel.CategoryId,
-            productEditFormModel.AllCategories,
-            out _);
+            productEditFormModel.AllCategories);
         if (!isValidCategory)
         {
             ModelState
@@ -258,20 +259,12 @@ public class ProductsController : BaseController
             return LocalRedirect(returnUrl!);
         }
     }
-
-    private bool IsValidCategory(string? id, IEnumerable<AllCategoriesViewModel> allCategoriesViewModels,
-        out Guid categoryIdGuidValue)
+    
+    private bool IsValidCategory(Guid id, IEnumerable<AllCategoriesViewModel> allCategoriesViewModels)
     {
-        if (string.IsNullOrEmpty(id))
-        {
-            categoryIdGuidValue = Guid.Empty;
-            return false;
-        }
+        bool isNotEmptyGuid = id != Guid.Empty;
+        bool categoryExists = allCategoriesViewModels.Any(c => c.Id == id);
         
-        bool isValidGuidValue = Guid.TryParse(id, out Guid categoryIdValidGuidValue);
-        bool categoryExists = allCategoriesViewModels.Any(c => c.Id == categoryIdValidGuidValue);
-        
-        categoryIdGuidValue = categoryIdValidGuidValue;
-        return isValidGuidValue && categoryExists;
+        return isNotEmptyGuid && categoryExists;
     }
 }

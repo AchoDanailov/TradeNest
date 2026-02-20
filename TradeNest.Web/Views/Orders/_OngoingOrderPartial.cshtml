@@ -17,8 +17,8 @@
                     <h5 class="text-navy d-none d-md-block">@product.Name</h5>
                 }
                 <p class="mb-0">Quantity: @product.QuantityOrdered</p>
-                <p class="mb-0">Unit Price: €@product.UnitPrice</p>
-                <p class="mb-0">Total Price: €@product.TotalPrice</p>
+                <p class="mb-0">Unit Price: €@product.UnitPrice.ToString(PricesFormat)</p>
+                <p class="mb-0">Total Price: €@product.TotalPrice.ToString(PricesFormat)</p>
             </div>
             
             <div class="d-flex align-items-center gap-2">
@@ -37,7 +37,7 @@
     }
     
     <div class="d-flex justify-content-end me-2 my-2">
-        <h5 class="text-navy">Order Total: €@this.Model.TotalPrice</h5>
+        <h5 class="text-navy">Order Total: €@this.Model.TotalPrice.ToString(PricesFormat)</h5>
     </div>
     
     <div class="d-flex justify-content-end gap-2 me-2">

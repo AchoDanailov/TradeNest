@@ -8,7 +8,7 @@ public class OrderProductViewModel
     
     public int QuantityOrdered { get; set; }
 
-    public string UnitPrice { get; set; } = null!;
+    public decimal UnitPrice { get; set; } 
 
-    public string TotalPrice { get; set; } = null!;
+    public decimal TotalPrice { get; set; } 
 }

@@ -89,7 +89,7 @@ public interface IProductsService
     /// <param name="userId">The identifier of the user creating the product.</param>
     /// <param name="productCreateFormModel">The product data.</param>
     /// <returns>A task that returns the identifier of the newly created product.</returns>
-    Task<string> CreateProductAsync(Guid userId, ProductCreateFormModel productCreateFormModel);
+    Task<Guid> CreateProductAsync(Guid userId, ProductCreateFormModel productCreateFormModel);
 
     /// <summary>
     /// Retrieves a product form model populated with existing data for editing.

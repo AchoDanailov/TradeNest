@@ -4,11 +4,11 @@ public class OrderViewModel
 {
     public Guid Id { get; set; }
     
-    public decimal? TotalPrice { get; set; }
+    public decimal TotalPrice { get; set; }
     
     public bool IsSubmitted { get; set; }
     
-    public string? SubmittedOn { get; set; } 
+    public DateTime? SubmittedOn { get; set; } 
 
     public IEnumerable<OrderProductViewModel> OrderProducts { get; set; }
         = new HashSet<OrderProductViewModel>();

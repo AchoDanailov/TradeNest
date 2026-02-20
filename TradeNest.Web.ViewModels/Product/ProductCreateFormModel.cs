@@ -37,7 +37,7 @@ public class ProductCreateFormModel
     public string? ExtraImagesUrls { get; set; }
 
     [Required]
-    public string CategoryId { get; set; } = null!;
+    public Guid CategoryId { get; set; }
 
     public IEnumerable<AllCategoriesViewModel> AllCategories { get; set; }
         = new List<AllCategoriesViewModel>();

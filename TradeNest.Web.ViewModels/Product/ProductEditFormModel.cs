@@ -8,7 +8,7 @@ namespace TradeNest.Web.ViewModels.Product;
 public class ProductEditFormModel
 {
     [Required]
-    public string ProductId { get; set; } = null!;
+    public Guid ProductId { get; set; } 
     
     [Required]
     [StringLength(NameMaxLengthValue, MinimumLength = NameMinLengthValue)]
@@ -39,7 +39,7 @@ public class ProductEditFormModel
     public string? NewImagesUrls { get; set; }
 
     [Required]
-    public string CategoryId { get; set; } = null!;
+    public Guid CategoryId { get; set; } 
 
     public IEnumerable<AllCategoriesViewModel> AllCategories { get; set; }
         = new List<AllCategoriesViewModel>();

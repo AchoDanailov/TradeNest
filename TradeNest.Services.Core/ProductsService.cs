@@ -51,7 +51,7 @@ public class ProductsService : IProductsService
             {
                 Id = p.Id,
                 Name = p.Name,
-                SellingPrice = p.SellingPrice.ToString(ApplicationConstants.PricesFormat),
+                SellingPrice = p.SellingPrice,
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
                         .Single(i => i.IsFrontImage)!.Url
@@ -78,7 +78,7 @@ public class ProductsService : IProductsService
             {
                 Id = p.Id,
                 Name = p.Name,
-                SellingPrice = p.SellingPrice.ToString(ApplicationConstants.PricesFormat),
+                SellingPrice = p.SellingPrice,
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
                         .Single(i => i.IsFrontImage)!.Url
@@ -88,7 +88,8 @@ public class ProductsService : IProductsService
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsByCategoryIdAsync(Guid categoryId)
+    public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsByCategoryIdAsync(
+        Guid categoryId)
     {
         if (categoryId == Guid.Empty)
             return Array.Empty<ProductViewModel>();
@@ -102,7 +103,7 @@ public class ProductsService : IProductsService
             {
                 Id = p.Id,
                 Name = p.Name,
-                SellingPrice = p.SellingPrice.ToString(ApplicationConstants.PricesFormat),
+                SellingPrice = p.SellingPrice, 
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
                         .Single(i => i.IsFrontImage)!.Url
@@ -115,6 +116,7 @@ public class ProductsService : IProductsService
     public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsOrderedByOrdersCountDescAsync()
     {
         return await this._dbContext.Products
+            .Include(p => p.ProductsOrders)
             .AsNoTracking()
             .OrderByDescending(p => p.ProductsOrders.Count)
             .ThenByDescending(p => p.CreatedOn)
@@ -122,7 +124,7 @@ public class ProductsService : IProductsService
             {
                 Id = p.Id,
                 Name = p.Name,
-                SellingPrice = p.SellingPrice.ToString(ApplicationConstants.PricesFormat),
+                SellingPrice = p.SellingPrice,
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
                         .Single(i => i.IsFrontImage)!.Url
@@ -158,7 +160,7 @@ public class ProductsService : IProductsService
             Name = product.Name,
             Description = product.Description,
             QuantityInStock = product.QuantityInStock,
-            SellingPrice = product.SellingPrice.ToString(ApplicationConstants.PricesFormat),
+            SellingPrice = product.SellingPrice,
             IsEnabled = product.IsEnabled,
             Owner = product.Owner.UserName ?? string.Empty,
             CategoryName = product.Category.Name,
@@ -189,12 +191,11 @@ public class ProductsService : IProductsService
         return productCreateFormModel;
     }
 
-    public async Task<string> CreateProductAsync(Guid userId,
+    public async Task<Guid> CreateProductAsync(Guid userId,
         ProductCreateFormModel productCreateFormModel)
     {
-        string passedInCategoryId = productCreateFormModel.CategoryId;
-        if (string.IsNullOrEmpty(passedInCategoryId) ||
-            !Guid.TryParse(passedInCategoryId, out Guid categoryIdGuidValue))
+        Guid passedInCategoryId = productCreateFormModel.CategoryId;
+        if (passedInCategoryId == Guid.Empty)
         {
             throw new ArgumentException("Invalid category.",
                 nameof(productCreateFormModel.CategoryId));
@@ -218,14 +219,14 @@ public class ProductsService : IProductsService
             SellingPrice = productCreateFormModel.SellingPrice,
             IsEnabled = productCreateFormModel.IsEnabled,
             OwnerId = userId,
-            CategoryId = categoryIdGuidValue,
+            CategoryId = passedInCategoryId,
             Images = images
         };
         
         await this._dbContext.Products.AddAsync(newProduct);
         await this._dbContext.SaveChangesAsync();
 
-        return newProduct.Id.ToString();
+        return newProduct.Id;
     }
 
     public async Task<ProductEditFormModel?> GetProductEditFormModelAsync(Guid userId, Guid id)
@@ -242,7 +243,7 @@ public class ProductsService : IProductsService
         
         ProductEditFormModel productEditFormModel = new ProductEditFormModel()
         {
-            ProductId = product.Id.ToString(),
+            ProductId = product.Id,
             ProductName = product.Name,
             Description = product.Description,
             QuantityInStock = product.QuantityInStock,
@@ -256,7 +257,7 @@ public class ProductsService : IProductsService
                     Url = i.Url
                 })
                 .ToList(),
-            CategoryId = product.CategoryId.ToString(),
+            CategoryId = product.CategoryId,
             AllCategories = await this.GetAllCategoriesViewModels(),
         };
 
@@ -265,8 +266,7 @@ public class ProductsService : IProductsService
 
     public async Task DeleteProductAsync(Guid userId, Guid id)
     {
-        Product? product = await this._dbContext.Products
-            .FindAsync(id);
+        Product? product = await this._dbContext.Products.FindAsync(id);
         if (product == null)
             throw new ArgumentException("Product not found.", nameof(id));
 
@@ -277,7 +277,8 @@ public class ProductsService : IProductsService
         await this._dbContext.SaveChangesAsync();
     }
 
-    public async Task EditProductAsync(Guid userId, Guid productId, ProductEditFormModel productEditFormModel)
+    public async Task EditProductAsync(Guid userId, Guid productId,
+        ProductEditFormModel productEditFormModel)
     {
         Product? product = await this._dbContext.Products
             .Include(p => p.Images)
@@ -288,8 +289,15 @@ public class ProductsService : IProductsService
         if (userId != product.OwnerId)
             throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
         
-        if (string.IsNullOrEmpty(productEditFormModel.CategoryId) ||
-            !Guid.TryParse(productEditFormModel.CategoryId, out Guid categoryIdGuidValue))
+        if (productEditFormModel.CategoryId == Guid.Empty)
+        {
+            throw new ArgumentException("Invalid category.",
+                nameof(productEditFormModel.CategoryId));
+        }
+        
+        bool categoryExists = await this._dbContext.Categories
+            .AnyAsync(c => c.Id == productEditFormModel.CategoryId);
+        if (!categoryExists)
         {
             throw new ArgumentException("Invalid category.",
                 nameof(productEditFormModel.CategoryId));
@@ -317,7 +325,7 @@ public class ProductsService : IProductsService
         product.SellingPrice = productEditFormModel.SellingPrice;
         product.CostPrice = productEditFormModel.CostPrice;
         product.IsEnabled = productEditFormModel.IsEnabled;
-        product.CategoryId = categoryIdGuidValue;
+        product.CategoryId = productEditFormModel.CategoryId;
 
         if (!string.IsNullOrEmpty(productEditFormModel.NewImagesUrls))
         {

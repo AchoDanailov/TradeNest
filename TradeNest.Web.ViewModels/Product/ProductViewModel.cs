@@ -6,7 +6,7 @@ public class ProductViewModel
 
     public string Name { get; set; } = null!;
 
-    public string SellingPrice { get; set; } = null!;
+    public decimal SellingPrice { get; set; } 
 
     public string CategoryName { get; set; } = null!;
 

@@ -31,19 +31,15 @@ public class OrdersService : IOrdersService
                 Id = o.Id,
                 TotalPrice = o.TotalPrice,
                 IsSubmitted = o.IsSubmitted,
-                SubmittedOn = o.SubmittedOn.HasValue 
-                    ? o.SubmittedOn.Value.ToString(ApplicationConstants.DatesFormat)
-                    : null,
+                SubmittedOn = o.SubmittedOn,
                 OrderProducts = o.OrderProducts
                     .Select(op => new OrderProductViewModel()
                     {
                         Id = op.Product.Id,
                         Name = op.Product.Name,
                         QuantityOrdered = op.ProductsQuantity,
-                        UnitPrice = op.Product.SellingPrice
-                            .ToString(ApplicationConstants.PricesFormat),
-                        TotalPrice = (op.ProductsQuantity * op.Product.SellingPrice)
-                            .ToString(ApplicationConstants.PricesFormat),
+                        UnitPrice = op.Product.SellingPrice,
+                        TotalPrice = op.ProductsQuantity * op.Product.SellingPrice,
                     })
                     .ToArray(),
             })
@@ -64,7 +60,7 @@ public class OrdersService : IOrdersService
 
         Product? product = await this._dbContext.Products.FindAsync(productId);
         if(product == null)
-            throw new ArgumentException("Invalid argument were provided.", nameof(productId));
+            throw new ArgumentException("Invalid argument was provided.", nameof(productId));
 
         int userAlreadyAddedProdQty = ongoingOrder
             .OrderProducts
@@ -95,12 +91,6 @@ public class OrdersService : IOrdersService
         await this._dbContext.SaveChangesAsync();
     }
 
-    private int GetUserProdQtyInOngoingOrderIfAny(Guid productId, Order ongoingOrder)
-    {
-        return ongoingOrder.OrderProducts
-            .FirstOrDefault(op => op.ProductId == productId)?.ProductsQuantity ?? 0;
-    }
-
     public async Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId)
     {
         if (userId == Guid.Empty)
@@ -115,19 +105,15 @@ public class OrdersService : IOrdersService
                 Id = o.Id,
                 TotalPrice = o.TotalPrice,
                 IsSubmitted = o.IsSubmitted,
-                SubmittedOn = o.SubmittedOn.HasValue 
-                    ? o.SubmittedOn.Value.ToString(ApplicationConstants.DatesFormat)
-                    : null,
+                SubmittedOn = o.SubmittedOn,
                 OrderProducts = o.OrderProducts
                     .Select(op => new OrderProductViewModel()
                     {
                         Id = op.Product.Id,
                         Name = op.Product.Name,
                         QuantityOrdered = op.ProductsQuantity,
-                        UnitPrice = op.Product.SellingPrice
-                            .ToString(ApplicationConstants.PricesFormat),
-                        TotalPrice = (op.ProductsQuantity * op.Product.SellingPrice)
-                            .ToString(ApplicationConstants.PricesFormat),
+                        UnitPrice = op.Product.SellingPrice,
+                        TotalPrice = op.ProductsQuantity * op.Product.SellingPrice,
                     })
                     .ToArray(),
             })
@@ -151,7 +137,7 @@ public class OrdersService : IOrdersService
         if (product == null || !prodExistsInOngoingOrder)
         {
             throw new InvalidOperationException(
-                $"Can not remove product with id {productId} from the user's order if it isn's already there.");
+                $"Can not remove product with id {productId} from the user's order if it isn't already there.");
         }
 
         OrderProduct orderProductToRemove = order.OrderProducts
@@ -169,7 +155,7 @@ public class OrdersService : IOrdersService
     public async Task<bool> OrderExistsByIdAsync(Guid orderId)
     {
         if(orderId == Guid.Empty)
-            throw new ArgumentException("Invalid argument were provided.", nameof(orderId));
+            throw new ArgumentException("Invalid argument was provided.", nameof(orderId));
 
         return await this._dbContext.Orders
             .AnyAsync(o => o.Id == orderId);

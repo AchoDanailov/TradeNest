@@ -1,4 +1,3 @@
-@using TradeNest.GCommon
 @model OrderViewModel
 
 <div class="card shadow-sm border-0 rounded-3 mx-auto mb-3 p-1" 
@@ -14,10 +13,10 @@
             <span class="badge bg-success">Submitted</span>
         </div>
 
-        @if (!string.IsNullOrEmpty(this.Model.SubmittedOn))
+        @if (this.Model.SubmittedOn != null)
         {
             <small class="text-muted mb-3">
-                Submitted on @Model.SubmittedOn
+                Submitted on @Model.SubmittedOn.Value.ToString(DatesFormat)
             </small>
         }
 
@@ -32,12 +31,12 @@
                             @product.Name
                         </div>
                         <small class="text-muted">
-                            Qty: @product.QuantityOrdered × €@product.UnitPrice
+                            Qty: @product.QuantityOrdered.ToString() × €@product.UnitPrice.ToString(PricesFormat)
                         </small>
                     </div>
 
                     <div class="fw-bold text-navy">
-                        €@product.TotalPrice
+                        €@product.TotalPrice.ToString(PricesFormat)
                     </div>
                 </div>
             }
@@ -49,7 +48,7 @@
             <span class="fw-semibold">Total:</span>
             
             <span class="fw-bold fs-5 text-teal">
-                €@(Model.TotalPrice?.ToString(ApplicationConstants.PricesFormat) ?? "0.00")
+                €@Model.TotalPrice.ToString(PricesFormat)
             </span>
         </div>
 

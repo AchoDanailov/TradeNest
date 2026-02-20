@@ -21,7 +21,7 @@ public class Order
     
     [Column(TypeName = PriceColumnDataType)]
     [Comment("Holds the value of the order's total price when order is submitted.")]
-    public decimal? TotalPrice { get; set; }
+    public decimal TotalPrice { get; set; }
     
     [ForeignKey(nameof(User))]
     [Comment("Foreign key referencing the user making the order.")]
