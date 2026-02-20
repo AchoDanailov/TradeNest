@@ -79,13 +79,13 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> Details([FromRoute] string id)
+    public async Task<IActionResult> Details([FromRoute] Guid id)
     {
-        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid prodIdGuidValue))
+        if (id == Guid.Empty)
             return BadRequest();
 
         ProductDetailsViewModel? productDetailsViewModel = await this._productsService
-            .GetProductDetailsViewModelByIdAsync(prodIdGuidValue);
+            .GetProductDetailsViewModelByIdAsync(id);
         if (productDetailsViewModel == null)
             return NotFound();
         
@@ -141,16 +141,16 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Edit([FromRoute] string id)
+    public async Task<IActionResult> Edit([FromRoute] Guid id)
     {
-        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid guidIdValue))
+        if (id == Guid.Empty)
             return BadRequest();
         
         try
         {
             Guid userId = this.GetUserId();
             ProductEditFormModel? model = await this._productsService
-                .GetProductEditFormModelAsync(userId, guidIdValue);
+                .GetProductEditFormModelAsync(userId, id);
             if (model == null)
                 return NotFound();
         
@@ -168,9 +168,9 @@ public class ProductsController : BaseController
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Edit([FromForm] ProductEditFormModel productEditFormModel,
-        [FromRoute] string id, [FromForm] string? returnUrl)
+        [FromRoute] Guid id, [FromForm] string? returnUrl)
     {
-        if(string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid productIdGuidValue)) 
+        if(id == Guid.Empty) 
             return BadRequest();
         
         returnUrl ??= Url.Action(nameof(Index), controller: "Products");
@@ -191,7 +191,7 @@ public class ProductsController : BaseController
             return View(productEditFormModel);
 
         bool productExists = await this._productsService
-            .ProductExistsByIdAsync(productIdGuidValue);
+            .ProductExistsByIdAsync(id);
         if (!productExists)
             return NotFound();
 
@@ -199,7 +199,7 @@ public class ProductsController : BaseController
         {
             Guid userId = this.GetUserId();
             await this._productsService
-                .EditProductAsync(userId, productIdGuidValue, productEditFormModel);
+                .EditProductAsync(userId, id, productEditFormModel);
 
             return RedirectToAction(nameof(Details), new { id });
         }
@@ -225,9 +225,9 @@ public class ProductsController : BaseController
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Delete([FromRoute] string id, [FromForm] string? returnUrl)
+    public async Task<IActionResult> Delete([FromRoute] Guid id, [FromForm] string? returnUrl)
     {
-        if(string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid productIdGuidValue)) 
+        if(id == Guid.Empty) 
             return BadRequest();
         
         returnUrl ??= Url.Action(nameof(Index), controller: "Products");
@@ -235,7 +235,7 @@ public class ProductsController : BaseController
         try
         {
             Guid userId = this.GetUserId();
-            await this._productsService.DeleteProductAsync(userId, productIdGuidValue);
+            await this._productsService.DeleteProductAsync(userId, id);
 
             TempData["ProductDeletionSuccessMessage"] = ProductDeletionSuccessMessage;
             return RedirectToAction(nameof(Index), controllerName: "Products");

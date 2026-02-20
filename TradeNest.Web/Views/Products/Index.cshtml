@@ -5,7 +5,7 @@
 
 <div class="container-lg pt-3">
     
-    <partial name="_CatalogsAlertsPartial"/>
+    <partial name="_ProductsOperationsStatusAlertsPartial" />
 
     <div class="row d-flex flex-row my-2">
         
@@ -107,3 +107,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/searchFormValidator.js" asp-append-version="true"></script>
+}
