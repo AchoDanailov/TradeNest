@@ -1,51 +1,29 @@
 @model CatalogProductsAndCategoriesViewModel
 @{
     ViewData["Title"] = "Catalog";
-    string productDeletionSuccessMessage = TempData["ProductDeletionSuccessMessage"] as string 
-                                          ?? string.Empty;
-    string productModificationErrorMessage = TempData["ProductModificationErrorMessage"] as string
-                                             ?? string.Empty;
-    string productAddingToOrderUnexpectedError 
-        = TempData["OrderModificationUnexpectedErrorMessage"] as string ?? string.Empty;
 }
 
 <div class="container-lg pt-3">
-    @if (!string.IsNullOrEmpty(productDeletionSuccessMessage))
-    {
-        <div class="alert alert-success alert-dismissible" role="status">
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            @productDeletionSuccessMessage
-        </div>
-    } 
-    else if (!string.IsNullOrEmpty(productModificationErrorMessage))
-    {
-        <div class="alert alert-danger alert-dismissible" role="status">
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            @productModificationErrorMessage
-        </div>
-    } 
-    else if (!string.IsNullOrEmpty(productAddingToOrderUnexpectedError))
-    {
-        <div class="alert alert-danger alert-dismissible" role="status">
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            @productAddingToOrderUnexpectedError
-        </div>
-    }
     
-    <div class="row d-flex flex-row my-2 align-items-center">
+    <partial name="_CatalogsAlertsPartial"/>
+
+    <div class="row d-flex flex-row my-2">
+        
         <div class="text-center text-md-start ms-md-2 col-md-4">
-            <div class="col">
-                <a asp-controller="Products" asp-action="Index">
-                    <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
-                </a>
-            </div>
+            <a asp-controller="Products" asp-action="Index">
+                <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
+            </a>
         </div>
-        <div class="col d-md-none">
-            <div class="btn-group ">
+        
+        <div class="col-5 d-md-none d-flex flex-column align-items-start gap-2">
+            
+            <div class="btn-group">
                 <a type="button" asp-controller="Categories" asp-action="Index"
                    class="btn btn-teal mt-4">All Categories</a>
-                <button type="button" class="btn btn-teal mt-4 dropdown-toggle dropdown-toggle-split"
+                <button type="button"
+                        class="btn btn-teal mt-4 dropdown-toggle dropdown-toggle-split"
                         data-bs-toggle="dropdown" aria-expanded="false"></button>
+
                 <ul class="dropdown-menu">
                     @foreach (AllCategoriesViewModel category in this.Model.Categories)
                     {
@@ -58,29 +36,40 @@
                     }
                 </ul>
             </div>
+
+            <div class="">
+                <a asp-controller="Products" asp-action="Create"
+                   class="btn btn-teal mt-0">Add A New Product</a>
+            </div>
+            
         </div>
 
         <div class="col mt-2 mt-md-0">
-            <partial name="_SearchFormPartial" />
+            <partial name="_SearchFormPartial"/>
         </div>
-        
-        <div class="col-md-2 me-4 d-flex mt-md-4">
+
+        <div class="d-none d-md-flex col-md-3 me-3 align-items-center justify-content-end">
             <a asp-controller="Products" asp-action="Create"
-                class="btn btn-teal mt-0">Add A New Product</a>
+               class="btn btn-teal">Add A New Product</a>
         </div>
     </div>
 
     <div class="row d-flex gap-1">
+        
         <div class="col-md-3 col-xl-2 nav navbar navbar-nav-scroll d-none d-md-flex site-sections-bg border rounded-3 shadow justify-content-center align-content-start flex-grow-0">
             <a asp-controller="Products" asp-action="Index">
-                <h5 class="text-navy pb-1 border-bottom">All Categories</h5>
+                <h5 class="text-navy pb-1 border-bottom nav">All Categories</h5>
             </a>
+            
             <ul class="d-flex flex-column justify-content-center text-center gap-1">
                 @foreach (AllCategoriesViewModel category in this.Model.Categories)
                 {
                     <li class="nav-item">
-                        <a asp-controller="Products" asp-action="Index" asp-route-categoryId="@category.Id"
-                           class="nav-link">@category.CategoryName</a>
+                        <a asp-controller="Products" asp-action="Index"
+                           asp-route-categoryId="@category.Id"
+                           class="nav-link nav-link-border-radius-hover-effect-light">
+                            @category.CategoryName
+                        </a>
                     </li>
                 }
             </ul>
@@ -92,9 +81,13 @@
                 if (!this.Model.IsSearchResultSet)
                 {
                     <div class="row p-5 site-sections-bg shadow rounded-3 d-flex justify-content-center gap-2">
-                        <h4 class="text-navy display-4 text-center">No products are available at the moment</h4>
+                        <h4 class="text-navy display-4 text-center">
+                            No products are available at the moment
+                        </h4>
                         <a class="btn btn-teal btn-lg px-4 mx-auto w-auto"
-                           asp-controller="Products" asp-action="Create">Be The First To Sell Your Products</a>
+                           asp-controller="Products" asp-action="Create">
+                            Be The First To Sell Your Products
+                        </a>
                     </div>
                 }
                 else

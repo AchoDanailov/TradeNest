@@ -28,17 +28,27 @@ ul {
     list-style-type: none;
 }
 
-.nav-link {
+body {
+  margin-bottom: 60px;
+}
+
+.nav-link-border-radius-hover-effect-dark {
     border-radius: 0.5em;
     overflow: hidden;
 }
 
-.nav-link:hover {
+.nav-link-border-radius-hover-effect-dark:hover {
     background-color: #343a40;
 }
 
-body {
-  margin-bottom: 60px;
+.nav-link-border-radius-hover-effect-light {
+    border-radius: 0.5em;
+    overflow: hidden;
+}
+
+.nav-link-border-radius-hover-effect-light:hover {
+    color: #ffff;
+    background-color: var(--tn-teal);
 }
 
 .text-navy {
