@@ -6,6 +6,11 @@ using TradeNest.Web.ViewModels.Order;
 
 namespace TradeNest.Web.Controllers;
 
+/*
+ TODO: 
+    1. Make actions take Guids.
+    2. Fix all potential identity issues.
+ */
 [Authorize]
 public class OrdersController : BaseController
 {
@@ -13,23 +18,30 @@ public class OrdersController : BaseController
     private readonly IOrdersService _ordersService;
     private readonly IProductsService _productsService;
 
-    public OrdersController(IOrdersService ordersService, ILogger<OrdersController> logger, IProductsService productsService)
+    public OrdersController(IOrdersService ordersService, ILogger<OrdersController> logger,
+        IProductsService productsService)
     {
         this._logger = logger;
         this._productsService = productsService;
         this._ordersService = ordersService;
     }
 
+    /*
+     TODO: Fix Cases:
+        1. Not logged in user order attempt.
+        2. Not logged in user attempt to order prod => redirected to login => logs in as owner? 
+    */
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> Index()
     {
-        IEnumerable<OrderViewModel> userOrders = Array.Empty<OrderViewModel>();
-        
         try
         {
             Guid userId = this.GetUserId();
-            userOrders = await this._ordersService.GetAllOrdersByUserIdAsync(userId);
+            IEnumerable<OrderViewModel>userOrders = await this._ordersService
+                .GetAllOrdersByUserIdAsync(userId);
+            
+            return View(userOrders);
         }
         catch (Exception err)
         {
@@ -38,24 +50,19 @@ public class OrdersController : BaseController
 
             return BadRequest();
         } 
-        
-        return View(userOrders);
     }
     
+    // TODO: Create a form model for this.
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> AddProduct([FromRoute] string id,
-        [FromForm] string quantity, string? returnUrl)
+    public async Task<IActionResult> AddProduct([FromRoute] Guid id,
+        [FromForm] int quantity, [FromForm] string? returnUrl)
     {
-        if (string.IsNullOrEmpty(id) ||
-            !Guid.TryParse(id, out Guid prodIdGuid) ||
-            !int.TryParse(quantity, out int qtyIntValue))
-        {
+        if (id == Guid.Empty || quantity < 1)
             return BadRequest();
-        }
 
         bool productExists = await this._productsService
-            .ProductExistsByIdAsync(prodIdGuid);
+            .ProductExistsByIdAsync(id);
         if (!productExists)
             return NotFound();
         
@@ -65,7 +72,7 @@ public class OrdersController : BaseController
         {
             Guid userId = this.GetUserId();
             await this._ordersService
-                .AddProductToOrderAsync(userId, prodIdGuid, qtyIntValue);
+                .AddProductToOrderAsync(userId, id, quantity);
             
             return RedirectToAction(nameof(Index), controllerName: "Orders");
         }
@@ -83,17 +90,14 @@ public class OrdersController : BaseController
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> RemoveProduct(
-        [FromRoute] string id,
-        [FromForm] string orderId,
+        [FromRoute] Guid id,
+        [FromForm] Guid orderId,
         [FromForm] string? returnUrl)
     {
-        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid prodIdGuid) ||
-            !Guid.TryParse(orderId, out Guid orderIdGuid))
-        {
+        if (id == Guid.Empty || orderId == Guid.Empty)
             return BadRequest();
-        }
 
-        bool prodExists = await this._productsService.ProductExistsByIdAsync(prodIdGuid);
+        bool prodExists = await this._productsService.ProductExistsByIdAsync(id);
         if (!prodExists)
             return NotFound();
 
@@ -103,7 +107,7 @@ public class OrdersController : BaseController
         {
             Guid userId = this.GetUserId();
             await this._ordersService
-                .RemoveProductFromOrderAsync(userId, prodIdGuid, orderIdGuid);
+                .RemoveProductFromOrderAsync(userId, id, orderId);
 
             return RedirectToAction(nameof(Index), controllerName: "Orders");
         }
@@ -120,9 +124,9 @@ public class OrdersController : BaseController
     
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Submit([FromRoute] string id, [FromForm] string? returnUrl)
+    public async Task<IActionResult> Submit([FromRoute] Guid id, [FromForm] string? returnUrl)
     {
-        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid orderIdGuid))
+        if (id == Guid.Empty)
             return BadRequest();
         
         returnUrl ??= Url.Action(nameof(Index), controller: "Orders");
@@ -130,7 +134,7 @@ public class OrdersController : BaseController
         try
         {
             Guid userId = this.GetUserId();
-            await this._ordersService.SubmitOrderAsync(userId, orderIdGuid);
+            await this._ordersService.SubmitOrderAsync(userId, id);
             
             TempData["OrderSubmittionSuccessMessage"]
                 = OperationsStatusMessages.OrderSubmittionSuccessMessage;
@@ -149,9 +153,9 @@ public class OrdersController : BaseController
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Cancel([FromRoute] string id, [FromForm] string? returnUrl)
+    public async Task<IActionResult> Cancel([FromRoute] Guid id, [FromForm] string? returnUrl)
     {
-        if (string.IsNullOrEmpty(id) || !Guid.TryParse(id, out Guid orderIdGuid))
+        if (id == Guid.Empty)
             return BadRequest();
 
         returnUrl ??= Url.Action(nameof(Index), controller: "Orders");
@@ -159,7 +163,7 @@ public class OrdersController : BaseController
         try
         {
             Guid userId = this.GetUserId();
-            await this._ordersService.CancelOrderAsync(userId, orderIdGuid);
+            await this._ordersService.CancelOrderAsync(userId, id);
             return RedirectToAction(nameof(Index), controllerName: "Orders");
         }
         catch (Exception err)
