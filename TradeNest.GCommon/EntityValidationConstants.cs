@@ -38,7 +38,7 @@ public static class EntityValidationConstants
         public const bool DefaultValueForIsEnabledColumn = true;
     }
 
-    public static class ApplicationUser
+    public static class User
     {
         public const byte UserNameMinLengthValue = 3;
         public const byte UserNameMaxLengthValue = 40;

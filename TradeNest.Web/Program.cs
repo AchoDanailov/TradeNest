@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Identity;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.Services.Core;
