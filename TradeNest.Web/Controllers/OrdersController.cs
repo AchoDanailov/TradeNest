@@ -8,21 +8,17 @@ namespace TradeNest.Web.Controllers;
 
 /*
  TODO: 
-    1. Make actions take Guids.
-    2. Fix all potential identity issues.
+    Fix all potential identity issues.
  */
 [Authorize]
 public class OrdersController : BaseController
 {
     private readonly ILogger<OrdersController> _logger;
     private readonly IOrdersService _ordersService;
-    private readonly IProductsService _productsService;
 
-    public OrdersController(IOrdersService ordersService, ILogger<OrdersController> logger,
-        IProductsService productsService)
+    public OrdersController(IOrdersService ordersService, ILogger<OrdersController> logger)
     {
         this._logger = logger;
-        this._productsService = productsService;
         this._ordersService = ordersService;
     }
 
@@ -165,5 +161,16 @@ public class OrdersController : BaseController
 
             return LocalRedirect(returnUrl!);
         }
+    }
+
+    [Authorize]
+    [AcceptVerbs("POST")]
+    public async Task<bool> VerifyProdQty([FromBody] ValidateProductQtyInputModel inputModel)
+    {
+        if (inputModel.Id == Guid.Empty)
+            return false;
+
+        Guid userId = this.GetUserId();
+        return await this._ordersService.IsValidProductQtyToOrder(userId, inputModel);
     }
 }

@@ -20,6 +20,9 @@ public static class EntityValidationConstants
 
         public const byte MinQuantityInStockValue = 0;
         public const short MaxQuantityInStockValue = 10_000;
+        
+        public const byte MinQuantityToAddToOrder = 1;
+        public const short MaxQuantityToAddToOrder = 10_000;
 
         public const decimal MinSellingPriceValue = 0.01m;
 

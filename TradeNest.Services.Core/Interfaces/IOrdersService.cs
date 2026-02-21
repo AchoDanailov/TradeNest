@@ -67,4 +67,15 @@ public interface IOrdersService
     /// <param name="userId">The user identifier to which the orders belong.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
     Task SubmitOrderAsync(Guid userId, Guid orderId);
+
+    /// <summary>
+    /// Validates that the given user can add to his order the given quantity of
+    /// specified product.
+    /// </summary>
+    /// <param name="userId">The identifier of the user attempting to add product to his order.</param>
+    /// <param name="inputModel">The model that holds data about the product and the quantity.</param>
+    /// <returns>
+    /// Task containing a value that represents if the user can add the given product quantity to his order.
+    /// </returns>
+    Task<bool> IsValidProductQtyToOrder(Guid userId, ValidateProductQtyInputModel inputModel);
 }

@@ -91,19 +91,23 @@
                 else
                 {
                     <form method="post" asp-controller="Orders" asp-action="AddProduct"
-                          asp-route-id="@Model.Id">
+                          asp-route-id="@Model.Id" id="add-to-order-form">
+                        <input type="hidden" name="id" value="@Model.Id"/>
+                        
                         <input type="hidden" name="returnUrl"
                                value="@Url.Action("Details", controller: "Products", new { id = @Model.Id })" />
                         
                         <input type="number" name="quantity" id="quantityInput"
                                class="form-control-sm" value=1 aria-label="Quantity" />
+                        
                         <div class="text-danger" id="prod-qty-validation"><small></small></div>
                         
                         <p id="available-quantity" class="text-navy text-muted mt-2">
                             @this.Model.QuantityInStock available
                         </p>
                         
-                        <button type="submit" id="prod-add-to-order" class="rounded-pill btn-teal p-2">
+                        <button type="submit" id="add-to-order-btn" 
+                                class="rounded-pill btn-teal p-2">
                             Add To Order
                         </button>
                     </form>

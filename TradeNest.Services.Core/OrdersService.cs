@@ -209,6 +209,28 @@ public class OrdersService : IOrdersService
         await this._dbContext.SaveChangesAsync();
     }
 
+    public async Task<bool> IsValidProductQtyToOrder(Guid userId,
+        ValidateProductQtyInputModel inputModel)
+    {
+        if (inputModel.Id == Guid.Empty)
+            return false;
+        
+        Product? prod = await this._dbContext.Products.FindAsync(inputModel.Id);
+        if (prod == null)
+            return false;
+
+        OrderProduct? prodAlreadyAddedToOrder = await this._dbContext.OrdersProducts
+            .Include(op => op.Order)
+            .SingleOrDefaultAsync(op => op.Order.UserId == userId &&
+                                        !op.Order.IsSubmitted &&
+                                        op.ProductId == inputModel.Id);
+        if (prodAlreadyAddedToOrder == null)
+            return inputModel.Quantity > 0 && inputModel.Quantity <= prod.QuantityInStock;
+
+        return inputModel.Quantity > 0 &&
+               inputModel.Quantity <= prod.QuantityInStock - prodAlreadyAddedToOrder.ProductsQuantity;
+    }
+
     private async Task<Order> GetOrderForModificationWithOrderProductsAttachedAsync(
         Guid userId, 
         Guid orderId,
