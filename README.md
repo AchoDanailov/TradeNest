@@ -88,7 +88,6 @@ TradeNest/
 ## Configuration
 
 Key settings in `appsettings.json`:
-
 ```json
 {
   "Logging": {
@@ -100,9 +99,14 @@ Key settings in `appsettings.json`:
   "AllowedHosts": "*",
   "ConnectionStrings": {
     "DefaultConnection": "Server=127.0.0.1;Database=TradeNestDb;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False"
-  }
+  },
+  ...
+  ...
 }
 ```
+Here you can configure the connection strings the application uses when
+connecting to it's data stores. And the identity configuration options that set the
+User Accounts options. 
 
 ### Default users credentials you can use for developing and testing:
 1. Email: Har1b0@gmail.com  

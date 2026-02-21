@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.Services.Core;
@@ -14,7 +15,8 @@ public class Program
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         string? connectionString = builder.Configuration["TradeNest:ConnectionString"] 
-                                   ?? builder.Configuration.GetConnectionString("DefaultConnection") 
+                                   ?? builder.Configuration
+                                       .GetConnectionString("DefaultConnection") 
                                    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         builder.Services.AddDbContext<TradeNestDbContext>(options =>
@@ -22,7 +24,9 @@ public class Program
 
         builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         
-        builder.Services.AddDefaultIdentity<ApplicationUser>(options => IdentityOptionsConfiguration(options))
+        builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
+                IdentityOptionsConfiguration(options, builder.Configuration))
+            
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddControllersWithViews();
@@ -61,21 +65,34 @@ public class Program
         app.Run();
     }
 
-    private static void IdentityOptionsConfiguration(IdentityOptions options)
+    private static void IdentityOptionsConfiguration(IdentityOptions options,
+        ConfigurationManager configuration)
     {
-        options.SignIn.RequireConfirmedAccount = false;
-        options.SignIn.RequireConfirmedEmail = false;
-        options.SignIn.RequireConfirmedPhoneNumber = false;
+        options.SignIn.RequireConfirmedAccount = configuration
+            .GetValue<bool>("IdentityOptions:SignIn:RequireConfirmedAccount");
+        options.SignIn.RequireConfirmedEmail = configuration
+            .GetValue<bool>("IdentityOptions:SignIn:RequireConfirmedEmail");
+        options.SignIn.RequireConfirmedPhoneNumber = configuration
+            .GetValue<bool>("IdentityOptions:SignIn:RequireConfirmedPhoneNumber");
 
-        options.User.RequireUniqueEmail = true;
-                
-        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
-        options.Lockout.MaxFailedAccessAttempts = Int32.MaxValue;
+        options.User.RequireUniqueEmail = configuration
+            .GetValue<bool>("IdentityOptions:User:RequireUniqueEmail");
 
-        options.Password.RequireDigit = false;
-        options.Password.RequiredLength = 2;
-        options.Password.RequireUppercase = false;
-        options.Password.RequireLowercase = false;
-        options.Password.RequireNonAlphanumeric = false;
+        int defaultLockoutMinutes = configuration
+            .GetValue<int>("IdentityOptions:Lockout:DefaultLockoutTimeSpan");
+        options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(defaultLockoutMinutes);
+        options.Lockout.MaxFailedAccessAttempts = configuration
+            .GetValue<int>("IdentityOptions:Lockout:MaxFailedAccessAttempts");
+
+        options.Password.RequireDigit = configuration
+            .GetValue<bool>("IdentityOptions:Password:RequireDigit");
+        options.Password.RequiredLength = configuration
+            .GetValue<int>("IdentityOptions:Password:RequiredLength");
+        options.Password.RequireUppercase = configuration
+            .GetValue<bool>("IdentityOptions:Password:RequireUppercase");
+        options.Password.RequireLowercase = configuration
+            .GetValue<bool>("IdentityOptions:Password:RequireLowercase");
+        options.Password.RequireNonAlphanumeric = configuration
+            .GetValue<bool>("IdentityOptions:Password:RequireNonAlphanumeric");
     }
 }
