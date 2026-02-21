@@ -52,7 +52,6 @@ public class OrdersController : BaseController
         } 
     }
     
-    // TODO: Create a form model for this.
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> AddProduct([FromRoute] Guid id,
@@ -60,11 +59,6 @@ public class OrdersController : BaseController
     {
         if (id == Guid.Empty || quantity < 1)
             return BadRequest();
-
-        bool productExists = await this._productsService
-            .ProductExistsByIdAsync(id);
-        if (!productExists)
-            return NotFound();
         
         returnUrl ??= Url.Action(nameof(Index), controller: "Products");
         
@@ -96,10 +90,6 @@ public class OrdersController : BaseController
     {
         if (id == Guid.Empty || orderId == Guid.Empty)
             return BadRequest();
-
-        bool prodExists = await this._productsService.ProductExistsByIdAsync(id);
-        if (!prodExists)
-            return NotFound();
 
         returnUrl ??= Url.Action(nameof(Index), controller: "Orders");
 

@@ -190,11 +190,6 @@ public class ProductsController : BaseController
         if (!ModelState.IsValid)
             return View(productEditFormModel);
 
-        bool productExists = await this._productsService
-            .ProductExistsByIdAsync(id);
-        if (!productExists)
-            return NotFound();
-
         try
         {
             Guid userId = this.GetUserId();

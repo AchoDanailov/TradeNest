@@ -145,6 +145,9 @@ public class ProductsService : IProductsService
 
     public async Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id)
     {
+        if (id == Guid.Empty)
+            return null;
+        
         Product? product = await this._dbContext.Products
             .Include(p => p.Owner)
             .Include(p => p.Category)
@@ -231,6 +234,9 @@ public class ProductsService : IProductsService
 
     public async Task<ProductEditFormModel?> GetProductEditFormModelAsync(Guid userId, Guid id)
     {
+        if (userId == Guid.Empty || id == Guid.Empty)
+            return null;
+        
         Product? product = await this._dbContext.Products
             .AsNoTracking()
             .Include(p => p.Images)
@@ -266,6 +272,9 @@ public class ProductsService : IProductsService
 
     public async Task DeleteProductAsync(Guid userId, Guid id)
     {
+        if(userId == Guid.Empty || id == Guid.Empty)
+            throw new ArgumentException("Invalid arguments provided.");
+        
         Product? product = await this._dbContext.Products.FindAsync(id);
         if (product == null)
             throw new ArgumentException("Product not found.", nameof(id));
@@ -280,6 +289,9 @@ public class ProductsService : IProductsService
     public async Task EditProductAsync(Guid userId, Guid productId,
         ProductEditFormModel productEditFormModel)
     {
+        if (userId == Guid.Empty || productId == Guid.Empty)
+            throw new ArgumentException("Invalid arguments provided.");
+        
         Product? product = await this._dbContext.Products
             .Include(p => p.Images)
             .SingleOrDefaultAsync(p => p.Id == productId);

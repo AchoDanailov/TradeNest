@@ -20,7 +20,7 @@ public class OrdersService : IOrdersService
     public async Task<IEnumerable<OrderViewModel>> GetAllOrdersByUserIdAsync(Guid userId)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException(nameof(userId));
+            throw new ArgumentException("Invalid userId provided.", nameof(userId));
 
         return await this._dbContext.Orders
             .AsNoTracking()
@@ -94,7 +94,7 @@ public class OrdersService : IOrdersService
     public async Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException(nameof(userId));
+            throw new ArgumentException("Invalid userId provided.", nameof(userId));
         
         return await this._dbContext
             .Orders
@@ -122,7 +122,7 @@ public class OrdersService : IOrdersService
 
     public async Task RemoveProductFromOrderAsync(Guid userId, Guid productId, Guid orderId)
     {
-        if(userId == Guid.Empty || productId == Guid.Empty)
+        if(userId == Guid.Empty || productId == Guid.Empty || orderId == Guid.Empty)
             throw new ArgumentException("Invalid argument's were provided.");
 
         Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
@@ -154,8 +154,8 @@ public class OrdersService : IOrdersService
 
     public async Task<bool> OrderExistsByIdAsync(Guid orderId)
     {
-        if(orderId == Guid.Empty)
-            throw new ArgumentException("Invalid argument was provided.", nameof(orderId));
+        if (orderId == Guid.Empty)
+            return false;
 
         return await this._dbContext.Orders
             .AnyAsync(o => o.Id == orderId);
