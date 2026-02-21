@@ -97,12 +97,13 @@
                         
                         <input type="number" name="quantity" id="quantityInput"
                                class="form-control-sm" value=1 aria-label="Quantity" />
+                        <div class="text-danger" id="prod-qty-validation"><small></small></div>
                         
-                        <p class="text-navy text-muted mt-2">
+                        <p id="available-quantity" class="text-navy text-muted mt-2">
                             @this.Model.QuantityInStock available
                         </p>
                         
-                        <button type="submit" class="rounded-pill btn-teal p-2">
+                        <button type="submit" id="prod-add-to-order" class="rounded-pill btn-teal p-2">
                             Add To Order
                         </button>
                     </form>
@@ -170,4 +171,5 @@
 @section Scripts {
     <script src="~/js/prodDetailsFrontImageSwapper.js" asp-append-version="true"></script>
     <script src="~/js/searchFormValidator.js" asp-append-version="true"></script>
+    <script src="~/js/prodQtyToAddToOrderInputFieldValidation.js" asp-append-version="true"></script>
 }
