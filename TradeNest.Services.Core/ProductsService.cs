@@ -143,7 +143,8 @@ public class ProductsService : IProductsService
             .AnyAsync(p => p.Id == id);
     }
 
-    public async Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id)
+    public async Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id,
+        Guid? userId = null)
     {
         if (id == Guid.Empty)
             return null;
@@ -165,7 +166,8 @@ public class ProductsService : IProductsService
             QuantityInStock = product.QuantityInStock,
             SellingPrice = product.SellingPrice,
             IsEnabled = product.IsEnabled,
-            Owner = product.Owner.UserName ?? string.Empty,
+            OwnerName = product.Owner.UserName ?? string.Empty,
+            IsOwner = userId != null && product.OwnerId == userId.Value,
             CategoryName = product.Category.Name,
             FrontImageUrl = product.Images.Any()
                 ? product.Images

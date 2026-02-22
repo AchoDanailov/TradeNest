@@ -68,8 +68,13 @@ public interface IProductsService
     /// Retrieves detailed information for the specified product.
     /// </summary>
     /// <param name="id">The product identifier.</param>
+    /// <param name="userId">
+    /// The identifier of the user that wants to view the product details.
+    /// In case of non authenticated user userId can be left null.
+    /// </param>
     /// <returns>A task that returns the product details, or null if not found.</returns>
-    Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id);
+    Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id,
+        Guid? userId = null);
 
     /// <summary>
     /// Creates an empty form model for product creation.

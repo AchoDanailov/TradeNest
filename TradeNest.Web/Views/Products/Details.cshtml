@@ -27,7 +27,7 @@
         
         <div class="col d-flex flex-column align-items-center">
             <div class="product-image-wrapper site-sections-bg rounded-3 border shadow mb-3">
-                <img src="@Model.FrontImageUrl" alt="@Model.Name"
+                <img src="@this.Model.FrontImageUrl" alt="@this.Model.Name"
                      class="img-fluid product-main-image"/>
             </div>
 
@@ -40,7 +40,7 @@
         </div>
 
         <div class="col-md-4 text-center d-flex flex-column gap-1 site-sections-bg align-items-center">
-            @if (!this.Model.IsEnabled && this.User.Identity?.Name != this.Model.Owner)
+            @if (!this.Model.IsEnabled && !this.Model.IsOwner)
             {
                 <p class="text-danger text-center pb-0 mt-2 mb-0">
                     Currently not available
@@ -50,12 +50,12 @@
                 @this.Model.Name
             </h4>
             <p class="text-navy text-center fw-bold border-2 border-bottom">
-                @this.Model.Owner
+                @this.Model.OwnerName
             </p>
             <p class="text-navy text-center fw-bold border-2 border-bottom">
                 €@this.Model.SellingPrice.ToString(PricesFormat)
             </p>
-            @if (this.User?.Identity?.Name == this.Model.Owner)
+            @if (this.Model.IsOwner)
             {
                 if (this.Model.IsEnabled)
                 {
@@ -76,64 +76,80 @@
                 @if (User?.Identity?.IsAuthenticated == false)
                 {
                     <input id="quantityInput" class="form-control-sm" type="number"
-                           value=0 aria-label="Quantity" disabled />
+                           value="0" aria-label="Quantity" disabled />
+
                     <p class="text-navy text-muted mt-2">
                         @this.Model.QuantityInStock available
                     </p>
 
-                    <div class="d-flex flex-column mx-auto w-75">
-                        <button type="submit" id="add-to-order-btn" 
-                                class="rounded-pill bg-secondary p-2 text-light"
-                                disabled="disabled">Add To Order</button>
-                        
-                        <a asp-area="Identity" asp-page="/Account/Login"
-                           asp-route-returnUrl="@Url.Action("Details", controller: "Products", new { id = @Model.Id })"
-                           class="rounded-pill btn-teal p-2 mt-2">Login</a>
-                        <small>
-                            Dont have an account? Register
-                        <a asp-area="Identity" asp-page="/Account/Register"
-                                asp-route-returnUrl="@Url.Action("Details", controller: "Products", new { id = @Model.Id })"
-                                class="text-decoration-underline">Here</a>!
-                        </small>
-                    </div>
+                    @if (this.Model.IsEnabled)
+                    {
+                        <div class="d-flex flex-column mx-auto w-75">
+                            <button class="rounded-pill bg-secondary p-2 text-light" disabled>
+                                Add To Order
+                            </button>
+
+                            <a asp-area="Identity" asp-page="/Account/Login"
+                               asp-route-returnUrl="@Url.Action("Details", "Products", new { id = this.Model.Id })"
+                               class="rounded-pill btn-teal p-2 mt-2">
+                                Login
+                            </a>
+
+                            <small>
+                                Don’t have an account?
+                                <a asp-area="Identity" asp-page="/Account/Register"
+                                   asp-route-returnUrl="@Url.Action("Details", "Products", new { id = this.Model.Id })"
+                                   class="text-decoration-underline">
+                                    Register here
+                                </a>
+                            </small>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="rounded-pill bg-secondary p-2 text-light">
+                            Sorry, can’t order right now
+                        </p>
+                    }
                 }
-                else 
+                else
                 {
-                    if (!this.Model.IsEnabled || this.User?.Identity?.Name == this.Model.Owner)
+                    if (!this.Model.IsEnabled || this.Model.IsOwner)
                     {
                         <input id="quantityInput" class="form-control-sm" type="number"
-                               value=0 aria-label="Quantity" disabled />
+                               value="0" aria-label="Quantity" disabled />
+
                         <p class="text-navy text-muted mt-2">
                             @this.Model.QuantityInStock available
                         </p>
 
-                        if (User?.Identity?.Name != this.Model.Owner)
+                        @if (!this.Model.IsOwner)
                         {
                             <p class="rounded-pill bg-secondary p-2 text-light">
-                                Sorry can't order right now
+                                Sorry, can’t order right now
                             </p>
                         }
                     }
                     else
                     {
                         <form method="post" asp-controller="Orders" asp-action="AddProduct"
-                              asp-route-id="@Model.Id" id="add-to-order-form">
-                            <input type="hidden" name="id" value="@Model.Id"/>
-                            
+                              asp-route-id="@this.Model.Id" id="add-to-order-form">
+
                             <input type="hidden" name="returnUrl"
-                                   value="@Url.Action("Details", controller: "Products", new { id = @Model.Id })" />
-                            
+                                   value="@Url.Action("Details", "Products", new { id = this.Model.Id })" />
+
                             <input type="number" name="quantity" id="quantityInput"
-                                   class="form-control-sm" value=1 aria-label="Quantity" />
-                            
-                            <div class="text-danger" id="prod-qty-validation"><small></small></div>
-                            
-                            <p id="available-quantity" class="text-navy text-muted mt-2">
+                                   class="form-control-sm" value="1" aria-label="Quantity" />
+
+                            <div class="text-danger" id="prod-qty-validation">
+                                <small></small>
+                            </div>
+
+                            <p class="text-navy text-muted mt-2">
                                 @this.Model.QuantityInStock available
                             </p>
-                            
-                            <button type="submit" id="add-to-order-btn" 
-                                    class="rounded-pill btn-teal p-2">
+
+                            <button type="submit" class="rounded-pill btn-teal p-2">
                                 Add To Order
                             </button>
                         </form>
@@ -142,7 +158,7 @@
             </div>
 
             <div class="btn-group-vertical align-items-stretch">
-                @if (this.User?.Identity?.Name == this.Model.Owner)
+                @if (this.Model.IsOwner)
                 {
                     <a asp-controller="Products" asp-action="Edit"
                        asp-route-id="@this.Model.Id"
@@ -168,14 +184,14 @@
                                             aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete @Model.Name from your inventory?
+                                    Are you sure you want to delete @this.Model.Name from your inventory?
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">No</button>
                                     
                                     <form method="post" asp-controller="Products"
-                                          asp-action="Delete" asp-route-id="@Model.Id">
+                                          asp-action="Delete" asp-route-id="@this.Model.Id">
                                         <input type="hidden" name="returnUrl"
                                                value="@Url.Action("Details", controller: "Products")"/>
                                         <button type="submit" class="btn btn-danger">
