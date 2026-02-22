@@ -8,7 +8,9 @@ public class ProductDetailsViewModel : ProductViewModel
     
     public bool IsEnabled { get; set; } = true;
 
-    public string Owner { get; set; } = null!;
+    public string OwnerName { get; set; } = null!;
+    
+    public bool IsOwner { get; set; }
 
     public IEnumerable<string> ImagesUrls { get; set; }
         = new List<string>();

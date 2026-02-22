@@ -84,8 +84,10 @@ public class ProductsController : BaseController
         if (id == Guid.Empty)
             return BadRequest();
 
+        Guid userId = this.GetUserId();
+
         ProductDetailsViewModel? productDetailsViewModel = await this._productsService
-            .GetProductDetailsViewModelByIdAsync(id);
+            .GetProductDetailsViewModelByIdAsync(id, userId);
         if (productDetailsViewModel == null)
             return NotFound();
         
