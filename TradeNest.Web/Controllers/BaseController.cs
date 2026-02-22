@@ -12,7 +12,10 @@ public abstract class BaseController : Controller
 {
     protected Guid GetUserId()
     {
-        string? userId = this.User?.FindFirstValue(ClaimTypes.NameIdentifier)!;
-        return Guid.Parse(userId);
+        string? userId = this.User?.FindFirstValue(ClaimTypes.NameIdentifier);
+        if(userId != null)
+            return Guid.Parse(userId);
+
+        return Guid.Empty;
     }
 }

@@ -6,10 +6,6 @@ using TradeNest.Web.ViewModels.Order;
 
 namespace TradeNest.Web.Controllers;
 
-/*
- TODO: 
-    Fix all potential identity issues.
- */
 [Authorize]
 public class OrdersController : BaseController
 {
@@ -22,11 +18,6 @@ public class OrdersController : BaseController
         this._ordersService = ordersService;
     }
 
-    /*
-     TODO: Fix Cases:
-        1. Not logged in user order attempt.
-        2. Not logged in user attempt to order prod => redirected to login => logs in as owner? 
-    */
     [HttpGet]
     [Authorize]
     public async Task<IActionResult> Index()
@@ -56,7 +47,7 @@ public class OrdersController : BaseController
         if (id == Guid.Empty || quantity < 1)
             return BadRequest();
         
-        returnUrl ??= Url.Action(nameof(Index), controller: "Products");
+        returnUrl ??= Url.Action("Details", controller: "Products", new { id });
         
         try
         {
@@ -163,14 +154,20 @@ public class OrdersController : BaseController
         }
     }
 
-    [Authorize]
+    [AllowAnonymous]
     [AcceptVerbs("POST")]
-    public async Task<bool> VerifyProdQty([FromBody] ValidateProductQtyInputModel inputModel)
+    public async Task<IActionResult> VerifyProdQty([FromBody] ValidateProductQtyInputModel inputModel)
     {
         if (inputModel.Id == Guid.Empty)
-            return false;
-
+            return Json(false);
+        
         Guid userId = this.GetUserId();
-        return await this._ordersService.IsValidProductQtyToOrder(userId, inputModel);
+        if (userId == Guid.Empty)
+            return Json(true);
+        
+        bool isValidProdQtyToAdd = await this._ordersService
+            .IsValidProductQtyToOrder(userId, inputModel);
+        
+        return Json(isValidProdQtyToAdd);
     }
 }

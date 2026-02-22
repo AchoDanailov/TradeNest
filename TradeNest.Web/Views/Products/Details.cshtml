@@ -73,7 +73,7 @@
                 <label for="quantityInput" class="form-label text-navy mb-0">
                     Quantity:
                 </label>
-                @if (!this.Model.IsEnabled || this.User?.Identity?.Name == this.Model.Owner)
+                @if (User?.Identity?.IsAuthenticated == false)
                 {
                     <input id="quantityInput" class="form-control-sm" type="number"
                            value=0 aria-label="Quantity" disabled />
@@ -81,36 +81,63 @@
                         @this.Model.QuantityInStock available
                     </p>
 
-                    if (this.User?.Identity?.Name != this.Model.Owner)
-                    {
-                        <p class="rounded-pill bg-secondary p-2 text-light">
-                            Sorry can't order right now
-                        </p>
-                    }
+                    <div class="d-flex flex-column mx-auto w-75">
+                        <button type="submit" id="add-to-order-btn" 
+                                class="rounded-pill bg-secondary p-2 text-light"
+                                disabled="disabled">Add To Order</button>
+                        
+                        <a asp-area="Identity" asp-page="/Account/Login"
+                           asp-route-returnUrl="@Url.Action("Details", controller: "Products", new { id = @Model.Id })"
+                           class="rounded-pill btn-teal p-2 mt-2">Login</a>
+                        <small>
+                            Dont have an account? Register
+                        <a asp-area="Identity" asp-page="/Account/Register"
+                                asp-route-returnUrl="@Url.Action("Details", controller: "Products", new { id = @Model.Id })"
+                                class="text-decoration-underline">Here</a>!
+                        </small>
+                    </div>
                 }
-                else
+                else 
                 {
-                    <form method="post" asp-controller="Orders" asp-action="AddProduct"
-                          asp-route-id="@Model.Id" id="add-to-order-form">
-                        <input type="hidden" name="id" value="@Model.Id"/>
-                        
-                        <input type="hidden" name="returnUrl"
-                               value="@Url.Action("Details", controller: "Products", new { id = @Model.Id })" />
-                        
-                        <input type="number" name="quantity" id="quantityInput"
-                               class="form-control-sm" value=1 aria-label="Quantity" />
-                        
-                        <div class="text-danger" id="prod-qty-validation"><small></small></div>
-                        
-                        <p id="available-quantity" class="text-navy text-muted mt-2">
+                    if (!this.Model.IsEnabled || this.User?.Identity?.Name == this.Model.Owner)
+                    {
+                        <input id="quantityInput" class="form-control-sm" type="number"
+                               value=0 aria-label="Quantity" disabled />
+                        <p class="text-navy text-muted mt-2">
                             @this.Model.QuantityInStock available
                         </p>
-                        
-                        <button type="submit" id="add-to-order-btn" 
-                                class="rounded-pill btn-teal p-2">
-                            Add To Order
-                        </button>
-                    </form>
+
+                        if (User?.Identity?.Name != this.Model.Owner)
+                        {
+                            <p class="rounded-pill bg-secondary p-2 text-light">
+                                Sorry can't order right now
+                            </p>
+                        }
+                    }
+                    else
+                    {
+                        <form method="post" asp-controller="Orders" asp-action="AddProduct"
+                              asp-route-id="@Model.Id" id="add-to-order-form">
+                            <input type="hidden" name="id" value="@Model.Id"/>
+                            
+                            <input type="hidden" name="returnUrl"
+                                   value="@Url.Action("Details", controller: "Products", new { id = @Model.Id })" />
+                            
+                            <input type="number" name="quantity" id="quantityInput"
+                                   class="form-control-sm" value=1 aria-label="Quantity" />
+                            
+                            <div class="text-danger" id="prod-qty-validation"><small></small></div>
+                            
+                            <p id="available-quantity" class="text-navy text-muted mt-2">
+                                @this.Model.QuantityInStock available
+                            </p>
+                            
+                            <button type="submit" id="add-to-order-btn" 
+                                    class="rounded-pill btn-teal p-2">
+                                Add To Order
+                            </button>
+                        </form>
+                    }
                 }
             </div>
 
@@ -175,5 +202,5 @@
 @section Scripts {
     <script src="~/js/prodDetailsFrontImageSwapper.js" asp-append-version="true"></script>
     <script src="~/js/searchFormValidator.js" asp-append-version="true"></script>
-    <script src="~/js/prodQtyToAddToOrderInputFieldValidation.js" asp-append-version="true"></script>
+    <script src="~/js/prodQtyToAddToOrderValidation.js" asp-append-version="true"></script>
 }
