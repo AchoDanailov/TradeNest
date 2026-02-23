@@ -49,6 +49,9 @@ public interface IProductsService
     /// </summary>
     /// <param name="categoryId">The category identifier.</param>
     /// <returns>A task that returns the collection of matching products, empty if none found.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when <paramref name="categoryId"/> is <see cref="Guid.Empty"/>.
+    /// </exception>
     Task<IEnumerable<ProductViewModel>> GetAllProdsVmsByCategoryIdAsync(Guid categoryId);
 
     /// <summary>
@@ -94,6 +97,11 @@ public interface IProductsService
     /// <param name="userId">The identifier of the user creating the product.</param>
     /// <param name="productCreateFormModel">The product data.</param>
     /// <returns>A task that returns the identifier of the newly created product.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the provided <paramref name="userId"/>, categoryId in the
+    /// <paramref name="productCreateFormModel"/> are empty or entities with the
+    /// corresponding identificators do not exist
+    /// </exception>
     Task<Guid> CreateProductAsync(Guid userId, ProductCreateFormModel productCreateFormModel);
 
     /// <summary>
@@ -102,6 +110,14 @@ public interface IProductsService
     /// <param name="userId">The identifier of the user performing the operation.</param>
     /// <param name="id">The product identifier.</param>
     /// <returns>A task that returns the form model, or null if the product is not found.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the <paramref name="userId"/> is with value <see cref="Guid.Empty"/> or user
+    /// was not found with the specified identitficator.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when user with <paramref name="userId"/> is not the owner of the product with
+    /// the provided <paramref name="id"/>.
+    /// </exception>
     Task<ProductEditFormModel?> GetProductEditFormModelAsync(Guid userId, Guid id);
 
     /// <summary>
@@ -110,6 +126,18 @@ public interface IProductsService
     /// <param name="userId">The identifier of the user performing the operation.</param>
     /// <param name="id">The product identifier.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the provided <paramref name="userId"/> and <paramref name="id"/> are
+    /// with value <see cref="Guid.Empty"/> or entities with the specified identifiers
+    /// do not exist.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the user with the provided <paramref name="userId"/> is not the owner
+    /// of the product with the provided <paramref name="id"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the product is already deleted.
+    /// </exception>
     Task DeleteProductAsync(Guid userId, Guid id);
 
     /// <summary>
@@ -119,6 +147,21 @@ public interface IProductsService
     /// <param name="productId">The product identifier.</param>
     /// <param name="productEditFormModel">The updated product data.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if any of the following: <paramref name="userId"/>, <paramref name="productId"/>
+    /// or the provided categoryId from <paramref name="productEditFormModel"/> is
+    /// with value <see cref="Guid.Empty"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if product with <paramref name="productId"/> or user with
+    /// <paramref name="userId"/> do not exist. Or if any of the provided ProductImages in
+    /// <paramref name="productEditFormModel."/> are not images of the
+    /// product with <paramref name="productId"/>
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when user with <paramref name="userId"/> is not the owner of the product with
+    /// <paramref name="productId"/>.
+    /// </exception>
     Task EditProductAsync(Guid userId,
         Guid productId, ProductEditFormModel productEditFormModel);
 }

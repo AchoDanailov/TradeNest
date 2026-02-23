@@ -20,4 +20,7 @@ public static class OperationsStatusMessages
 
     public const string OrderSubmittionSuccessMessage
         = "Your order was successfully submitted.";
+
+    public const string UnexpectedErrorMessage
+        = "Oops. Something went wrong with the last operation. Please try again in a moment.";
 }
