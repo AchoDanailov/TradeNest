@@ -1,11 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using TradeNest.GCommon;
+using TradeNest.GCommon.Exceptions;
 using TradeNest.Data;
 using TradeNest.Data.Models;
-using TradeNest.GCommon;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
 using TradeNest.Web.ViewModels.Product;
-using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Services.Core;
 
@@ -278,10 +279,7 @@ public class ProductsService : IProductsService
             return null;
 
         if (userId != product.OwnerId)
-        {
-            throw new InvalidOperationException(
-                $"Unauthorized access attempt. userId: {userId}, productId: {product.Id}");
-        }
+            throw new UnauthorizedOperationException(userId, nameof(Product), id);
         
         ProductEditFormModel productEditFormModel = new ProductEditFormModel()
         {
@@ -326,8 +324,8 @@ public class ProductsService : IProductsService
         if (product == null)
             throw new ArgumentException("Product not found.", nameof(id));
 
-        if(userId != product.OwnerId)
-            throw new InvalidOperationException($"Unauthorized operation attempt. userId: {userId}");
+        if (userId != product.OwnerId)
+            throw new UnauthorizedOperationException(userId, nameof(Product), product.Id);
 
         if (product.IsDeleted)
         {
@@ -339,14 +337,16 @@ public class ProductsService : IProductsService
         await this._dbContext.SaveChangesAsync();
     }
 
-    public async Task EditProductAsync(Guid userId, Guid productId,
-        ProductEditFormModel productEditFormModel)
+    public async Task EditProductAsync(Guid userId, ProductEditFormModel productEditFormModel)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId can not be empty.", nameof(userId));
-            
-        if (productId == Guid.Empty)
-            throw new ArgumentException("ProductId can not be empty.", nameof(productId));
+
+        if (productEditFormModel.ProductId == Guid.Empty)
+        {
+            throw new ArgumentException("ProductId can not be empty.", 
+                nameof(productEditFormModel.ProductId));
+        }
         
         if (productEditFormModel.CategoryId == Guid.Empty)
         {
@@ -364,12 +364,18 @@ public class ProductsService : IProductsService
         
         Product? product = await this._dbContext.Products
             .Include(p => p.Images)
-            .SingleOrDefaultAsync(p => p.Id == productId);
+            .SingleOrDefaultAsync(p => p.Id == productEditFormModel.ProductId);
         if (product == null)
-            throw new ArgumentException("Product not found.", nameof(productId));
-        
+        {
+            throw new ArgumentException("Product not found.", 
+                nameof(productEditFormModel.ProductId));
+        }
+
         if (userId != product.OwnerId)
-            throw new InvalidOperationException($"Unauthorized access attempt. userId: {userId}");
+        {
+            throw new UnauthorizedOperationException(userId, nameof(Product),
+                productEditFormModel.ProductId);
+        }
         
         if (productEditFormModel.ProductImages.Any())
         {
@@ -378,7 +384,7 @@ public class ProductsService : IProductsService
             if (!allImagesAreValid)
             {
                 throw new ArgumentException(
-                    $"Invalid images provided. productId: {productId}, userId: {userId}",
+                    $"Invalid images provided. productId: {productEditFormModel.ProductId}, userId: {userId}",
                     nameof(productEditFormModel.ProductImages));
             }
         }

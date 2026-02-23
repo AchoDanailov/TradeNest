@@ -1,4 +1,5 @@
 using TradeNest.Web.ViewModels.Product;
+using TradeNest.GCommon.Exceptions;
 
 namespace TradeNest.Services.Core.Interfaces;
 
@@ -114,7 +115,7 @@ public interface IProductsService
     /// Thrown if the <paramref name="userId"/> is with value <see cref="Guid.Empty"/> or user
     /// was not found with the specified identitficator.
     /// </exception>
-    /// <exception cref="InvalidOperationException">
+    /// <exception cref="UnauthorizedOperationException">
     /// Thrown when user with <paramref name="userId"/> is not the owner of the product with
     /// the provided <paramref name="id"/>.
     /// </exception>
@@ -131,7 +132,7 @@ public interface IProductsService
     /// with value <see cref="Guid.Empty"/> or entities with the specified identifiers
     /// do not exist.
     /// </exception>
-    /// <exception cref="InvalidOperationException">
+    /// <exception cref="UnauthorizedOperationException">
     /// Thrown if the user with the provided <paramref name="userId"/> is not the owner
     /// of the product with the provided <paramref name="id"/>.
     /// </exception>
@@ -144,24 +145,20 @@ public interface IProductsService
     /// Updates the specified product with the provided data.
     /// </summary>
     /// <param name="userId">The identifier of the user performing the operation.</param>
-    /// <param name="productId">The product identifier.</param>
     /// <param name="productEditFormModel">The updated product data.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="ArgumentException">
-    /// Thrown if any of the following: <paramref name="userId"/>, <paramref name="productId"/>
-    /// or the provided categoryId from <paramref name="productEditFormModel"/> is
-    /// with value <see cref="Guid.Empty"/>.
+    /// Thrown if any of the following: <paramref name="userId"/>,
+    /// <paramref name="productEditFormModel.ProductId"/> or
+    /// <paramref name="productEditFormModel.CategoryId"/> is with value <see cref="Guid.Empty"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown if product with <paramref name="productId"/> or user with
+    /// Thrown if product with <paramref name="productEditFormModel.ProductId"/> or user with
     /// <paramref name="userId"/> do not exist. Or if any of the provided ProductImages in
-    /// <paramref name="productEditFormModel."/> are not images of the
-    /// product with <paramref name="productId"/>
+    /// <paramref name="productEditFormModel.ProductImages"/> are not images of the product.
     /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown when user with <paramref name="userId"/> is not the owner of the product with
-    /// <paramref name="productId"/>.
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown when user with <paramref name="userId"/> is not the owner of the product.
     /// </exception>
-    Task EditProductAsync(Guid userId,
-        Guid productId, ProductEditFormModel productEditFormModel);
+    Task EditProductAsync(Guid userId, ProductEditFormModel productEditFormModel);
 }
