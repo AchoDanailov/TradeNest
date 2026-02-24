@@ -214,7 +214,7 @@ public class ProductsService : IProductsService
             .AnyAsync(u => u.Id == userId);
         if (!userExists)
         {
-            throw new ArgumentException("User with the provided id was not found.",
+            throw new ArgumentException($"User with id: {userId} was not found.",
                 nameof(userId));
         }
 
@@ -223,7 +223,7 @@ public class ProductsService : IProductsService
         if (!categoryExists)
         {
             throw new ArgumentException(
-                $"Category with the provided categoryId does not exist. userId: {userId}",
+                $"Category with id: {passedInCategoryId} was not found. userId: {userId}",
                 nameof(productCreateFormModel.CategoryId));
         }
         
@@ -267,7 +267,7 @@ public class ProductsService : IProductsService
             .AnyAsync(u => u.Id == userId);
         if (!userExists)
         {
-            throw new ArgumentException("User with the provided id was not found.",
+            throw new ArgumentException($"User with id: {userId} was not found.",
                 nameof(userId));
         }
         
@@ -316,13 +316,13 @@ public class ProductsService : IProductsService
             .AnyAsync(u => u.Id == userId);
         if (!userExists)
         {
-            throw new ArgumentException("User with the provided id was not found.",
+            throw new ArgumentException($"User with id: {userId} was not found.",
                 nameof(userId));
         }
         
         Product? product = await this._dbContext.Products.FindAsync(id);
         if (product == null)
-            throw new ArgumentException("Product not found.", nameof(id));
+            throw new ArgumentException($"Product with id: {id} was not found.", nameof(id));
 
         if (userId != product.OwnerId)
             throw new UnauthorizedOperationException(userId, nameof(Product), product.Id);
@@ -358,7 +358,7 @@ public class ProductsService : IProductsService
             .AnyAsync(u => u.Id == userId);
         if (!userExists)
         {
-            throw new ArgumentException("User with the provided id was not found.",
+            throw new ArgumentException($"User with id: {userId} was not found.",
                 nameof(userId));
         }
         
@@ -367,7 +367,7 @@ public class ProductsService : IProductsService
             .SingleOrDefaultAsync(p => p.Id == productEditFormModel.ProductId);
         if (product == null)
         {
-            throw new ArgumentException("Product not found.", 
+            throw new ArgumentException($"Product with id: {productEditFormModel.ProductId} was not found.", 
                 nameof(productEditFormModel.ProductId));
         }
 
@@ -393,7 +393,7 @@ public class ProductsService : IProductsService
             .AnyAsync(c => c.Id == productEditFormModel.CategoryId);
         if (!categoryExists)
         {
-            throw new ArgumentException($"Invalid category provided from user with id {userId}",
+            throw new ArgumentException($"Category with id: {productEditFormModel.CategoryId} was not found. userId: {userId}",
                 nameof(productEditFormModel.CategoryId));
         }
         
@@ -542,8 +542,8 @@ public class ProductsService : IProductsService
         if (string.IsNullOrEmpty(url))
             return false;
 
-        return url.Length >= EntityValidationConstants.Image.UrlMinLengthValue &&
-               url.Length <= EntityValidationConstants.Image.UrlMaxLengthValue &&
+        return url.Length >= EntityValidationConstants.CommonValidationConstants.UrlMinLengthValue &&
+               url.Length <= EntityValidationConstants.CommonValidationConstants.UrlMaxLengthValue &&
                (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
                 url.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase));

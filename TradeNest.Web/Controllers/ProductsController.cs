@@ -1,11 +1,10 @@
-using static TradeNest.Web.Utilities.OperationsStatusMessages;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Product;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
-using TradeNest.Web.Utilities;
+using static TradeNest.Web.Utilities.StatusNotificationMessages;
 
 namespace TradeNest.Web.Controllers;
 
@@ -69,7 +68,6 @@ public class ProductsController : BaseController
                 {
                     this._logger.LogCritical(ex,
                         "Unexpected exception occured while attempting to access products and categories data.");
-
                     return BadRequest();
                 }
             }
@@ -151,13 +149,15 @@ public class ProductsController : BaseController
         }
         catch (ArgumentException argEx)
         {
-            this._logger.LogCritical(argEx, argEx.Message);
+            this._logger.LogWarning(argEx,
+                "Invalid arguments were passed on the create product operation.");
             return BadRequest();
         }
         catch (Exception ex)
         {
             this._logger.LogError(ex,
                 "An unexpected error occured while trying to create a product.");
+            
             ViewData["ProductCreationError"] = ProductCreationUnexpectedErrorMessage;
             
             return View(productCreateFormModel);
@@ -175,8 +175,13 @@ public class ProductsController : BaseController
         {
             Guid? userId = this.GetUserId();
             if (userId == null || userId.Value == Guid.Empty)
-                throw new InvalidOperationException("UserId can not be null or empty.");
+            {
+                this._logger.LogError("UserId can not be null or empty.");
+                TempData["UnexpectedErrorMessage"] = UnexpectedErrorMessage;
 
+                return RedirectToAction(nameof(Details), controllerName: "Products", new { id });
+            }
+                
             ProductEditFormModel? model = await this._productsService
                 .GetProductEditFormModelAsync(userId.Value, id);
             if (model == null)
@@ -186,12 +191,13 @@ public class ProductsController : BaseController
         }
         catch (UnauthorizedOperationException unAuthEx)
         {
-            this._logger.LogCritical(unAuthEx, unAuthEx.Message);
+            this._logger.LogWarning(unAuthEx,
+                "User that was not the owner of a product attempt to get edit access.");
             return Unauthorized();
         }
         catch (Exception ex)
         {
-            this._logger.LogCritical(ex,
+            this._logger.LogError(ex,
                 "An unexpected error occured while trying to access product data. Provided productId: {Id}.",
                 id);
 
@@ -199,6 +205,7 @@ public class ProductsController : BaseController
         }
     }
     
+    //TODO: Remove redundant id
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Edit([FromForm] ProductEditFormModel productEditFormModel,
@@ -222,7 +229,7 @@ public class ProductsController : BaseController
         if (!ModelState.IsValid)
             return View(productEditFormModel);
 
-        returnUrl ??= Url.Action(nameof(Index), controller: "Products");
+        returnUrl ??= Url.Action(nameof(Details), controller: "Products", new { id });
 
         try
         {
@@ -237,8 +244,15 @@ public class ProductsController : BaseController
         }
         catch (UnauthorizedOperationException unAuthEx)
         {
-            this._logger.LogCritical(unAuthEx, unAuthEx.Message);
+            this._logger.LogWarning(unAuthEx, 
+                "User that was not the owner of a product attempt to edit.");
             return Unauthorized();
+        }
+        catch (ArgumentException argEx)
+        {
+            this._logger.LogWarning(argEx,
+                "Invalid arguments were passed on the edit product operation.");
+            return BadRequest();
         }
         catch (Exception ex)
         {
@@ -260,7 +274,7 @@ public class ProductsController : BaseController
         if(id == Guid.Empty) 
             return BadRequest();
         
-        returnUrl ??= Url.Action(nameof(Index), controller: "Products");
+        returnUrl ??= Url.Action(nameof(Details), controller: "Products", new { id });
 
         try
         {
@@ -275,8 +289,21 @@ public class ProductsController : BaseController
         }
         catch (UnauthorizedOperationException unAuthEx)
         {
-            this._logger.LogCritical(unAuthEx, unAuthEx.Message);
+            this._logger.LogWarning(unAuthEx,
+                "User attempt to delete product he is not an owner of.");
             return Unauthorized();
+        }
+        catch (ArgumentException argEx)
+        {
+            this._logger.LogWarning(argEx,
+                "Invalid arguments provided to the delete product operation.");
+            return BadRequest();
+        }
+        catch (InvalidOperationException opEx)
+        {
+            this._logger.LogWarning(opEx,
+                "Attempt to delete a product that is already deleted");
+            return BadRequest();
         }
         catch (Exception ex)
         {

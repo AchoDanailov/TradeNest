@@ -1,7 +1,7 @@
 const MIN_QTY = 1;
 
 const prodValidationEl = document.querySelector("#prod-qty-validation>small");
-const availableQtyOnUi = Number(document.querySelector("#available-quantity")
+const availableQtyOnUi = Number(document.querySelector("#available-quantity-ui")
     ?.textContent?.trim()?.split(' ')?.shift());
 const prodQtyInputEl = document.querySelector("#quantityInput");
 const submitBtnEl = document.querySelector("#add-to-order-btn");
@@ -27,6 +27,7 @@ formEl?.addEventListener("submit", async (e) => {
     const formData = new FormData(e.target);
     const id = formData.get("id");
     const qty = formData.get("quantity");
+    const returnUrl = formData.get("returnUrl");
 
     try {
         const servRes = await fetch(`/Orders/VerifyProdQty`, {
@@ -36,24 +37,25 @@ formEl?.addEventListener("submit", async (e) => {
             },
             body: JSON.stringify({
                 Id: id,
-                Quantity: qty
+                Quantity: qty,
+                ReturnUrl: returnUrl,
             }),
         });
         if(!servRes.ok) {
-            throw new Error(servRes.statusText);
+            throw new Error(servRes);
         }
 
         const isValidProdQty = await servRes.json();
         if(isValidProdQty === false) {
             prodValidationEl.textContent
-                = "Not enough quantity. It looks like you have already added to your order some of the available quantity.";
+                = "Not enough quantity. It looks like you have already added to your order some of the last available quantity.";
 
             return;
         }
 
         e.target.submit();
     } catch (err) {
-        console.error("Remote validation error: ", err.message);
+        console.error("Remote validation error.", err);
         e.target.submit()
     }
 });
