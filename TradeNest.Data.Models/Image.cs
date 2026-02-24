@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static TradeNest.GCommon.EntityValidationConstants.Image;
+using static TradeNest.GCommon.EntityValidationConstants.CommonValidationConstants;
 using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Data.Models;

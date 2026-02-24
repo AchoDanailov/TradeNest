@@ -1,11 +1,12 @@
+using Microsoft.EntityFrameworkCore;
+using TradeNest.GCommon;
+using TradeNest.GCommon.Exceptions;
 using TradeNest.Data;
 using TradeNest.Data.Models;
-using TradeNest.GCommon;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
 using TradeNest.Web.ViewModels.Product;
-using Microsoft.EntityFrameworkCore;
 
 namespace TradeNest.Services.Core;
 
@@ -66,7 +67,7 @@ public class ProductsService : IProductsService
     public async Task<IEnumerable<ProductViewModel>> GetAllProdsBySearchQueryForNameAsync(
         string searchQuery)
     {
-        if (string.IsNullOrEmpty(searchQuery))
+        if (string.IsNullOrWhiteSpace(searchQuery))
             return Array.Empty<ProductViewModel>();
         
         return await this._dbContext.Products
@@ -92,7 +93,7 @@ public class ProductsService : IProductsService
         Guid categoryId)
     {
         if (categoryId == Guid.Empty)
-            return Array.Empty<ProductViewModel>();
+            throw new ArgumentException("categoryId can not be empty.", nameof(categoryId));
         
         return await this._dbContext.Products
             .AsNoTracking()
@@ -199,10 +200,30 @@ public class ProductsService : IProductsService
     public async Task<Guid> CreateProductAsync(Guid userId,
         ProductCreateFormModel productCreateFormModel)
     {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        
         Guid passedInCategoryId = productCreateFormModel.CategoryId;
         if (passedInCategoryId == Guid.Empty)
         {
-            throw new ArgumentException("Invalid category.",
+            throw new ArgumentException("CategoryId can not be empty.",
+                nameof(productCreateFormModel.CategoryId));
+        }
+
+        bool userExists = await this._dbContext.Users
+            .AnyAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new ArgumentException($"User with id: {userId} was not found.",
+                nameof(userId));
+        }
+
+        bool categoryExists = await this._dbContext.Categories
+            .AnyAsync(c => c.Id == passedInCategoryId);
+        if (!categoryExists)
+        {
+            throw new ArgumentException(
+                $"Category with id: {passedInCategoryId} was not found. userId: {userId}",
                 nameof(productCreateFormModel.CategoryId));
         }
         
@@ -236,8 +257,19 @@ public class ProductsService : IProductsService
 
     public async Task<ProductEditFormModel?> GetProductEditFormModelAsync(Guid userId, Guid id)
     {
-        if (userId == Guid.Empty || id == Guid.Empty)
+        if (id == Guid.Empty)
             return null;
+
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+
+        bool userExists = await this._dbContext.Users
+            .AnyAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new ArgumentException($"User with id: {userId} was not found.",
+                nameof(userId));
+        }
         
         Product? product = await this._dbContext.Products
             .AsNoTracking()
@@ -247,7 +279,7 @@ public class ProductsService : IProductsService
             return null;
 
         if (userId != product.OwnerId)
-            throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
+            throw new UnauthorizedOperationException(userId, nameof(Product), id);
         
         ProductEditFormModel productEditFormModel = new ProductEditFormModel()
         {
@@ -274,47 +306,75 @@ public class ProductsService : IProductsService
 
     public async Task DeleteProductAsync(Guid userId, Guid id)
     {
-        if(userId == Guid.Empty || id == Guid.Empty)
-            throw new ArgumentException("Invalid arguments provided.");
+        if(userId == Guid.Empty)
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        
+        if(id == Guid.Empty)
+            throw new ArgumentException("Id can not be empty.", nameof(id));
+        
+        bool userExists = await this._dbContext.Users
+            .AnyAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new ArgumentException($"User with id: {userId} was not found.",
+                nameof(userId));
+        }
         
         Product? product = await this._dbContext.Products.FindAsync(id);
         if (product == null)
-            throw new ArgumentException("Product not found.", nameof(id));
+            throw new ArgumentException($"Product with id: {id} was not found.", nameof(id));
 
         if (userId != product.OwnerId)
-            throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
+            throw new UnauthorizedOperationException(userId, nameof(Product), product.Id);
 
+        if (product.IsDeleted)
+        {
+            throw new InvalidOperationException(
+                $"Can not delete an already deleted product. userId: {userId}, productId: {id}");
+        }
+        
         product.IsDeleted = true;
         await this._dbContext.SaveChangesAsync();
     }
 
-    public async Task EditProductAsync(Guid userId, Guid productId,
-        ProductEditFormModel productEditFormModel)
+    public async Task EditProductAsync(Guid userId, ProductEditFormModel productEditFormModel)
     {
-        if (userId == Guid.Empty || productId == Guid.Empty)
-            throw new ArgumentException("Invalid arguments provided.");
-        
-        Product? product = await this._dbContext.Products
-            .Include(p => p.Images)
-            .SingleOrDefaultAsync(p => p.Id == productId);
-        if (product == null)
-            throw new ArgumentException("Product not found.", nameof(productId));
-        
-        if (userId != product.OwnerId)
-            throw new ArgumentException("Unauthorized access attempt.", nameof(userId));
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+
+        if (productEditFormModel.ProductId == Guid.Empty)
+        {
+            throw new ArgumentException("ProductId can not be empty.", 
+                nameof(productEditFormModel.ProductId));
+        }
         
         if (productEditFormModel.CategoryId == Guid.Empty)
         {
-            throw new ArgumentException("Invalid category.",
+            throw new ArgumentException("CategoryId can not be empty.",
                 nameof(productEditFormModel.CategoryId));
         }
         
-        bool categoryExists = await this._dbContext.Categories
-            .AnyAsync(c => c.Id == productEditFormModel.CategoryId);
-        if (!categoryExists)
+        bool userExists = await this._dbContext.Users
+            .AnyAsync(u => u.Id == userId);
+        if (!userExists)
         {
-            throw new ArgumentException("Invalid category.",
-                nameof(productEditFormModel.CategoryId));
+            throw new ArgumentException($"User with id: {userId} was not found.",
+                nameof(userId));
+        }
+        
+        Product? product = await this._dbContext.Products
+            .Include(p => p.Images)
+            .SingleOrDefaultAsync(p => p.Id == productEditFormModel.ProductId);
+        if (product == null)
+        {
+            throw new ArgumentException($"Product with id: {productEditFormModel.ProductId} was not found.", 
+                nameof(productEditFormModel.ProductId));
+        }
+
+        if (userId != product.OwnerId)
+        {
+            throw new UnauthorizedOperationException(userId, nameof(Product),
+                productEditFormModel.ProductId);
         }
         
         if (productEditFormModel.ProductImages.Any())
@@ -323,9 +383,18 @@ public class ProductsService : IProductsService
                 .All(editImg => product.Images.Any(dbImg => dbImg.Id == editImg.Id));
             if (!allImagesAreValid)
             {
-                throw new ArgumentException("Invalid images.",
+                throw new ArgumentException(
+                    $"Invalid images provided. productId: {productEditFormModel.ProductId}, userId: {userId}",
                     nameof(productEditFormModel.ProductImages));
             }
+        }
+        
+        bool categoryExists = await this._dbContext.Categories
+            .AnyAsync(c => c.Id == productEditFormModel.CategoryId);
+        if (!categoryExists)
+        {
+            throw new ArgumentException($"Category with id: {productEditFormModel.CategoryId} was not found. userId: {userId}",
+                nameof(productEditFormModel.CategoryId));
         }
         
         ICollection<Image> imagesToDelete
@@ -473,8 +542,8 @@ public class ProductsService : IProductsService
         if (string.IsNullOrEmpty(url))
             return false;
 
-        return url.Length >= EntityValidationConstants.Image.UrlMinLengthValue &&
-               url.Length <= EntityValidationConstants.Image.UrlMaxLengthValue &&
+        return url.Length >= EntityValidationConstants.CommonValidationConstants.UrlMinLengthValue &&
+               url.Length <= EntityValidationConstants.CommonValidationConstants.UrlMaxLengthValue &&
                (url.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
                 url.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ||
                 url.StartsWith("ftp://", StringComparison.OrdinalIgnoreCase));

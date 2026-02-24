@@ -10,12 +10,12 @@ namespace TradeNest.Web.Controllers;
 [Authorize]
 public abstract class BaseController : Controller
 {
-    protected Guid GetUserId()
+    protected Guid? GetUserId()
     {
         string? userId = this.User?.FindFirstValue(ClaimTypes.NameIdentifier);
         if(userId != null)
             return Guid.Parse(userId);
 
-        return Guid.Empty;
+        return null;
     }
 }

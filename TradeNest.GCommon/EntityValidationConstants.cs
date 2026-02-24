@@ -5,11 +5,6 @@ namespace TradeNest.GCommon;
 /// </summary>
 public static class EntityValidationConstants
 {
-    public static class CommonValidationConstants
-    {
-        public const string PriceColumnDataType = "DECIMAL(10, 2)";
-    }
-    
     public static class Product
     {
         public const byte NameMinLengthValue = 3;
@@ -30,11 +25,11 @@ public static class EntityValidationConstants
 
         public const byte ExtraImagesUrlsMinLengthValue = 1;
         public const short ExtraImagesUrlsMaxLengthValue 
-            = Image.UrlMaxLengthValue * 10;
+            = CommonValidationConstants.UrlMaxLengthValue * 10;
         
         public const byte NewImagesUrlsMinLengthValue = 1;
         public const short NewImagesUrlsMaxLengthValue 
-            = Image.UrlMaxLengthValue * 10;
+            = CommonValidationConstants.UrlMaxLengthValue * 10;
 
         public const string DefaultValueForCreatedOnColumn = "GETUTCDATE()";
 
@@ -53,8 +48,10 @@ public static class EntityValidationConstants
         public const byte PasswordMaxLengthValue = 100;
     }
 
-    public static class Image
+    public static class CommonValidationConstants
     {
+        public const string PriceColumnDataType = "DECIMAL(10, 2)";
+        
         public const byte UrlMinLengthValue = 1;
         public const short UrlMaxLengthValue = 2048;
     }

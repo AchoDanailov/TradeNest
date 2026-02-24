@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
 using TradeNest.Data.Models;
-using TradeNest.GCommon;
+using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Order;
 
@@ -20,7 +20,11 @@ public class OrdersService : IOrdersService
     public async Task<IEnumerable<OrderViewModel>> GetAllOrdersByUserIdAsync(Guid userId)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("Invalid userId provided.", nameof(userId));
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        
+        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
 
         return await this._dbContext.Orders
             .AsNoTracking()
@@ -48,9 +52,32 @@ public class OrdersService : IOrdersService
 
     public async Task AddProductToOrderAsync(Guid userId, Guid productId, int prodQtyToAdd)
     {
-        if (userId == Guid.Empty || productId == Guid.Empty || prodQtyToAdd <= 0)
-            throw new ArgumentException("Invalid argument's were provided.");
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        
+        if(productId == Guid.Empty)
+            throw new ArgumentException("ProductId can not be empty.", nameof(productId));
+        
+        if (prodQtyToAdd <= 0)
+        {
+            throw new ArgumentException("ProdQtyToAdd can not be zero or a negative number.",
+                nameof(prodQtyToAdd));
+        }
 
+        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
+
+        Product? product = await this._dbContext.Products.FindAsync(productId);
+        if (product == null)
+            throw new ResourceNotFoundException(nameof(Product), productId);
+
+        if (product.OwnerId == userId)
+        {
+            throw new InvalidOperationException(
+                $"The owner of the product can not add the product to his order. userId: {userId}, productId: {productId}");
+        }
+        
         Order? ongoingOrder = await this._dbContext.Orders
             .Include(o => o.OrderProducts)
             .Where(o => o.UserId == userId)
@@ -58,15 +85,22 @@ public class OrdersService : IOrdersService
         if (ongoingOrder == null)
             ongoingOrder = await this.CreateOngoingOrder(userId);
 
-        Product? product = await this._dbContext.Products.FindAsync(productId);
-        if(product == null)
-            throw new ArgumentException("Invalid argument was provided.", nameof(productId));
-
-        int userAlreadyAddedProdQty = ongoingOrder
-            .OrderProducts
-            .SingleOrDefault(op => op.ProductId == productId)?.ProductsQuantity ?? 0;
+        int userAlreadyAddedProdQty = 0;
+        if (ongoingOrder.OrderProducts.Any())
+        {
+            userAlreadyAddedProdQty = ongoingOrder
+                .OrderProducts
+                .SingleOrDefault(op => op.ProductId == productId)?.ProductsQuantity ?? 0;
+        }
+        
         if (product.QuantityInStock < prodQtyToAdd + userAlreadyAddedProdQty)
-            throw new ArgumentException("Insufficient product quantity.");
+        {
+            throw new InsufficientProductQuantityInStockException(
+                userId: userId,
+                productId: productId,
+                productQtyInStock: product.QuantityInStock,
+                productQtyRequested: prodQtyToAdd + userAlreadyAddedProdQty);
+        }
 
         ongoingOrder.TotalPrice += product.SellingPrice * prodQtyToAdd;
 
@@ -94,7 +128,11 @@ public class OrdersService : IOrdersService
     public async Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("Invalid userId provided.", nameof(userId));
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        
+        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
         
         return await this._dbContext
             .Orders
@@ -122,8 +160,26 @@ public class OrdersService : IOrdersService
 
     public async Task RemoveProductFromOrderAsync(Guid userId, Guid productId, Guid orderId)
     {
-        if(userId == Guid.Empty || productId == Guid.Empty || orderId == Guid.Empty)
-            throw new ArgumentException("Invalid argument's were provided.");
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        if(productId == Guid.Empty)
+            throw new ArgumentException("ProductId can not be empty.", nameof(productId));
+        if(orderId == Guid.Empty)
+            throw new ArgumentException("OrderId can not be empty.", nameof(orderId));
+        
+        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
+        
+        Product? product = await this._dbContext.Products.FindAsync(productId);
+        if (product == null)
+            throw new ResourceNotFoundException(nameof(Product), productId);
+
+        if (product.OwnerId == userId)
+        {
+            throw new InvalidOperationException(
+                $"Owner of the product can not remove it from his order's list. userId: {userId}, productId: {productId}");
+        }
 
         Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
             userId,
@@ -131,10 +187,9 @@ public class OrdersService : IOrdersService
             o => o.Id == orderId && !o.IsSubmitted,
             includeProducts: true);
 
-        Product? product = await this._dbContext.Products.FindAsync(productId);
         bool prodExistsInOngoingOrder = order.OrderProducts
             .Any(op => op.ProductId == productId);
-        if (product == null || !prodExistsInOngoingOrder)
+        if (!prodExistsInOngoingOrder)
         {
             throw new InvalidOperationException(
                 $"Can not remove product with id {productId} from the user's order if it isn't already there.");
@@ -163,8 +218,10 @@ public class OrdersService : IOrdersService
 
     public async Task CancelOrderAsync(Guid userId, Guid orderId)
     {
-        if(orderId == Guid.Empty || userId == Guid.Empty)
-            throw new ArgumentException("Invalid argument were provided.", nameof(orderId));
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        if(orderId == Guid.Empty)
+            throw new ArgumentException("OrderId can not be empty.", nameof(orderId));
 
         Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
             userId,
@@ -178,8 +235,14 @@ public class OrdersService : IOrdersService
 
     public async Task SubmitOrderAsync(Guid userId, Guid orderId)
     {
-        if(orderId == Guid.Empty || userId == Guid.Empty)
-            throw new ArgumentException("Invalid argument were provided.", nameof(orderId));
+        if(userId == Guid.Empty )
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        if(orderId == Guid.Empty )
+            throw new ArgumentException("OrderId can not be empty", nameof(orderId));
+        
+        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
 
         Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
             userId,
@@ -191,8 +254,11 @@ public class OrdersService : IOrdersService
         {
             if (orderProduct.Product.QuantityInStock < orderProduct.ProductsQuantity)
             {
-                throw new InvalidOperationException(
-                    $"Insufficient amount of stock for product {orderProduct.Product.Name}");
+                throw new InsufficientProductQuantityInStockException(
+                    userId: userId,
+                    productId: orderProduct.ProductId,
+                    productQtyInStock: orderProduct.Product.QuantityInStock,
+                    productQtyRequested: orderProduct.ProductsQuantity);
             }
 
             orderProduct.Product.QuantityInStock -= orderProduct.ProductsQuantity;
@@ -209,15 +275,25 @@ public class OrdersService : IOrdersService
         await this._dbContext.SaveChangesAsync();
     }
 
-    public async Task<bool> IsValidProductQtyToOrder(Guid userId,
+    public async Task<bool> IsValidProductQtyToOrderAsync(Guid userId,
         ValidateProductQtyInputModel inputModel)
     {
+        if (userId == Guid.Empty)
+            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+        
         if (inputModel.Id == Guid.Empty)
-            return false;
+        {
+            throw new ArgumentException("Input model Id can not be empty",
+                nameof(inputModel.Id));
+        }
+        
+        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
         
         Product? prod = await this._dbContext.Products.FindAsync(inputModel.Id);
         if (prod == null)
-            return false;
+            throw new ResourceNotFoundException(nameof(Product), inputModel.Id);
 
         OrderProduct? prodAlreadyAddedToOrder = await this._dbContext.OrdersProducts
             .Include(op => op.Order)
@@ -253,13 +329,16 @@ public class OrdersService : IOrdersService
             .SingleOrDefaultAsync(filterPredicate);
         
         if (order == null)
-            throw new ArgumentException("Order not found.", nameof(orderId));
+            throw new ResourceNotFoundException(nameof(Order), orderId);
 
         if (order.UserId != userId)
-            throw new InvalidOperationException("Unauthorized operation attempt.");
+            throw new UnauthorizedOperationException(userId, nameof(Order), orderId);
 
         if (order.IsSubmitted)
-            throw new InvalidOperationException($"Order with id: {orderId} already is submitted.");
+        {
+            throw new InvalidOperationException(
+                $"Order with id: {orderId} already is submitted.");
+        }
 
         return order;
     }

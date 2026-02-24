@@ -1,4 +1,5 @@
 using TradeNest.Web.ViewModels.Order;
+using TradeNest.GCommon.Exceptions;
 
 namespace TradeNest.Services.Core.Interfaces;
 
@@ -12,6 +13,10 @@ public interface IOrdersService
     /// Collection with the user's orders.
     /// If none are found the method returns an empty collection.
     /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the provided <paramref name="userId"/> is with value <see cref="Guid.Empty"/>,
+    /// or user with <paramref name="userId"/> does not exist.
+    /// </exception>
     Task<IEnumerable<OrderViewModel>> GetAllOrdersByUserIdAsync(Guid userId);
 
     /// <summary>
@@ -22,6 +27,25 @@ public interface IOrdersService
     /// <param name="productId">The product identifier which is added to the user's ongoing order.</param>
     /// <param name="prodQtyToAdd">The quantity of the product being added to the ongoing order.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if either <paramref name="userId"/>, <paramref name="productId"/> are with value
+    /// <see cref="Guid.Empty"/>, or if <paramref name="prodQtyToAdd"/> is with value zero or
+    /// negative number.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if user with <paramref name="userId"/> does not exist.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if a product with the provided <paramref name="productId"/> does not exist.
+    /// </exception>
+    /// <exception cref="InsufficientProductQuantityInStockException">
+    /// Thrown if there is less quantity in stock of the given product than the user attempts
+    /// to add to his order.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the user with <paramref name="userId"/> is the owner of the product with the
+    /// provided <paramref name="productId"/>
+    /// </exception>
     Task AddProductToOrderAsync(Guid userId, Guid productId, int prodQtyToAdd);
 
     /// <summary>
@@ -32,6 +56,10 @@ public interface IOrdersService
     /// A Task that contains the user's order ongoing order if any.
     /// If user's ongoing order is not found - the method returns null.
     /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if <paramref name="userId"/> is with value <see cref="Guid.Empty"/> or
+    /// user with <paramref name="userId"/> does not exist.
+    /// </exception>
     Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId);
 
     /// <summary>
@@ -43,6 +71,28 @@ public interface IOrdersService
     /// </param>
     /// <param name="orderId">The user's ongoing order identifier.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the provided <paramref name="userId"/>, <paramref name="productId"/> or
+    /// <paramref name="orderId"/> are with value <see cref="Guid.Empty"/>.
+    /// </exception>
+    /// <exception cref="ArgumentException">
+    /// Thrown if user with <paramref name="userId"/> does not exist.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if a product with <paramref name="productId"/> does not exist,
+    /// or if order with <paramref name="orderId"/> does not exist.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the order with <paramref name="orderId"/> is not that of a user with
+    /// <paramref name="userId"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the user with <paramref name="userId"/> is the owner of the product
+    /// with <paramref name="productId"/>.
+    /// Thrown if the order with <paramref name="orderId"/> is already submitted.
+    /// Thrown if the product with <paramref name="productId"/> is not listed in the order
+    /// with <paramref name="orderId"/>.
+    /// </exception>
     Task RemoveProductFromOrderAsync(Guid userId, Guid productId, Guid orderId);
 
     /// <summary>
@@ -58,6 +108,20 @@ public interface IOrdersService
     /// <param name="orderId">The order's identifier</param>
     /// <param name="userId">The user identifier to which the orders belong.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if either <paramref name="userId"/> or <paramref name="orderId"/>
+    /// is of value <see cref="Guid.Empty"/>
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if order with <paramref name="orderId"/> does not exist.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the order with <paramref name="orderId"/> is not that of a user with
+    /// <paramref name="userId"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the order with <paramref name="orderId"/> is already submitted.
+    /// </exception>
     Task CancelOrderAsync(Guid userId, Guid orderId);
 
     /// <summary>
@@ -66,6 +130,25 @@ public interface IOrdersService
     /// <param name="orderId">The order to be submitted</param>
     /// <param name="userId">The user identifier to which the orders belong.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if either <paramref name="userId"/> or <paramref name="orderId"/> are with
+    /// value <see cref="Guid.Empty"/>. Also thrown if the user with <paramref name="userId"/>
+    /// does not exist.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if the order with the provided <paramref name="orderId"/> does not exist.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the order with <paramref name="orderId"/> is not that of a user with
+    /// <paramref name="userId"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the order with <paramref name="orderId"/> is already submitted.
+    /// </exception>
+    /// <exception cref="InsufficientProductQuantityInStockException">
+    /// Thrown if any of the products in the order with <paramref name="orderId"/>
+    /// does not satisfy the quantity requested to submit. 
+    /// </exception>
     Task SubmitOrderAsync(Guid userId, Guid orderId);
 
     /// <summary>
@@ -77,5 +160,14 @@ public interface IOrdersService
     /// <returns>
     /// Task containing a value that represents if the user can add the given product quantity to his order.
     /// </returns>
-    Task<bool> IsValidProductQtyToOrder(Guid userId, ValidateProductQtyInputModel inputModel);
+    /// <exception cref="ArgumentException">
+    /// Thrown if the user with <paramref name="userId"/> or the product with
+    /// <paramref name="inputModel.Id"/> are with value <see cref="Guid.Empty"/>, or if user
+    /// with <paramref name="userId"/> does not exist.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if product with the provided id in <paramref name="inputModel"/> does not exist.
+    /// </exception>
+    Task<bool> IsValidProductQtyToOrderAsync(Guid userId,
+        ValidateProductQtyInputModel inputModel);
 }

@@ -5,7 +5,7 @@
 
 <div class="container-lg pt-4">
     
-    <partial name="_ProductsOperationsStatusAlertsPartial" />
+    <partial name="_StatusNotificationPartial" />
     
     <div class="row d-none d-md-flex flex-column justify-content-center mb-4">
         <partial name="_SearchFormPartial"/>
@@ -27,7 +27,7 @@
         
         <div class="col d-flex flex-column align-items-center">
             <div class="product-image-wrapper site-sections-bg rounded-3 border shadow mb-3">
-                <img src="@this.Model.FrontImageUrl" alt="@this.Model.Name"
+                <img src="@Model.FrontImageUrl" alt="@this.Model.Name"
                      class="img-fluid product-main-image"/>
             </div>
 
@@ -47,13 +47,13 @@
                 </p>
             }
             <h4 class="text-navy fw-bold py-2 border-2 border-bottom">
-                @this.Model.Name
+                @Model.Name
             </h4>
             <p class="text-navy text-center fw-bold border-2 border-bottom">
-                @this.Model.OwnerName
+                @Model.OwnerName
             </p>
             <p class="text-navy text-center fw-bold border-2 border-bottom">
-                €@this.Model.SellingPrice.ToString(PricesFormat)
+                €@Model.SellingPrice.ToString(PricesFormat)
             </p>
             @if (this.Model.IsOwner)
             {
@@ -79,7 +79,7 @@
                            value="0" aria-label="Quantity" disabled />
 
                     <p class="text-navy text-muted mt-2">
-                        @this.Model.QuantityInStock available
+                        @Model.QuantityInStock available
                     </p>
 
                     @if (this.Model.IsEnabled)
@@ -120,7 +120,7 @@
                                value="0" aria-label="Quantity" disabled />
 
                         <p class="text-navy text-muted mt-2">
-                            @this.Model.QuantityInStock available
+                            @Model.QuantityInStock available
                         </p>
 
                         @if (!this.Model.IsOwner)
@@ -133,8 +133,10 @@
                     else
                     {
                         <form method="post" asp-controller="Orders" asp-action="AddProduct"
-                              asp-route-id="@this.Model.Id" id="add-to-order-form">
+                              asp-route-id="@Model.Id" id="add-to-order-form">
 
+                        <input type="hidden" name="id" value="@Model.Id" />
+                            
                             <input type="hidden" name="returnUrl"
                                    value="@Url.Action("Details", "Products", new { id = this.Model.Id })" />
 
@@ -145,11 +147,12 @@
                                 <small></small>
                             </div>
 
-                            <p class="text-navy text-muted mt-2">
-                                @this.Model.QuantityInStock available
+                            <p id="available-quantity-ui" class="text-navy text-muted mt-2">
+                                @Model.QuantityInStock available
                             </p>
 
-                            <button type="submit" class="rounded-pill btn-teal p-2">
+                            <button type="submit" id="add-to-order-btn"
+                                    class="rounded-pill btn-teal p-2">
                                 Add To Order
                             </button>
                         </form>
@@ -161,7 +164,7 @@
                 @if (this.Model.IsOwner)
                 {
                     <a asp-controller="Products" asp-action="Edit"
-                       asp-route-id="@this.Model.Id"
+                       asp-route-id="@Model.Id"
                        class="rounded-pill btn-teal p-2">Make Changes</a>
                     <button type="button"
                             class="rounded-pill btn btn-outline-danger mt-2 p-2"
@@ -184,14 +187,14 @@
                                             aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    Are you sure you want to delete @this.Model.Name from your inventory?
+                                    Are you sure you want to delete @Model.Name from your inventory?
                                 </div>
                                 <div class="modal-footer">
                                     <button type="button" class="btn btn-secondary"
                                             data-bs-dismiss="modal">No</button>
                                     
                                     <form method="post" asp-controller="Products"
-                                          asp-action="Delete" asp-route-id="@this.Model.Id">
+                                          asp-action="Delete" asp-route-id="@Model.Id">
                                         <input type="hidden" name="returnUrl"
                                                value="@Url.Action("Details", controller: "Products")"/>
                                         <button type="submit" class="btn btn-danger">
@@ -208,7 +211,7 @@
             <div class="d-flex flex-column mt-4 flex-grow-1 w-100">
                 <h4 class="text-navy py-2 border-2 border-bottom">Description</h4>
                 <p class="text-navy mt-2 text-start mx-3 overflow-auto flex-grow-1">
-                    @this.Model.Description
+                    @Model.Description
                 </p>
             </div>
         </div>

@@ -9,6 +9,8 @@
         = TempData["OrderModificationUnexpectedErrorMessage"] as string ?? string.Empty;
     string productCreationErrorMessage 
         = ViewData["ProductCreationError"] as string ?? string.Empty;
+    string unexpectedErrorMessage 
+        = ViewData["UnexpectedErrorMessage"] as string ?? string.Empty;
 }
 
 @if (!string.IsNullOrEmpty(productDeletionSuccessMessage))
@@ -44,5 +46,12 @@ else if (!string.IsNullOrEmpty(productCreationErrorMessage))
     <div class="alert alert-danger alert-dismissible" role="alert">
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         @productCreationErrorMessage
+    </div>
+}
+else if (!string.IsNullOrEmpty(unexpectedErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @unexpectedErrorMessage
     </div>
 }

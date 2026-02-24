@@ -4,7 +4,7 @@ namespace TradeNest.Web.Utilities;
 /// This class holds status messages used to notify the user about the status of attempted operations
 /// available in the application.
 /// </summary>
-public static class OperationsStatusMessages
+public static class StatusNotificationMessages
 {
     public const string ProductCreationUnexpectedErrorMessage 
         = "Oops. Something went wrong while trying to add your new product. Please try again in a moment.";
@@ -20,4 +20,7 @@ public static class OperationsStatusMessages
 
     public const string OrderSubmittionSuccessMessage
         = "Your order was successfully submitted.";
+
+    public const string UnexpectedErrorMessage
+        = "Oops. Something went wrong. Please try again in a moment.";
 }
