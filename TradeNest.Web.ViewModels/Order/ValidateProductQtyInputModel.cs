@@ -13,7 +13,6 @@ public class ValidateProductQtyInputModel
     [Range(MinQuantityToAddToOrder, MaxQuantityToAddToOrder)]
     public int Quantity { get; set; }
     
-    [Url]
     [StringLength(UrlMaxLengthValue, MinimumLength = UrlMinLengthValue)]
     public string? ReturnUrl { get; set; }
 }
