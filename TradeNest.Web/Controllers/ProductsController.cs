@@ -209,9 +209,9 @@ public class ProductsController : BaseController
     [HttpPost]
     [Authorize]
     public async Task<IActionResult> Edit([FromForm] ProductEditFormModel productEditFormModel,
-        [FromRoute] Guid id, [FromForm] string? returnUrl)
+        [FromForm] string? returnUrl)
     {
-        if(id == Guid.Empty) 
+        if(productEditFormModel.ProductId == Guid.Empty) 
             return BadRequest();
         
         productEditFormModel.AllCategories = await this._categoriesService
@@ -229,7 +229,8 @@ public class ProductsController : BaseController
         if (!ModelState.IsValid)
             return View(productEditFormModel);
 
-        returnUrl ??= Url.Action(nameof(Details), controller: "Products", new { id });
+        returnUrl ??= Url.Action(nameof(Details), controller: "Products", 
+            new { id = productEditFormModel.ProductId });
 
         try
         {
@@ -240,7 +241,8 @@ public class ProductsController : BaseController
             await this._productsService
                 .EditProductAsync(userId.Value, productEditFormModel);
 
-            return RedirectToAction(nameof(Details), new { id });
+            return RedirectToAction(nameof(Details),
+                new { id = productEditFormModel.ProductId });
         }
         catch (UnauthorizedOperationException unAuthEx)
         {
@@ -257,8 +259,8 @@ public class ProductsController : BaseController
         catch (Exception ex)
         {
             this._logger.LogError(ex,
-                "An unexpected error occured while trying modify the product with id: {Id}.",
-                id);
+                "An unexpected error occured while trying modify the product with id: {ProductId}.",
+                productEditFormModel.ProductId);
             
             TempData["ProductModificationErrorMessage"] 
                 = ProductModificationUnexpectedErrorMessage;
