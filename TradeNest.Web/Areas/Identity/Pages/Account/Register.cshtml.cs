@@ -66,23 +66,33 @@ public class RegisterModel : PageModel
         public string ConfirmPassword { get; set; } = null!;
     }
 
-
-    public async Task OnGetAsync(string? returnUrl = null)
+    
+    public async Task<IActionResult> OnGetAsync(string? returnUrl = null)
     {
-        ReturnUrl = returnUrl;
+        ReturnUrl = returnUrl ?? Url.Action("Index", controller: "Home");
+
+        if (this._signInManager.IsSignedIn(User))
+            return LocalRedirect(ReturnUrl!);
+            
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync())
             .ToList();
+
+        return Page();
     }
 
     public async Task<IActionResult> OnPostAsync(string? returnUrl = null)
     {
         returnUrl ??= Url.Action("Index", controller: "Home");
+
+        if (this._signInManager.IsSignedIn(User))
+            return LocalRedirect(returnUrl!);
+        
         ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync())
             .ToList();
             
         if (ModelState.IsValid)
         {
-            ApplicationUser user = CreateUser();
+            ApplicationUser user = new ApplicationUser();
 
             await this._userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
             await this._emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
@@ -90,7 +100,9 @@ public class RegisterModel : PageModel
 
             if (result.Succeeded)
             {
-                this._logger.LogInformation("User created a new account with password.");
+                if(this._signInManager.IsSignedIn(User))
+                    await this._signInManager.SignOutAsync();
+                
                 await this._signInManager.SignInAsync(user, isPersistent: true);
                 return LocalRedirect(returnUrl!);
             }
@@ -101,20 +113,6 @@ public class RegisterModel : PageModel
 
         // If we got this far, something failed, redisplay form
         return Page();
-    }
-
-    private ApplicationUser CreateUser()
-    {
-        try
-        {
-            return new ApplicationUser();
-        }
-        catch
-        {
-            throw new InvalidOperationException($"Can't create an instance of '{nameof(ApplicationUser)}'. " +
-                                                $"Ensure that '{nameof(ApplicationUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                                                $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
-        }
     }
 
     private IUserEmailStore<ApplicationUser> GetEmailStore()
