@@ -27,7 +27,7 @@
         
         <div class="col d-flex flex-column align-items-center">
             <div class="product-image-wrapper site-sections-bg rounded-3 border shadow mb-3">
-                <img src="@Model.FrontImageUrl" alt="@this.Model.Name"
+                <img src="@(Model.FrontImageUrl ?? DefaultProductImageUrl)" alt="@this.Model.Name"
                      class="img-fluid product-main-image"/>
             </div>
 
