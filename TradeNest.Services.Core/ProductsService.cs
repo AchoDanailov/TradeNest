@@ -483,7 +483,7 @@ public class ProductsService : IProductsService
         return images;
     }
     
-    private async ValueTask<ICollection<Image>> GetImagesForDeletionIfAny(
+    private async Task<ICollection<Image>> GetImagesForDeletionIfAny(
         IEnumerable<ImageViewModel> imagesComingFromEditForm)
     {
         IEnumerable<ImageViewModel> imageViewModelsMarkedForDeletion = imagesComingFromEditForm

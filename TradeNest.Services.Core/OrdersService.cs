@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
-using TradeNest.Data;
 using TradeNest.Data.Models;
+using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Order;
@@ -10,26 +10,28 @@ namespace TradeNest.Services.Core;
 
 public class OrdersService : IOrdersService
 {
-    private readonly TradeNestDbContext _dbContext;
+    private readonly IRepository _repository;
 
-    public OrdersService(TradeNestDbContext dbContext)
+    public OrdersService(IRepository repository)
     {
-        this._dbContext = dbContext;
+        this._repository = repository;
     }
 
     public async Task<IEnumerable<OrderViewModel>> GetAllOrdersByUserIdAsync(Guid userId)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId can not be empty.", nameof(userId));
-        
-        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
             throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
 
-        return await this._dbContext.Orders
-            .AsNoTracking()
+        return await this._repository.AllAsReadonly<Order>()
             .Where(o => o.UserId == userId)
             .OrderByDescending(o => o.SubmittedOn) // nulls go on the bottom
+            .ThenByDescending(o => o.TotalPrice)
+            .ThenBy(o => o.OrderProducts.Count)
             .Select(o => new OrderViewModel()
             {
                 Id = o.Id,
@@ -64,11 +66,12 @@ public class OrdersService : IOrdersService
                 nameof(prodQtyToAdd));
         }
 
-        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
             throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
 
-        Product? product = await this._dbContext.Products.FindAsync(productId);
+        Product? product = await this._repository.FindByIdAsync<Product>(productId);
         if (product == null)
             throw new ResourceNotFoundException(nameof(Product), productId);
 
@@ -78,7 +81,7 @@ public class OrdersService : IOrdersService
                 $"The owner of the product can not add the product to his order. userId: {userId}, productId: {productId}");
         }
         
-        Order? ongoingOrder = await this._dbContext.Orders
+        Order? ongoingOrder = await this._repository.All<Order>()
             .Include(o => o.OrderProducts)
             .Where(o => o.UserId == userId)
             .SingleOrDefaultAsync(o => !o.IsSubmitted);
@@ -118,11 +121,11 @@ public class OrdersService : IOrdersService
                 ProductId = product.Id,
                 ProductsQuantity = prodQtyToAdd,
             };
-            
-            await this._dbContext.OrdersProducts.AddAsync(orderProduct);
+
+            await this._repository.AddAsync<OrderProduct>(orderProduct);
         }
         
-        await this._dbContext.SaveChangesAsync();
+        await this._repository.SaveChangesAsync();
     }
 
     public async Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId)
@@ -130,13 +133,12 @@ public class OrdersService : IOrdersService
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId can not be empty.", nameof(userId));
         
-        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
             throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
         
-        return await this._dbContext
-            .Orders
-            .AsNoTracking()
+        return await this._repository.AllAsReadonly<Order>()
             .Where(o => o.UserId == userId && !o.IsSubmitted)
             .Select(o => new OrderViewModel()
             {
@@ -167,11 +169,12 @@ public class OrdersService : IOrdersService
         if(orderId == Guid.Empty)
             throw new ArgumentException("OrderId can not be empty.", nameof(orderId));
         
-        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
             throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
         
-        Product? product = await this._dbContext.Products.FindAsync(productId);
+        Product? product = await this._repository.FindByIdAsync<Product>(productId);
         if (product == null)
             throw new ResourceNotFoundException(nameof(Product), productId);
 
@@ -202,9 +205,9 @@ public class OrdersService : IOrdersService
         order.TotalPrice -= orderProductToRemove.ProductsQuantity * product.SellingPrice;
 
         if (!order.OrderProducts.Any())
-            this._dbContext.Orders.Remove(order);
+            this._repository.Remove<Order>(order);
 
-        await this._dbContext.SaveChangesAsync();
+        await this._repository.SaveChangesAsync();
     }
 
     public async Task<bool> OrderExistsByIdAsync(Guid orderId)
@@ -212,8 +215,8 @@ public class OrdersService : IOrdersService
         if (orderId == Guid.Empty)
             return false;
 
-        return await this._dbContext.Orders
-            .AnyAsync(o => o.Id == orderId);
+        return await this._repository
+            .ExistsAsync<Order>(o => o.Id == orderId);
     }
 
     public async Task CancelOrderAsync(Guid userId, Guid orderId)
@@ -229,8 +232,8 @@ public class OrdersService : IOrdersService
             o => o.Id == orderId,
             includeProducts: false);
 
-        this._dbContext.Orders.Remove(order);
-        await this._dbContext.SaveChangesAsync();
+        this._repository.Remove<Order>(order);
+        await this._repository.SaveChangesAsync();
     }
 
     public async Task SubmitOrderAsync(Guid userId, Guid orderId)
@@ -240,7 +243,8 @@ public class OrdersService : IOrdersService
         if(orderId == Guid.Empty )
             throw new ArgumentException("OrderId can not be empty", nameof(orderId));
         
-        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
             throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
 
@@ -272,7 +276,7 @@ public class OrdersService : IOrdersService
         order.TotalPrice = order.OrderProducts
             .Sum(op => op.ProductsQuantity * op.Product.SellingPrice);
 
-        await this._dbContext.SaveChangesAsync();
+        await this._repository.SaveChangesAsync();
     }
 
     public async Task<bool> IsValidProductQtyToOrderAsync(Guid userId,
@@ -287,15 +291,16 @@ public class OrdersService : IOrdersService
                 nameof(inputModel.Id));
         }
         
-        bool userExists = await this._dbContext.Users.AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
             throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
-        
-        Product? prod = await this._dbContext.Products.FindAsync(inputModel.Id);
+
+        Product? prod = await this._repository.FindByIdAsync<Product>(inputModel.Id);
         if (prod == null)
             throw new ResourceNotFoundException(nameof(Product), inputModel.Id);
 
-        OrderProduct? prodAlreadyAddedToOrder = await this._dbContext.OrdersProducts
+        OrderProduct? prodAlreadyAddedToOrder = await this._repository.All<OrderProduct>()
             .Include(op => op.Order)
             .SingleOrDefaultAsync(op => op.Order.UserId == userId &&
                                         !op.Order.IsSubmitted &&
@@ -313,7 +318,7 @@ public class OrdersService : IOrdersService
         Expression<Func<Order, bool>> filterPredicate,
         bool includeProducts = false)
     {
-        IQueryable<Order> orderQuery = this._dbContext.Orders;
+        IQueryable<Order> orderQuery = this._repository.All<Order>();
         if (includeProducts)
         {
             orderQuery = orderQuery
@@ -352,7 +357,7 @@ public class OrdersService : IOrdersService
             UserId = userId
         };
 
-        await this._dbContext.AddAsync(newOngoingOrder);
+        await this._repository.AddAsync<Order>(newOngoingOrder);
         return newOngoingOrder;
     }
 }
