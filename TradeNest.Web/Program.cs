@@ -4,6 +4,8 @@ using TradeNest.Data.Models;
 using TradeNest.Services.Core;
 using TradeNest.Services.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using TradeNest.Data.Repository;
+using TradeNest.Data.Repository.Interfaces;
 
 namespace TradeNest.Web;
 
@@ -29,6 +31,8 @@ public class Program
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddControllersWithViews();
+
+        builder.Services.AddScoped<IRepository, Repository>();
 
         builder.Services.AddScoped<IProductsService, ProductsService>();
         builder.Services.AddScoped<ICategoriesService, CategoriesService>();

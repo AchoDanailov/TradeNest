@@ -2,21 +2,23 @@ using System.Linq.Expressions;
 
 namespace TradeNest.Data.Repository.Interfaces;
 
-public interface IRepository<T> where T : class
+public interface IRepository
 {
-    IQueryable<T> AllAsReadonlyAsync();
+    IQueryable<T> AllAsReadonly<T>() where T : class;
 
-    IQueryable<T> AllAsync();
+    IQueryable<T> All<T>() where T : class;
 
-    Task<T?> FindByIdAsync(Guid id);
+    Task<T?> FindByIdAsync<T>(Guid id) where T : class;
 
-    Task AddAsync(T item);
+    Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class;
 
-    Task AddRangeAsync(IEnumerable<T> items);
+    Task AddAsync<T>(T item) where T : class;
 
-    void Remove(T item);
+    Task AddRangeAsync<T>(IEnumerable<T> items) where T : class;
 
-    Task<int> ExecuteRemoveRangeAsync(Expression<Func<T, bool>> filter);
+    void Remove<T>(T item) where T : class;
+
+    Task<int> ExecuteRemoveRangeAsync<T>(Expression<Func<T, bool>> filter) where T : class;
     
     Task<int> SaveChangesAsync();
 }

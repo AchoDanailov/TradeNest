@@ -4,8 +4,7 @@ using TradeNest.Data.Repository.Interfaces;
 
 namespace TradeNest.Data.Repository;
 
-public class Repository<T> : IRepository<T> 
-    where T : class
+public class Repository : IRepository 
 {
     private readonly TradeNestDbContext _dbContext;
 
@@ -14,37 +13,42 @@ public class Repository<T> : IRepository<T>
         this._dbContext = dbContext;
     }
     
-    public IQueryable<T> AllAsReadonlyAsync()
+    public IQueryable<T> AllAsReadonly<T>() where T : class
     {
         return this._dbContext.Set<T>().AsNoTracking();
     }
 
-    public IQueryable<T> AllAsync()
+    public IQueryable<T> All<T>() where T : class
     {
         return this._dbContext.Set<T>();
     }
 
-    public async Task<T?> FindByIdAsync(Guid id)
+    public async Task<T?> FindByIdAsync<T>(Guid id) where T : class
     {
         return await this._dbContext.Set<T>().FindAsync(id);
     }
 
-    public async Task AddAsync(T entity)
+    public async Task<bool> ExistsAsync<T>(Expression<Func<T, bool>> filter) where T : class
+    {
+        return await this._dbContext.Set<T>().AnyAsync(filter);
+    }
+
+    public async Task AddAsync<T>(T entity) where T : class
     {
         await this._dbContext.Set<T>().AddAsync(entity);
     }
 
-    public async Task AddRangeAsync(IEnumerable<T> items)
+    public async Task AddRangeAsync<T>(IEnumerable<T> items) where T : class
     {
         await this._dbContext.Set<T>().AddRangeAsync(items);
     }
 
-    public void Remove(T item)
+    public void Remove<T>(T item) where T : class
     {
         this._dbContext.Set<T>().Remove(item);
     }
 
-    public async Task<int> ExecuteRemoveRangeAsync(Expression<Func<T, bool>> filter)
+    public async Task<int> ExecuteRemoveRangeAsync<T>(Expression<Func<T, bool>> filter) where T : class
     {
         return await this._dbContext.Set<T>()
             .Where(filter)
