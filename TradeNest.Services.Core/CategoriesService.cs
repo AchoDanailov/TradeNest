@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using TradeNest.Data;
-using TradeNest.GCommon;
+using TradeNest.Data.Models;
+using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Category;
 
@@ -8,11 +8,11 @@ namespace TradeNest.Services.Core;
 
 public class CategoriesService : ICategoriesService
 {
-    private readonly TradeNestDbContext _dbContext;
+    private readonly IRepository _repository;
 
-    public CategoriesService(TradeNestDbContext dbContext)
+    public CategoriesService(IRepository repository)
     {
-        this._dbContext = dbContext;
+        this._repository = repository;
     }
     
     public async Task<bool> CategoryExistsByIdAsync(Guid id)
@@ -20,13 +20,12 @@ public class CategoriesService : ICategoriesService
         if (id == Guid.Empty)
             return false;
         
-        return await this._dbContext.Categories
-            .AnyAsync(c => c.Id == id);
+        return await this._repository.ExistsAsync<Category>(c => c.Id == id);
     }
     
     public async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModelsAsync()
     {
-        return await this._dbContext.Categories
+        return await this._repository.All<Category>()
             .AsNoTracking()
             .OrderBy(c => c.Name)
             .Select(c => new AllCategoriesViewModel()
@@ -40,8 +39,7 @@ public class CategoriesService : ICategoriesService
     public async Task<IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel>>
         GetAllCategoriesWithBestSellerImageVmAsync()
     {
-        return await this._dbContext.Categories
-            .AsNoTracking()
+        return await this._repository.AllAsReadonly<Category>()
             .OrderBy(c => c.Name)
             .Select(c => new AllCategoriesWithBestSellerFrontImageViewModel()
             {
@@ -49,12 +47,14 @@ public class CategoriesService : ICategoriesService
                 CategoryName = c.Name,
                 MostSoldProductFrontImageUrl = c.Products.Any() 
                     ? c.Products
-                        .OrderByDescending(p => p.ProductsOrders.Count)
+                        .OrderByDescending(p => p.ProductsOrders
+                            .Sum(po => po.ProductsQuantity))
                         .ThenByDescending(p => p.CreatedOn)
                         .First()
                         .Images.Any()
                         ? c.Products
-                            .OrderByDescending(p => p.ProductsOrders.Count)
+                            .OrderByDescending(p => p.ProductsOrders
+                                .Sum(po => po.ProductsQuantity))
                             .ThenByDescending(p => p.CreatedOn)
                             .First()
                             .Images.Single(i => i.IsFrontImage).Url
