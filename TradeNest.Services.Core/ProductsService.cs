@@ -1,8 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
-using TradeNest.Data;
 using TradeNest.Data.Models;
+using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
@@ -12,11 +12,11 @@ namespace TradeNest.Services.Core;
 
 public class ProductsService : IProductsService
 {
-    private readonly TradeNestDbContext _dbContext;
+    private readonly IRepository _repository;
 
-    public ProductsService(TradeNestDbContext dbContext)
+    public ProductsService(IRepository repository)
     {
-        this._dbContext = dbContext;
+        this._repository = repository;
     }
     
     public CatalogProductsAndCategoriesViewModel GetEmptyCatalogProdsAndCategoriesDto(
@@ -45,9 +45,10 @@ public class ProductsService : IProductsService
 
     public async Task<IEnumerable<ProductViewModel>> GetAllProductsOrderedByDateOfCreationDescAsync()
     {
-        IEnumerable<ProductViewModel> productsViewModels = await this._dbContext.Products
-            .AsNoTracking()
+        IEnumerable<ProductViewModel> productsViewModels = await this._repository
+            .AllAsReadonly<Product>()
             .OrderByDescending(p => p.CreatedOn)
+            .ThenBy(p => p.Name)
             .Select(p => new ProductViewModel()
             {
                 Id = p.Id,
@@ -56,7 +57,7 @@ public class ProductsService : IProductsService
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
                         .Single(i => i.IsFrontImage)!.Url
-                    : ApplicationConstants.DefaultProductImageUrl,
+                    : null,
                 CategoryName = p.Category.Name,
             })
             .ToArrayAsync();
@@ -70,8 +71,7 @@ public class ProductsService : IProductsService
         if (string.IsNullOrWhiteSpace(searchQuery))
             return Array.Empty<ProductViewModel>();
         
-        return await this._dbContext.Products
-            .AsNoTracking()
+        return await this._repository.AllAsReadonly<Product>()
             .Where(p => p.Name.Contains(searchQuery))
             .OrderByDescending(p => p.CreatedOn)
             .ThenBy(p => p.Name)
@@ -83,7 +83,7 @@ public class ProductsService : IProductsService
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
                         .Single(i => i.IsFrontImage)!.Url
-                    : ApplicationConstants.DefaultProductImageUrl,
+                    : null,
                 CategoryName = p.Category.Name,
             }) 
             .ToArrayAsync();
@@ -95,8 +95,7 @@ public class ProductsService : IProductsService
         if (categoryId == Guid.Empty)
             throw new ArgumentException("categoryId can not be empty.", nameof(categoryId));
         
-        return await this._dbContext.Products
-            .AsNoTracking()
+        return await this._repository.AllAsReadonly<Product>()
             .Where(p => p.CategoryId == categoryId)
             .OrderByDescending(p => p.CreatedOn)
             .ThenBy(p => p.Name)
@@ -108,7 +107,7 @@ public class ProductsService : IProductsService
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
                         .Single(i => i.IsFrontImage)!.Url
-                    : ApplicationConstants.DefaultProductImageUrl,
+                    : null,
                 CategoryName = p.Category.Name,
             }) 
             .ToArrayAsync();
@@ -116,10 +115,11 @@ public class ProductsService : IProductsService
 
     public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsOrderedByOrdersCountDescAsync()
     {
-        return await this._dbContext.Products
+        return await this._repository.All<Product>()
             .Include(p => p.ProductsOrders)
             .AsNoTracking()
-            .OrderByDescending(p => p.ProductsOrders.Count)
+            .OrderByDescending(p => p.ProductsOrders
+                .Sum(po => po.ProductsQuantity))
             .ThenByDescending(p => p.CreatedOn)
             .Select(p => new ProductViewModel()
             {
@@ -129,7 +129,7 @@ public class ProductsService : IProductsService
                 FrontImageUrl = p.Images.Any()
                     ? p.Images
                         .Single(i => i.IsFrontImage)!.Url
-                    : ApplicationConstants.DefaultProductImageUrl,
+                    : null,
                 CategoryName = p.Category.Name,
             })
             .ToArrayAsync();
@@ -140,8 +140,8 @@ public class ProductsService : IProductsService
         if (id == Guid.Empty)
             return false;
 
-        return await this._dbContext.Products
-            .AnyAsync(p => p.Id == id);
+        return await this._repository
+            .ExistsAsync<Product>(p => p.Id == id);
     }
 
     public async Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id,
@@ -150,11 +150,12 @@ public class ProductsService : IProductsService
         if (id == Guid.Empty)
             return null;
         
-        Product? product = await this._dbContext.Products
+        Product? product = await this._repository.All<Product>()
             .Include(p => p.Owner)
             .Include(p => p.Category)
             .Include(p => p.Images)
             .AsNoTracking()
+            .AsSplitQuery()
             .FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
             return null;
@@ -173,7 +174,7 @@ public class ProductsService : IProductsService
             FrontImageUrl = product.Images.Any()
                 ? product.Images
                     .Single(i => i.IsFrontImage)!.Url
-                : ApplicationConstants.DefaultProductImageUrl,
+                : null,
             ImagesUrls = product.Images
                 .Select(i => i.Url),
         };
@@ -210,16 +211,16 @@ public class ProductsService : IProductsService
                 nameof(productCreateFormModel.CategoryId));
         }
 
-        bool userExists = await this._dbContext.Users
-            .AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
         {
             throw new ArgumentException($"User with id: {userId} was not found.",
                 nameof(userId));
         }
 
-        bool categoryExists = await this._dbContext.Categories
-            .AnyAsync(c => c.Id == passedInCategoryId);
+        bool categoryExists = await this._repository
+            .ExistsAsync<Category>(c => c.Id == passedInCategoryId);
         if (!categoryExists)
         {
             throw new ArgumentException(
@@ -248,9 +249,9 @@ public class ProductsService : IProductsService
             CategoryId = passedInCategoryId,
             Images = images
         };
-        
-        await this._dbContext.Products.AddAsync(newProduct);
-        await this._dbContext.SaveChangesAsync();
+
+        await this._repository.AddAsync<Product>(newProduct);
+        await this._repository.SaveChangesAsync();
 
         return newProduct.Id;
     }
@@ -263,16 +264,15 @@ public class ProductsService : IProductsService
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId can not be empty.", nameof(userId));
 
-        bool userExists = await this._dbContext.Users
-            .AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
         {
             throw new ArgumentException($"User with id: {userId} was not found.",
                 nameof(userId));
         }
         
-        Product? product = await this._dbContext.Products
-            .AsNoTracking()
+        Product? product = await this._repository.AllAsReadonly<Product>()
             .Include(p => p.Images)
             .SingleOrDefaultAsync(p => p.Id == id);
         if (product == null)
@@ -312,15 +312,15 @@ public class ProductsService : IProductsService
         if(id == Guid.Empty)
             throw new ArgumentException("Id can not be empty.", nameof(id));
         
-        bool userExists = await this._dbContext.Users
-            .AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
         {
             throw new ArgumentException($"User with id: {userId} was not found.",
                 nameof(userId));
         }
-        
-        Product? product = await this._dbContext.Products.FindAsync(id);
+
+        Product? product = await this._repository.FindByIdAsync<Product>(id);
         if (product == null)
             throw new ArgumentException($"Product with id: {id} was not found.", nameof(id));
 
@@ -334,7 +334,7 @@ public class ProductsService : IProductsService
         }
         
         product.IsDeleted = true;
-        await this._dbContext.SaveChangesAsync();
+        await this._repository.SaveChangesAsync();
     }
 
     public async Task EditProductAsync(Guid userId, ProductEditFormModel productEditFormModel)
@@ -354,15 +354,15 @@ public class ProductsService : IProductsService
                 nameof(productEditFormModel.CategoryId));
         }
         
-        bool userExists = await this._dbContext.Users
-            .AnyAsync(u => u.Id == userId);
+        bool userExists = await this._repository
+            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
         {
             throw new ArgumentException($"User with id: {userId} was not found.",
                 nameof(userId));
         }
         
-        Product? product = await this._dbContext.Products
+        Product? product = await this._repository.All<Product>()
             .Include(p => p.Images)
             .SingleOrDefaultAsync(p => p.Id == productEditFormModel.ProductId);
         if (product == null)
@@ -388,19 +388,19 @@ public class ProductsService : IProductsService
                     nameof(productEditFormModel.ProductImages));
             }
         }
-        
-        bool categoryExists = await this._dbContext.Categories
-            .AnyAsync(c => c.Id == productEditFormModel.CategoryId);
+
+        bool categoryExists = await this._repository
+            .ExistsAsync<Category>(c => c.Id == productEditFormModel.CategoryId);
         if (!categoryExists)
         {
             throw new ArgumentException($"Category with id: {productEditFormModel.CategoryId} was not found. userId: {userId}",
                 nameof(productEditFormModel.CategoryId));
         }
-        
+
         ICollection<Image> imagesToDelete
-            = this.GetImagesForDeletionIfAny(productEditFormModel.ProductImages).ToArray();
+            = await this.GetImagesForDeletionIfAny(productEditFormModel.ProductImages);
         if (imagesToDelete.Any())
-            this._dbContext.Images.RemoveRange(imagesToDelete);
+            this._repository.RemoveRange<Image>(imagesToDelete);
 
         product.Name = productEditFormModel.ProductName;
         product.Description = productEditFormModel.Description;
@@ -415,19 +415,18 @@ public class ProductsService : IProductsService
             IEnumerable<Image> imagesToAdd = this.ParseImagesInputOnImageAdding(
                 extraImagesUrls: productEditFormModel.NewImagesUrls,
                 productId: product.Id);
-                
-            this._dbContext.Images.AddRange(imagesToAdd);
+
+            await this._repository.AddRangeAsync<Image>(imagesToAdd);
         }
 
         this.EnsureProductHasFrontImage(imagesToDelete, product.Images);
             
-        await this._dbContext.SaveChangesAsync();
+        await this._repository.SaveChangesAsync();
     }
 
     private async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModels()
     {
-        return await this._dbContext.Categories
-            .AsNoTracking()
+        return await this._repository.AllAsReadonly<Category>()
             .OrderBy(c => c.Name)
             .Select(c => new AllCategoriesViewModel()
             {
@@ -484,7 +483,7 @@ public class ProductsService : IProductsService
         return images;
     }
     
-    private IEnumerable<Image> GetImagesForDeletionIfAny(
+    private async ValueTask<ICollection<Image>> GetImagesForDeletionIfAny(
         IEnumerable<ImageViewModel> imagesComingFromEditForm)
     {
         IEnumerable<ImageViewModel> imageViewModelsMarkedForDeletion = imagesComingFromEditForm
@@ -497,8 +496,8 @@ public class ProductsService : IProductsService
         foreach (ImageViewModel imageViewModel in imageViewModelsMarkedForDeletion)
         {
             // already loaded in memory
-            Image imageToDel = this._dbContext.Images.Find(imageViewModel.Id)!;
-            imagesToDelete.Add(imageToDel);
+            Image imageToDel = (await this._repository.FindByIdAsync<Image>(imageViewModel.Id))!;
+            imagesToDelete.Add(imageToDel!);
         }
 
         return imagesToDelete;

@@ -48,6 +48,11 @@ public class Repository : IRepository
         this._dbContext.Set<T>().Remove(item);
     }
 
+    public void RemoveRange<T>(IEnumerable<T> items) where T : class
+    {
+        this._dbContext.Set<T>().RemoveRange(items);
+    }
+    
     public async Task<int> ExecuteRemoveRangeAsync<T>(Expression<Func<T, bool>> filter) where T : class
     {
         return await this._dbContext.Set<T>()

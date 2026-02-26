@@ -18,6 +18,8 @@ public interface IRepository
 
     void Remove<T>(T item) where T : class;
 
+    void RemoveRange<T>(IEnumerable<T> items) where T : class;
+
     Task<int> ExecuteRemoveRangeAsync<T>(Expression<Func<T, bool>> filter) where T : class;
     
     Task<int> SaveChangesAsync();
