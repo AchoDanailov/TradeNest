@@ -51,6 +51,8 @@ public class Program
             app.UseHsts();
         }
 
+        app.UseStatusCodePagesWithReExecute("/Error/StatusCode", "?statusCode={0}");
+
         app.UseHttpsRedirection();
         app.UseStaticFiles();
 
