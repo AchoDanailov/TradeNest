@@ -272,7 +272,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", t =>
+                    b.ToTable("Categories", null, t =>
                         {
                             t.HasComment("Holds category data.");
                         });
@@ -330,7 +330,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Images", t =>
+                    b.ToTable("Images", null, t =>
                         {
                             t.HasComment("Holds Image data.");
                         });
@@ -456,7 +456,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", t =>
+                    b.ToTable("Orders", null, t =>
                         {
                             t.HasComment("Holds order's data.");
                         });
@@ -480,7 +480,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("OrdersProducts", t =>
+                    b.ToTable("OrdersProducts", null, t =>
                         {
                             t.HasComment("Mapping entity between Orders and Products.");
                         });
@@ -547,7 +547,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Products", t =>
+                    b.ToTable("Products", null, t =>
                         {
                             t.HasComment("Holds product's data.");
                         });
@@ -639,7 +639,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("UsersWishlistProducts", t =>
+                    b.ToTable("UsersWishlistProducts", null, t =>
                         {
                             t.HasComment("Mapping entity representing a product in a user's wishlist.");
                         });

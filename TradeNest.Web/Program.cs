@@ -23,7 +23,7 @@ public class Program
         builder.Services.AddDbContext<TradeNestDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+        // builder.Services.AddDatabaseDeveloperPageExceptionFilter();
         
         builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
@@ -46,7 +46,7 @@ public class Program
         }
         else
         {
-            app.UseExceptionHandler("/Home/Error");
+            app.UseExceptionHandler("/Error");
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
