@@ -1,5 +1,9 @@
 namespace TradeNest.GCommon.Exceptions;
 
+/// <summary>
+/// The exception that is thrown when a user attempt to either add product to his order or
+/// submit an order with quantity more than the quantity in stock of the given product.
+/// </summary>
 public class InsufficientProductQuantityInStockException : InvalidOperationException
 {
     private const string DefaultMessage 

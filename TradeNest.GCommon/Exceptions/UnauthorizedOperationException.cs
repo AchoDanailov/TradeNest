@@ -1,5 +1,9 @@
 namespace TradeNest.GCommon.Exceptions;
 
+/// <summary>
+/// The exception that is thrown when a user attempts to modify a resource he is not the
+/// owner of.
+/// </summary>
 public class UnauthorizedOperationException : InvalidOperationException
 {
     private const string DefaultMessage

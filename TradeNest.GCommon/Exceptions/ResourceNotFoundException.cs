@@ -1,5 +1,9 @@
 namespace TradeNest.GCommon.Exceptions;
 
+/// <summary>
+/// The exception that is thrown when a given resource is not found. Usually this resource
+/// is the main resource being targeted in the given context.
+/// </summary>
 public class ResourceNotFoundException : InvalidOperationException
 {
     private const string DefaultMessage = "{0} with id: {1} was not found.";
