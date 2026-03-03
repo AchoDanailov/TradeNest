@@ -1,10 +1,11 @@
-using TradeNest.Web.ViewModels.Category;
-using TradeNest.Web.ViewModels.Product;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TradeNest.GCommon.Exceptions;
+
 using TradeNest.Services.Core.Interfaces;
-using static TradeNest.Web.Utilities.StatusNotificationMessages;
+using TradeNest.Web.Utilities.Exceptions;
+using TradeNest.Web.ViewModels.Category;
+using TradeNest.Web.ViewModels.Product;
+using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
 namespace TradeNest.Web.Controllers;
 
@@ -52,24 +53,15 @@ public class ProductsController : BaseController
             }
             else
             {
-                try
-                {
-                    bool isValidCategory = this.IsValidCategory(categoryId.Value,
-                        viewModel.Categories);
-                    if (!isValidCategory)
-                        throw new ArgumentException($"Invalid category provided: {categoryId}", nameof(categoryId)); 
+                bool isValidCategory = this.IsValidCategory(categoryId.Value,
+                    viewModel.Categories);
+                if (!isValidCategory)
+                    return NotFound();
 
-                    viewModel.Products = await this._productsService
-                        .GetAllProdsVmsByCategoryIdAsync(categoryId.Value);
+                viewModel.Products = await this._productsService
+                    .GetAllProdsVmsByCategoryIdAsync(categoryId.Value);
                     
-                    return View(viewModel);
-                }
-                catch (Exception ex)
-                {
-                    this._logger.LogCritical(ex,
-                        "Unexpected exception occured while attempting to access products and categories data.");
-                    return BadRequest();
-                }
+                return View(viewModel);
             }
         }
 
@@ -140,7 +132,10 @@ public class ProductsController : BaseController
         {
             Guid? userId = this.GetUserId();
             if (userId == null || userId.Value == Guid.Empty)
-                throw new InvalidOperationException("UserId can not be null or empty.");
+            {
+                throw new UserIdMissingException(this.GetType().Name,
+                    ControllerContext.ActionDescriptor.ActionName);
+            }
 
             Guid productId = await this._productsService
                 .CreateProductAsync(userId.Value, productCreateFormModel);
@@ -150,16 +145,10 @@ public class ProductsController : BaseController
         catch (ArgumentException argEx)
         {
             this._logger.LogWarning(argEx,
-                "Invalid arguments were passed on the create product operation.");
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogError(ex,
-                "An unexpected error occured while trying to create a product.");
+                "Bad arguments provided to the create product operation. Controller: {ControllerName}, Action: {ActionName}", 
+                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName);
             
             ViewData["ProductCreationError"] = ProductCreationUnexpectedErrorMessage;
-            
             return View(productCreateFormModel);
         }
     }
@@ -171,45 +160,24 @@ public class ProductsController : BaseController
         if (id == Guid.Empty)
             return BadRequest();
 
-        try
+        Guid? userId = this.GetUserId();
+        if (userId == null || userId.Value == Guid.Empty)
         {
-            Guid? userId = this.GetUserId();
-            if (userId == null || userId.Value == Guid.Empty)
-            {
-                this._logger.LogError("UserId can not be null or empty.");
-                TempData["UnexpectedErrorMessage"] = UnexpectedErrorMessage;
-
-                return RedirectToAction(nameof(Details), controllerName: "Products", new { id });
-            }
+            throw new UserIdMissingException(this.GetType().Name,
+                ControllerContext.ActionDescriptor.ActionName);
+        }
                 
-            ProductEditFormModel? model = await this._productsService
-                .GetProductEditFormModelAsync(userId.Value, id);
-            if (model == null)
-                return NotFound();
+        ProductEditFormModel? model = await this._productsService
+            .GetProductEditFormModelAsync(userId.Value, id);
+        if (model == null)
+            return NotFound();
 
-            return View(model);
-        }
-        catch (UnauthorizedOperationException unAuthEx)
-        {
-            this._logger.LogWarning(unAuthEx,
-                "User that was not the owner of a product attempt to get edit access.");
-            return Unauthorized();
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogError(ex,
-                "An unexpected error occured while trying to access product data. Provided productId: {Id}.",
-                id);
-
-            return BadRequest();
-        }
+        return View(model);
     }
     
-    //TODO: Remove redundant id
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Edit([FromForm] ProductEditFormModel productEditFormModel,
-        [FromForm] string? returnUrl)
+    public async Task<IActionResult> Edit([FromForm] ProductEditFormModel productEditFormModel)
     {
         if(productEditFormModel.ProductId == Guid.Empty) 
             return BadRequest();
@@ -229,14 +197,14 @@ public class ProductsController : BaseController
         if (!ModelState.IsValid)
             return View(productEditFormModel);
 
-        returnUrl ??= Url.Action(nameof(Details), controller: "Products", 
-            new { id = productEditFormModel.ProductId });
-
         try
         {
             Guid? userId = this.GetUserId();
             if (userId == null || userId.Value == Guid.Empty)
-                throw new InvalidOperationException("UserId can not be null or empty.");
+            {
+                throw new UserIdMissingException(this.GetType().Name,
+                    ControllerContext.ActionDescriptor.ActionName);
+            }
 
             await this._productsService
                 .EditProductAsync(userId.Value, productEditFormModel);
@@ -244,28 +212,15 @@ public class ProductsController : BaseController
             return RedirectToAction(nameof(Details),
                 new { id = productEditFormModel.ProductId });
         }
-        catch (UnauthorizedOperationException unAuthEx)
-        {
-            this._logger.LogWarning(unAuthEx, 
-                "User that was not the owner of a product attempt to edit.");
-            return Unauthorized();
-        }
         catch (ArgumentException argEx)
         {
             this._logger.LogWarning(argEx,
-                "Invalid arguments were passed on the edit product operation.");
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogError(ex,
-                "An unexpected error occured while trying modify the product with id: {ProductId}.",
-                productEditFormModel.ProductId);
+                "Bad arguments provided to the edit product operation. Controller: {ControllerName}, Action: {ActionName}", 
+                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName);
             
             TempData["ProductModificationErrorMessage"] 
                 = ProductModificationUnexpectedErrorMessage;
-            
-            return LocalRedirect(returnUrl!);
+            return View(productEditFormModel);
         }
     }
 
@@ -282,39 +237,24 @@ public class ProductsController : BaseController
         {
             Guid? userId = this.GetUserId();
             if (userId == null || userId.Value == Guid.Empty)
-                throw new InvalidOperationException("UserId can not be null or empty.");
+            {
+                throw new UserIdMissingException(this.GetType().Name,
+                    ControllerContext.ActionDescriptor.ActionName);
+            }
 
             await this._productsService.DeleteProductAsync(userId.Value, id);
 
             TempData["ProductDeletionSuccessMessage"] = ProductDeletionSuccessMessage;
             return RedirectToAction(nameof(Index), controllerName: "Products");
         }
-        catch (UnauthorizedOperationException unAuthEx)
-        {
-            this._logger.LogWarning(unAuthEx,
-                "User attempt to delete product he is not an owner of.");
-            return Unauthorized();
-        }
         catch (ArgumentException argEx)
         {
-            this._logger.LogWarning(argEx,
-                "Invalid arguments provided to the delete product operation.");
-            return BadRequest();
-        }
-        catch (InvalidOperationException opEx)
-        {
-            this._logger.LogWarning(opEx,
-                "Attempt to delete a product that is already deleted");
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogError(ex,
-                "An unexpected error occured while trying to delete a product.");
+            this._logger.LogError(argEx,
+                "Bad arguments passed to the delete product operation.");
             
             TempData["ProductModificationErrorMessage"]
                 = ProductModificationUnexpectedErrorMessage;
-
+            
             return LocalRedirect(returnUrl!);
         }
     }

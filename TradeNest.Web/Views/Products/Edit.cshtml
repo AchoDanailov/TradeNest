@@ -27,8 +27,6 @@
               class="d-flex flex-column gap-4 site-sections-bg p-2 p-md-5 rounded-3 shadow border">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
-            <input type="hidden" name="returnUrl" 
-                   value="@Url.Action("Edit", controller: "Products")" />
             <input type="hidden" asp-for="@Model.ProductId" />
             
             <div>
