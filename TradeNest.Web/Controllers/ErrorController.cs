@@ -7,7 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Web.ViewModels.Error;
 using TradeNest.Web.Utilities;
-using static TradeNest.Web.Utilities.StatusCodesPagesMessages;
+using TradeNest.Web.Utilities.Messages;
+using static TradeNest.Web.Utilities.Messages.StatusCodesPagesMessages;
 
 namespace TradeNest.Web.Controllers;
 

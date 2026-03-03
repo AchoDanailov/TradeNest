@@ -1,4 +1,4 @@
-namespace TradeNest.Web.Utilities;
+namespace TradeNest.Web.Utilities.Messages;
 
 /// <summary>
 /// This class provides with titles and messages for status code page responses from the application to the client.

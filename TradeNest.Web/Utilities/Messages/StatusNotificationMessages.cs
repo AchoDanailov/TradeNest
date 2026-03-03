@@ -1,4 +1,4 @@
-namespace TradeNest.Web.Utilities;
+namespace TradeNest.Web.Utilities.Messages;
 
 /// <summary>
 /// This class holds status messages used to notify the user about the status of attempted operations

@@ -1,4 +1,4 @@
-namespace TradeNest.Web.Utilities;
+namespace TradeNest.Web.Utilities.Messages;
 
 /// <summary>
 /// Provides with error messages used for logging application errors.

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Order;
-using static TradeNest.Web.Utilities.StatusNotificationMessages;
+using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
 namespace TradeNest.Web.Controllers;
 
