@@ -29,7 +29,7 @@
                     {
                         <li class="nav-item">
                             <a asp-controller="Products" asp-action="Index"
-                               asp-route-category="@category.Id" class="dropdown-item">
+                               asp-route-categoryId="@category.Id" class="dropdown-item">
                                 @category.CategoryName
                             </a>
                         </li>
@@ -37,11 +37,11 @@
                 </ul>
             </div>
 
-            <div class="">
+            <div>
                 <a asp-controller="Products" asp-action="Create"
                    class="btn btn-teal mt-0">Add A New Product</a>
             </div>
-            
+
         </div>
 
         <div class="col mt-2 mt-md-0">
