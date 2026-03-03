@@ -249,7 +249,7 @@ public class ProductsController : BaseController
         }
         catch (ArgumentException argEx)
         {
-            this._logger.LogError(argEx,
+            this._logger.LogWarning(argEx,
                 "Bad arguments passed to the delete product operation.");
             
             TempData["ProductModificationErrorMessage"]
