@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Web.ViewModels.Error;
-using TradeNest.Web.Utilities;
 using TradeNest.Web.Utilities.Messages;
 using static TradeNest.Web.Utilities.Messages.StatusCodesPagesMessages;
 
@@ -86,7 +85,7 @@ public class ErrorController : BaseController
             errorViewModel.Title = Forbidden403.Title;
             errorViewModel.Message = Forbidden403.Message;
         }
-        else if (thrownException is ArgumentException)
+        else if (thrownException is ArgumentException or InvalidOperationException)
         {
             HttpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
             
