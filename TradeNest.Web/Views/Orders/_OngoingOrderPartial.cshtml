@@ -27,7 +27,6 @@
                 
                 <form method="post" asp-controller="Orders" asp-action="RemoveProduct"
                       asp-route-id="@product.Id">
-                    <input type="hidden" name="returnUrl" value="@Url.Action("Index", "Orders")" />
                     <input type="hidden" name="orderId" value="@Model.Id" />
                     <button type="submit" class="btn btn-danger">Remove</button>
                 </form>

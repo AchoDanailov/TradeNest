@@ -1,5 +1,5 @@
-using TradeNest.Web.ViewModels.Product;
 using TradeNest.GCommon.Exceptions;
+using TradeNest.Web.ViewModels.Product;
 
 namespace TradeNest.Services.Core.Interfaces;
 
@@ -129,15 +129,15 @@ public interface IProductsService
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown if the provided <paramref name="userId"/> and <paramref name="id"/> are
-    /// with value <see cref="Guid.Empty"/> or entities with the specified identifiers
-    /// do not exist.
+    /// with value <see cref="Guid.Empty"/> or user with the specified identifier
+    /// <paramref name="userId"/> does not exist.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if the product with id <paramref name="id"/> does not exist.
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown if the user with the provided <paramref name="userId"/> is not the owner
     /// of the product with the provided <paramref name="id"/>.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if the product is already deleted.
     /// </exception>
     Task DeleteProductAsync(Guid userId, Guid id);
 
@@ -153,9 +153,13 @@ public interface IProductsService
     /// <paramref name="productEditFormModel.CategoryId"/> is with value <see cref="Guid.Empty"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
-    /// Thrown if product with <paramref name="productEditFormModel.ProductId"/> or user with
-    /// <paramref name="userId"/> do not exist. Or if any of the provided ProductImages in
-    /// <paramref name="productEditFormModel.ProductImages"/> are not images of the product.
+    /// Thrown if user with <paramref name="userId"/> do not exist. Or if any of the provided
+    /// ProductImages in <paramref name="productEditFormModel.ProductImages"/> are not images
+    /// of the product.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if product with the provided product id value in
+    /// <paramref name="productEditFormModel.ProductId"/>, does not exist.
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown when user with <paramref name="userId"/> is not the owner of the product.

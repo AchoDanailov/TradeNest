@@ -1,5 +1,5 @@
-using TradeNest.Web.ViewModels.Order;
 using TradeNest.GCommon.Exceptions;
+using TradeNest.Web.ViewModels.Order;
 
 namespace TradeNest.Services.Core.Interfaces;
 
@@ -41,6 +41,9 @@ public interface IOrdersService
     /// <exception cref="InsufficientProductQuantityInStockException">
     /// Thrown if there is less quantity in stock of the given product than the user attempts
     /// to add to his order.
+    /// </exception>
+    /// <exception cref="OrderingDisabledProductException">
+    /// Thrown if the product with <paramref name="productId"/> has status disabled.
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the user with <paramref name="userId"/> is the owner of the product with the
@@ -149,6 +152,14 @@ public interface IOrdersService
     /// Thrown if any of the products in the order with <paramref name="orderId"/>
     /// does not satisfy the quantity requested to submit. 
     /// </exception>
+    /// <exception cref="OrderingDisabledProductException">
+    /// Thrown if the order contains a product that has changed status to "Disabled".
+    /// </exception>
+    /// <remarks>Keep and mind that if the service throws
+    /// <see cref="InsufficientProductQuantityInStockException"/> or
+    /// <see cref="OrderingDisabledProductException"/>, the targeted product will be automatically
+    /// removed from the ongoing order.
+    /// </remarks>
     Task SubmitOrderAsync(Guid userId, Guid orderId);
 
     /// <summary>

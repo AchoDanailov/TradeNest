@@ -1,9 +1,11 @@
 using System.Linq.Expressions;
+
 using Microsoft.EntityFrameworkCore;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.GCommon.Exceptions;
 using TradeNest.Web.ViewModels.Order;
 
 namespace TradeNest.Services.Core;
@@ -56,7 +58,6 @@ public class OrdersService : IOrdersService
     {
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId can not be empty.", nameof(userId));
-        
         if(productId == Guid.Empty)
             throw new ArgumentException("ProductId can not be empty.", nameof(productId));
         
@@ -95,6 +96,9 @@ public class OrdersService : IOrdersService
                 .OrderProducts
                 .SingleOrDefault(op => op.ProductId == productId)?.ProductsQuantity ?? 0;
         }
+
+        if (!product.IsEnabled)
+            throw new OrderingDisabledProductException(productId, userId, ongoingOrder.Id);
         
         if (product.QuantityInStock < prodQtyToAdd + userAlreadyAddedProdQty)
         {
@@ -256,8 +260,18 @@ public class OrdersService : IOrdersService
 
         foreach (OrderProduct orderProduct in order.OrderProducts)
         {
+            if (!orderProduct.Product.IsEnabled)
+            {
+                order.OrderProducts.Remove(orderProduct);
+                
+                throw new OrderingDisabledProductException(orderProduct.ProductId,
+                    userId, orderId);
+            }
+            
             if (orderProduct.Product.QuantityInStock < orderProduct.ProductsQuantity)
             {
+                order.OrderProducts.Remove(orderProduct);
+                
                 throw new InsufficientProductQuantityInStockException(
                     userId: userId,
                     productId: orderProduct.ProductId,
