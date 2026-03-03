@@ -308,9 +308,8 @@ public class ProductsService : IProductsService
     {
         if(userId == Guid.Empty)
             throw new ArgumentException("UserId can not be empty.", nameof(userId));
-        
         if(id == Guid.Empty)
-            throw new ArgumentException("Id can not be empty.", nameof(id));
+            throw new ArgumentException("Product's id can not be empty.", nameof(id));
         
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
@@ -322,7 +321,7 @@ public class ProductsService : IProductsService
 
         Product? product = await this._repository.FindByIdAsync<Product>(id);
         if (product == null)
-            throw new ArgumentException($"Product with id: {id} was not found.", nameof(id));
+            throw new ResourceNotFoundException(nameof(Product), id);
 
         if (userId != product.OwnerId)
             throw new UnauthorizedOperationException(userId, nameof(Product), product.Id);
@@ -367,8 +366,8 @@ public class ProductsService : IProductsService
             .SingleOrDefaultAsync(p => p.Id == productEditFormModel.ProductId);
         if (product == null)
         {
-            throw new ArgumentException($"Product with id: {productEditFormModel.ProductId} was not found.", 
-                nameof(productEditFormModel.ProductId));
+            throw new ResourceNotFoundException(nameof(Product),
+                productEditFormModel.ProductId);
         }
 
         if (userId != product.OwnerId)
