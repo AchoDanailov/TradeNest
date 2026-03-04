@@ -12,4 +12,10 @@ internal static class LoggingErrorMessages
 
     internal const string UnexpectedStatusCodesPagesExceptionMessage
         = "An unexpected exception occured while using \"UseStatusCodePagesWithReExecute()\" method. Please review the validity of the path passed in to the method and the validity of the method ussage.";
+
+    internal const string BadArgumentsErrorMessage
+        = "Bad arguments provided. Controller: {0}, Action: {1}";
+
+    internal const string RemoteValidationErrorMessage
+        = "Remote validation exception occurred. Controller: {0}, Action: {1}.";
 }

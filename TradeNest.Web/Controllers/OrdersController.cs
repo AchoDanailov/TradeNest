@@ -1,10 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TradeNest.GCommon.Exceptions;
+
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Order;
 using TradeNest.Web.Utilities.Exceptions;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
+using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
 
 namespace TradeNest.Web.Controllers;
 
@@ -63,8 +64,9 @@ public class OrdersController : BaseController
         }
         catch (ArgumentException argEx)
         {
-            this._logger.LogWarning(argEx,
-                "Bad arguments were passed on attempt to add a product in the user's ongoing order.");
+            this._logger.LogWarning(argEx, string.Format(BadArgumentsErrorMessage,
+                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName));
+            
             TempData["OrderModificationUnexpectedErrorMessage"]
                 = OrderModificationUnexpectedErrorMessage;
 
@@ -162,8 +164,7 @@ public class OrdersController : BaseController
         }
         catch (Exception ex)
         {
-            this._logger.LogWarning(ex,
-                string.Format("Remote validation exception occurred. Controller: {0}, Action: {1}.",
+            this._logger.LogWarning(ex, string.Format(RemoteValidationErrorMessage,
                     this.GetType().Name, ControllerContext.ActionDescriptor.ActionName));
 
             return BadRequest(ex);

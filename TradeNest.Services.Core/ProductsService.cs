@@ -1,12 +1,14 @@
 using Microsoft.EntityFrameworkCore;
-using TradeNest.GCommon;
-using TradeNest.GCommon.Exceptions;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
 using TradeNest.Web.ViewModels.Product;
+using TradeNest.GCommon;
+using TradeNest.GCommon.Exceptions;
+using TradeNest.Services.Core.Interfaces;
+using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
 namespace TradeNest.Services.Core;
 
@@ -93,7 +95,7 @@ public class ProductsService : IProductsService
         Guid categoryId)
     {
         if (categoryId == Guid.Empty)
-            throw new ArgumentException("categoryId can not be empty.", nameof(categoryId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(categoryId)));
         
         return await this._repository.AllAsReadonly<Product>()
             .Where(p => p.CategoryId == categoryId)
@@ -202,30 +204,29 @@ public class ProductsService : IProductsService
         ProductCreateFormModel productCreateFormModel)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         
         Guid passedInCategoryId = productCreateFormModel.CategoryId;
         if (passedInCategoryId == Guid.Empty)
         {
-            throw new ArgumentException("CategoryId can not be empty.",
-                nameof(productCreateFormModel.CategoryId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage,
+                nameof(productCreateFormModel.CategoryId)));
         }
 
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
         {
-            throw new ArgumentException($"User with id: {userId} was not found.",
-                nameof(userId));
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
         }
 
         bool categoryExists = await this._repository
             .ExistsAsync<Category>(c => c.Id == passedInCategoryId);
         if (!categoryExists)
         {
-            throw new ArgumentException(
-                $"Category with id: {passedInCategoryId} was not found. userId: {userId}",
-                nameof(productCreateFormModel.CategoryId));
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(Category), passedInCategoryId));
         }
         
         ICollection<Image> images = this.ParseImagesInputOnImageAdding(
@@ -262,14 +263,14 @@ public class ProductsService : IProductsService
             return null;
 
         if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
 
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
         {
-            throw new ArgumentException($"User with id: {userId} was not found.",
-                nameof(userId));
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
         }
         
         Product? product = await this._repository.AllAsReadonly<Product>()
@@ -307,16 +308,16 @@ public class ProductsService : IProductsService
     public async Task DeleteProductAsync(Guid userId, Guid id)
     {
         if(userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if(id == Guid.Empty)
-            throw new ArgumentException("Product's id can not be empty.", nameof(id));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(id)));
         
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
         {
-            throw new ArgumentException($"User with id: {userId} was not found.",
-                nameof(userId));
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
         }
 
         Product? product = await this._repository.FindByIdAsync<Product>(id);
@@ -329,7 +330,7 @@ public class ProductsService : IProductsService
         if (product.IsDeleted)
         {
             throw new InvalidOperationException(
-                $"Can not delete an already deleted product. userId: {userId}, productId: {id}");
+                string.Format(CantDeleteAlreadyDeletedProduct, userId, id));
         }
         
         product.IsDeleted = true;
@@ -339,26 +340,26 @@ public class ProductsService : IProductsService
     public async Task EditProductAsync(Guid userId, ProductEditFormModel productEditFormModel)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
 
         if (productEditFormModel.ProductId == Guid.Empty)
         {
-            throw new ArgumentException("ProductId can not be empty.", 
-                nameof(productEditFormModel.ProductId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
+                nameof(productEditFormModel.ProductId)));
         }
         
         if (productEditFormModel.CategoryId == Guid.Empty)
         {
-            throw new ArgumentException("CategoryId can not be empty.",
-                nameof(productEditFormModel.CategoryId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
+                nameof(productEditFormModel.CategoryId)));
         }
         
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
         {
-            throw new ArgumentException($"User with id: {userId} was not found.",
-                nameof(userId));
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
         }
         
         Product? product = await this._repository.All<Product>()
@@ -382,8 +383,7 @@ public class ProductsService : IProductsService
                 .All(editImg => product.Images.Any(dbImg => dbImg.Id == editImg.Id));
             if (!allImagesAreValid)
             {
-                throw new ArgumentException(
-                    $"Invalid images provided. productId: {productEditFormModel.ProductId}, userId: {userId}",
+                throw new ArgumentException("Invalid images provided",
                     nameof(productEditFormModel.ProductImages));
             }
         }
@@ -392,8 +392,8 @@ public class ProductsService : IProductsService
             .ExistsAsync<Category>(c => c.Id == productEditFormModel.CategoryId);
         if (!categoryExists)
         {
-            throw new ArgumentException($"Category with id: {productEditFormModel.CategoryId} was not found. userId: {userId}",
-                nameof(productEditFormModel.CategoryId));
+            throw new ArgumentException(string.Format(NotFoundMessage, 
+                nameof(Category), productEditFormModel.CategoryId));
         }
 
         ICollection<Image> imagesToDelete

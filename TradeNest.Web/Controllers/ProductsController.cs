@@ -6,6 +6,7 @@ using TradeNest.Web.Utilities.Exceptions;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Product;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
+using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
 
 namespace TradeNest.Web.Controllers;
 
@@ -144,9 +145,8 @@ public class ProductsController : BaseController
         }
         catch (ArgumentException argEx)
         {
-            this._logger.LogWarning(argEx,
-                "Bad arguments provided to the create product operation. Controller: {ControllerName}, Action: {ActionName}", 
-                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName);
+            this._logger.LogWarning(argEx, string.Format(BadArgumentsErrorMessage, 
+                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName));
             
             ViewData["ProductCreationError"] = ProductCreationUnexpectedErrorMessage;
             return View(productCreateFormModel);
@@ -214,12 +214,12 @@ public class ProductsController : BaseController
         }
         catch (ArgumentException argEx)
         {
-            this._logger.LogWarning(argEx,
-                "Bad arguments provided to the edit product operation. Controller: {ControllerName}, Action: {ActionName}", 
-                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName);
+            this._logger.LogWarning(argEx, string.Format(BadArgumentsErrorMessage,
+                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName));
             
             TempData["ProductModificationErrorMessage"] 
                 = ProductModificationUnexpectedErrorMessage;
+            
             return View(productEditFormModel);
         }
     }
@@ -249,8 +249,8 @@ public class ProductsController : BaseController
         }
         catch (ArgumentException argEx)
         {
-            this._logger.LogWarning(argEx,
-                "Bad arguments passed to the delete product operation.");
+            this._logger.LogWarning(argEx, string.Format(BadArgumentsErrorMessage, 
+                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName));
             
             TempData["ProductModificationErrorMessage"]
                 = ProductModificationUnexpectedErrorMessage;

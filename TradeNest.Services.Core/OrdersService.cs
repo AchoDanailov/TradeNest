@@ -7,6 +7,7 @@ using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Web.ViewModels.Order;
+using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
 namespace TradeNest.Services.Core;
 
@@ -22,12 +23,15 @@ public class OrdersService : IOrdersService
     public async Task<IEnumerable<OrderViewModel>> GetAllOrdersByUserIdAsync(Guid userId)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
 
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
-            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
+        {
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
+        }
 
         return await this._repository.AllAsReadonly<Order>()
             .Where(o => o.UserId == userId)
@@ -57,20 +61,20 @@ public class OrdersService : IOrdersService
     public async Task AddProductToOrderAsync(Guid userId, Guid productId, int prodQtyToAdd)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if(productId == Guid.Empty)
-            throw new ArgumentException("ProductId can not be empty.", nameof(productId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
         
         if (prodQtyToAdd <= 0)
         {
-            throw new ArgumentException("ProdQtyToAdd can not be zero or a negative number.",
-                nameof(prodQtyToAdd));
+            throw new ArgumentException(
+                string.Format(CantBeZeroOrNegativeNumberMessage, nameof(prodQtyToAdd)));
         }
 
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
-            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
+            throw new ArgumentException(string.Format(NotFoundMessage, nameof(ApplicationUser), userId));
 
         Product? product = await this._repository.FindByIdAsync<Product>(productId);
         if (product == null)
@@ -79,7 +83,7 @@ public class OrdersService : IOrdersService
         if (product.OwnerId == userId)
         {
             throw new InvalidOperationException(
-                $"The owner of the product can not add the product to his order. userId: {userId}, productId: {productId}");
+                string.Format(OwnerCantOrderProductHeOwnsMessage, userId, productId));
         }
         
         Order? ongoingOrder = await this._repository.All<Order>()
@@ -135,12 +139,15 @@ public class OrdersService : IOrdersService
     public async Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
-            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
+        {
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
+        }
         
         return await this._repository.AllAsReadonly<Order>()
             .Where(o => o.UserId == userId && !o.IsSubmitted)
@@ -167,16 +174,19 @@ public class OrdersService : IOrdersService
     public async Task RemoveProductFromOrderAsync(Guid userId, Guid productId, Guid orderId)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if(productId == Guid.Empty)
-            throw new ArgumentException("ProductId can not be empty.", nameof(productId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
         if(orderId == Guid.Empty)
-            throw new ArgumentException("OrderId can not be empty.", nameof(orderId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(orderId)));
         
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
-            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
+        {
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
+        }
         
         Product? product = await this._repository.FindByIdAsync<Product>(productId);
         if (product == null)
@@ -185,7 +195,7 @@ public class OrdersService : IOrdersService
         if (product.OwnerId == userId)
         {
             throw new InvalidOperationException(
-                $"Owner of the product can not remove it from his order's list. userId: {userId}, productId: {productId}");
+                string.Format(OwnerCantRemoveProductHeOwnsFromOrderMessage, userId, productId));
         }
 
         Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
@@ -356,7 +366,7 @@ public class OrdersService : IOrdersService
         if (order.IsSubmitted)
         {
             throw new InvalidOperationException(
-                $"Order with id: {orderId} already is submitted.");
+                string.Format(OrderAlreadySubmittedMessage, orderId));
         }
 
         return order;
