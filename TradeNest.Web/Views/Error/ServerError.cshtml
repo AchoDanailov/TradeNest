@@ -1,0 +1,45 @@
+@model ErrorViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="container-lg d-flex flex-column align-items-center justify-content-center py-5 my-5">
+    
+    <div class="col-12 col-md-8 col-lg-6">
+        <div class="card border-0 shadow rounded-3 site-sections-bg text-center p-4 p-md-5">
+            
+            <div class="card-body">
+                <div class="mb-4">
+                    <img src="~/images/tradenest-logo/logo-transparent-small.png"
+                         alt="TradeNest Logo" width="80" class="img-fluid opacity-75"/>
+                </div>
+
+                <h5 class="text-danger fw-bold mb-2">Error @Model.StatusCode</h5>
+
+                <h1 class="display-6 fw-bold text-navy mb-3">@Model.Title</h1>
+
+                <p class="lead text-muted mb-4">@Model.Message</p>
+
+                <p class="small text-muted mb-4">
+                    Our team has been notified. Please try again later or contact support if the issue persists.
+                </p>
+
+                <hr class="my-4 opacity-25">
+
+                <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center mt-2">
+                    <a asp-controller="Home" asp-action="Index"
+                       class="btn btn-teal btn-lg px-4 shadow-sm">
+                        Go Home
+                    </a>
+                    
+                    <a asp-controller="Products" asp-action="Index"
+                       class="btn btn-outline-teal btn-lg px-4 shadow-sm">
+                        Browse Catalog
+                    </a>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+    
+</div>
