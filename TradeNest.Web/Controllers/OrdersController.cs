@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
+using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Web.ViewModels.Order;
 using TradeNest.Web.Utilities.Exceptions;
@@ -130,26 +130,22 @@ public class OrdersController : BaseController
             
         return RedirectToAction(nameof(Index), controllerName: "Orders");
     }
-
-    //TODO: Make sure this works correctly.
+    
     [Authorize]
+    [SkipStatusCodePages]
     [AcceptVerbs("POST")]
     public async Task<IActionResult> VerifyProdQty(
         [FromBody] ValidateProductQtyInputModel inputModel)
     {
-        if (inputModel.Id == Guid.Empty)
-            return BadRequest();
-        
-        inputModel.ReturnUrl ??= Url.Action("Details", controller: "Products",
-            new { id = inputModel.Id });
-        
         if (!ModelState.IsValid)
+            return BadRequest(new Exception());
+
+        if (inputModel.Id == Guid.Empty)
         {
-            TempData["OrderModificationUnexpectedErrorMessage"]
-                = OrderModificationUnexpectedErrorMessage;
-            return LocalRedirect(inputModel.ReturnUrl!);
+            ModelState.AddModelError(nameof(inputModel.Id), "Id can not be empty.");
+            return BadRequest(ModelState);
         }
-        
+
         try
         {
             Guid? userId = this.GetUserId();
@@ -158,22 +154,19 @@ public class OrdersController : BaseController
                 throw new UserIdMissingException(this.GetType().Name,
                     ControllerContext.ActionDescriptor.ActionName);
             }
-        
+
             bool isValidProdQtyToAdd = await this._ordersService
                 .IsValidProductQtyToOrderAsync(userId.Value, inputModel);
-        
-            return Json(isValidProdQtyToAdd);
+
+            return Ok(isValidProdQtyToAdd);
         }
         catch (Exception ex)
         {
-            this._logger.LogError(ex,
-                string.Format("Remote validation exception occurred. Controller: {0}, Action: {1}. Redirecting back to the product details page.",
+            this._logger.LogWarning(ex,
+                string.Format("Remote validation exception occurred. Controller: {0}, Action: {1}.",
                     this.GetType().Name, ControllerContext.ActionDescriptor.ActionName));
-            
-            TempData["OrderModificationUnexpectedErrorMessage"]
-                = OrderModificationUnexpectedErrorMessage;
-            
-            return LocalRedirect(inputModel.ReturnUrl!);
+
+            return BadRequest(ex);
         }
     }
 }

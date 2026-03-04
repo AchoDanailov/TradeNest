@@ -27,7 +27,6 @@ formEl?.addEventListener("submit", async (e) => {
     const formData = new FormData(e.target);
     const id = formData.get("id");
     const qty = formData.get("quantity");
-    const returnUrl = formData.get("returnUrl");
 
     try {
         const servRes = await fetch(`/Orders/VerifyProdQty`, {
@@ -37,12 +36,11 @@ formEl?.addEventListener("submit", async (e) => {
             },
             body: JSON.stringify({
                 Id: id,
-                Quantity: qty,
-                ReturnUrl: returnUrl,
+                Quantity: qty
             }),
         });
         if(!servRes.ok) {
-            throw new Error(servRes);
+            throw new Error(servRes.statusText);
         }
 
         const isValidProdQty = await servRes.json();
@@ -55,7 +53,8 @@ formEl?.addEventListener("submit", async (e) => {
 
         e.target.submit();
     } catch (err) {
-        console.error("Remote validation error.", err);
+        const errMessage = "Remote validation error. Server responded with:";
+        console.log(errMessage, err.message);
         e.target.submit()
     }
 });
