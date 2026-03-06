@@ -1,8 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
+using TradeNest.Services.Models;
 using TradeNest.Services.Core.Interfaces;
-using TradeNest.Web.ViewModels.Category;
 
 namespace TradeNest.Services.Core;
 
@@ -23,12 +24,12 @@ public class CategoriesService : ICategoriesService
         return await this._repository.ExistsAsync<Category>(c => c.Id == id);
     }
     
-    public async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModelsAsync()
+    public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
     {
         return await this._repository.All<Category>()
             .AsNoTracking()
             .OrderBy(c => c.Name)
-            .Select(c => new AllCategoriesViewModel()
+            .Select(c => new CategoryDto()
             {
                 Id = c.Id,
                 CategoryName = c.Name,
@@ -36,16 +37,16 @@ public class CategoriesService : ICategoriesService
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel>>
-        GetAllCategoriesWithBestSellerImageVmAsync()
+    public async Task<IEnumerable<CategoryWithBestSellerImageDto>>
+        GetAllCategoriesWithBestSellerImageAsync()
     {
         return await this._repository.AllAsReadonly<Category>()
             .OrderBy(c => c.Name)
-            .Select(c => new AllCategoriesWithBestSellerFrontImageViewModel()
+            .Select(c => new CategoryWithBestSellerImageDto()
             {
                 Id = c.Id,
                 CategoryName = c.Name,
-                MostSoldProductFrontImageUrl = c.Products.Any() 
+                BestSellerImageUrl = c.Products.Any() 
                     ? c.Products
                         .OrderByDescending(p => p.ProductsOrders
                             .Sum(po => po.ProductsQuantity))

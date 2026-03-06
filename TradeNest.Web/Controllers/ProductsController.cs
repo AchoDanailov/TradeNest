@@ -2,8 +2,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models;
 using TradeNest.Web.Utilities.Exceptions;
 using TradeNest.Web.ViewModels.Category;
+using TradeNest.Web.ViewModels.Image;
 using TradeNest.Web.ViewModels.Product;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
@@ -20,9 +22,9 @@ public class ProductsController : BaseController
     public ProductsController(ILogger<ProductsController> logger,
         IProductsService productsService, ICategoriesService categoriesService)
     {
-        this._logger = logger;
         this._productsService = productsService;
         this._categoriesService = categoriesService;
+        this._logger = logger;
     }
 
     [HttpGet]
@@ -31,40 +33,47 @@ public class ProductsController : BaseController
         [FromQuery] Guid? categoryId = null,
         [FromQuery] string? search = null)
     {
-        CatalogProductsAndCategoriesViewModel viewModel;
+        CatalogViewModel viewModel = new CatalogViewModel()
+        {
+            Categories = await this.GetAllCategoriesViewModelsAsync(),
+        };
 
+        IEnumerable<ProductDto> productDtos = new List<ProductDto>();
         if (!string.IsNullOrWhiteSpace(search))
         {
-            viewModel = await this._productsService
-                .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync(
-                    isFromSearchInput: true);
-
-            viewModel.Products = await this._productsService
+            productDtos = await this._productsService
                 .GetAllProdsBySearchQueryForNameAsync(search);
+            
+            viewModel.IsSearchResultSet = true;
         }
         else
         {
-            viewModel = await this._productsService
-                .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync();
-
             if (categoryId == null || categoryId.Value == Guid.Empty)
             {
-                viewModel.Products = await this._productsService
+                productDtos = await this._productsService
                     .GetAllProductsOrderedByDateOfCreationDescAsync();
             }
             else
             {
-                bool isValidCategory = this.IsValidCategory(categoryId.Value,
-                    viewModel.Categories);
+                bool isValidCategory 
+                    = this.IsValidCategory(categoryId.Value, viewModel.Categories);
                 if (!isValidCategory)
                     return NotFound();
 
-                viewModel.Products = await this._productsService
-                    .GetAllProdsVmsByCategoryIdAsync(categoryId.Value);
-                    
-                return View(viewModel);
+                productDtos = await this._productsService
+                    .GetAllProductsByCategoryIdAsync(categoryId.Value);
             }
         }
+        
+        viewModel.Products = productDtos
+            .Select(p => new ProductViewModel()
+            {
+                Id = p.Id,
+                Name = p.Name,
+                SellingPrice = p.SellingPrice,
+                CategoryName = p.CategoryName,
+                FrontImageUrl = p.FrontImageUrl,
+            });
 
         return View(viewModel);
     }
@@ -73,11 +82,22 @@ public class ProductsController : BaseController
     [AllowAnonymous]
     public async Task<IActionResult> BestSellers()
     {
-        CatalogProductsAndCategoriesViewModel viewModel = await this._productsService
-            .GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync();
+        IEnumerable<ProductDto> productDtos = await this._productsService
+            .GetAllProductsOrderedByOrdersCountDescAsync();
 
-        viewModel.Products = await this._productsService
-            .GetAllProdsVmsOrderedByOrdersCountDescAsync();
+        CatalogViewModel viewModel = new CatalogViewModel()
+        {
+            Products = productDtos
+                .Select(p => new ProductViewModel()
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    SellingPrice = p.SellingPrice,
+                    CategoryName = p.CategoryName,
+                    FrontImageUrl = p.FrontImageUrl,
+                }),
+            Categories = await this.GetAllCategoriesViewModelsAsync(),
+        };
         
         return View(nameof(Index), viewModel);
     }
@@ -91,10 +111,26 @@ public class ProductsController : BaseController
 
         Guid? userId = this.GetUserId();
 
-        ProductDetailsViewModel? productDetailsViewModel = await this._productsService
-            .GetProductDetailsViewModelByIdAsync(id, userId);
-        if (productDetailsViewModel == null)
+        
+        ProductDetailsDto? productDetailsDto = await this._productsService
+            .GetProductDetailsByIdAsync(id, userId);
+        if(productDetailsDto == null)
             return NotFound();
+
+        ProductDetailsViewModel productDetailsViewModel = new ProductDetailsViewModel()
+        {
+            Id = productDetailsDto.Id,
+            Name = productDetailsDto.Name,
+            SellingPrice = productDetailsDto.SellingPrice,
+            CategoryName = productDetailsDto.CategoryName,
+            FrontImageUrl = productDetailsDto.FrontImageUrl,
+            Description = productDetailsDto.Description,
+            QuantityInStock = productDetailsDto.QuantityInStock,
+            OwnerName = productDetailsDto.OwnerName,
+            IsOwner = productDetailsDto.IsOwner,
+            ImagesUrls = productDetailsDto.ImagesUrls,
+            IsEnabled = productDetailsDto.IsEnabled,
+        };
         
         return View(productDetailsViewModel);
     }
@@ -103,8 +139,11 @@ public class ProductsController : BaseController
     [Authorize]
     public async Task<IActionResult> Create()
     {
-        ProductCreateFormModel productCreateFormModel = await this._productsService
-            .GetProdCreateFormModelWithLoadedCategoriesAsync();
+        ProductCreateFormModel productCreateFormModel = new ProductCreateFormModel()
+        {
+            AllCategories = await this.GetAllCategoriesViewModelsAsync(),
+        };
+            
         
         return View(productCreateFormModel);
     }
@@ -114,8 +153,7 @@ public class ProductsController : BaseController
     public async Task<IActionResult> Create(
         [FromForm] ProductCreateFormModel productCreateFormModel)
     {
-        productCreateFormModel.AllCategories
-            = await this._categoriesService.GetAllCategoriesViewModelsAsync();
+        productCreateFormModel.AllCategories = await this.GetAllCategoriesViewModelsAsync();
 
         bool isValidCategory = this.IsValidCategory(
             productCreateFormModel.CategoryId,
@@ -138,8 +176,21 @@ public class ProductsController : BaseController
                     ControllerContext.ActionDescriptor.ActionName);
             }
 
+            ProductCreateDto productCreateDto = new ProductCreateDto()
+            {
+                ProductName = productCreateFormModel.ProductName,
+                SellingPrice = productCreateFormModel.SellingPrice,
+                CategoryId = productCreateFormModel.CategoryId,
+                FrontImageUrl = productCreateFormModel.FrontImageUrl,
+                ExtraIMagesUrls = productCreateFormModel.ExtraImagesUrls,
+                CostPrice = productCreateFormModel.CostPrice,
+                Description = productCreateFormModel.Description,
+                QuantityInStock = productCreateFormModel.QuantityInStock,
+                IsEnabled = productCreateFormModel.IsEnabled,
+            };
+
             Guid productId = await this._productsService
-                .CreateProductAsync(userId.Value, productCreateFormModel);
+                .CreateProductAsync(userId.Value, productCreateDto);
 
             return RedirectToAction(nameof(Details), new { id = productId });
         }
@@ -167,12 +218,33 @@ public class ProductsController : BaseController
                 ControllerContext.ActionDescriptor.ActionName);
         }
                 
-        ProductEditFormModel? model = await this._productsService
-            .GetProductEditFormModelAsync(userId.Value, id);
+        ProductEditDto? model = await this._productsService
+            .GetProductForEditAsync(userId.Value, id);
         if (model == null)
             return NotFound();
+        
+        ProductEditFormModel productEditFormModel = new ProductEditFormModel()
+        {
+            ProductId = model.Id,
+            ProductName = model.Name,
+            SellingPrice = model.SellingPrice,
+            CategoryId = model.CategoryId,
+            ProductImages = model.ProductImages
+                .Select(i => new ImageViewModel()
+                {
+                    Id = i.Id,
+                    Url = i.Url,
+                    IsMarkedToStay = i.IsMarkedToStay,
+                })
+                .ToList(),
+            CostPrice = model.CostPrice,
+            Description = model.Description,
+            QuantityInStock = model.QuantityInStock,
+            IsEnabled = model.IsEnabled,
+            AllCategories = await this.GetAllCategoriesViewModelsAsync(),
+        };
 
-        return View(model);
+        return View(productEditFormModel);
     }
     
     [HttpPost]
@@ -181,9 +253,8 @@ public class ProductsController : BaseController
     {
         if(productEditFormModel.ProductId == Guid.Empty) 
             return BadRequest();
-        
-        productEditFormModel.AllCategories = await this._categoriesService
-            .GetAllCategoriesViewModelsAsync();
+
+        productEditFormModel.AllCategories = await this.GetAllCategoriesViewModelsAsync();
         
         bool isValidCategory = this.IsValidCategory(
             productEditFormModel.CategoryId,
@@ -206,11 +277,28 @@ public class ProductsController : BaseController
                     ControllerContext.ActionDescriptor.ActionName);
             }
 
-            await this._productsService
-                .EditProductAsync(userId.Value, productEditFormModel);
+            ProductEditDto productEditDto = new ProductEditDto()
+            {
+                Id = productEditFormModel.ProductId,
+                Name = productEditFormModel.ProductName,
+                SellingPrice = productEditFormModel.SellingPrice,
+                CategoryId = productEditFormModel.CategoryId,
+                CostPrice = productEditFormModel.CostPrice,
+                Description = productEditFormModel.Description,
+                QuantityInStock = productEditFormModel.QuantityInStock,
+                ProductImages = productEditFormModel.ProductImages
+                    .Select(i => new ImageDto()
+                    {
+                        Id = i.Id,
+                        Url = i.Url,
+                        IsMarkedToStay = i.IsMarkedToStay,
+                    }),
+                NewImagesUrls = productEditFormModel.NewImagesUrls,
+            };
 
-            return RedirectToAction(nameof(Details),
-                new { id = productEditFormModel.ProductId });
+            await this._productsService.EditProductAsync(userId.Value, productEditDto);
+
+            return RedirectToAction(nameof(Details), new { id = productEditDto.Id });
         }
         catch (ArgumentException argEx)
         {
@@ -257,6 +345,19 @@ public class ProductsController : BaseController
             
             return LocalRedirect(returnUrl!);
         }
+    }
+
+    private async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModelsAsync()
+    {
+        IEnumerable<CategoryDto> allCategoriesDtos = await this._categoriesService
+            .GetAllCategoriesAsync();
+        
+        return allCategoriesDtos
+            .Select(c => new AllCategoriesViewModel()
+            {
+                Id = c.Id,
+                CategoryName = c.CategoryName,
+            });
     }
     
     private bool IsValidCategory(Guid id,

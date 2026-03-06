@@ -6,7 +6,7 @@ using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.GCommon.Exceptions;
-using TradeNest.Web.ViewModels.Order;
+using TradeNest.Services.Models;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
 namespace TradeNest.Services.Core;
@@ -20,7 +20,7 @@ public class OrdersService : IOrdersService
         this._repository = repository;
     }
 
-    public async Task<IEnumerable<OrderViewModel>> GetAllOrdersByUserIdAsync(Guid userId)
+    public async Task<IEnumerable<OrderDto>> GetAllOrdersByUserIdAsync(Guid userId)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
@@ -38,14 +38,14 @@ public class OrdersService : IOrdersService
             .OrderByDescending(o => o.SubmittedOn) // nulls go on the bottom
             .ThenByDescending(o => o.TotalPrice)
             .ThenBy(o => o.OrderProducts.Count)
-            .Select(o => new OrderViewModel()
+            .Select(o => new OrderDto()
             {
                 Id = o.Id,
                 TotalPrice = o.TotalPrice,
                 IsSubmitted = o.IsSubmitted,
                 SubmittedOn = o.SubmittedOn,
                 OrderProducts = o.OrderProducts
-                    .Select(op => new OrderProductViewModel()
+                    .Select(op => new OrderProductDto()
                     {
                         Id = op.Product.Id,
                         Name = op.Product.Name,
@@ -136,7 +136,7 @@ public class OrdersService : IOrdersService
         await this._repository.SaveChangesAsync();
     }
 
-    public async Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId)
+    public async Task<OrderDto?> GetUserOngoingOrderWithProductsAsync(Guid userId)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
@@ -151,14 +151,14 @@ public class OrdersService : IOrdersService
         
         return await this._repository.AllAsReadonly<Order>()
             .Where(o => o.UserId == userId && !o.IsSubmitted)
-            .Select(o => new OrderViewModel()
+            .Select(o => new OrderDto()
             {
                 Id = o.Id,
                 TotalPrice = o.TotalPrice,
                 IsSubmitted = o.IsSubmitted,
                 SubmittedOn = o.SubmittedOn,
                 OrderProducts = o.OrderProducts
-                    .Select(op => new OrderProductViewModel()
+                    .Select(op => new OrderProductDto()
                     {
                         Id = op.Product.Id,
                         Name = op.Product.Name,
@@ -304,15 +304,15 @@ public class OrdersService : IOrdersService
     }
 
     public async Task<bool> IsValidProductQtyToOrderAsync(Guid userId,
-        ValidateProductQtyInputModel inputModel)
+        ProductQtyValidationDto model)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException("UserId can not be empty.", nameof(userId));
         
-        if (inputModel.Id == Guid.Empty)
+        if (model.Id == Guid.Empty)
         {
             throw new ArgumentException("Input model Id can not be empty",
-                nameof(inputModel.Id));
+                nameof(model.Id));
         }
         
         bool userExists = await this._repository
@@ -320,20 +320,20 @@ public class OrdersService : IOrdersService
         if (!userExists)
             throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
 
-        Product? prod = await this._repository.FindByIdAsync<Product>(inputModel.Id);
+        Product? prod = await this._repository.FindByIdAsync<Product>(model.Id);
         if (prod == null)
-            throw new ResourceNotFoundException(nameof(Product), inputModel.Id);
+            throw new ResourceNotFoundException(nameof(Product), model.Id);
 
         OrderProduct? prodAlreadyAddedToOrder = await this._repository.All<OrderProduct>()
             .Include(op => op.Order)
             .SingleOrDefaultAsync(op => op.Order.UserId == userId &&
                                         !op.Order.IsSubmitted &&
-                                        op.ProductId == inputModel.Id);
+                                        op.ProductId == model.Id);
         if (prodAlreadyAddedToOrder == null)
-            return inputModel.Quantity > 0 && inputModel.Quantity <= prod.QuantityInStock;
+            return model.Quantity > 0 && model.Quantity <= prod.QuantityInStock;
 
-        return inputModel.Quantity > 0 &&
-               inputModel.Quantity <= prod.QuantityInStock - prodAlreadyAddedToOrder.ProductsQuantity;
+        return model.Quantity > 0 &&
+               model.Quantity <= prod.QuantityInStock - prodAlreadyAddedToOrder.ProductsQuantity;
     }
 
     private async Task<Order> GetOrderForModificationWithOrderProductsAttachedAsync(

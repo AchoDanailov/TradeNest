@@ -1,7 +1,10 @@
-using TradeNest.Web.ViewModels.Category;
-using TradeNest.Services.Core.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
+using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models;
+using TradeNest.GCommon;
+using TradeNest.Web.ViewModels.Category;
 
 namespace TradeNest.Web.Controllers;
 
@@ -19,9 +22,18 @@ public class CategoriesController : BaseController
     [AllowAnonymous]
     public async Task<IActionResult> Index()
     {
-        IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel> model
-            = await this._categoriesService.GetAllCategoriesWithBestSellerImageVmAsync();
+        IEnumerable<CategoryWithBestSellerImageDto> categoriesDto
+            = await this._categoriesService.GetAllCategoriesWithBestSellerImageAsync();
+
+        IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel> viewModel = categoriesDto
+            .Select(c => new AllCategoriesWithBestSellerFrontImageViewModel()
+            {
+                Id = c.Id,
+                CategoryName = c.CategoryName,
+                BestSellerImageUrl = c.BestSellerImageUrl ?? 
+                                     ApplicationConstants.DefaultProductImageUrl,
+            });
         
-        return View(model);
+        return View(viewModel);
     }
 }

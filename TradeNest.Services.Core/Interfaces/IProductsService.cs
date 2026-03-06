@@ -1,48 +1,22 @@
 using TradeNest.GCommon.Exceptions;
-using TradeNest.Web.ViewModels.Product;
+using TradeNest.Services.Models;
 
 namespace TradeNest.Services.Core.Interfaces;
 
 public interface IProductsService
 {
     /// <summary>
-    /// Creates an empty catalog container for products and categories.
-    /// </summary>
-    /// <param name="isFromSearchInput">
-    /// Indicates whether the data is requested as part of a search operation.
-    /// </param>
-    /// <returns>An empty catalog containing products and categories.</returns>
-    CatalogProductsAndCategoriesViewModel GetEmptyCatalogProdsAndCategoriesDto(
-        bool isFromSearchInput = false);
-
-    /// <summary>
-    /// Creates a catalog container with categories loaded and optional products included.
-    /// </summary>
-    /// <param name="productsViewModels">
-    /// Optional collection of products to include.
-    /// </param>
-    /// <param name="isFromSearchInput">
-    /// Indicates whether the data is requested as part of a search operation.
-    /// </param>
-    /// <returns>
-    /// A task that returns a catalog containing products and categories.
-    /// </returns>
-    Task<CatalogProductsAndCategoriesViewModel> GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync(
-        IEnumerable<ProductViewModel>? productsViewModels = null,
-        bool isFromSearchInput = false);
-
-    /// <summary>
     /// Retrieves all products ordered by creation date (newest first).
     /// </summary>
     /// <returns>A task that returns the collection of products, empty if none exist.</returns>
-    Task<IEnumerable<ProductViewModel>> GetAllProductsOrderedByDateOfCreationDescAsync();
+    Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync();
 
     /// <summary>
     /// Retrieves all products whose name contains the given search query.
     /// </summary>
     /// <param name="searchQuery">The search term.</param>
     /// <returns>A task that returns matching products, empty if none found.</returns>
-    Task<IEnumerable<ProductViewModel>> GetAllProdsBySearchQueryForNameAsync(
+    Task<IEnumerable<ProductDto>> GetAllProdsBySearchQueryForNameAsync(
         string searchQuery);
 
     /// <summary>
@@ -53,13 +27,13 @@ public interface IProductsService
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="categoryId"/> is <see cref="Guid.Empty"/>.
     /// </exception>
-    Task<IEnumerable<ProductViewModel>> GetAllProdsVmsByCategoryIdAsync(Guid categoryId);
+    Task<IEnumerable<ProductDto>> GetAllProductsByCategoryIdAsync(Guid categoryId);
 
     /// <summary>
     /// Retrieves all products ordered by number of orders (highest first).
     /// </summary>
     /// <returns>A task that returns the collection of products ordered by popularity.</returns>
-    Task<IEnumerable<ProductViewModel>> GetAllProdsVmsOrderedByOrdersCountDescAsync();
+    Task<IEnumerable<ProductDto>> GetAllProductsOrderedByOrdersCountDescAsync();
 
     /// <summary>
     /// Determines whether a product with the specified identifier exists.
@@ -77,33 +51,21 @@ public interface IProductsService
     /// In case of non authenticated user userId can be left null.
     /// </param>
     /// <returns>A task that returns the product details, or null if not found.</returns>
-    Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id,
+    Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id,
         Guid? userId = null);
-
-    /// <summary>
-    /// Creates an empty form model for product creation.
-    /// </summary>
-    /// <returns>An empty product creation form.</returns>
-    ProductCreateFormModel GetEmptyProductCreateFormModel();
-
-    /// <summary>
-    /// Creates a product form model with all categories loaded.
-    /// </summary>
-    /// <returns>A task that returns a populated product creation form.</returns>
-    Task<ProductCreateFormModel> GetProdCreateFormModelWithLoadedCategoriesAsync();
 
     /// <summary>
     /// Creates a new product and saves it in the data store.
     /// </summary>
     /// <param name="userId">The identifier of the user creating the product.</param>
-    /// <param name="productCreateFormModel">The product data.</param>
+    /// <param name="productCreateDto">The product data.</param>
     /// <returns>A task that returns the identifier of the newly created product.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown if the provided <paramref name="userId"/>, categoryId in the
-    /// <paramref name="productCreateFormModel"/> are empty or entities with the
+    /// <paramref name="productCreateDto"/> are empty or entities with the
     /// corresponding identificators do not exist
     /// </exception>
-    Task<Guid> CreateProductAsync(Guid userId, ProductCreateFormModel productCreateFormModel);
+    Task<Guid> CreateProductAsync(Guid userId, ProductCreateDto productCreateDto);
 
     /// <summary>
     /// Retrieves a product form model populated with existing data for editing.
@@ -119,7 +81,7 @@ public interface IProductsService
     /// Thrown when user with <paramref name="userId"/> is not the owner of the product with
     /// the provided <paramref name="id"/>.
     /// </exception>
-    Task<ProductEditFormModel?> GetProductEditFormModelAsync(Guid userId, Guid id);
+    Task<ProductEditDto?> GetProductForEditAsync(Guid userId, Guid id);
 
     /// <summary>
     /// Deletes the specified product.
@@ -145,24 +107,24 @@ public interface IProductsService
     /// Updates the specified product with the provided data.
     /// </summary>
     /// <param name="userId">The identifier of the user performing the operation.</param>
-    /// <param name="productEditFormModel">The updated product data.</param>
+    /// <param name="productEditDto">The updated product data.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown if any of the following: <paramref name="userId"/>,
-    /// <paramref name="productEditFormModel.ProductId"/> or
-    /// <paramref name="productEditFormModel.CategoryId"/> is with value <see cref="Guid.Empty"/>.
+    /// <paramref name="productEditDto.ProductId"/> or
+    /// <paramref name="productEditDto.CategoryId"/> is with value <see cref="Guid.Empty"/>.
     /// </exception>
     /// <exception cref="ArgumentException">
     /// Thrown if user with <paramref name="userId"/> do not exist. Or if any of the provided
-    /// ProductImages in <paramref name="productEditFormModel.ProductImages"/> are not images
+    /// ProductImages in <paramref name="productEditDto.ProductImages"/> are not images
     /// of the product.
     /// </exception>
     /// <exception cref="ResourceNotFoundException">
     /// Thrown if product with the provided product id value in
-    /// <paramref name="productEditFormModel.ProductId"/>, does not exist.
+    /// <paramref name="productEditDto.ProductId"/>, does not exist.
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown when user with <paramref name="userId"/> is not the owner of the product.
     /// </exception>
-    Task EditProductAsync(Guid userId, ProductEditFormModel productEditFormModel);
+    Task EditProductAsync(Guid userId, ProductEditDto productEditDto);
 }

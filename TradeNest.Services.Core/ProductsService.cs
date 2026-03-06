@@ -2,12 +2,11 @@ using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.Web.ViewModels.Category;
-using TradeNest.Web.ViewModels.Image;
-using TradeNest.Web.ViewModels.Product;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models;
+using TradeNest.Web.ViewModels.Product;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
 namespace TradeNest.Services.Core;
@@ -20,38 +19,14 @@ public class ProductsService : IProductsService
     {
         this._repository = repository;
     }
-    
-    public CatalogProductsAndCategoriesViewModel GetEmptyCatalogProdsAndCategoriesDto(
-        bool isFromSearchInput = false)
+
+    public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync()
     {
-        return new CatalogProductsAndCategoriesViewModel()
-        {
-            IsSearchResultSet = isFromSearchInput,
-        }; 
-    }
-
-    public async Task<CatalogProductsAndCategoriesViewModel> GetCatalogProdsAndCategoriesDtoWithLoadedCategoriesAsync(
-        IEnumerable<ProductViewModel>? productsViewModels = null,
-        bool isFromSearchInput = false)
-    {
-        CatalogProductsAndCategoriesViewModel viewModel
-            = this.GetEmptyCatalogProdsAndCategoriesDto(isFromSearchInput);
-        
-        viewModel.Categories = await this.GetAllCategoriesViewModels();
-
-        if (productsViewModels != null)
-            viewModel.Products = productsViewModels;
-
-        return viewModel;
-    }
-
-    public async Task<IEnumerable<ProductViewModel>> GetAllProductsOrderedByDateOfCreationDescAsync()
-    {
-        IEnumerable<ProductViewModel> productsViewModels = await this._repository
+        return await this._repository
             .AllAsReadonly<Product>()
             .OrderByDescending(p => p.CreatedOn)
             .ThenBy(p => p.Name)
-            .Select(p => new ProductViewModel()
+            .Select(p => new ProductDto()
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -63,21 +38,19 @@ public class ProductsService : IProductsService
                 CategoryName = p.Category.Name,
             })
             .ToArrayAsync();
-
-        return productsViewModels;
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllProdsBySearchQueryForNameAsync(
+    public async Task<IEnumerable<ProductDto>> GetAllProdsBySearchQueryForNameAsync(
         string searchQuery)
     {
         if (string.IsNullOrWhiteSpace(searchQuery))
-            return Array.Empty<ProductViewModel>();
+            return Array.Empty<ProductDto>();
         
         return await this._repository.AllAsReadonly<Product>()
             .Where(p => p.Name.Contains(searchQuery))
             .OrderByDescending(p => p.CreatedOn)
             .ThenBy(p => p.Name)
-            .Select(p => new ProductViewModel()
+            .Select(p => new ProductDto()
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -91,8 +64,7 @@ public class ProductsService : IProductsService
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsByCategoryIdAsync(
-        Guid categoryId)
+    public async Task<IEnumerable<ProductDto>> GetAllProductsByCategoryIdAsync(Guid categoryId)
     {
         if (categoryId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(categoryId)));
@@ -101,7 +73,7 @@ public class ProductsService : IProductsService
             .Where(p => p.CategoryId == categoryId)
             .OrderByDescending(p => p.CreatedOn)
             .ThenBy(p => p.Name)
-            .Select(p => new ProductViewModel()
+            .Select(p => new ProductDto()
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -115,7 +87,7 @@ public class ProductsService : IProductsService
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<ProductViewModel>> GetAllProdsVmsOrderedByOrdersCountDescAsync()
+    public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedByOrdersCountDescAsync()
     {
         return await this._repository.All<Product>()
             .Include(p => p.ProductsOrders)
@@ -123,7 +95,7 @@ public class ProductsService : IProductsService
             .OrderByDescending(p => p.ProductsOrders
                 .Sum(po => po.ProductsQuantity))
             .ThenByDescending(p => p.CreatedOn)
-            .Select(p => new ProductViewModel()
+            .Select(p => new ProductDto()
             {
                 Id = p.Id,
                 Name = p.Name,
@@ -146,7 +118,7 @@ public class ProductsService : IProductsService
             .ExistsAsync<Product>(p => p.Id == id);
     }
 
-    public async Task<ProductDetailsViewModel?> GetProductDetailsViewModelByIdAsync(Guid id,
+    public async Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id,
         Guid? userId = null)
     {
         if (id == Guid.Empty)
@@ -162,7 +134,7 @@ public class ProductsService : IProductsService
         if (product == null)
             return null;
         
-        ProductDetailsViewModel productDetailsViewModel = new ProductDetailsViewModel()
+        ProductDetailsDto productDetailsDto = new ProductDetailsDto()
         {
             Id = product.Id,
             Name = product.Name,
@@ -181,36 +153,19 @@ public class ProductsService : IProductsService
                 .Select(i => i.Url),
         };
 
-        return productDetailsViewModel;
+        return productDetailsDto;
     }
 
-    public ProductCreateFormModel GetEmptyProductCreateFormModel()
-    {
-        return new ProductCreateFormModel();
-    }
-
-    public async Task<ProductCreateFormModel> GetProdCreateFormModelWithLoadedCategoriesAsync()
-    {
-        ProductCreateFormModel productCreateFormModel =
-            this.GetEmptyProductCreateFormModel();
-
-        productCreateFormModel.AllCategories
-            = await this.GetAllCategoriesViewModels();
-
-        return productCreateFormModel;
-    }
-
-    public async Task<Guid> CreateProductAsync(Guid userId,
-        ProductCreateFormModel productCreateFormModel)
+    public async Task<Guid> CreateProductAsync(Guid userId, ProductCreateDto productDto)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         
-        Guid passedInCategoryId = productCreateFormModel.CategoryId;
+        Guid passedInCategoryId = productDto.CategoryId;
         if (passedInCategoryId == Guid.Empty)
         {
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage,
-                nameof(productCreateFormModel.CategoryId)));
+                nameof(productDto.CategoryId)));
         }
 
         bool userExists = await this._repository
@@ -230,8 +185,8 @@ public class ProductsService : IProductsService
         }
         
         ICollection<Image> images = this.ParseImagesInputOnImageAdding(
-                frontImageUrl: productCreateFormModel.FrontImageUrl,
-                extraImagesUrls: productCreateFormModel.ExtraImagesUrls)
+                frontImageUrl: productDto.FrontImageUrl,
+                extraImagesUrls: productDto.ExtraIMagesUrls)
             .ToHashSet();
         if (images.Any() && !images.Any(i => i.IsFrontImage))
         {
@@ -240,12 +195,12 @@ public class ProductsService : IProductsService
                 
         Product newProduct = new Product()
         {
-            Name = productCreateFormModel.ProductName,
-            Description = productCreateFormModel.Description,
-            QuantityInStock = productCreateFormModel.QuantityInStock,
-            CostPrice = productCreateFormModel.CostPrice,
-            SellingPrice = productCreateFormModel.SellingPrice,
-            IsEnabled = productCreateFormModel.IsEnabled,
+            Name = productDto.ProductName,
+            Description = productDto.Description,
+            QuantityInStock = productDto.QuantityInStock,
+            CostPrice = productDto.CostPrice,
+            SellingPrice = productDto.SellingPrice,
+            IsEnabled = productDto.IsEnabled,
             OwnerId = userId,
             CategoryId = passedInCategoryId,
             Images = images
@@ -257,7 +212,7 @@ public class ProductsService : IProductsService
         return newProduct.Id;
     }
 
-    public async Task<ProductEditFormModel?> GetProductEditFormModelAsync(Guid userId, Guid id)
+    public async Task<ProductEditDto?> GetProductForEditAsync(Guid userId, Guid id)
     {
         if (id == Guid.Empty)
             return null;
@@ -282,27 +237,26 @@ public class ProductsService : IProductsService
         if (userId != product.OwnerId)
             throw new UnauthorizedOperationException(userId, nameof(Product), id);
         
-        ProductEditFormModel productEditFormModel = new ProductEditFormModel()
+        ProductEditDto productEditDto = new ProductEditDto()
         {
-            ProductId = product.Id,
-            ProductName = product.Name,
+            Id = product.Id,
+            Name = product.Name,
             Description = product.Description,
             QuantityInStock = product.QuantityInStock,
             SellingPrice = product.SellingPrice,
             CostPrice = product.CostPrice,
             IsEnabled = product.IsEnabled,
             ProductImages = product.Images
-                .Select(i => new ImageViewModel()
+                .Select(i => new ImageDto()
                 {
                     Id = i.Id,
                     Url = i.Url
                 })
                 .ToList(),
             CategoryId = product.CategoryId,
-            AllCategories = await this.GetAllCategoriesViewModels(),
         };
 
-        return productEditFormModel;
+        return productEditDto;
     }
 
     public async Task DeleteProductAsync(Guid userId, Guid id)
@@ -337,21 +291,21 @@ public class ProductsService : IProductsService
         await this._repository.SaveChangesAsync();
     }
 
-    public async Task EditProductAsync(Guid userId, ProductEditFormModel productEditFormModel)
+    public async Task EditProductAsync(Guid userId, ProductEditDto productEditDto)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
 
-        if (productEditFormModel.ProductId == Guid.Empty)
+        if (productEditDto.Id == Guid.Empty)
         {
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
-                nameof(productEditFormModel.ProductId)));
+                nameof(productEditDto.Id)));
         }
         
-        if (productEditFormModel.CategoryId == Guid.Empty)
+        if (productEditDto.CategoryId == Guid.Empty)
         {
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
-                nameof(productEditFormModel.CategoryId)));
+                nameof(productEditDto.CategoryId)));
         }
         
         bool userExists = await this._repository
@@ -364,55 +318,49 @@ public class ProductsService : IProductsService
         
         Product? product = await this._repository.All<Product>()
             .Include(p => p.Images)
-            .SingleOrDefaultAsync(p => p.Id == productEditFormModel.ProductId);
+            .SingleOrDefaultAsync(p => p.Id == productEditDto.Id);
         if (product == null)
-        {
-            throw new ResourceNotFoundException(nameof(Product),
-                productEditFormModel.ProductId);
-        }
+            throw new ResourceNotFoundException(nameof(Product), productEditDto.Id);
 
         if (userId != product.OwnerId)
-        {
-            throw new UnauthorizedOperationException(userId, nameof(Product),
-                productEditFormModel.ProductId);
-        }
+            throw new UnauthorizedOperationException(userId, nameof(Product), productEditDto.Id);
         
-        if (productEditFormModel.ProductImages.Any())
+        if (productEditDto.ProductImages.Any())
         {
-            bool allImagesAreValid = productEditFormModel.ProductImages
+            bool allImagesAreValid = productEditDto.ProductImages
                 .All(editImg => product.Images.Any(dbImg => dbImg.Id == editImg.Id));
             if (!allImagesAreValid)
             {
                 throw new ArgumentException("Invalid images provided",
-                    nameof(productEditFormModel.ProductImages));
+                    nameof(productEditDto.ProductImages));
             }
         }
 
         bool categoryExists = await this._repository
-            .ExistsAsync<Category>(c => c.Id == productEditFormModel.CategoryId);
+            .ExistsAsync<Category>(c => c.Id == productEditDto.CategoryId);
         if (!categoryExists)
         {
             throw new ArgumentException(string.Format(NotFoundMessage, 
-                nameof(Category), productEditFormModel.CategoryId));
+                nameof(Category), productEditDto.CategoryId));
         }
 
         ICollection<Image> imagesToDelete
-            = await this.GetImagesForDeletionIfAny(productEditFormModel.ProductImages);
+            = await this.GetImagesForDeletionIfAny(productEditDto.ProductImages);
         if (imagesToDelete.Any())
             this._repository.RemoveRange<Image>(imagesToDelete);
 
-        product.Name = productEditFormModel.ProductName;
-        product.Description = productEditFormModel.Description;
-        product.QuantityInStock = productEditFormModel.QuantityInStock;
-        product.SellingPrice = productEditFormModel.SellingPrice;
-        product.CostPrice = productEditFormModel.CostPrice;
-        product.IsEnabled = productEditFormModel.IsEnabled;
-        product.CategoryId = productEditFormModel.CategoryId;
+        product.Name = productEditDto.Name;
+        product.Description = productEditDto.Description;
+        product.QuantityInStock = productEditDto.QuantityInStock;
+        product.SellingPrice = productEditDto.SellingPrice;
+        product.CostPrice = productEditDto.CostPrice;
+        product.IsEnabled = productEditDto.IsEnabled;
+        product.CategoryId = productEditDto.CategoryId;
 
-        if (!string.IsNullOrEmpty(productEditFormModel.NewImagesUrls))
+        if (!string.IsNullOrEmpty(productEditDto.NewImagesUrls))
         {
             IEnumerable<Image> imagesToAdd = this.ParseImagesInputOnImageAdding(
-                extraImagesUrls: productEditFormModel.NewImagesUrls,
+                extraImagesUrls: productEditDto.NewImagesUrls,
                 productId: product.Id);
 
             await this._repository.AddRangeAsync<Image>(imagesToAdd);
@@ -423,18 +371,6 @@ public class ProductsService : IProductsService
         await this._repository.SaveChangesAsync();
     }
 
-    private async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModels()
-    {
-        return await this._repository.AllAsReadonly<Category>()
-            .OrderBy(c => c.Name)
-            .Select(c => new AllCategoriesViewModel()
-            {
-                Id = c.Id,
-                CategoryName = c.Name,
-            })
-            .ToArrayAsync();
-    }
-    
     private IEnumerable<Image> ParseImagesInputOnImageAdding(string? frontImageUrl = null,
         string? extraImagesUrls = null, Guid? productId = null)
     {
@@ -483,16 +419,16 @@ public class ProductsService : IProductsService
     }
     
     private async Task<ICollection<Image>> GetImagesForDeletionIfAny(
-        IEnumerable<ImageViewModel> imagesComingFromEditForm)
+        IEnumerable<ImageDto> imagesComingFromEditForm)
     {
-        IEnumerable<ImageViewModel> imageViewModelsMarkedForDeletion = imagesComingFromEditForm
+        IEnumerable<ImageDto> imageViewModelsMarkedForDeletion = imagesComingFromEditForm
             .Where(i => i.IsMarkedToStay == false)
             .ToArray();
         if (!imageViewModelsMarkedForDeletion.Any())
             return Array.Empty<Image>();
 
         ICollection<Image> imagesToDelete = new List<Image>();
-        foreach (ImageViewModel imageViewModel in imageViewModelsMarkedForDeletion)
+        foreach (ImageDto imageViewModel in imageViewModelsMarkedForDeletion)
         {
             // already loaded in memory
             Image imageToDel = (await this._repository.FindByIdAsync<Image>(imageViewModel.Id))!;

@@ -1,5 +1,5 @@
 using TradeNest.GCommon.Exceptions;
-using TradeNest.Web.ViewModels.Order;
+using TradeNest.Services.Models;
 
 namespace TradeNest.Services.Core.Interfaces;
 
@@ -17,7 +17,7 @@ public interface IOrdersService
     /// Thrown when the provided <paramref name="userId"/> is with value <see cref="Guid.Empty"/>,
     /// or user with <paramref name="userId"/> does not exist.
     /// </exception>
-    Task<IEnumerable<OrderViewModel>> GetAllOrdersByUserIdAsync(Guid userId);
+    Task<IEnumerable<OrderDto>> GetAllOrdersByUserIdAsync(Guid userId);
 
     /// <summary>
     /// Adds the provided product to the user's ongoing order.
@@ -63,7 +63,7 @@ public interface IOrdersService
     /// Thrown if <paramref name="userId"/> is with value <see cref="Guid.Empty"/> or
     /// user with <paramref name="userId"/> does not exist.
     /// </exception>
-    Task<OrderViewModel?> GetUserOngoingOrderWithProductsAsync(Guid userId);
+    Task<OrderDto?> GetUserOngoingOrderWithProductsAsync(Guid userId);
 
     /// <summary>
     /// Removes the product from the user's ongoing order.
@@ -167,18 +167,17 @@ public interface IOrdersService
     /// specified product.
     /// </summary>
     /// <param name="userId">The identifier of the user attempting to add product to his order.</param>
-    /// <param name="inputModel">The model that holds data about the product and the quantity.</param>
+    /// <param name="model">The model that holds data about the product and the quantity.</param>
     /// <returns>
     /// Task containing a value that represents if the user can add the given product quantity to his order.
     /// </returns>
     /// <exception cref="ArgumentException">
     /// Thrown if the user with <paramref name="userId"/> or the product with
-    /// <paramref name="inputModel.Id"/> are with value <see cref="Guid.Empty"/>, or if user
+    /// <paramref name="model.Id"/> are with value <see cref="Guid.Empty"/>, or if user
     /// with <paramref name="userId"/> does not exist.
     /// </exception>
     /// <exception cref="ResourceNotFoundException">
-    /// Thrown if product with the provided id in <paramref name="inputModel"/> does not exist.
+    /// Thrown if product with the provided id in <paramref name="model"/> does not exist.
     /// </exception>
-    Task<bool> IsValidProductQtyToOrderAsync(Guid userId,
-        ValidateProductQtyInputModel inputModel);
+    Task<bool> IsValidProductQtyToOrderAsync(Guid userId, ProductQtyValidationDto model);
 }

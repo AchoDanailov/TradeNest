@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models;
 using TradeNest.Web.ViewModels.Order;
 using TradeNest.Web.Utilities.Exceptions;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
@@ -32,10 +33,28 @@ public class OrdersController : BaseController
                 ControllerContext.ActionDescriptor.ActionName);
         }
                 
-        IEnumerable<OrderViewModel> userOrders = await this._ordersService
+        IEnumerable<OrderDto> userOrdersDtos = await this._ordersService
             .GetAllOrdersByUserIdAsync(userId.Value);
+
+        IEnumerable<OrderViewModel> userOrdersViewModels = userOrdersDtos
+            .Select(o => new OrderViewModel()
+            {
+                Id = o.Id,
+                IsSubmitted = o.IsSubmitted,
+                SubmittedOn = o.SubmittedOn,
+                OrderProducts = o.OrderProducts
+                    .Select(op => new OrderProductViewModel()
+                    {
+                        Id = op.Id,
+                        Name = op.Name,
+                        QuantityOrdered = op.QuantityOrdered,
+                        TotalPrice = op.TotalPrice,
+                        UnitPrice = op.UnitPrice
+                    }),
+                TotalPrice = o.TotalPrice,
+            });
             
-        return View(userOrders);
+        return View(userOrdersViewModels);
     }
     
     [HttpPost]
@@ -157,8 +176,14 @@ public class OrdersController : BaseController
                     ControllerContext.ActionDescriptor.ActionName);
             }
 
+            ProductQtyValidationDto dto = new ProductQtyValidationDto()
+            {
+                Id = inputModel.Id,
+                Quantity = inputModel.Quantity,
+            };
+
             bool isValidProdQtyToAdd = await this._ordersService
-                .IsValidProductQtyToOrderAsync(userId.Value, inputModel);
+                .IsValidProductQtyToOrderAsync(userId.Value, dto);
 
             return Ok(isValidProdQtyToAdd);
         }

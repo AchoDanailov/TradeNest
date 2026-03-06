@@ -1,4 +1,4 @@
-using TradeNest.Web.ViewModels.Category;
+using TradeNest.Services.Models;
 
 namespace TradeNest.Services.Core.Interfaces;
 
@@ -15,7 +15,7 @@ public interface ICategoriesService
     /// Retrieves all categories ordered by name.
     /// </summary>
     /// <returns>A task that returns the collection of categories, empty if none exist.</returns>
-    Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModelsAsync();
+    Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync();
 
     /// <summary>
     /// Retrieves all categories along with the front image of their best-selling product.
@@ -24,5 +24,5 @@ public interface ICategoriesService
     /// A task that returns the collection of categories with best-seller image,
     /// null if none exist.
     /// </returns>
-    Task<IEnumerable<AllCategoriesWithBestSellerFrontImageViewModel>> GetAllCategoriesWithBestSellerImageVmAsync();
+    Task<IEnumerable<CategoryWithBestSellerImageDto>> GetAllCategoriesWithBestSellerImageAsync();
 }
