@@ -23,8 +23,6 @@ public class Program
         builder.Services.AddDbContext<TradeNestDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        // builder.Services.AddDatabaseDeveloperPageExceptionFilter();
-        
         builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
             
