@@ -10,7 +10,7 @@ public class CatalogViewModel
     public IEnumerable<AllCategoriesViewModel> Categories { get; set; }
         = new List<AllCategoriesViewModel>();
 
-    public bool IsSearchResultSet { get; set; }
+    public string? SearchFilter { get; set; }
     
     public Guid? CategoryFilter { get; set; }
 }

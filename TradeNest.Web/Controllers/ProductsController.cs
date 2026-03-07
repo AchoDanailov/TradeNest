@@ -39,7 +39,18 @@ public class ProductsController : BaseController
         };
 
         if (!string.IsNullOrWhiteSpace(search))
-            viewModel.IsSearchResultSet = true;
+        {
+            if (search.ToLowerInvariant() == "all")
+                search = null;
+        }
+        else
+        {
+            if(TempData["SearchFilter"] != null)
+                search = TempData["SearchFilter"] as string ?? null;
+        }
+        
+        TempData.Remove("SearchFilter");
+        viewModel.SearchFilter = search;
         
         IEnumerable<ProductDto> productDtos = new List<ProductDto>();
         if (categoryId == null)

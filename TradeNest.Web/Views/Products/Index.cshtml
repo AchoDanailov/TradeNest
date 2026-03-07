@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Catalog";
     TempData["CategoryFilter"] = this.Model.CategoryFilter;
+    TempData["SearchFilter"] = this.Model.SearchFilter;
 }
 
 <div class="container-lg py-3">
@@ -30,9 +31,8 @@
                     </a>
                 </div>
             }
-            <div class="btn-group">
-                <a type="button" asp-controller="Categories" asp-action="Index"
-                   class="btn btn-teal">@(Model.Categories.SingleOrDefault(c =>
+            <div class="btn-group" style="max-width: 142px; min-width: 142px">
+                <a class="btn btn-teal">@(Model.Categories.SingleOrDefault(c =>
                         c.Id == Model.CategoryFilter)?.CategoryName ?? "All Categories")</a>
                 <button type="button"
                         class="btn btn-teal dropdown-toggle dropdown-toggle-split"
@@ -65,8 +65,17 @@
 
         </div>
 
-        <div class="col mt-2 mt-md-0">
+        <div class="col mt-2 mt-md-0 text-center gap-2">
             <partial name="_SearchFormPartial"/>
+            @if (Model.SearchFilter != null)
+            {
+                <div class="my-2">
+                    <span>results for: @Model.SearchFilter</span>
+                    <a asp-controller="Products" asp-action="Index" asp-route-search="All">
+                        <span class="btn-sm btn-danger">x</span>
+                    </a>
+                </div>
+            }
         </div>
 
         <div class="d-none d-md-flex col-md-3 me-3 align-items-center justify-content-end">
@@ -126,12 +135,22 @@
         <div class="col d-flex flex-column gap-1">
             @if (!this.Model.Products.Any())
             {
-                if (!this.Model.IsSearchResultSet)
+                if (this.Model.SearchFilter == null)
                 {
                     <div class="row p-5 site-sections-bg shadow rounded-3 d-flex justify-content-center gap-2">
-                        <h4 class="text-navy display-4 text-center">
-                            No products are available at the moment
-                        </h4>
+                        @if (this.Model.CategoryFilter == null)
+                        {
+                            <h4 class="text-navy display-4 text-center">
+                                No products are available at the moment
+                            </h4>
+                        }
+                        else
+                        {
+                            <h4 class="text-navy display-4 text-center">
+                                No products are available at the moment in this category.
+                            </h4>
+                        }
+                        
                         <a class="btn btn-teal btn-lg px-4 mx-auto w-auto"
                            asp-controller="Products" asp-action="Create">
                             Be The First To Sell Your Products
