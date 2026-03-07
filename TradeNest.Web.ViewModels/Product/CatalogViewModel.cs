@@ -11,4 +11,6 @@ public class CatalogViewModel
         = new List<AllCategoriesViewModel>();
 
     public bool IsSearchResultSet { get; set; }
+    
+    public Guid? CategoryFilter { get; set; }
 }

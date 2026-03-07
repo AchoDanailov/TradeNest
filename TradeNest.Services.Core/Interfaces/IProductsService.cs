@@ -8,26 +8,28 @@ public interface IProductsService
     /// <summary>
     /// Retrieves all products ordered by creation date (newest first).
     /// </summary>
+    /// <param name="search">
+    /// String value used to search for products that contain this value
+    /// either in their name or in their category.
+    /// </param>
     /// <returns>A task that returns the collection of products, empty if none exist.</returns>
-    Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync();
-
-    /// <summary>
-    /// Retrieves all products whose name contains the given search query.
-    /// </summary>
-    /// <param name="searchQuery">The search term.</param>
-    /// <returns>A task that returns matching products, empty if none found.</returns>
-    Task<IEnumerable<ProductDto>> GetAllProdsBySearchQueryForNameAsync(
-        string searchQuery);
+    Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync(
+        string? search = null);
 
     /// <summary>
     /// Retrieves all products that belong to the specified category.
     /// </summary>
     /// <param name="categoryId">The category identifier.</param>
+    /// <param name="search">
+    /// String value used to search for products that contain this value
+    /// either in their name or in their category.
+    /// </param>
     /// <returns>A task that returns the collection of matching products, empty if none found.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown when <paramref name="categoryId"/> is <see cref="Guid.Empty"/>.
     /// </exception>
-    Task<IEnumerable<ProductDto>> GetAllProductsByCategoryIdAsync(Guid categoryId);
+    Task<IEnumerable<ProductDto>> GetAllProductsByCategoryIdAsync(Guid categoryId,
+        string? search = null);
 
     /// <summary>
     /// Retrieves all products ordered by number of orders (highest first).

@@ -38,30 +38,59 @@ public class ProductsController : BaseController
             Categories = await this.GetAllCategoriesViewModelsAsync(),
         };
 
-        IEnumerable<ProductDto> productDtos = new List<ProductDto>();
         if (!string.IsNullOrWhiteSpace(search))
-        {
-            productDtos = await this._productsService
-                .GetAllProdsBySearchQueryForNameAsync(search);
-            
             viewModel.IsSearchResultSet = true;
-        }
-        else
+        
+        IEnumerable<ProductDto> productDtos = new List<ProductDto>();
+        if (categoryId == null)
         {
-            if (categoryId == null || categoryId.Value == Guid.Empty)
+            // no curr category filter control pressed
+            
+            // check if there is old category filtering 
+            Guid? categoryFilter = TempData["CategoryFilter"] as Guid?;
+            TempData.Remove("CategoryFilter");
+            
+            if (categoryFilter == null || categoryFilter.Value == Guid.Empty)
             {
+                // no category filtering
                 productDtos = await this._productsService
-                    .GetAllProductsOrderedByDateOfCreationDescAsync();
+                    .GetAllProductsOrderedByDateOfCreationDescAsync(search);
             }
             else
             {
+                // use old category filtering that was stored in the "CategoryFilter" prop of TempData
+                productDtos = await this._productsService
+                    .GetAllProductsByCategoryIdAsync(categoryFilter.Value, search);
+            }
+
+            // update view with the category filter status
+            viewModel.CategoryFilter = categoryFilter;
+        }
+        else
+        {
+            // curr category filtering control pressed
+            if (categoryId.Value == Guid.Empty)
+            {
+                //clear is pressed
+                productDtos = await this._productsService
+                    .GetAllProductsOrderedByDateOfCreationDescAsync(search);
+
+                // update view with the category filter status
+                viewModel.CategoryFilter = null;
+            }
+            else
+            {
+                // category is pressed
                 bool isValidCategory 
                     = this.IsValidCategory(categoryId.Value, viewModel.Categories);
                 if (!isValidCategory)
                     return NotFound();
 
+                // update view with the category filter status
+                viewModel.CategoryFilter = categoryId;
+                
                 productDtos = await this._productsService
-                    .GetAllProductsByCategoryIdAsync(categoryId.Value);
+                    .GetAllProductsByCategoryIdAsync(categoryId.Value, search);
             }
         }
         

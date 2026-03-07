@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data.Models;
@@ -6,7 +7,6 @@ using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models;
-using TradeNest.Web.ViewModels.Product;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
 namespace TradeNest.Services.Core;
@@ -20,12 +20,21 @@ public class ProductsService : IProductsService
         this._repository = repository;
     }
 
-    public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync()
+    public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync(
+        string? search = null)
     {
-        return await this._repository
+        IQueryable<Product> productQuery = this._repository
             .AllAsReadonly<Product>()
             .OrderByDescending(p => p.CreatedOn)
-            .ThenBy(p => p.Name)
+            .ThenBy(p => p.Name);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            productQuery = productQuery
+                .Where(p => p.Name.ToLower().Contains(search) ||
+                            p.Category.Name.ToLower().Contains(search));
+        }
+        
+        return await productQuery
             .Select(p => new ProductDto()
             {
                 Id = p.Id,
@@ -40,39 +49,26 @@ public class ProductsService : IProductsService
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<ProductDto>> GetAllProdsBySearchQueryForNameAsync(
-        string searchQuery)
-    {
-        if (string.IsNullOrWhiteSpace(searchQuery))
-            return Array.Empty<ProductDto>();
-        
-        return await this._repository.AllAsReadonly<Product>()
-            .Where(p => p.Name.Contains(searchQuery))
-            .OrderByDescending(p => p.CreatedOn)
-            .ThenBy(p => p.Name)
-            .Select(p => new ProductDto()
-            {
-                Id = p.Id,
-                Name = p.Name,
-                SellingPrice = p.SellingPrice,
-                FrontImageUrl = p.Images.Any()
-                    ? p.Images
-                        .Single(i => i.IsFrontImage)!.Url
-                    : null,
-                CategoryName = p.Category.Name,
-            }) 
-            .ToArrayAsync();
-    }
-
-    public async Task<IEnumerable<ProductDto>> GetAllProductsByCategoryIdAsync(Guid categoryId)
+    public async Task<IEnumerable<ProductDto>> GetAllProductsByCategoryIdAsync(
+        Guid categoryId, 
+        string? search = null)
     {
         if (categoryId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(categoryId)));
-        
-        return await this._repository.AllAsReadonly<Product>()
+
+        IQueryable<Product> productQuery = this._repository
+            .AllAsReadonly<Product>()
             .Where(p => p.CategoryId == categoryId)
             .OrderByDescending(p => p.CreatedOn)
-            .ThenBy(p => p.Name)
+            .ThenBy(p => p.Name);
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            productQuery = productQuery
+                .Where(p => p.Name.ToLower().Contains(search) ||
+                            p.Category.Name.ToLower().Contains(search));
+        }
+        
+        return await productQuery
             .Select(p => new ProductDto()
             {
                 Id = p.Id,

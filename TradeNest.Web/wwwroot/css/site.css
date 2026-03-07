@@ -51,6 +51,11 @@ body {
     background-color: var(--tn-teal);
 }
 
+.selected {
+    color: #ffff;
+    background-color: var(--tn-teal);
+}
+
 .text-navy {
     color: var(--tn-navy);
 }
