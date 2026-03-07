@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 
 namespace TradeNest.Data.Repository.Interfaces;
 
-public interface IRepository
+public interface IRepository : IDisposable
 {
     IQueryable<T> AllAsReadonly<T>() where T : class;
 

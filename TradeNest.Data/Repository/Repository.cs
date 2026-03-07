@@ -4,9 +4,10 @@ using TradeNest.Data.Repository.Interfaces;
 
 namespace TradeNest.Data.Repository;
 
-public class Repository : IRepository 
+public class Repository : IRepository
 {
     private readonly TradeNestDbContext _dbContext;
+    private bool _disposed;
 
     public Repository(TradeNestDbContext dbContext)
     {
@@ -63,5 +64,23 @@ public class Repository : IRepository
     public async Task<int> SaveChangesAsync()
     {
         return await this._dbContext.SaveChangesAsync();
+    }
+    
+    public void Dispose()
+    {
+        this.Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!this._disposed)
+        {
+            if (disposing)
+            {
+                this._dbContext.Dispose();
+            }
+        }
+        this._disposed = true;
     }
 }
