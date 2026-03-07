@@ -7,6 +7,7 @@ namespace TradeNest.Web.Controllers;
 public class HomeController : BaseController
 {
     [HttpGet]
+    [Route("/")] [Route("/Home")] [Route("/Home/Index")]
     public IActionResult Index()
     {
         return View();

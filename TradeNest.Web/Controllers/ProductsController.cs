@@ -29,15 +29,11 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [AllowAnonymous]
+    [Route("/Catalog")] [Route("/Products")] [Route("/Products/Index")]
     public async Task<IActionResult> Index(
         [FromQuery] Guid? categoryId = null,
         [FromQuery] string? search = null)
     {
-        CatalogViewModel viewModel = new CatalogViewModel()
-        {
-            Categories = await this.GetAllCategoriesViewModelsAsync(),
-        };
-
         if (!string.IsNullOrWhiteSpace(search))
         {
             if (search.ToLowerInvariant() == "all")
@@ -45,76 +41,42 @@ public class ProductsController : BaseController
         }
         else
         {
-            if(TempData["SearchFilter"] != null)
-                search = TempData["SearchFilter"] as string ?? null;
+            search = TempData["SearchFilter"] as string;
         }
         
-        TempData.Remove("SearchFilter");
-        viewModel.SearchFilter = search;
+        Guid? categoryFilter = categoryId ?? TempData["CategoryFilter"] as Guid?;
+        if (categoryFilter == Guid.Empty)
+            categoryFilter = null;
         
-        IEnumerable<ProductDto> productDtos = new List<ProductDto>();
-        if (categoryId == null)
-        {
-            // no curr category filter control pressed
-            
-            // check if there is old category filtering 
-            Guid? categoryFilter = TempData["CategoryFilter"] as Guid?;
-            TempData.Remove("CategoryFilter");
-            
-            if (categoryFilter == null || categoryFilter.Value == Guid.Empty)
-            {
-                // no category filtering
-                productDtos = await this._productsService
-                    .GetAllProductsOrderedByDateOfCreationDescAsync(search);
-            }
-            else
-            {
-                // use old category filtering that was stored in the "CategoryFilter" prop of TempData
-                productDtos = await this._productsService
-                    .GetAllProductsByCategoryIdAsync(categoryFilter.Value, search);
-            }
+        TempData.Remove("SearchFilter");
+        TempData.Remove("CategoryFilter");
 
-            // update view with the category filter status
-            viewModel.CategoryFilter = categoryFilter;
+        CatalogViewModel viewModel = new CatalogViewModel()
+        {
+            Categories = await this.GetAllCategoriesViewModelsAsync(),
+            SearchFilter = search,
+            CategoryFilter = categoryFilter,
+        };
+        
+        if (categoryFilter.HasValue && 
+            !this.IsValidCategory(categoryFilter.Value, viewModel.Categories))
+        {
+            return NotFound();
+        }
+
+        IEnumerable<ProductDto> productDtos = new List<ProductDto>();
+        if (categoryFilter != null)
+        {
+            productDtos = await this._productsService
+                .GetAllProductsByCategoryIdAsync(categoryFilter.Value, search);
         }
         else
         {
-            // curr category filtering control pressed
-            if (categoryId.Value == Guid.Empty)
-            {
-                //clear is pressed
-                productDtos = await this._productsService
-                    .GetAllProductsOrderedByDateOfCreationDescAsync(search);
-
-                // update view with the category filter status
-                viewModel.CategoryFilter = null;
-            }
-            else
-            {
-                // category is pressed
-                bool isValidCategory 
-                    = this.IsValidCategory(categoryId.Value, viewModel.Categories);
-                if (!isValidCategory)
-                    return NotFound();
-
-                // update view with the category filter status
-                viewModel.CategoryFilter = categoryId;
-                
-                productDtos = await this._productsService
-                    .GetAllProductsByCategoryIdAsync(categoryId.Value, search);
-            }
+            productDtos = await this._productsService
+                .GetAllProductsOrderedByDateOfCreationDescAsync(search);
         }
-        
-        viewModel.Products = productDtos
-            .Select(p => new ProductViewModel()
-            {
-                Id = p.Id,
-                Name = p.Name,
-                SellingPrice = p.SellingPrice,
-                CategoryName = p.CategoryName,
-                FrontImageUrl = p.FrontImageUrl,
-            });
 
+        viewModel.Products = productDtos.Select(p => this.MapToProductViewModel(p));
         return View(viewModel);
     }
 
@@ -127,15 +89,7 @@ public class ProductsController : BaseController
 
         CatalogViewModel viewModel = new CatalogViewModel()
         {
-            Products = productDtos
-                .Select(p => new ProductViewModel()
-                {
-                    Id = p.Id,
-                    Name = p.Name,
-                    SellingPrice = p.SellingPrice,
-                    CategoryName = p.CategoryName,
-                    FrontImageUrl = p.FrontImageUrl,
-                }),
+            Products = productDtos.Select(p => this.MapToProductViewModel(p)),
             Categories = await this.GetAllCategoriesViewModelsAsync(),
         };
         
@@ -385,6 +339,18 @@ public class ProductsController : BaseController
             
             return LocalRedirect(returnUrl!);
         }
+    }
+
+    private ProductViewModel MapToProductViewModel(ProductDto p)
+    {
+        return new ProductViewModel()
+        {
+            Id = p.Id,
+            Name = p.Name,
+            SellingPrice = p.SellingPrice,
+            CategoryName = p.CategoryName,
+            FrontImageUrl = p.FrontImageUrl,
+        };
     }
 
     private async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModelsAsync()
