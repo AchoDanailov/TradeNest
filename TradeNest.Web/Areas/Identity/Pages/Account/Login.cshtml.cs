@@ -15,13 +15,15 @@ namespace TradeNest.Web.Areas.Identity.Pages.Account;
 public class LoginModel : PageModel
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
+    private readonly UserManager<ApplicationUser> _userManager;
     private readonly ILogger<LoginModel> _logger;
 
     public LoginModel(SignInManager<ApplicationUser> signInManager,
-        ILogger<LoginModel> logger)
+        ILogger<LoginModel> logger, UserManager<ApplicationUser> userManager)
     {
         this._signInManager = signInManager;
         this._logger = logger;
+        this._userManager = userManager;
     }
 
     [BindProperty]
@@ -38,10 +40,10 @@ public class LoginModel : PageModel
     public class InputModel
     {
         [Required]
-        [EmailAddress]
-        [StringLength(EmailMaxLengthValue, MinimumLength = EmailMinLengthValue)]
-        public string Email { get; set; } = null!;
-
+        [StringLength(UserNameOrEmailMaxLengthValue, MinimumLength = UserNameOrEmailMinLengthValue)]
+        [Display(Name = nameof(UserNameOrEmail))]
+        public string UserNameOrEmail { get; set; } = null!;
+        
         [Required]
         [DataType(DataType.Password)]
         [StringLength(PasswordMaxLengthValue, MinimumLength = PasswordMinLengthValue)]
@@ -80,20 +82,39 @@ public class LoginModel : PageModel
 
         if (ModelState.IsValid)
         {
-            SignInResult result = await this._signInManager.PasswordSignInAsync(Input.Email,
-                Input.Password, Input.RememberMe, lockoutOnFailure: true);
-            if (result.Succeeded)
+            SignInResult userNameSignInResult = await this._signInManager.PasswordSignInAsync(
+                Input.UserNameOrEmail, Input.Password, Input.RememberMe, lockoutOnFailure: true);
+            if (userNameSignInResult.Succeeded)
             {
                 this._logger.LogInformation("User logged in.");
                 return LocalRedirect(returnUrl!);
             }
-            else if (result.IsLockedOut)
+            else if (userNameSignInResult.IsLockedOut)
             {
                 this._logger.LogWarning("User account locked out.");
                 return RedirectToPage("./Lockout");
             }
             else
             {
+                ApplicationUser? user = await this._userManager
+                    .FindByEmailAsync(Input.UserNameOrEmail);
+                if (user != null)
+                {
+                    SignInResult emailSignInResult = await this._signInManager
+                        .CheckPasswordSignInAsync(user, Input.Password, true);
+                    if (emailSignInResult.Succeeded)
+                    {
+                        this._logger.LogInformation("User logged in.");
+                        await this._signInManager.SignInAsync(user, isPersistent: true);
+                        return LocalRedirect(returnUrl!);
+                    }
+                    else if (emailSignInResult.IsLockedOut)
+                    {
+                        this._logger.LogWarning("User account locked out.");
+                        return RedirectToPage("./Lockout");
+                    }
+                }
+                
                 ModelState.AddModelError(string.Empty, "Invalid login attempt.");
                 return Page();
             }
