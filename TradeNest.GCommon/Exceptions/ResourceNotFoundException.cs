@@ -11,8 +11,9 @@ public class ResourceNotFoundException : InvalidOperationException
     public string ResourceName { get; }
     public object ResourceId { get; }
 
-    public ResourceNotFoundException(string resourceName, object resourceId)
-        : base(string.Format(DefaultMessage, resourceName, resourceId))
+    public ResourceNotFoundException(string resourceName, object resourceId,
+        Exception? innerException = null) 
+        : base(string.Format(DefaultMessage, resourceName, resourceId), innerException)
     {
         this.ResourceName = resourceName;
         this.ResourceId = resourceId;

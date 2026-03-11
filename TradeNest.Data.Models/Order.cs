@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static TradeNest.GCommon.EntityValidationConstants.CommonValidationConstants;
+
 using Microsoft.EntityFrameworkCore;
+
+using static TradeNest.Data.Common.EntityModelsConstants.CommonValidationConstants;
 
 namespace TradeNest.Data.Models;
 
@@ -13,11 +15,8 @@ public class Order
     public Guid Id { get; set; }
 
     [Required]
-    [Comment("Value that represents weather the order is submitted or not.")]
-    public bool IsSubmitted { get; set; } = false;
-    
     [Comment("The date and time at which the order has been submitted.")]
-    public DateTime? SubmittedOn { get; set; }
+    public DateTime SubmittedOn { get; set; }
     
     [Required]
     [Column(TypeName = PriceColumnDataType)]
@@ -25,7 +24,7 @@ public class Order
     public decimal TotalPrice { get; set; }
     
     [ForeignKey(nameof(User))]
-    [Comment("Foreign key referencing the user making the order.")]
+    [Comment("Foreign key referencing the user that has made the order.")]
     public Guid UserId { get; set; }
     public virtual ApplicationUser User { get; set; } = null!;
 

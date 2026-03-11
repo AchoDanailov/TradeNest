@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using TradeNest.Services.Core.Interfaces;
-using TradeNest.Services.Models;
+using TradeNest.Services.Models.Category;
+using TradeNest.Services.Models.Image;
+using TradeNest.Services.Models.Product;
 using TradeNest.Web.Utilities.Exceptions;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
@@ -36,7 +38,7 @@ public class ProductsController : BaseController
     {
         if (!string.IsNullOrWhiteSpace(search))
         {
-            if (search.ToLowerInvariant() == "all")
+            if (search.ToLowerInvariant() == "clear")
                 search = null;
         }
         else
@@ -64,7 +66,7 @@ public class ProductsController : BaseController
             return NotFound();
         }
 
-        IEnumerable<ProductDto> productDtos = new List<ProductDto>();
+        IEnumerable<ProductDto> productDtos;
         if (categoryFilter != null)
         {
             productDtos = await this._productsService
@@ -85,7 +87,7 @@ public class ProductsController : BaseController
     public async Task<IActionResult> BestSellers()
     {
         IEnumerable<ProductDto> productDtos = await this._productsService
-            .GetAllProductsOrderedByOrdersCountDescAsync();
+            .GetAllProductsOrderedBySellingCountDescAsync();
 
         CatalogViewModel viewModel = new CatalogViewModel()
         {
@@ -105,7 +107,6 @@ public class ProductsController : BaseController
 
         Guid? userId = this.GetUserId();
 
-        
         ProductDetailsDto? productDetailsDto = await this._productsService
             .GetProductDetailsByIdAsync(id, userId);
         if(productDetailsDto == null)
@@ -275,6 +276,7 @@ public class ProductsController : BaseController
             {
                 Id = productEditFormModel.ProductId,
                 Name = productEditFormModel.ProductName,
+                IsEnabled = productEditFormModel.IsEnabled,
                 SellingPrice = productEditFormModel.SellingPrice,
                 CategoryId = productEditFormModel.CategoryId,
                 CostPrice = productEditFormModel.CostPrice,

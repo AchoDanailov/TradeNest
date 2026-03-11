@@ -6,9 +6,7 @@ public class OrderViewModel
     
     public decimal TotalPrice { get; set; }
     
-    public bool IsSubmitted { get; set; }
-    
-    public DateTime? SubmittedOn { get; set; } 
+    public DateTime SubmittedOn { get; set; } 
 
     public IEnumerable<OrderProductViewModel> OrderProducts { get; set; }
         = new HashSet<OrderProductViewModel>();

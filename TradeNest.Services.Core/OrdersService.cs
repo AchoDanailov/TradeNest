@@ -1,12 +1,12 @@
-using System.Linq.Expressions;
-
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.Services.Core.Interfaces;
+using TradeNest.GCommon.Enums;
 using TradeNest.GCommon.Exceptions;
-using TradeNest.Services.Models;
+using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models.Order;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
 namespace TradeNest.Services.Core;
@@ -42,186 +42,19 @@ public class OrdersService : IOrdersService
             {
                 Id = o.Id,
                 TotalPrice = o.TotalPrice,
-                IsSubmitted = o.IsSubmitted,
                 SubmittedOn = o.SubmittedOn,
                 OrderProducts = o.OrderProducts
                     .Select(op => new OrderProductDto()
                     {
-                        Id = op.Product.Id,
-                        Name = op.Product.Name,
-                        QuantityOrdered = op.ProductsQuantity,
-                        UnitPrice = op.Product.SellingPrice,
-                        TotalPrice = op.ProductsQuantity * op.Product.SellingPrice,
+                        Id = op.Id,
+                        Name = op.ProductNameAtOrderTime,
+                        QuantityOrdered = op.QuantityOrdered,
+                        UnitPriceAtOrderTime = op.UnitSellingPriceAtOrderTime,
+                        TotalPriceAtOrderTime = op.TotalProductPriceAtOrderTime,
                     })
                     .ToArray(),
             })
             .ToArrayAsync();
-    }
-
-    public async Task AddProductToOrderAsync(Guid userId, Guid productId, int prodQtyToAdd)
-    {
-        if (userId == Guid.Empty)
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
-        if(productId == Guid.Empty)
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
-        
-        if (prodQtyToAdd <= 0)
-        {
-            throw new ArgumentException(
-                string.Format(CantBeZeroOrNegativeNumberMessage, nameof(prodQtyToAdd)));
-        }
-
-        bool userExists = await this._repository
-            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
-        if (!userExists)
-            throw new ArgumentException(string.Format(NotFoundMessage, nameof(ApplicationUser), userId));
-
-        Product? product = await this._repository.FindByIdAsync<Product>(productId);
-        if (product == null)
-            throw new ResourceNotFoundException(nameof(Product), productId);
-
-        if (product.OwnerId == userId)
-        {
-            throw new InvalidOperationException(
-                string.Format(OwnerCantOrderProductHeOwnsMessage, userId, productId));
-        }
-        
-        Order? ongoingOrder = await this._repository.All<Order>()
-            .Include(o => o.OrderProducts)
-            .Where(o => o.UserId == userId)
-            .SingleOrDefaultAsync(o => !o.IsSubmitted);
-        if (ongoingOrder == null)
-            ongoingOrder = await this.CreateOngoingOrder(userId);
-
-        int userAlreadyAddedProdQty = 0;
-        if (ongoingOrder.OrderProducts.Any())
-        {
-            userAlreadyAddedProdQty = ongoingOrder
-                .OrderProducts
-                .SingleOrDefault(op => op.ProductId == productId)?.ProductsQuantity ?? 0;
-        }
-
-        if (!product.IsEnabled)
-            throw new OrderingDisabledProductException(productId, userId, ongoingOrder.Id);
-        
-        if (product.QuantityInStock < prodQtyToAdd + userAlreadyAddedProdQty)
-        {
-            throw new InsufficientProductQuantityInStockException(
-                userId: userId,
-                productId: productId,
-                productQtyInStock: product.QuantityInStock,
-                productQtyRequested: prodQtyToAdd + userAlreadyAddedProdQty);
-        }
-
-        ongoingOrder.TotalPrice += product.SellingPrice * prodQtyToAdd;
-
-        if (userAlreadyAddedProdQty > 0)
-        {
-            ongoingOrder.OrderProducts
-                .Single(op => op.ProductId == productId)
-                .ProductsQuantity += prodQtyToAdd;
-        }
-        else
-        {
-            OrderProduct orderProduct = new OrderProduct()
-            {
-                OrderId = ongoingOrder.Id,
-                ProductId = product.Id,
-                ProductsQuantity = prodQtyToAdd,
-            };
-
-            await this._repository.AddAsync<OrderProduct>(orderProduct);
-        }
-        
-        await this._repository.SaveChangesAsync();
-    }
-
-    public async Task<OrderDto?> GetUserOngoingOrderWithProductsAsync(Guid userId)
-    {
-        if (userId == Guid.Empty)
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
-        
-        bool userExists = await this._repository
-            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
-        if (!userExists)
-        {
-            throw new ArgumentException(string.Format(NotFoundMessage,
-                nameof(ApplicationUser), userId));
-        }
-        
-        return await this._repository.AllAsReadonly<Order>()
-            .Where(o => o.UserId == userId && !o.IsSubmitted)
-            .Select(o => new OrderDto()
-            {
-                Id = o.Id,
-                TotalPrice = o.TotalPrice,
-                IsSubmitted = o.IsSubmitted,
-                SubmittedOn = o.SubmittedOn,
-                OrderProducts = o.OrderProducts
-                    .Select(op => new OrderProductDto()
-                    {
-                        Id = op.Product.Id,
-                        Name = op.Product.Name,
-                        QuantityOrdered = op.ProductsQuantity,
-                        UnitPrice = op.Product.SellingPrice,
-                        TotalPrice = op.ProductsQuantity * op.Product.SellingPrice,
-                    })
-                    .ToArray(),
-            })
-            .SingleOrDefaultAsync();
-    }
-
-    public async Task RemoveProductFromOrderAsync(Guid userId, Guid productId, Guid orderId)
-    {
-        if (userId == Guid.Empty)
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
-        if(productId == Guid.Empty)
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
-        if(orderId == Guid.Empty)
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(orderId)));
-        
-        bool userExists = await this._repository
-            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
-        if (!userExists)
-        {
-            throw new ArgumentException(string.Format(NotFoundMessage,
-                nameof(ApplicationUser), userId));
-        }
-        
-        Product? product = await this._repository.FindByIdAsync<Product>(productId);
-        if (product == null)
-            throw new ResourceNotFoundException(nameof(Product), productId);
-
-        if (product.OwnerId == userId)
-        {
-            throw new InvalidOperationException(
-                string.Format(OwnerCantRemoveProductHeOwnsFromOrderMessage, userId, productId));
-        }
-
-        Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
-            userId,
-            orderId,
-            o => o.Id == orderId && !o.IsSubmitted,
-            includeProducts: true);
-
-        bool prodExistsInOngoingOrder = order.OrderProducts
-            .Any(op => op.ProductId == productId);
-        if (!prodExistsInOngoingOrder)
-        {
-            throw new InvalidOperationException(
-                $"Can not remove product with id {productId} from the user's order if it isn't already there.");
-        }
-
-        OrderProduct orderProductToRemove = order.OrderProducts
-            .Single(op => op.ProductId == productId);
-        
-        order.OrderProducts.Remove(orderProductToRemove);
-        order.TotalPrice -= orderProductToRemove.ProductsQuantity * product.SellingPrice;
-
-        if (!order.OrderProducts.Any())
-            this._repository.Remove<Order>(order);
-
-        await this._repository.SaveChangesAsync();
     }
 
     public async Task<bool> OrderExistsByIdAsync(Guid orderId)
@@ -233,155 +66,205 @@ public class OrdersService : IOrdersService
             .ExistsAsync<Order>(o => o.Id == orderId);
     }
 
-    public async Task CancelOrderAsync(Guid userId, Guid orderId)
-    {
-        if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
-        if(orderId == Guid.Empty)
-            throw new ArgumentException("OrderId can not be empty.", nameof(orderId));
-
-        Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
-            userId,
-            orderId,
-            o => o.Id == orderId,
-            includeProducts: false);
-
-        this._repository.Remove<Order>(order);
-        await this._repository.SaveChangesAsync();
-    }
-
-    public async Task SubmitOrderAsync(Guid userId, Guid orderId)
+    public async Task<SubmitOrderResultDto> SubmitOrderAsync(Guid userId)
     {
         if(userId == Guid.Empty )
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
-        if(orderId == Guid.Empty )
-            throw new ArgumentException("OrderId can not be empty", nameof(orderId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         
         bool userExists = await this._repository
             .ExistsAsync<ApplicationUser>(u => u.Id == userId);
         if (!userExists)
-            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
-
-        Order order = await this.GetOrderForModificationWithOrderProductsAttachedAsync(
-            userId,
-            orderId,
-            o => o.Id == orderId,
-            includeProducts: true);
-
-        foreach (OrderProduct orderProduct in order.OrderProducts)
         {
-            if (!orderProduct.Product.IsEnabled)
-            {
-                order.OrderProducts.Remove(orderProduct);
-                
-                throw new OrderingDisabledProductException(orderProduct.ProductId,
-                    userId, orderId);
-            }
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
+        }
+        
+        Cart? userCart = await this._repository.All<Cart>()
+            .Include(c => c.CartProducts)
+            .ThenInclude(cp => cp.Product)
+            .SingleOrDefaultAsync(c => c.CartOwnerId == userId);
+        if (userCart == null)
+            throw new ArgumentException(string.Format(EmptyCartMessage, userId));
+
+        try
+        {
+            ICollection<OrderProduct> orderProducts = new List<OrderProduct>();
+            ICollection<ErrorProductDto> errorProducts = new List<ErrorProductDto>();
             
-            if (orderProduct.Product.QuantityInStock < orderProduct.ProductsQuantity)
+            foreach (CartProduct cartProduct in userCart.CartProducts)
             {
-                order.OrderProducts.Remove(orderProduct);
+                bool productIsEnabled = cartProduct.Product.IsEnabled;
+                bool enoughQtyIsAvailable 
+                    = cartProduct.Product.QuantityInStock >= cartProduct.ProductQuantityAdded;
                 
-                throw new InsufficientProductQuantityInStockException(
-                    userId: userId,
-                    productId: orderProduct.ProductId,
-                    productQtyInStock: orderProduct.Product.QuantityInStock,
-                    productQtyRequested: orderProduct.ProductsQuantity);
+                if (!productIsEnabled || !enoughQtyIsAvailable)
+                {
+                    ErrorProductDto errorProductDto = new ErrorProductDto()
+                    {
+                        ProductId = cartProduct.ProductId,
+                        ProductName = cartProduct.Product.Name
+                    };
+
+                    if (!productIsEnabled)
+                    {
+                        errorProductDto.ProductErrorReasons
+                            .Add(ProductErrorReason.StatusChange);
+                    }
+
+                    if (!enoughQtyIsAvailable)
+                    {
+                        errorProductDto.ProductErrorReasons
+                            .Add(ProductErrorReason.QuantityChange);
+                    }
+                    
+                    errorProducts.Add(errorProductDto);
+                    continue;
+                }
+
+                cartProduct.Product.QuantityInStock -= cartProduct.ProductQuantityAdded;
+
+                orderProducts.Add(new OrderProduct()
+                {
+                    OriginalProductId = cartProduct.ProductId,
+                    ProductNameAtOrderTime = cartProduct.Product.Name,
+                    CostPriceAtOrderTime = cartProduct.Product.CostPrice,
+                    UnitSellingPriceAtOrderTime = cartProduct.Product.SellingPrice,
+                    QuantityOrdered = cartProduct.ProductQuantityAdded,
+                    TotalProductPriceAtOrderTime = cartProduct.Product.SellingPrice *
+                                                   cartProduct.ProductQuantityAdded,
+                });   
             }
 
-            orderProduct.Product.QuantityInStock -= orderProduct.ProductsQuantity;
+            if (errorProducts.Any())
+                return SubmitOrderResultDto.Failure(errorProducts: errorProducts);
+            
+            Order newOrder = new Order()
+            {
+                UserId = userId,
+                OrderProducts = orderProducts.ToHashSet(),
+                TotalPrice = orderProducts.Sum(op => op.UnitSellingPriceAtOrderTime),
+                SubmittedOn = DateTime.UtcNow
+            };
+            await this._repository.AddAsync(newOrder);
 
-            if (orderProduct.Product.QuantityInStock == 0)
-                orderProduct.Product.IsEnabled = false;
+            this._repository.Remove(userCart);
+            await this._repository.SaveChangesAsync();
+
+            return SubmitOrderResultDto.Success();
         }
+        catch (DbUpdateConcurrencyException concurrencyEx)
+        {
+            ICollection<ErrorProductDto> errorProducts = new List<ErrorProductDto>();
+            
+            IEnumerable<EntityEntry> originalEntitiesEntries = concurrencyEx.Entries;
+            foreach (EntityEntry originalEntityEntry in originalEntitiesEntries)
+            {
+                if (originalEntityEntry is EntityEntry<Product> originalProductEntry)
+                {
+                    PropertyValues? productEntityDbValues
+                        = await originalProductEntry.GetDatabaseValuesAsync();
+                    if (productEntityDbValues == null)
+                    {
+                        // entity is hard deleted
+                        errorProducts.Add(new ErrorProductDto()
+                        {
+                            ProductId = originalProductEntry.Entity.Id,
+                            ProductName = originalProductEntry.Entity.Name,
+                            ProductErrorReasons = new List<ProductErrorReason>()
+                            {
+                                ProductErrorReason.Deleted,
+                            }
+                        });
+                        
+                        continue;
+                    }
 
-        order.IsSubmitted = true;
-        order.SubmittedOn = DateTime.UtcNow;
-        order.TotalPrice = order.OrderProducts
-            .Sum(op => op.ProductsQuantity * op.Product.SellingPrice);
+                    ICollection<ProductErrorReason> errorReasons
+                        = this.FindRelevantValuesMissMatches(userId, originalProductEntry, productEntityDbValues);
+                    if (!errorReasons.Any())
+                    {
+                        // no relevant properties changed => set the db values;
+                        originalProductEntry.OriginalValues.SetValues(productEntityDbValues);
+                        continue;
+                    }
+                    
+                    errorProducts.Add(new ErrorProductDto()
+                    {
+                        ProductId = originalProductEntry.Entity.Id,
+                        ProductName = originalProductEntry.Entity.Name,
+                        ProductErrorReasons = errorReasons
+                    });
+                }
+            }
 
-        await this._repository.SaveChangesAsync();
+            if (errorProducts.Any())
+                return SubmitOrderResultDto.Failure(errorProducts);
+
+            await this._repository.SaveChangesAsync();
+            return SubmitOrderResultDto.Success();
+        }
     }
 
-    public async Task<bool> IsValidProductQtyToOrderAsync(Guid userId,
-        ProductQtyValidationDto model)
+    private ICollection<ProductErrorReason> FindRelevantValuesMissMatches(
+        Guid userId,
+        EntityEntry<Product> originalProductEntry,
+        PropertyValues productEntityDbValues)
     {
-        if (userId == Guid.Empty)
-            throw new ArgumentException("UserId can not be empty.", nameof(userId));
-        
-        if (model.Id == Guid.Empty)
+        ICollection<ProductErrorReason> errorReasons = new List<ProductErrorReason>();
+        foreach (PropertyEntry propertyEntry in originalProductEntry.Properties)
         {
-            throw new ArgumentException("Input model Id can not be empty",
-                nameof(model.Id));
+            string propertyName = propertyEntry.Metadata.Name;
+            object propDbValue = productEntityDbValues[propertyName]!;
+            object propOriginalValue = propertyEntry.OriginalValue!;
+            
+            if (IsNotRelevantCaseToHandle(propertyName, propDbValue,
+                    originalProductEntry, userId))
+            {
+                continue;
+            }
+                        
+            if (!propOriginalValue.Equals(propDbValue))
+            {
+                ProductErrorReason? errorReason = propertyName switch
+                {
+                    nameof(originalProductEntry.Entity.QuantityInStock) 
+                        => ProductErrorReason.QuantityChange,
+                    
+                    nameof(originalProductEntry.Entity.SellingPrice) 
+                        => ProductErrorReason.PriceChange,
+                    
+                    nameof(originalProductEntry.Entity.IsEnabled) 
+                        => ProductErrorReason.StatusChange,
+                    
+                    nameof(originalProductEntry.Entity.IsDeleted) 
+                        => ProductErrorReason.Deleted,
+                    
+                    _ => null,
+                };
+                errorReasons.Add(errorReason!.Value);
+            }
         }
         
-        bool userExists = await this._repository
-            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
-        if (!userExists)
-            throw new ArgumentException($"User with id: {userId} not found.", nameof(userId));
-
-        Product? prod = await this._repository.FindByIdAsync<Product>(model.Id);
-        if (prod == null)
-            throw new ResourceNotFoundException(nameof(Product), model.Id);
-
-        OrderProduct? prodAlreadyAddedToOrder = await this._repository.All<OrderProduct>()
-            .Include(op => op.Order)
-            .SingleOrDefaultAsync(op => op.Order.UserId == userId &&
-                                        !op.Order.IsSubmitted &&
-                                        op.ProductId == model.Id);
-        if (prodAlreadyAddedToOrder == null)
-            return model.Quantity > 0 && model.Quantity <= prod.QuantityInStock;
-
-        return model.Quantity > 0 &&
-               model.Quantity <= prod.QuantityInStock - prodAlreadyAddedToOrder.ProductsQuantity;
-    }
-
-    private async Task<Order> GetOrderForModificationWithOrderProductsAttachedAsync(
-        Guid userId, 
-        Guid orderId,
-        Expression<Func<Order, bool>> filterPredicate,
-        bool includeProducts = false)
-    {
-        IQueryable<Order> orderQuery = this._repository.All<Order>();
-        if (includeProducts)
-        {
-            orderQuery = orderQuery
-                .Include(o => o.OrderProducts)
-                .ThenInclude(o => o.Product);
-        }
-        else
-        {
-            orderQuery = orderQuery
-                .Include(o => o.OrderProducts);
-        }
-        Order? order = await orderQuery
-            .SingleOrDefaultAsync(filterPredicate);
+        return errorReasons;
         
-        if (order == null)
-            throw new ResourceNotFoundException(nameof(Order), orderId);
-
-        if (order.UserId != userId)
-            throw new UnauthorizedOperationException(userId, nameof(Order), orderId);
-
-        if (order.IsSubmitted)
+        bool IsNotRelevantCaseToHandle(string propertyName, object propDbValue,
+            EntityEntry<Product> originalProductEntry, Guid userId)
         {
-            throw new InvalidOperationException(
-                string.Format(OrderAlreadySubmittedMessage, orderId));
+            Product originalProductEntity = originalProductEntry.Entity;
+        
+            bool isSellingPriceProperty = propertyName == nameof(originalProductEntity.SellingPrice);
+            bool isStatusChangeProperty = propertyName == nameof(originalProductEntity.IsEnabled);
+            bool isSoftDeleteProperty = propertyName == nameof(originalProductEntity.IsDeleted);
+        
+            // The following expression describes case where the QuantityInStock property has changed value but there is still enough qty available to satisfy the cart product requested qty to order.
+            bool isQtyPropAndNewValueIsAboveCartProductRequestedQty 
+                = propertyName == nameof(originalProductEntity.QuantityInStock) &&
+                  originalProductEntity.ProductCarts.Single(cp => cp.Cart.CartOwnerId == userId)
+                      .ProductQuantityAdded <= (int)propDbValue;
+
+            return !isSellingPriceProperty && !isStatusChangeProperty &&
+                   !isSoftDeleteProperty && !isQtyPropAndNewValueIsAboveCartProductRequestedQty;
         }
-
-        return order;
     }
-
-    private async Task<Order> CreateOngoingOrder(Guid userId)
-    {
-        Order newOngoingOrder = new Order()
-        {
-            IsSubmitted = false,
-            TotalPrice = 0m,
-            UserId = userId
-        };
-
-        await this._repository.AddAsync<Order>(newOngoingOrder);
-        return newOngoingOrder;
-    }
+    
 }

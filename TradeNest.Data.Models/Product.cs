@@ -1,8 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static TradeNest.GCommon.EntityValidationConstants.Product;
-using static TradeNest.GCommon.EntityValidationConstants.CommonValidationConstants;
+
 using Microsoft.EntityFrameworkCore;
+
+using static TradeNest.GCommon.EntityValidationConstants.Product;
+using static TradeNest.Data.Common.EntityModelsConstants.CommonValidationConstants;
 
 namespace TradeNest.Data.Models;
 
@@ -48,6 +50,10 @@ public class Product
     [Comment("Value is used to show weather the product deleted.")]
     public bool IsDeleted { get; set; } = false;
 
+    [Required]
+    [Timestamp]
+    public byte[] RowVersion { get; set; } = null!;
+
     [ForeignKey(nameof(Owner))]
     [Comment("Foreign key referencing the product's owner primary key.")]
     public Guid OwnerId { get; set; }
@@ -58,13 +64,16 @@ public class Product
     [Comment("Foreign key referencing the product's category primary key.")]
     public Guid CategoryId { get; set; }
     public Category Category { get; set; } = null!;
-    
-    public virtual ICollection<OrderProduct> ProductsOrders { get; set; }
-        = new List<OrderProduct>();
 
     public virtual ICollection<Image> Images { get; set; }
         = new HashSet<Image>();
 
-    public virtual ICollection<UsersWishlistProduct> ProductsWishlists { get; set; }
-        = new List<UsersWishlistProduct>();
+    public virtual ICollection<OrderProduct> SoldProducts { get; set; }
+        = new List<OrderProduct>();
+    
+    public virtual ICollection<CartProduct> ProductCarts { get; set; }
+        = new List<CartProduct>();
+
+    public virtual ICollection<UserWatchlistProduct> ProductWatchlists { get; set; }
+        = new List<UserWatchlistProduct>();
 }

@@ -1,5 +1,6 @@
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Models;
+using TradeNest.Services.Models.Product;
 
 namespace TradeNest.Services.Core.Interfaces;
 
@@ -35,7 +36,7 @@ public interface IProductsService
     /// Retrieves all products ordered by number of orders (highest first).
     /// </summary>
     /// <returns>A task that returns the collection of products ordered by popularity.</returns>
-    Task<IEnumerable<ProductDto>> GetAllProductsOrderedByOrdersCountDescAsync();
+    Task<IEnumerable<ProductDto>> GetAllProductsOrderedBySellingCountDescAsync();
 
     /// <summary>
     /// Determines whether a product with the specified identifier exists.

@@ -1,4 +1,5 @@
 using TradeNest.Services.Models;
+using TradeNest.Services.Models.Category;
 
 namespace TradeNest.Services.Core.Interfaces;
 

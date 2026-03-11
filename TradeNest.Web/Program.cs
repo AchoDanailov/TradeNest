@@ -16,8 +16,7 @@ public class Program
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         string? connectionString = builder.Configuration["TradeNest:ConnectionString"] 
-                                   ?? builder.Configuration
-                                       .GetConnectionString("DefaultConnection") 
+                                   ?? builder.Configuration.GetConnectionString("DefaultConnection") 
                                    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         builder.Services.AddDbContext<TradeNestDbContext>(options =>
@@ -35,6 +34,7 @@ public class Program
         builder.Services.AddScoped<IProductsService, ProductsService>();
         builder.Services.AddScoped<ICategoriesService, CategoriesService>();
         builder.Services.AddScoped<IOrdersService, OrdersService>();
+        builder.Services.AddScoped<ICartsService, CartsService>();
 
         WebApplication app = builder.Build();
 

@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using TradeNest.Data.Models;
+using static TradeNest.Data.Common.EntityModelsConstants.Order;
 
 namespace TradeNest.Data.Configurations;
 
@@ -12,5 +14,8 @@ public class OrderConfiguration : IEntityTypeConfiguration<Order>
             .WithMany(u => u.Orders)
             .HasForeignKey(o => o.UserId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Property(o => o.SubmittedOn)
+            .HasDefaultValueSql(DefaultValueForIsSubmittedOnColumn);
     }
 }

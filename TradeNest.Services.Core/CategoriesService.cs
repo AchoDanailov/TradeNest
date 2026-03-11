@@ -4,6 +4,7 @@ using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Models;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models.Category;
 
 namespace TradeNest.Services.Core;
 
@@ -48,14 +49,14 @@ public class CategoriesService : ICategoriesService
                 CategoryName = c.Name,
                 BestSellerImageUrl = c.Products.Any() 
                     ? c.Products
-                        .OrderByDescending(p => p.ProductsOrders
-                            .Sum(po => po.ProductsQuantity))
+                        .OrderByDescending(p => p.SoldProducts
+                            .Sum(sp => sp.QuantityOrdered))
                         .ThenByDescending(p => p.CreatedOn)
                         .First()
                         .Images.Any()
                         ? c.Products
-                            .OrderByDescending(p => p.ProductsOrders
-                                .Sum(po => po.ProductsQuantity))
+                            .OrderByDescending(p => p.SoldProducts
+                                .Sum(sp => sp.QuantityOrdered))
                             .ThenByDescending(p => p.CreatedOn)
                             .First()
                             .Images.Single(i => i.IsFrontImage).Url

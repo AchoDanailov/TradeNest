@@ -220,40 +220,95 @@ namespace TradeNest.Data.Migrations
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
-                    b.ToTable("AspNetUsers", (string)null);
+                    b.ToTable("AspNetUsers", null, t =>
+                        {
+                            t.HasComment("Holds User data.");
+                        });
 
                     b.HasData(
                         new
                         {
                             Id = new Guid("d05a8fe7-cf0a-4895-89aa-9068c334ec1b"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "58102b47-763f-448a-b41e-173bf08f4073",
-                            Email = "Har1b0@gmail.com",
+                            ConcurrencyStamp = "793361c8-6fb9-4f24-b9d9-a2026b65e404",
+                            Email = "User1@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            NormalizedEmail = "HAR1B0@GMAIL.COM",
-                            NormalizedUserName = "HAR1B0@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEO4yROVxIYVqgJRDBxKkP+O37lqke6o25RZgfc903d1xXWlcf7t36pp58oZgeNSgaQ==",
+                            NormalizedEmail = "USER1@GMAIL.COM",
+                            NormalizedUserName = "USER1",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEx+YuzqgSVINQhuAhYoRTM1S5pqJPtB0+Aom9H/FtdRdHhei2HxBrgpWkOcJBJqkg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "a1123666-d774-41fe-ab80-fd5b080c13d0",
+                            SecurityStamp = "a23d8472-0591-47d3-91ab-f6afcb3ee7fc",
                             TwoFactorEnabled = false,
-                            UserName = "Har1b0@gmail.com"
+                            UserName = "User1"
                         },
                         new
                         {
                             Id = new Guid("a8e18a83-adfb-4116-9e35-3be16446f9b8"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "54d7e393-0863-4ca1-84f8-2b7fbeb51697",
-                            Email = "M1rk0@gmail.com",
+                            ConcurrencyStamp = "a210468d-afe9-41df-8dc8-a8e5d798f944",
+                            Email = "User2@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
-                            NormalizedEmail = "M1RK0@GMAIL.COM",
-                            NormalizedUserName = "M1RK0@GMAIL.COM",
-                            PasswordHash = "AQAAAAIAAYagAAAAEMqOBlju2jqS2kb3jOKLWE8rBrDkozssb6fMyG5s3eUKLvSLCQ0Hw492wJkOgcF8Nw==",
+                            NormalizedEmail = "USER2@GMAIL.COM",
+                            NormalizedUserName = "USER2",
+                            PasswordHash = "AQAAAAIAAYagAAAAEDrJGKPOW1QrGI2LkJ6V1it4vpnjKR0rCQNTnjbwfuT6ST7EF8/JRCg93RCBd0BffA==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "02923b0c-63dc-469f-9b18-e44011108257",
+                            SecurityStamp = "12fdb501-2dea-4628-960e-a795725799e4",
                             TwoFactorEnabled = false,
-                            UserName = "M1rk0@gmail.com"
+                            UserName = "User2"
+                        });
+                });
+
+            modelBuilder.Entity("TradeNest.Data.Models.Cart", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("Cart's primary key.");
+
+                    b.Property<Guid>("CartOwnerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("One to one relation with User. Dependant.");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CartOwnerId")
+                        .IsUnique();
+
+                    b.ToTable("Carts", t =>
+                        {
+                            t.HasComment("Holds Cart data.");
+                        });
+                });
+
+            modelBuilder.Entity("TradeNest.Data.Models.CartProduct", b =>
+                {
+                    b.Property<Guid>("ProductId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("Foreign key referencing the product's primary key.");
+
+                    b.Property<Guid>("CartId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("Foreign key referencing the cart's primary key.");
+
+                    b.Property<DateTime>("AddedOn")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("datetime2")
+                        .HasComputedColumnSql("GETUTCDATE()")
+                        .HasComment("The date and time that the product was added to the cart.");
+
+                    b.Property<int>("ProductQuantityAdded")
+                        .HasColumnType("int")
+                        .HasComment("The value describes how much quantity of the given product is added in the given Cart.");
+
+                    b.HasKey("ProductId", "CartId");
+
+                    b.HasIndex("CartId");
+
+                    b.ToTable("CartsProducts", t =>
+                        {
+                            t.HasComment("Mapping entity between Cart and Products - represents product added to cart.");
                         });
                 });
 
@@ -272,7 +327,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", null, t =>
+                    b.ToTable("Categories", t =>
                         {
                             t.HasComment("Holds category data.");
                         });
@@ -330,7 +385,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Images", null, t =>
+                    b.ToTable("Images", t =>
                         {
                             t.HasComment("Holds Image data.");
                         });
@@ -436,12 +491,10 @@ namespace TradeNest.Data.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Order's primary key.");
 
-                    b.Property<bool>("IsSubmitted")
-                        .HasColumnType("bit")
-                        .HasComment("Value that represents weather the order is submitted or not.");
-
-                    b.Property<DateTime?>("SubmittedOn")
+                    b.Property<DateTime>("SubmittedOn")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETUTCDATE()")
                         .HasComment("The date and time at which the order has been submitted.");
 
                     b.Property<decimal>("TotalPrice")
@@ -450,13 +503,13 @@ namespace TradeNest.Data.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier")
-                        .HasComment("Foreign key referencing the user making the order.");
+                        .HasComment("Foreign key referencing the user that has made the order.");
 
                     b.HasKey("Id");
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", null, t =>
+                    b.ToTable("Orders", t =>
                         {
                             t.HasComment("Holds order's data.");
                         });
@@ -464,25 +517,52 @@ namespace TradeNest.Data.Migrations
 
             modelBuilder.Entity("TradeNest.Data.Models.OrderProduct", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasComment("OrderProduct primary key.");
+
+                    b.Property<decimal?>("CostPriceAtOrderTime")
+                        .HasColumnType("DECIMAL(10, 2)")
+                        .HasComment("Represents the cost price of the product at the moment the order is submitted.");
+
                     b.Property<Guid>("OrderId")
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Foreign key referencing the Order's primary key.");
 
-                    b.Property<Guid>("ProductId")
+                    b.Property<Guid>("OriginalProductId")
                         .HasColumnType("uniqueidentifier")
-                        .HasComment("Foreign key referencing the Product's primary key.");
+                        .HasComment("Foreign key referencing the original product primary key.");
 
-                    b.Property<int>("ProductsQuantity")
+                    b.Property<string>("ProductNameAtOrderTime")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)")
+                        .HasComment("The product name at the time that the order is submitted.");
+
+                    b.Property<int>("QuantityOrdered")
                         .HasColumnType("int")
-                        .HasComment("The value describes how much quantity of the given product is added in the given order.");
+                        .HasComment("Represents the quantity of the product that was ordered.");
 
-                    b.HasKey("OrderId", "ProductId");
+                    b.Property<decimal>("TotalProductPriceAtOrderTime")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("DECIMAL(10, 2)")
+                        .HasComputedColumnSql("[UnitSellingPriceAtOrderTime] * [QuantityOrdered]", true)
+                        .HasComment("Computed and stored in a column from QuantityOrdered * UnitSellingPriceAtOrderTime.");
 
-                    b.HasIndex("ProductId");
+                    b.Property<decimal>("UnitSellingPriceAtOrderTime")
+                        .HasColumnType("DECIMAL(10, 2)")
+                        .HasComment("Represents the selling price of a unit of the product at the moment the order is submitted.");
 
-                    b.ToTable("OrdersProducts", null, t =>
+                    b.HasKey("Id");
+
+                    b.HasIndex("OrderId");
+
+                    b.HasIndex("OriginalProductId");
+
+                    b.ToTable("OrdersProducts", t =>
                         {
-                            t.HasComment("Mapping entity between Orders and Products.");
+                            t.HasComment("Represents the product state at the moment of the order being submitted.");
                         });
                 });
 
@@ -537,6 +617,12 @@ namespace TradeNest.Data.Migrations
                         .HasColumnType("int")
                         .HasComment("The quantity of the product that is available in stock.");
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
                     b.Property<decimal>("SellingPrice")
                         .HasColumnType("DECIMAL(10, 2)")
                         .HasComment("The price the product is being sold at.");
@@ -547,7 +633,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Products", null, t =>
+                    b.ToTable("Products", t =>
                         {
                             t.HasComment("Holds product's data.");
                         });
@@ -558,7 +644,7 @@ namespace TradeNest.Data.Migrations
                             Id = new Guid("a1b2c3d4-e5f6-7890-1111-222233334444"),
                             CategoryId = new Guid("c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30"),
                             CostPrice = 45.00m,
-                            CreatedOn = new DateTime(2025, 12, 22, 18, 24, 38, 662, DateTimeKind.Utc).AddTicks(8426),
+                            CreatedOn = new DateTime(2026, 3, 11, 6, 38, 57, 436, DateTimeKind.Utc).AddTicks(9577),
                             Description = "High-fidelity audio with noise-cancelling features and comfortable earcups for extended listening sessions. Up to 20 hours of battery life.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -572,7 +658,7 @@ namespace TradeNest.Data.Migrations
                             Id = new Guid("b2c3d4e5-f6a7-8901-2222-333344445555"),
                             CategoryId = new Guid("c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30"),
                             CostPrice = 300.00m,
-                            CreatedOn = new DateTime(2025, 11, 22, 18, 24, 38, 662, DateTimeKind.Utc).AddTicks(8514),
+                            CreatedOn = new DateTime(2026, 3, 11, 6, 38, 57, 436, DateTimeKind.Utc).AddTicks(9592),
                             Description = "4K Ultra HD Smart TV with vibrant colors and intelligent processing Built-in streaming apps for endless entertainment. Includes a voice remote.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -586,7 +672,7 @@ namespace TradeNest.Data.Migrations
                             Id = new Guid("d4e5f6a7-b8c9-0123-4444-555566667777"),
                             CategoryId = new Guid("a1b2c3d4-e5f6-7890-1234-567890abcdef"),
                             CostPrice = 12.00m,
-                            CreatedOn = new DateTime(2026, 1, 6, 18, 24, 38, 662, DateTimeKind.Utc).AddTicks(8519),
+                            CreatedOn = new DateTime(2026, 3, 11, 6, 38, 57, 436, DateTimeKind.Utc).AddTicks(9596),
                             Description = "A comprehensive guide for beginners to learn C# programming language covering basics to advanced topics with practical examples and exercises.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -600,7 +686,7 @@ namespace TradeNest.Data.Migrations
                             Id = new Guid("e5f6a7b8-c9d0-1234-5555-666677778888"),
                             CategoryId = new Guid("f0e9d8c7-b6a5-4321-fedc-ba9876543210"),
                             CostPrice = 80.00m,
-                            CreatedOn = new DateTime(2025, 12, 7, 18, 24, 38, 662, DateTimeKind.Utc).AddTicks(8523),
+                            CreatedOn = new DateTime(2025, 12, 26, 6, 38, 57, 436, DateTimeKind.Utc).AddTicks(9599),
                             Description = "Designed for maximum comfort and support during long working hours. Features adjustable lumbar support, armrests, and headrest.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -614,7 +700,7 @@ namespace TradeNest.Data.Migrations
                             Id = new Guid("f6a7b8c9-d0e1-2345-6666-777788889999"),
                             CategoryId = new Guid("f0e9d8c7-b6a5-4321-fedc-ba9876543210"),
                             CostPrice = 15.00m,
-                            CreatedOn = new DateTime(2026, 1, 31, 18, 24, 38, 662, DateTimeKind.Utc).AddTicks(8526),
+                            CreatedOn = new DateTime(2026, 2, 19, 6, 38, 57, 436, DateTimeKind.Utc).AddTicks(9606),
                             Description = "A beautiful collection of five low-maintenance succulent plants, perfect for decorating your home or office space. Comes with decorative pots.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -625,23 +711,23 @@ namespace TradeNest.Data.Migrations
                         });
                 });
 
-            modelBuilder.Entity("TradeNest.Data.Models.UsersWishlistProduct", b =>
+            modelBuilder.Entity("TradeNest.Data.Models.UserWatchlistProduct", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier")
-                        .HasComment("Foreign key referencing the wishlist's owner primary key.");
+                        .HasComment("Foreign key referencing the watchlist's owner primary key.");
 
                     b.Property<Guid>("ProductId")
                         .HasColumnType("uniqueidentifier")
-                        .HasComment("Foreign key referencing the wishlist's product primary key.");
+                        .HasComment("Foreign key referencing the watchlist's product primary key.");
 
                     b.HasKey("UserId", "ProductId");
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("UsersWishlistProducts", null, t =>
+                    b.ToTable("UsersWatchlistsProducts", t =>
                         {
-                            t.HasComment("Mapping entity representing a product in a user's wishlist.");
+                            t.HasComment("Mapping entity representing a product in a user's watchlist.");
                         });
                 });
 
@@ -696,6 +782,36 @@ namespace TradeNest.Data.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TradeNest.Data.Models.Cart", b =>
+                {
+                    b.HasOne("TradeNest.Data.Models.ApplicationUser", "CartOwner")
+                        .WithOne("Cart")
+                        .HasForeignKey("TradeNest.Data.Models.Cart", "CartOwnerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CartOwner");
+                });
+
+            modelBuilder.Entity("TradeNest.Data.Models.CartProduct", b =>
+                {
+                    b.HasOne("TradeNest.Data.Models.Cart", "Cart")
+                        .WithMany("CartProducts")
+                        .HasForeignKey("CartId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TradeNest.Data.Models.Product", "Product")
+                        .WithMany("ProductCarts")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cart");
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("TradeNest.Data.Models.Image", b =>
                 {
                     b.HasOne("TradeNest.Data.Models.Product", "Product")
@@ -726,15 +842,15 @@ namespace TradeNest.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TradeNest.Data.Models.Product", "Product")
-                        .WithMany("ProductsOrders")
-                        .HasForeignKey("ProductId")
+                    b.HasOne("TradeNest.Data.Models.Product", "OriginalProduct")
+                        .WithMany("SoldProducts")
+                        .HasForeignKey("OriginalProductId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("Order");
 
-                    b.Navigation("Product");
+                    b.Navigation("OriginalProduct");
                 });
 
             modelBuilder.Entity("TradeNest.Data.Models.Product", b =>
@@ -756,16 +872,16 @@ namespace TradeNest.Data.Migrations
                     b.Navigation("Owner");
                 });
 
-            modelBuilder.Entity("TradeNest.Data.Models.UsersWishlistProduct", b =>
+            modelBuilder.Entity("TradeNest.Data.Models.UserWatchlistProduct", b =>
                 {
                     b.HasOne("TradeNest.Data.Models.Product", "Product")
-                        .WithMany("ProductsWishlists")
+                        .WithMany("ProductWatchlists")
                         .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("TradeNest.Data.Models.ApplicationUser", "User")
-                        .WithMany("WishlistProducts")
+                        .WithMany("WatchlistProducts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -777,11 +893,18 @@ namespace TradeNest.Data.Migrations
 
             modelBuilder.Entity("TradeNest.Data.Models.ApplicationUser", b =>
                 {
+                    b.Navigation("Cart");
+
                     b.Navigation("Orders");
 
                     b.Navigation("Products");
 
-                    b.Navigation("WishlistProducts");
+                    b.Navigation("WatchlistProducts");
+                });
+
+            modelBuilder.Entity("TradeNest.Data.Models.Cart", b =>
+                {
+                    b.Navigation("CartProducts");
                 });
 
             modelBuilder.Entity("TradeNest.Data.Models.Category", b =>
@@ -798,9 +921,11 @@ namespace TradeNest.Data.Migrations
                 {
                     b.Navigation("Images");
 
-                    b.Navigation("ProductsOrders");
+                    b.Navigation("ProductCarts");
 
-                    b.Navigation("ProductsWishlists");
+                    b.Navigation("ProductWatchlists");
+
+                    b.Navigation("SoldProducts");
                 });
 #pragma warning restore 612, 618
         }

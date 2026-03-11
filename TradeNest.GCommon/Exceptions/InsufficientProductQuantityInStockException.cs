@@ -1,7 +1,7 @@
 namespace TradeNest.GCommon.Exceptions;
 
 /// <summary>
-/// The exception that is thrown when a user attempt to either add product to his order or
+/// The exception that is thrown when a user attempt to either add product to his cart or
 /// submit an order with quantity more than the quantity in stock of the given product.
 /// </summary>
 public class InsufficientProductQuantityInStockException : InvalidOperationException
@@ -15,8 +15,9 @@ public class InsufficientProductQuantityInStockException : InvalidOperationExcep
     public int ProductQtyRequested { get; }
 
     public InsufficientProductQuantityInStockException(Guid userId, Guid productId,
-        int productQtyInStock, int productQtyRequested)
-        : base(string.Format(DefaultMessage, userId, productId, productQtyInStock, productQtyRequested))
+        int productQtyInStock, int productQtyRequested, Exception? innerException = null)
+        : base(string.Format(DefaultMessage,
+            userId, productId, productQtyInStock, productQtyRequested), innerException)
     {
         this.UserId = userId;
         this.ProductId = productId;

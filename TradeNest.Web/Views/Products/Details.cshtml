@@ -132,14 +132,11 @@
                     }
                     else
                     {
-                        <form method="post" asp-controller="Orders" asp-action="AddProduct"
+                        <form method="post" asp-controller="Cart" asp-action="AddToCart"
                               asp-route-id="@Model.Id" id="add-to-order-form">
 
                         <input type="hidden" name="id" value="@Model.Id" />
                             
-                            <input type="hidden" name="returnUrl"
-                                   value="@Url.Action("Details", "Products", new { id = this.Model.Id })" />
-
                             <input type="number" name="quantity" id="quantityInput"
                                    class="form-control-sm" value="1" aria-label="Quantity" />
 

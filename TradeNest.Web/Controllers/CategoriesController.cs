@@ -2,8 +2,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using TradeNest.Services.Core.Interfaces;
-using TradeNest.Services.Models;
 using TradeNest.GCommon;
+using TradeNest.Services.Models.Category;
 using TradeNest.Web.ViewModels.Category;
 
 namespace TradeNest.Web.Controllers;

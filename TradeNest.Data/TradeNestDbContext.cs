@@ -1,9 +1,9 @@
-using TradeNest.Data.Models;
-using static TradeNest.Data.Utilities.DbContextOptimizationHelper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+
+using TradeNest.Data.Models;
 
 namespace TradeNest.Data;
 
@@ -16,11 +16,13 @@ public class TradeNestDbContext
     }
 
     public virtual DbSet<Product> Products { get; set; } = null!;
+    public virtual DbSet<Category> Categories { get; set; } = null!;
     public virtual DbSet<Image> Images { get; set; } = null!;
     public virtual DbSet<Order> Orders { get; set; } = null!;
     public virtual DbSet<OrderProduct> OrdersProducts { get; set; } = null!;
-    public virtual DbSet<UsersWishlistProduct> UsersWishlistProducts { get; set; } = null!;
-    public virtual DbSet<Category> Categories { get; set; } = null!;
+    public virtual DbSet<Cart> Carts { get; set; } = null!;
+    public virtual DbSet<CartProduct> CartsProducts { get; set; } = null!;
+    public virtual DbSet<UserWatchlistProduct> UsersWatchlistsProducts { get; set; } = null!;
     
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -37,5 +39,38 @@ public class TradeNestDbContext
     {
         base.OnModelCreating(builder);
         builder.ApplyConfigurationsFromAssembly(this.GetType().Assembly);
+    }
+    
+    private static void UpdateProductIsEnabledPropertyAsRequired(
+        IEnumerable<EntityEntry<Product>> productsToModifyIsEnabledProperty)
+    {
+        foreach (EntityEntry<Product> productEntityEntry in productsToModifyIsEnabledProperty)
+        {
+            if (StockQuantityIsChangedTo0(productEntityEntry))
+                productEntityEntry.Property(p => p.IsEnabled).CurrentValue = false;
+            else
+                productEntityEntry.Property(p => p.IsEnabled).CurrentValue = true;
+        }
+    }
+    
+    private static bool IsEnabledStatusShouldBeChanged(
+        EntityEntry<Product> trackedProductEntityEntry)
+    {
+        PropertyEntry<Product, int> stockQuantityPropertyEntry 
+            = trackedProductEntityEntry.Property(p => p.QuantityInStock);
+        bool isStockQuantityModified = stockQuantityPropertyEntry.IsModified;
+        
+        return (isStockQuantityModified && stockQuantityPropertyEntry.CurrentValue == 0) ||
+               (isStockQuantityModified && stockQuantityPropertyEntry is { OriginalValue: 0, CurrentValue: > 0 });
+    }
+
+    private static bool StockQuantityIsChangedTo0(
+        EntityEntry<Product> trackedProductEntityEntry)
+    {
+        PropertyEntry<Product, int> stockQuantityPropertyEntry 
+            = trackedProductEntityEntry.Property(p => p.QuantityInStock);
+        bool isStockQuantityModified = stockQuantityPropertyEntry.IsModified;
+
+        return isStockQuantityModified && stockQuantityPropertyEntry.CurrentValue == 0;
     }
 }

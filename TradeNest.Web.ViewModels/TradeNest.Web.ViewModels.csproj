@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\TradeNest.Data.Common\TradeNest.Data.Common.csproj" />
     <ProjectReference Include="..\TradeNest.GCommon\TradeNest.GCommon.csproj" />
   </ItemGroup>
 

@@ -30,28 +30,25 @@ public static class EntityValidationConstants
         public const byte NewImagesUrlsMinLengthValue = 1;
         public const short NewImagesUrlsMaxLengthValue 
             = CommonValidationConstants.UrlMaxLengthValue * 10;
-
-        public const string DefaultValueForCreatedOnColumn = "GETUTCDATE()";
-
-        public const bool DefaultValueForIsEnabledColumn = true;
     }
 
     public static class User
     {
         public const byte UserNameMinLengthValue = 3;
-        public const byte UserNameMaxLengthValue = 40;
+        public const byte UserNameMaxLengthValue = 255;
         
         public const byte EmailMinLengthValue = 5; 
         public const byte EmailMaxLengthValue = 255;
 
-        public const byte PasswordMinLengthValue = 6;
+        public const byte PasswordMinLengthValue = 5;
         public const byte PasswordMaxLengthValue = 100;
+
+        public const byte UserNameOrEmailMaxLengthValue = 255;
+        public const byte UserNameOrEmailMinLengthValue = 5;
     }
 
     public static class CommonValidationConstants
     {
-        public const string PriceColumnDataType = "DECIMAL(10, 2)";
-        
         public const byte UrlMinLengthValue = 1;
         public const short UrlMaxLengthValue = 2048;
     }

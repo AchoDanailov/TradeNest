@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data.Models;
@@ -6,7 +5,8 @@ using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
-using TradeNest.Services.Models;
+using TradeNest.Services.Models.Image;
+using TradeNest.Services.Models.Product;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
 namespace TradeNest.Services.Core;
@@ -83,13 +83,12 @@ public class ProductsService : IProductsService
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedByOrdersCountDescAsync()
+    public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedBySellingCountDescAsync()
     {
         return await this._repository.All<Product>()
-            .Include(p => p.ProductsOrders)
             .AsNoTracking()
-            .OrderByDescending(p => p.ProductsOrders
-                .Sum(po => po.ProductsQuantity))
+            .OrderByDescending(p => p.SoldProducts
+                .Sum(sp => sp.QuantityOrdered))
             .ThenByDescending(p => p.CreatedOn)
             .Select(p => new ProductDto()
             {

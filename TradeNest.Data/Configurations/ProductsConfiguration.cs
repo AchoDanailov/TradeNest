@@ -1,7 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
 using TradeNest.Data.Models;
-using static TradeNest.GCommon.EntityValidationConstants.Product;
+using static TradeNest.Data.Common.EntityModelsConstants.Product;
 
 namespace TradeNest.Data.Configurations;
 
@@ -29,11 +30,12 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
 
         builder.HasData(this.SeedProducts());
     }
-
+    
     private IEnumerable<Product> SeedProducts()
     {
-        Guid hariboApplicationUserId = Guid.Parse("d05a8fe7-cf0a-4895-89aa-9068c334ec1b");
-        Guid mirkoApplicationUserId = Guid.Parse("a8e18a83-adfb-4116-9e35-3be16446f9b8");
+        Guid user1Id = Guid.Parse("d05a8fe7-cf0a-4895-89aa-9068c334ec1b");
+        Guid user2Id = Guid.Parse("a8e18a83-adfb-4116-9e35-3be16446f9b8");
+        
         Guid electronicsCategoryId = Guid.Parse("c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30");
         Guid booksCategoryId = Guid.Parse("a1b2c3d4-e5f6-7890-1234-567890abcdef");
         Guid homeGardenCategoryId = Guid.Parse("f0e9d8c7-b6a5-4321-fedc-ba9876543210");
@@ -48,10 +50,10 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
                 QuantityInStock = 10,
                 CostPrice = 45.00m,
                 SellingPrice = 99.99m,
-                CreatedOn = DateTime.UtcNow.AddDays(-60),
+                CreatedOn = DateTime.UtcNow,
                 IsEnabled = true,
                 IsDeleted = false,
-                OwnerId = hariboApplicationUserId, 
+                OwnerId = user1Id,
                 CategoryId = electronicsCategoryId
             },
             new Product
@@ -62,10 +64,10 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
                 QuantityInStock = 5,
                 CostPrice = 300.00m,
                 SellingPrice = 599.00m,
-                CreatedOn = DateTime.UtcNow.AddDays(-90),
+                CreatedOn = DateTime.UtcNow,
                 IsEnabled = true,
                 IsDeleted = false,
-                OwnerId = hariboApplicationUserId,
+                OwnerId = user1Id,
                 CategoryId = electronicsCategoryId
             },
             new Product
@@ -76,10 +78,10 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
                 QuantityInStock = 20,
                 CostPrice = 12.00m,
                 SellingPrice = 24.99m,
-                CreatedOn = DateTime.UtcNow.AddDays(-45),
+                CreatedOn = DateTime.UtcNow,
                 IsEnabled = true,
                 IsDeleted = false,
-                OwnerId = mirkoApplicationUserId,
+                OwnerId = user2Id,
                 CategoryId = booksCategoryId
             },
             new Product
@@ -93,7 +95,7 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
                 CreatedOn = DateTime.UtcNow.AddDays(-75),
                 IsEnabled = true,
                 IsDeleted = false,
-                OwnerId = mirkoApplicationUserId,
+                OwnerId = user2Id,
                 CategoryId = homeGardenCategoryId
             },
             new Product
@@ -107,11 +109,11 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
                 CreatedOn = DateTime.UtcNow.AddDays(-20),
                 IsEnabled = true,
                 IsDeleted = false,
-                OwnerId = mirkoApplicationUserId,
+                OwnerId = user2Id,
                 CategoryId = homeGardenCategoryId
             }
         };
 
         return productsToSeed;
-    }
+    }       
 }

@@ -15,8 +15,8 @@ internal static class StatusNotificationMessages
     internal const string ProductDeletionSuccessMessage 
         = "The product was successfully deleted.";
 
-    internal const string OrderModificationUnexpectedErrorMessage
-        = "Oops. Something went wrong with the last attempt to modify your order. Please try again in a moment.";
+    internal const string CartModificationErrorMessage
+        = "Oops. Something went wrong with the last attempt to modify your orders. Please try again in a moment.";
 
     internal const string OrderSubmittionSuccessMessage
         = "Your order was successfully submitted.";
