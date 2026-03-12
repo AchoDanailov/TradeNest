@@ -119,14 +119,19 @@
                         <input id="quantityInput" class="form-control-sm" type="number"
                                value="0" aria-label="Quantity" disabled />
 
-                        <p class="text-navy text-muted mt-2">
-                            @Model.QuantityInStock available
-                        </p>
-
                         @if (!this.Model.IsOwner)
                         {
+                            <p class="text-navy text-muted mt-2">
+                                0 available
+                            </p>
                             <p class="rounded-pill bg-secondary p-2 text-light">
                                 Sorry, can’t order right now
+                            </p>
+                        }
+                        else
+                        {
+                            <p class="text-navy text-muted mt-2">
+                                @Model.QuantityInStock available
                             </p>
                         }
                     }
