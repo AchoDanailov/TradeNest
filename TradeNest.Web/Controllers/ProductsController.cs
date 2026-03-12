@@ -5,7 +5,6 @@ using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
 using TradeNest.Services.Models.Image;
 using TradeNest.Services.Models.Product;
-using TradeNest.Web.Utilities.Exceptions;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
 using TradeNest.Web.ViewModels.Product;
@@ -105,7 +104,7 @@ public class ProductsController : BaseController
         if (id == Guid.Empty)
             return BadRequest();
 
-        Guid? userId = this.GetUserId();
+        Guid userId = this.GetUserId(throwIfNull: false);
 
         ProductDetailsDto? productDetailsDto = await this._productsService
             .GetProductDetailsByIdAsync(id, userId);
@@ -164,12 +163,7 @@ public class ProductsController : BaseController
 
         try
         {
-            Guid? userId = this.GetUserId();
-            if (userId == null || userId.Value == Guid.Empty)
-            {
-                throw new UserIdMissingException(this.GetType().Name,
-                    ControllerContext.ActionDescriptor.ActionName);
-            }
+            Guid userId = this.GetUserId(throwIfNull: true);
 
             ProductCreateDto productCreateDto = new ProductCreateDto()
             {
@@ -185,7 +179,7 @@ public class ProductsController : BaseController
             };
 
             Guid productId = await this._productsService
-                .CreateProductAsync(userId.Value, productCreateDto);
+                .CreateProductAsync(userId, productCreateDto);
 
             return RedirectToAction(nameof(Details), new { id = productId });
         }
@@ -206,15 +200,10 @@ public class ProductsController : BaseController
         if (id == Guid.Empty)
             return BadRequest();
 
-        Guid? userId = this.GetUserId();
-        if (userId == null || userId.Value == Guid.Empty)
-        {
-            throw new UserIdMissingException(this.GetType().Name,
-                ControllerContext.ActionDescriptor.ActionName);
-        }
+        Guid userId = this.GetUserId(throwIfNull: true);
                 
         ProductEditDto? model = await this._productsService
-            .GetProductForEditAsync(userId.Value, id);
+            .GetProductForEditAsync(userId, id);
         if (model == null)
             return NotFound();
         
@@ -265,12 +254,7 @@ public class ProductsController : BaseController
 
         try
         {
-            Guid? userId = this.GetUserId();
-            if (userId == null || userId.Value == Guid.Empty)
-            {
-                throw new UserIdMissingException(this.GetType().Name,
-                    ControllerContext.ActionDescriptor.ActionName);
-            }
+            Guid userId = this.GetUserId(throwIfNull: true);
 
             ProductEditDto productEditDto = new ProductEditDto()
             {
@@ -292,7 +276,7 @@ public class ProductsController : BaseController
                 NewImagesUrls = productEditFormModel.NewImagesUrls,
             };
 
-            await this._productsService.EditProductAsync(userId.Value, productEditDto);
+            await this._productsService.EditProductAsync(userId, productEditDto);
 
             return RedirectToAction(nameof(Details), new { id = productEditDto.Id });
         }
@@ -319,14 +303,9 @@ public class ProductsController : BaseController
 
         try
         {
-            Guid? userId = this.GetUserId();
-            if (userId == null || userId.Value == Guid.Empty)
-            {
-                throw new UserIdMissingException(this.GetType().Name,
-                    ControllerContext.ActionDescriptor.ActionName);
-            }
+            Guid userId = this.GetUserId(throwIfNull: true);
 
-            await this._productsService.DeleteProductAsync(userId.Value, id);
+            await this._productsService.DeleteProductAsync(userId, id);
 
             TempData["ProductDeletionSuccessMessage"] = ProductDeletionSuccessMessage;
             return RedirectToAction(nameof(Index), controllerName: "Products");
@@ -343,15 +322,15 @@ public class ProductsController : BaseController
         }
     }
 
-    private ProductViewModel MapToProductViewModel(ProductDto p)
+    private ProductViewModel MapToProductViewModel(ProductDto productDto)
     {
         return new ProductViewModel()
         {
-            Id = p.Id,
-            Name = p.Name,
-            SellingPrice = p.SellingPrice,
-            CategoryName = p.CategoryName,
-            FrontImageUrl = p.FrontImageUrl,
+            Id = productDto.Id,
+            Name = productDto.Name,
+            SellingPrice = productDto.SellingPrice,
+            CategoryName = productDto.CategoryName,
+            FrontImageUrl = productDto.FrontImageUrl,
         };
     }
 

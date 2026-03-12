@@ -9,7 +9,6 @@ using TradeNest.Services.Models.Product;
 using TradeNest.Web.ViewModels.Order;
 using TradeNest.Web.ViewModels.Cart;
 using TradeNest.Web.ViewModels.Product;
-using TradeNest.Web.Utilities.Exceptions;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
 
@@ -34,15 +33,8 @@ public class CartController : BaseController
     [Authorize]
     public async Task<IActionResult> Index()
     {
-        Guid? userId = this.GetUserId();
-        if (userId == null || userId.Value == Guid.Empty)
-        {
-            throw new UserIdMissingException(this.GetType().Name,
-                ControllerContext.ActionDescriptor.ActionName);
-        }
-
-        CartWithOrdersViewModel viewModel 
-            = await this.PrepareCartWithOrdersViewModel(userId.Value);
+        Guid userId = this.GetUserId(throwIfNull: true);
+        CartWithOrdersViewModel viewModel = await this.PrepareCartWithOrdersViewModel(userId);
 
         return View(viewModel);
     }
@@ -56,14 +48,9 @@ public class CartController : BaseController
         
         try
         {
-            Guid? userId = this.GetUserId();
-            if (userId == null || userId.Value == Guid.Empty)
-            {
-                throw new UserIdMissingException(this.GetType().Name,
-                    ControllerContext.ActionDescriptor.ActionName);
-            }
+            Guid userId = this.GetUserId(throwIfNull: true);
 
-            await this._cartsService.AddProductToCartAsync(userId.Value, id, quantity);
+            await this._cartsService.AddProductToCartAsync(userId, id, quantity);
 
             return RedirectToAction(nameof(Index), controllerName: "Cart");
         }
@@ -100,14 +87,9 @@ public class CartController : BaseController
         if (id == Guid.Empty)
             return BadRequest();
 
-        Guid? userId = this.GetUserId();
-        if (userId == null || userId == Guid.Empty)
-        {
-            throw new UserIdMissingException(this.GetType().Name,
-                ControllerContext.ActionDescriptor.ActionName);
-        }
+        Guid userId = this.GetUserId(throwIfNull: true);
+        await this._cartsService.RemoveProductFromCartAsync(userId, id);
 
-        await this._cartsService.RemoveProductFromCartAsync(userId.Value, id);
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
     
@@ -115,18 +97,13 @@ public class CartController : BaseController
     [Authorize]
     public async Task<IActionResult> SubmitOrder()
     {
-        Guid? userId = this.GetUserId();
-        if (userId == null || userId == Guid.Empty)
-        {
-            throw new UserIdMissingException(this.GetType().Name,
-                ControllerContext.ActionDescriptor.ActionName);
-        }
+        Guid userId = this.GetUserId(throwIfNull: true);
 
-        SubmitOrderResultDto res = await this._ordersService.SubmitOrderAsync(userId.Value);
+        SubmitOrderResultDto res = await this._ordersService.SubmitOrderAsync(userId);
         if (!res.IsSuccess)
         {
             CartWithOrdersViewModel viewModel 
-                = await this.PrepareCartWithOrdersViewModel(userId.Value, res.ErrorProducts);
+                = await this.PrepareCartWithOrdersViewModel(userId, res.ErrorProducts);
             
             TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
             return View(nameof(Index), viewModel);
@@ -140,14 +117,9 @@ public class CartController : BaseController
     [Authorize]
     public async Task<IActionResult> Cancel()
     {
-        Guid? userId = this.GetUserId();
-        if (userId == null || userId == Guid.Empty)
-        {
-            throw new UserIdMissingException(this.GetType().Name,
-                ControllerContext.ActionDescriptor.ActionName);
-        }
+        Guid userId = this.GetUserId(throwIfNull: true);
+        await this._cartsService.DeleteCart(userId);
 
-        await this._cartsService.DeleteCart(userId.Value);
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
     
@@ -165,12 +137,7 @@ public class CartController : BaseController
 
         try
         {
-            Guid? userId = this.GetUserId();
-            if (userId == null || userId.Value == Guid.Empty)
-            {
-                throw new UserIdMissingException(this.GetType().Name,
-                    ControllerContext.ActionDescriptor.ActionName);
-            }
+            Guid userId = this.GetUserId(throwIfNull: true);
 
             ProductQtyValidationDto dto = new ProductQtyValidationDto()
             {
@@ -179,7 +146,7 @@ public class CartController : BaseController
             };
 
             bool isValidProdQtyToAdd = await this._cartsService
-                .IsValidProductQtyToAddToCartAsync(userId.Value, dto);
+                .IsValidProductQtyToAddToCartAsync(userId, dto);
 
             return Ok(isValidProdQtyToAdd);
         }
