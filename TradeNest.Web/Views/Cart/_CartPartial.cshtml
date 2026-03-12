@@ -4,9 +4,31 @@
      style="max-width: 95%;">
     @foreach (CartProductViewModel product in this.Model.CartProducts)
     {
-        <div class="card d-flex flex-row p-2 pe-4 shadow site-sections-bg">
-            
+        bool isActive = product.IsEnabled && product.IsEnoughQtyLeft;
+        string cardClass = isActive
+            ? "card d-flex flex-row p-2 pe-4 shadow site-sections-bg"
+            : "card d-flex flex-row p-2 pe-4 shadow site-sections-bg opacity-50";
+
+        ICollection<string> warnings = new List<string>();
+        if (!product.IsEnabled)
+        {
+            warnings.Add("Disabled");
+        }
+        if (!product.IsEnoughQtyLeft)
+        {
+            warnings.Add("Not enough quantity available");
+        }
+
+        <div class="@cardClass">
             <div class="d-flex flex-column flex-grow-1">
+
+                @if (warnings.Any())
+                {
+                    <p class="text-danger fw-bold mb-1">
+                        @string.Join(" | ", warnings)
+                    </p>
+                }
+
                 @if (product.Name.Length > 20)
                 {
                     <h5 class="text-navy d-md-none">@product.Name.Substring(0, 15)...</h5>
@@ -16,21 +38,21 @@
                 {
                     <h5 class="text-navy d-none d-md-block">@product.Name</h5>
                 }
+
                 <p class="mb-0">Quantity: @product.QuantityAdded</p>
                 <p class="mb-0">Unit Price: €@product.UnitPrice.ToString(PricesFormat)</p>
                 <p class="mb-0">Total Price: €@product.TotalPrice.ToString(PricesFormat)</p>
             </div>
-            
+
             <div class="d-flex align-items-center gap-2">
                 <a class="btn btn-teal" asp-controller="Products" asp-action="Details"
                    asp-route-id="@product.Id">Details</a>
-                
+
                 <form method="post" asp-controller="Cart" asp-action="RemoveFromCart"
                       asp-route-id="@product.Id">
                     <button type="submit" class="btn btn-danger">Remove</button>
                 </form>
             </div>
-            
         </div>
     }
     

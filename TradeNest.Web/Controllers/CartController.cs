@@ -34,7 +34,8 @@ public class CartController : BaseController
     public async Task<IActionResult> Index()
     {
         Guid userId = this.GetUserId(throwIfNull: true);
-        CartWithOrdersViewModel viewModel = await this.PrepareCartWithOrdersViewModel(userId);
+        CartWithOrdersViewModel viewModel 
+            = await this.PrepareCartWithOrdersViewModelByUserIdAsync(userId);
 
         return View(viewModel);
     }
@@ -103,7 +104,7 @@ public class CartController : BaseController
         if (!res.IsSuccess)
         {
             CartWithOrdersViewModel viewModel 
-                = await this.PrepareCartWithOrdersViewModel(userId, res.ErrorProducts);
+                = await this.PrepareCartWithOrdersViewModelByUserIdAsync(userId);
             
             TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
             return View(nameof(Index), viewModel);
@@ -159,25 +160,16 @@ public class CartController : BaseController
         }
     }
 
-    private async Task<CartWithOrdersViewModel> PrepareCartWithOrdersViewModel(
+    private async Task<CartWithOrdersViewModel> PrepareCartWithOrdersViewModelByUserIdAsync(
         Guid userId,
-        IEnumerable<ErrorProductDto>? errorProducts = null)
+        CartDto? userCartDto = null,
+        IEnumerable<OrderDto>? userOrdersDtos = null)
     {
-        CartDto? userCartDto = await this._cartsService.GetCartByUserIdAsync(userId);
-        IEnumerable<OrderDto> userOrdersDtos = await this._ordersService
-            .GetAllOrdersByUserIdAsync(userId);
+        userCartDto ??= await this._cartsService.GetCartByUserIdAsync(userId);
+        userOrdersDtos ??= await this._ordersService.GetAllOrdersByUserIdAsync(userId);
 
         CartWithOrdersViewModel viewModel = new CartWithOrdersViewModel()
         {
-            ErrorProductsViewModels = errorProducts != null 
-                ? errorProducts
-                    .Select(p => new ErrorProductViewModel()
-                    {
-                        ProductErrorReasons = p.ProductErrorReasons,
-                        Id = p.ProductId,
-                        ProductName = p.ProductName
-                    })
-                : new List<ErrorProductViewModel>(),
             CartViewModel = userCartDto == null
                 ? null
                 : new CartViewModel()
@@ -191,7 +183,9 @@ public class CartController : BaseController
                             Name = cp.Name,
                             QuantityAdded = cp.QuantityAdded,
                             UnitPrice = cp.UnitPrice,
-                            TotalPrice = cp.TotalPrice
+                            TotalPrice = cp.TotalPrice,
+                            IsEnabled = cp.IsEnabled,
+                            IsEnoughQtyLeft = cp.IsEnoughQtyLeft
                         }),
                 },
             OrderViewModels = userOrdersDtos

@@ -53,7 +53,9 @@ public class CartsService : ICartsService
                     QuantityAdded = cp.ProductQuantityAdded,
                     UnitPrice = cp.Product.SellingPrice,
                     TotalPrice = cp.ProductQuantityAdded * cp.Product.SellingPrice,
-                    AddedOn = cp.AddedOn
+                    AddedOn = cp.AddedOn,
+                    IsEnabled = cp.Product.IsEnabled,
+                    IsEnoughQtyLeft = cp.Product.QuantityInStock >= cp.ProductQuantityAdded
                 }),
         };
     }

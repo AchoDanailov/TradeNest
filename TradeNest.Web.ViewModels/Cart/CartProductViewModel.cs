@@ -11,4 +11,8 @@ public class CartProductViewModel
     public decimal UnitPrice { get; set; }
     
     public decimal TotalPrice { get; set; }
+    
+    public bool IsEnabled { get; set; }
+    
+    public bool IsEnoughQtyLeft { get; set; }
 }

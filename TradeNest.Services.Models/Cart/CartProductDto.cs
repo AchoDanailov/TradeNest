@@ -13,4 +13,8 @@ public class CartProductDto
     public decimal TotalPrice { get; set; }
     
     public DateTime AddedOn { get; set; }
+    
+    public bool IsEnabled { get; set; }
+    
+    public bool IsEnoughQtyLeft { get; set; }
 }
