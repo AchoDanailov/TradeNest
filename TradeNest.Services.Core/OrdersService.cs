@@ -3,9 +3,9 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.GCommon.Enums;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models.Cart.Enums;
 using TradeNest.Services.Models.Order;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 

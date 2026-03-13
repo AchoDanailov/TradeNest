@@ -1,4 +1,4 @@
-namespace TradeNest.GCommon.Enums;
+namespace TradeNest.Services.Models.Cart.Enums;
 
 public enum ProductErrorReason
 {

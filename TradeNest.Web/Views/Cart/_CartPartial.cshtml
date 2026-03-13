@@ -1,14 +1,8 @@
 @model CartViewModel
 
-<div class="d-flex flex-column gap-1 p-3 mx-auto" 
-     style="max-width: 95%;">
+<div class="d-flex flex-column gap-1 p-3 mx-auto cart-container">
     @foreach (CartProductViewModel product in this.Model.CartProducts)
     {
-        bool isActive = product.IsEnabled && product.IsEnoughQtyLeft;
-        string cardClass = isActive
-            ? "card d-flex flex-row p-2 pe-4 shadow site-sections-bg"
-            : "card d-flex flex-row p-2 pe-4 shadow site-sections-bg opacity-50";
-
         ICollection<string> warnings = new List<string>();
         if (!product.IsEnabled)
         {
@@ -18,40 +12,49 @@
         {
             warnings.Add("Not enough quantity available");
         }
+        
+        bool canBuy = product.IsEnabled && product.IsEnoughQtyLeft;
+        
+        <div class="card d-flex flex-column p-2 pe-4 shadow site-sections-bg rounded-3 flex-row
+            @(canBuy ? "cart-product-enabled" : "cart-product-disabled")">
+            @if(warnings.Any())
+            {
+                <p class="text-danger fw-bold mb-0 pb-0">@string.Join(" | ", warnings)</p>
+                <p class="text-danger fw-bold mb-1 pt-0 mt-0">
+                    Please review the product details and take necessary action.
+                </p>
+            }
+            
+            <div class="d-flex flex-row">
+                <div class="d-flex flex-column flex-grow-1">
+                    @if (product.Name.Length > 20)
+                    {
+                        <h5 class="text-navy d-sm-none">@product.Name.Substring(0, 15)...</h5>
+                        <h5 class="text-navy d-none d-sm-block">@product.Name</h5>
+                    }
+                    else
+                    {
+                        <h5 class="text-navy d-none d-md-block">@product.Name</h5>
+                    }
 
-        <div class="@cardClass">
-            <div class="d-flex flex-column flex-grow-1">
+                    <p class="mb-0">Quantity: @product.QuantityAdded</p>
+                    <p class="mb-0">Unit Price: €@product.UnitPrice.ToString(PricesFormat)</p>
+                    <p class="mb-0">Total Price: €@product.TotalPrice.ToString(PricesFormat)</p>
+                </div>
+                
+                <div class="d-flex gap-2  @(canBuy ? "align-items-center" : "align-items-start mt-2")">
+                    <a class="btn btn-teal"
+                       asp-controller="Products" asp-action="Details" asp-route-id="@product.Id">
+                        Details
+                    </a>
 
-                @if (warnings.Any())
-                {
-                    <p class="text-danger fw-bold mb-1">
-                        @string.Join(" | ", warnings)
-                    </p>
-                }
-
-                @if (product.Name.Length > 20)
-                {
-                    <h5 class="text-navy d-md-none">@product.Name.Substring(0, 15)...</h5>
-                    <h5 class="text-navy d-none d-md-block">@product.Name</h5>
-                }
-                else
-                {
-                    <h5 class="text-navy d-none d-md-block">@product.Name</h5>
-                }
-
-                <p class="mb-0">Quantity: @product.QuantityAdded</p>
-                <p class="mb-0">Unit Price: €@product.UnitPrice.ToString(PricesFormat)</p>
-                <p class="mb-0">Total Price: €@product.TotalPrice.ToString(PricesFormat)</p>
-            </div>
-
-            <div class="d-flex align-items-center gap-2">
-                <a class="btn btn-teal" asp-controller="Products" asp-action="Details"
-                   asp-route-id="@product.Id">Details</a>
-
-                <form method="post" asp-controller="Cart" asp-action="RemoveFromCart"
-                      asp-route-id="@product.Id">
-                    <button type="submit" class="btn btn-danger">Remove</button>
-                </form>
+                    <form method="post" asp-controller="Cart" asp-action="RemoveFromCart"
+                          asp-route-id="@product.Id">
+                        <button type="submit" class="btn btn-danger">
+                            Remove
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
     }

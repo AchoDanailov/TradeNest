@@ -18,6 +18,9 @@ internal static class StatusNotificationMessages
     internal const string CartModificationErrorMessage
         = "Oops. Something went wrong with the last attempt to modify your orders. Please try again in a moment.";
 
+    internal const string ProblemWithCartProductMessage
+        = "There was an issue while processing one or more of the products in your cart. Please review the product/s details and take necessary action to proceed with your order.";
+
     internal const string OrderSubmittionSuccessMessage
         = "Your order was successfully submitted.";
 

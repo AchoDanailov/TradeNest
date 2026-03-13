@@ -103,14 +103,16 @@ public class CartController : BaseController
         SubmitOrderResultDto res = await this._ordersService.SubmitOrderAsync(userId);
         if (!res.IsSuccess)
         {
-            CartWithOrdersViewModel viewModel 
-                = await this.PrepareCartWithOrdersViewModelByUserIdAsync(userId);
-            
-            TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
-            return View(nameof(Index), viewModel);
+            if (res.ErrorProducts.Any())
+                TempData["ProblemWithCartProductMessage"] = ProblemWithCartProductMessage;
+            else
+                TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
         }
-
-        TempData["OrderSubmittionSuccessMessage"] = OrderSubmittionSuccessMessage;
+        else
+        {
+            TempData["OrderSubmittionSuccessMessage"] = OrderSubmittionSuccessMessage;
+        }
+        
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
 

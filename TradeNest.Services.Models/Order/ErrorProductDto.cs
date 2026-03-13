@@ -1,4 +1,4 @@
-using TradeNest.GCommon.Enums;
+using TradeNest.Services.Models.Cart.Enums;
 
 namespace TradeNest.Services.Models.Order;
 
