@@ -74,8 +74,8 @@ public class ErrorController : BaseController
             HttpContext.Response.StatusCode = StatusCodes.Status404NotFound;
             
             errorViewModel.StatusCode = StatusCodes.Status404NotFound;
-            errorViewModel.Title = BadRequest400.Title;
-            errorViewModel.Message = BadRequest400.Message;
+            errorViewModel.Title = NotFound404.Title;
+            errorViewModel.Message = NotFound404.Message;
         }
         else if (thrownException is UnauthorizedOperationException)
         {

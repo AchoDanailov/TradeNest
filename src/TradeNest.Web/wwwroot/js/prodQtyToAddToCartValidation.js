@@ -29,7 +29,7 @@ formEl?.addEventListener("submit", async (e) => {
     const qty = formData.get("quantity");
 
     try {
-        const servRes = await fetch(`/Orders/VerifyProdQty`, {
+        const servRes = await fetch(`/Cart/VerifyProdQty`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

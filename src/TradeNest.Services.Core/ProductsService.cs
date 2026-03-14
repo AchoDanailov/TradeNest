@@ -181,7 +181,7 @@ public class ProductsService : IProductsService
         
         ICollection<Image> images = this.ParseImagesInputOnImageAdding(
                 frontImageUrl: productDto.FrontImageUrl,
-                extraImagesUrls: productDto.ExtraIMagesUrls)
+                extraImagesUrls: productDto.ExtraImagesUrls)
             .ToHashSet();
         if (images.Any() && !images.Any(i => i.IsFrontImage))
         {

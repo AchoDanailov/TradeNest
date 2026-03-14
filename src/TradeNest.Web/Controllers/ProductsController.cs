@@ -176,7 +176,7 @@ public class ProductsController : BaseController
                 SellingPrice = productCreateFormModel.SellingPrice,
                 CategoryId = productCreateFormModel.CategoryId,
                 FrontImageUrl = productCreateFormModel.FrontImageUrl,
-                ExtraIMagesUrls = productCreateFormModel.ExtraImagesUrls,
+                ExtraImagesUrls = productCreateFormModel.ExtraImagesUrls,
                 CostPrice = productCreateFormModel.CostPrice,
                 Description = productCreateFormModel.Description,
                 QuantityInStock = productCreateFormModel.QuantityInStock,

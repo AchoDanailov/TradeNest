@@ -5,7 +5,7 @@ namespace TradeNest.Services.Core.Utilities;
 /// </summary>
 internal static class ExceptionMessages
 {
-    internal const string UnhandledExceptionMessage = "An unhandled {0} occured.";
+    internal const string UnhandledExceptionMessage = "An unhandled {0} occurred.";
     
     internal const string IdCantBeEmptyMessage = "Id can not be empty. {0}";
 

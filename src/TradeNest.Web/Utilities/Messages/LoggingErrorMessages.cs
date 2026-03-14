@@ -6,15 +6,15 @@ namespace TradeNest.Web.Utilities.Messages;
 internal static class LoggingErrorMessages
 {
     internal const string ExceptionHandlerUnexpectedException
-        = "An unexpected exception occured in the Error handling controller. Please check if Exception Handling is implemented correctly.";
+        = "An unexpected exception occurred in the Error handling controller. Please check if Exception Handling is implemented correctly.";
 
-    internal const string DefaultLogExceptionMessage = "An {0} occured.";
+    internal const string DefaultLogExceptionMessage = "An {0} occurred.";
     
     internal const string DefaultLogExceptionMessageWithControllerAndAction 
-        = "An {0} occured. Controller: {1}, Action: {2}";
+        = "An {0} occurred. Controller: {1}, Action: {2}";
 
     internal const string UnexpectedStatusCodesPagesExceptionMessage
-        = "An unexpected exception occured while using \"UseStatusCodePagesWithReExecute()\" method. Please review the validity of the path passed in to the method and the validity of the method ussage.";
+        = "An unexpected exception occurred while using \"UseStatusCodePagesWithReExecute()\" method. Please review the validity of the path passed in to the method and the validity of the method usage.";
 
     internal const string BadArgumentsErrorMessage
         = "Bad arguments provided. Controller: {0}, Action: {1}";

@@ -12,7 +12,7 @@ public class ProductCreateDto
 
     public string? FrontImageUrl { get; set; }
     
-    public string? ExtraIMagesUrls { get; set; }
+    public string? ExtraImagesUrls { get; set; }
     
     public decimal? CostPrice { get; set; }
     
