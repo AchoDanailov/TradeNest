@@ -68,7 +68,7 @@ TradeNest/
 ├── TradeNest.Data.Models/         # Entity models EFCore uses
 ├── TradeNest.GCommon/             # For everething with Cross-cutting concerns
 ├── TradeNest.Services.Core/       # Business logic \ service layer
-├── TradeNest.Web/                 # MVC web application
+├── TradeNest.Web/                 # MVC web application (presentation layer)
 └── TradeNest.Web.ViewModels/      # ViewModels
 ```
 
@@ -77,15 +77,17 @@ TradeNest/
 ## Features
 
 - [x] User registration and login (ASP.NET Identity)
-- [x] CRUD operations for Products and Orders
 - [x] Responsive UI with Bootstrap 5
+- [x] CRUD operations for Products
+- [ ] Indirect CRUD for Order, Watchlist
+- [ ] My Products Dashboard
+- [ ] Admin Dashboard
 
 ---
 
 ## Configuration
 
 Key settings in `appsettings.json`:
-
 ```json
 {
   "Logging": {
@@ -97,9 +99,14 @@ Key settings in `appsettings.json`:
   "AllowedHosts": "*",
   "ConnectionStrings": {
     "DefaultConnection": "Server=127.0.0.1;Database=TradeNestDb;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False"
-  }
+  },
+  ...
+  ...
 }
 ```
+Here you can configure the connection strings the application uses when
+connecting to it's data stores. And the identity configuration options that set the
+User Accounts options. 
 
 ### Default users credentials you can use for developing and testing:
 1. Email: Har1b0@gmail.com  
@@ -109,7 +116,18 @@ Password: M1rk0o
 
 
 ### The .config directory
-The application uses a manifest file `dotnet-tools.json` for managing dotnet tools locally in the `.config/` directory. For more information see the [docs](https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
+The application uses a manifest file `dotnet-tools.json` for managing dotnet
+tools locally in the `.config/` directory. This allows the developer who is
+cloning the repository to not worry about a potential missmatch between the
+versions of the dotnet sdk and the dotnet-ef tools required for the database
+migrations - by just running `dotnet tool restore`. Keep in mind that if you
+change the version of the SDK you need to change the version of the dotnet
+ef-tools to be sure there wont be unexpected behaviour. If you have the tools
+globally on your host or you work with the Visual Studio Package Manager Console and
+wish to use either your global tools version or you Visual Studio Package
+Manager Console you are free to delete the `.config` directory. For more
+information see the
+[documentation](https://learn.microsoft.com/en-us/dotnet/core/tools/local-tools-how-to-use).
 ```json
 {
   "version": 1,

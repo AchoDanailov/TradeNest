@@ -1,0 +1,169 @@
+@model ProductEditFormModel;
+
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<div class="container-lg pb-4 pt-2">
+    
+    <partial name="_StatusNotificationPartial" />
+    
+    <div class="d-md-none mb-1">
+        <partial name="_BackToDetailsButtonPartial" model="@Model.ProductId.ToString()" />
+    </div>
+    
+    <div class="row mx-3 mb-5 px-4 pb-4">
+        
+        <div class="d-none d-md-block">
+            <partial name="_BackToDetailsButtonPartial" model="@Model.ProductId.ToString()"/>
+        </div>
+
+        <h1 class="display-5 text-teal text-center text-md-start fw-bold mb-2">
+            @ViewData["Title"]
+        </h1>
+        
+        <form method="post" asp-controller="Products" asp-action="Edit"
+              asp-route-id="@Model.ProductId"
+              class="d-flex flex-column gap-4 site-sections-bg p-2 p-md-5 rounded-3 shadow border">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <input type="hidden" asp-for="@Model.ProductId" />
+            
+            <div>
+                <label asp-for="@Model.ProductName"
+                       class="form-label text-navy fw-bold">Product Name: </label>
+                <input type="text" asp-for="@Model.ProductName" 
+                       class="form-control" aria-required="true"/>
+                <span asp-validation-for="@Model.ProductName" class="text-danger"></span>
+            </div>
+            
+            <div>
+                <label asp-for="@Model.SellingPrice"
+                       class="form-label text-navy fw-bold">Selling Price: </label>
+                <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    <input type="number" asp-for="@Model.SellingPrice" 
+                           class="form-control" aria-required="true"/>
+                    <span asp-validation-for="@Model.SellingPrice" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div>
+                <label asp-for="@Model.CostPrice" class="form-label text-navy fw-bold">
+                    Cost Price: <span class="fw-lighter text-muted">(optional)</span>
+                </label>
+                <div class="input-group">
+                    <span class="input-group-text">€</span>
+                    <input type="number" asp-for="@Model.CostPrice" 
+                           class="form-control" aria-required="true"/>
+                    <span asp-validation-for="@Model.CostPrice" class="text-danger"></span>
+                </div>
+            </div>
+            
+            <div>
+                <label asp-for="@Model.CategoryId"
+                       class="form-label text-navy fw-bold">Category: </label>
+                <select asp-for="@Model.CategoryId" class="form-select">
+                    <option value="" selected="selected">-- Select Category --</option>
+                    @foreach (AllCategoriesViewModel category in this.Model.AllCategories)
+                    {
+                        <option value="@category.Id">@category.CategoryName</option>
+                    }
+                </select>
+                <span asp-validation-for="@Model.CategoryId" class="text-danger"></span>
+            </div>
+            
+            <div class="row mb-1 mb-md-0 mt-2 align-items-center mx-auto">
+                <div class="col-12 col-md-6">
+                    <div class="form-check form-switch">
+                        <input asp-for="IsEnabled" class="form-check-input" type="checkbox"/>
+                        <label asp-for="IsEnabled" class="form-check-label text-navy fw-bold">
+                            Is the product up for sale?
+                        </label>
+                        <span asp-validation-for="@Model.IsEnabled" class="text-danger"></span>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <div class="d-flex align-items-center gap-2">
+                        <label asp-for="QuantityInStock" class="form-label text-navy mb-0">
+                            Quantity:
+                        </label>
+                        <input asp-for="QuantityInStock" type="number"
+                               class="form-control form-control-sm w-auto" value="@Model.QuantityInStock"/>
+                        <span asp-validation-for="@Model.QuantityInStock" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div>
+                <label asp-for="@Model.Description"
+                       class="form-label text-navy fw-bold">Description: </label>
+                <textarea asp-for="@Model.Description" class="form-control" 
+                        aria-required="true" rows="5"></textarea>
+                <span asp-validation-for="@Model.Description" class="text-danger"></span>
+            </div>
+            <div>
+                <h4 class="fw-bold text-navy mb-0"> Product's current images </h4>
+                @if (this.Model.ProductImages.Any())
+                {
+                    <span class="text-muted text-navy ">
+                        (To remove an image - mark the switch button under the image to off)
+                    </span>
+                }
+                else
+                {
+                    <span class="text-muted text-navy ">
+                        Currently the product has no images
+                    </span>
+                }
+                <div class="d-flex flex-wrap justify-content-center mt-2">
+                    @for (int i = 0; i < this.Model.ProductImages.Count; i++)
+                    {
+                        <input type="hidden" asp-for="@Model.ProductImages[i].Id" />
+                        <input type="hidden" asp-for="@Model.ProductImages[i].Url" />
+
+                        <div class="d-flex flex-column gap-2 align-items-center">
+                            <div class="p-2 product product-image-wrapper">
+                                <img src="@Model.ProductImages[i].Url" alt="Product"
+                                     class="img-thumbnail product-image"/>
+                            </div>
+                            
+                            <div class="form-check form-switch">
+                                <input asp-for="@Model.ProductImages[i].IsMarkedToStay"
+                                       class="form-check-input" type="checkbox"/>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <span asp-validation-for="@Model.ProductImages" class="text-danger"></span>
+            </div>
+            
+            <div>
+                <label asp-for="@Model.NewImagesUrls" class="form-label text-navy fw-bold">
+                    Add new images: <span class="fw-lighter text-muted">(optional)</span>
+                </label>
+                <textarea asp-for="@Model.NewImagesUrls" class="form-control" 
+                    aria-required="true" rows="5"
+                    placeholder="Add your new images urls - each image url on a new line">
+                </textarea>
+                <span asp-validation-for="@Model.NewImagesUrls" class="text-danger"></span>
+            </div>
+            
+            <div class="btn-group-lg mt-3 d-flex justify-content-end gap-3 mb-3 mb-md-0">
+                <a asp-controller="Products" asp-action="Details"
+                   asp-route-id="@Model.ProductId"
+                   class="btn-lg rounded-pill btn-secondary p-2">Cancel</a>
+                
+                <button type="submit" class="btn-lg rounded-pill btn-teal p-2">
+                    Save Changes
+                </button>
+            </div>
+            
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

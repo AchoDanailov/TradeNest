@@ -1,0 +1,15 @@
+.cart-container {
+    max-width: 95%;
+}
+
+.cart-product-disabled {
+    background-color: rgba(22, 22, 22, 0.75);
+    opacity: 0.95;
+}
+
+.cart-product-disabled h5,
+.cart-product-disabled p,
+.cart-product-disabled a,
+.cart-product-disabled button {
+    opacity: 1;
+}

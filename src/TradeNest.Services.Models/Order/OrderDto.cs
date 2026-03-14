@@ -1,0 +1,13 @@
+namespace TradeNest.Services.Models.Order;
+
+public class OrderDto
+{
+    public Guid Id { get; set; }
+    
+    public decimal TotalPrice { get; set; }
+    
+    public DateTime SubmittedOn { get; set; } 
+
+    public IEnumerable<OrderProductDto> OrderProducts { get; set; }
+        = new HashSet<OrderProductDto>();
+}

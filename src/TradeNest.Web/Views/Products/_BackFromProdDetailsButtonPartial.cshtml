@@ -1,0 +1,25 @@
+@model string
+@{
+    string PickReturnBackText(string returnUrl)
+    {
+        if (returnUrl.ToLowerInvariant().Contains("products") ||
+            returnUrl.ToLowerInvariant().Contains("catalog"))
+        {
+            return "Back To Catalog";
+        }
+        else if (returnUrl.ToLowerInvariant().Contains("cart"))
+        {
+            return "Back To Cart";
+        }
+        else
+        {
+            return "Go Back";
+        }
+    }
+    
+    string returnBackText = PickReturnBackText(this.Model);
+}
+
+<div class="d-flex justify-content-end">
+    <a href="@Model" class="btn btn-outline-teal rounded-pill px-3"> ← @returnBackText </a>
+</div>

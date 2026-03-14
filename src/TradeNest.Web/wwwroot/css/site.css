@@ -1,0 +1,105 @@
+:root {
+    --tn-navy: #0B2A4A;
+    --tn-teal: #0FAF9A;
+}
+
+html {
+  font-size: 14px;
+  position: relative;
+  min-height: 100%;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+a {
+  text-decoration: none;
+}
+
+ul {
+    padding-left: 0;
+    list-style-type: none;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.nav-link-border-radius-hover-effect-dark {
+    border-radius: 0.5em;
+    overflow: hidden;
+}
+
+.nav-link-border-radius-hover-effect-dark:hover {
+    background-color: #343a40;
+}
+
+.nav-link-border-radius-hover-effect-light {
+    border-radius: 0.5em;
+    overflow: hidden;
+}
+
+.nav-link-border-radius-hover-effect-light:hover {
+    color: #ffff;
+    background-color: var(--tn-teal);
+}
+
+.selected {
+    color: #ffff;
+    background-color: var(--tn-teal);
+}
+
+.text-navy {
+    color: var(--tn-navy);
+}
+
+.text-teal {
+    color: var(--tn-teal);
+}
+
+.btn-teal {
+    background-color: var(--tn-teal);
+    color: #fff;
+    border: none;
+}
+
+.btn-teal:hover {
+    background-color: #0da08e;
+    color: #fff;
+}
+
+.btn-outline-teal {
+    border: 2px solid var(--tn-teal);
+    color: var(--tn-teal);
+}
+
+.btn-outline-teal:hover {
+    background-color: var(--tn-teal);
+    color: #fff;
+}
+
+.site-sections-bg {
+    background:
+        radial-gradient(
+            circle at 70% 40%,
+            rgba(15, 175, 154, 0.15),
+            transparent 55%
+        ),
+        radial-gradient(
+            circle at 30% 60%,
+            rgba(31, 182, 255, 0.12),
+            transparent 60%
+        ),
+        #ffffff;
+}
+
+.site-sections-bg-teal {
+    background: var(--tn-teal);
+}

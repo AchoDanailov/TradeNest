@@ -1,0 +1,71 @@
+@{
+    string productDeletionSuccessMessage 
+        = TempData["ProductDeletionSuccessMessage"] as string ?? string.Empty;
+    string productCreationErrorMessage 
+        = ViewData["ProductCreationError"] as string ?? string.Empty;
+    string productModificationErrorMessage 
+        = TempData["ProductModificationErrorMessage"] as string ?? string.Empty;
+    
+    string orderSubmittionSuccessMessage
+        = TempData["OrderSubmittionSuccessMessage"] as string ?? string.Empty;
+    string problemWithCartProductMessage
+        = TempData["ProblemWithCartProductMessage"] as string ?? string.Empty;
+    string cartModificationErrorMessage
+        = TempData["CartModificationErrorMessage"] as string ?? string.Empty;
+    
+    string unexpectedErrorMessage 
+        = ViewData["UnexpectedErrorMessage"] as string ?? string.Empty;
+}
+
+@if (!string.IsNullOrEmpty(productDeletionSuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible" role="status">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @productDeletionSuccessMessage
+    </div>
+}
+else if (!string.IsNullOrEmpty(productCreationErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @productCreationErrorMessage
+    </div>
+}
+else if (!string.IsNullOrEmpty(productModificationErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @productModificationErrorMessage
+    </div>
+}
+
+else if (!string.IsNullOrEmpty(orderSubmittionSuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible" role="status">
+        <button type="button" class="btn-close"
+                data-bs-dismiss="alert" aria-label="Close"></button>
+        @orderSubmittionSuccessMessage
+    </div>
+}
+else if (!string.IsNullOrEmpty(cartModificationErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @cartModificationErrorMessage
+    </div>
+}
+else if (!string.IsNullOrEmpty(problemWithCartProductMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @problemWithCartProductMessage
+    </div>
+}
+
+else if (!string.IsNullOrEmpty(unexpectedErrorMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @unexpectedErrorMessage
+    </div>
+}

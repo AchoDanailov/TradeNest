@@ -1,0 +1,97 @@
+﻿@{
+    int currentYear = DateTime.UtcNow.Year;
+    ViewData["Title"] = "TradeNest";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/TradeNest.Web.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", false)
+    
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-md navbar-toggleable-md navbar-dark bg-dark border-bottom border-light box-shadow">
+            <div class="container-lg ">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                    <img src="~/images/tradenest-logo/logo-transparent-small.png" 
+                         class="d-inline-block" alt="TradeNest" width="50" height="43" />
+                    Trade<span class="text-success">Nest</span>
+                </a>
+                <button class="navbar-toggler" type="button" 
+                        data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                        aria-controls="navbarSupportedContent" aria-expanded="false"
+                        aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="navbar-collapse collapse d-md-inline-flex justify-content-between align-items-center my-1"
+                     id="navbarContent">
+                    <ul class="navbar-nav">
+                        @if (!(User.Identity?.IsAuthenticated) ?? true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-border-radius-hover-effect-dark text-light"
+                                   asp-area="" asp-controller="Home" asp-action="Index">
+                                    Home
+                                </a>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                @*TODO: Add link to MyProducts*@
+                                <a class="nav-link nav-link-border-radius-hover-effect-dark text-light"
+                                   asp-area="" asp-controller="Products"
+                                   asp-action="MyProducts">My Nest</a>
+                            </li>
+                        }
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-border-radius-hover-effect-dark text-light"
+                               asp-controller="Products" asp-action="Index">Catalog</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link nav-link-border-radius-hover-effect-dark text-light"
+                               asp-controller="Categories" asp-action="Index">Categories</a>
+                        </li>
+                        @if (User.Identity?.IsAuthenticated ?? false)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link nav-link-border-radius-hover-effect-dark text-light"
+                                   asp-controller="Cart" asp-action="Index">Cart</a>
+                            </li>
+                        }
+                    </ul>
+                    <partial name="_LoginPartial" />
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="container-fluid pb-4">
+        <main role="main">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted site-sections-bg-teal">
+        <div class="container-lg">
+            &copy; @currentYear - TradeNest - <a asp-controller="Home" 
+                                                 asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
