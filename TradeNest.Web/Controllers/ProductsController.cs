@@ -99,7 +99,8 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> Details([FromRoute] Guid id)
+    public async Task<IActionResult> Details([FromRoute] Guid id, 
+        [FromQuery] string? returnUrl = null)
     {
         if (id == Guid.Empty)
             return BadRequest();
@@ -110,6 +111,9 @@ public class ProductsController : BaseController
             .GetProductDetailsByIdAsync(id, userId);
         if(productDetailsDto == null)
             return NotFound();
+
+        if(returnUrl == null || !Url.IsLocalUrl(returnUrl)) 
+            returnUrl ??= Url.Action(nameof(Index), controller: "Products");
 
         ProductDetailsViewModel productDetailsViewModel = new ProductDetailsViewModel()
         {
@@ -124,6 +128,7 @@ public class ProductsController : BaseController
             IsOwner = productDetailsDto.IsOwner,
             ImagesUrls = productDetailsDto.ImagesUrls,
             IsEnabled = productDetailsDto.IsEnabled,
+            ReturnUrl = returnUrl!,
         };
         
         return View(productDetailsViewModel);
@@ -294,12 +299,14 @@ public class ProductsController : BaseController
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Delete([FromRoute] Guid id, [FromForm] string? returnUrl)
+    public async Task<IActionResult> Delete([FromRoute] Guid id, 
+        [FromForm] string? returnUrl = null)
     {
         if(id == Guid.Empty) 
             return BadRequest();
         
-        returnUrl ??= Url.Action(nameof(Details), controller: "Products", new { id });
+        if(returnUrl == null || !Url.IsLocalUrl(returnUrl))
+            returnUrl = Url.Action(nameof(Index), controller: "Products");
 
         try
         {

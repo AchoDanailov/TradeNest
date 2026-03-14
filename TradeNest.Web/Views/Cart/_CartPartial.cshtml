@@ -44,7 +44,9 @@
                 
                 <div class="d-flex gap-2  @(canBuy ? "align-items-center" : "align-items-start mt-2")">
                     <a class="btn btn-teal"
-                       asp-controller="Products" asp-action="Details" asp-route-id="@product.Id">
+                       asp-controller="Products" asp-action="Details"
+                       asp-route-id="@product.Id" 
+                       asp-route-returnUrl="@Url.Action("Index", controller: "Cart")">
                         Details
                     </a>
 

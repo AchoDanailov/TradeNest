@@ -1,6 +1,6 @@
 @model ProductDetailsViewModel
 @{
-    ViewData["Title"] = "Product details";
+    ViewData["Title"] = "Product Details";
 }
 
 <div class="container-lg pt-4">
@@ -11,13 +11,13 @@
         <partial name="_SearchFormPartial"/>
         
         <div class="mt-3 mt-md-0">
-            <partial name="_BackToCatalogButtonPartial"/>
+            <partial name="_BackFromProdDetailsButtonPartial" model="@Model.ReturnUrl"/>
         </div>
     </div>
     
     <div class="row d-md-none d-flex flex-column justify-content-center mb-4">
         <div class="mb-3">
-            <partial name="_BackToCatalogButtonPartial"/>
+            <partial name="_BackFromProdDetailsButtonPartial" model="@Model.ReturnUrl"/>
         </div>
         
         <partial name="_SearchFormPartial"/>

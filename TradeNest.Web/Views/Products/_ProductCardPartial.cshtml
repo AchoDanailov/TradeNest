@@ -23,7 +23,8 @@
             €@this.Model.SellingPrice.ToString(PricesFormat)
         </div>
         <div class="d-flex justify-content-end gap-2 mt-2">
-            <a asp-controller="Products" asp-action="Details" asp-route-id="@this.Model.Id"
+            <a asp-controller="Products" asp-action="Details" asp-route-id="@this.Model.Id" 
+               asp-route-returnUrl="@Url.Action("Index", controller: "Products")"
                class="btn btn-teal">Details</a>
         </div>
     </div>
