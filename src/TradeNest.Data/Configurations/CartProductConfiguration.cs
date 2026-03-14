@@ -21,7 +21,7 @@ public class CartProductConfiguration : IEntityTypeConfiguration<CartProduct>
             .OnDelete(DeleteBehavior.Cascade);
 
         builder.Property(cp => cp.AddedOn)
-            .HasComputedColumnSql(DefaultValueForAddedOnColumn);
+            .HasDefaultValueSql(DefaultValueForAddedOnColumn);
 
         builder.HasQueryFilter(cp => cp.Product.IsDeleted == false);
     }
