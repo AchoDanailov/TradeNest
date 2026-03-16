@@ -8,13 +8,15 @@
     <partial name="_StatusNotificationPartial" />
     
     <div class="d-md-none mb-1">
-        <partial name="_BackToCatalogButtonPartial"/>
+        <partial name="_BackFromProdDetailsButtonPartial" 
+                 model="@Url.Action("Index", controller: "Products")" />
     </div>
     
     <div class="row mx-3 mb-5 px-4 pb-4">
         
         <div class="d-none d-md-block">
-            <partial name="_BackToCatalogButtonPartial"/>
+            <partial name="_BackFromProdDetailsButtonPartial"
+                 model="@Url.Action("Index", controller: "Products")" />
         </div>
         
         <h1 class="display-5 text-teal text-center text-md-start fw-bold mb-2">

@@ -1,10 +1,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.DependencyInjection;
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Models.Cart;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Services.Models.Product;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
@@ -13,13 +15,15 @@ namespace TradeNest.Services.Core;
 public class CartsService : ICartsService
 {
     private IRepository _repository;
+    private ICartsMapper _cartsMapper;
 
-    public CartsService(IRepository repository)
+    public CartsService(IRepository repository, ICartsMapper cartsMapper)
     {
         this._repository = repository;
+        this._cartsMapper = cartsMapper;
     }
 
-    public async Task<CartDto?> GetCartByUserIdAsync(Guid userId)
+    public async Task<CartDto?> GetCartByUserIdAsync(Guid userId) 
     {
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
@@ -38,26 +42,10 @@ public class CartsService : ICartsService
         if(cart == null)
             return null;
 
-        return new CartDto()
-        {
-            CartId = cart.Id,
-            TotalPrice = cart.CartProducts
-                .Select(cp => cp.ProductQuantityAdded * cp.Product.SellingPrice)
-                .Sum(),
-            CartProducts = cart.CartProducts
-                .OrderBy(cp => cp.AddedOn)
-                .Select(cp => new CartProductDto()
-                {
-                    Id = cp.ProductId,
-                    Name = cp.Product.Name,
-                    QuantityAdded = cp.ProductQuantityAdded,
-                    UnitPrice = cp.Product.SellingPrice,
-                    TotalPrice = cp.ProductQuantityAdded * cp.Product.SellingPrice,
-                    AddedOn = cp.AddedOn,
-                    IsEnabled = cp.Product.IsEnabled,
-                    IsEnoughQtyLeft = cp.Product.QuantityInStock >= cp.ProductQuantityAdded
-                }),
-        };
+        CartDto cartDto = this._cartsMapper.ToCartDto(cart);
+        cartDto.CartProducts = cartDto.CartProducts.OrderBy(cp => cp.AddedOn);
+
+        return cartDto;
     }
     
     public async Task AddProductToCartAsync(Guid userId, Guid productId, int prodQtyToAdd)
@@ -276,7 +264,7 @@ public class CartsService : ICartsService
         if (userCart == null)
         {
             return model.QuantityRequested > 0 &&
-                   product.QuantityInStock > model.QuantityRequested;
+                   product.QuantityInStock >= model.QuantityRequested;
         }
 
         int productQtyAlreadyAdded = userCart.CartProducts

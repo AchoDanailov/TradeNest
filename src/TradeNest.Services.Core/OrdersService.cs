@@ -3,8 +3,8 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Services.Models.Cart.Enums;
 using TradeNest.Services.Models.Order;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
@@ -14,10 +14,12 @@ namespace TradeNest.Services.Core;
 public class OrdersService : IOrdersService
 {
     private readonly IRepository _repository;
+    private readonly IOrdersMapper _ordersMapper;
 
-    public OrdersService(IRepository repository)
+    public OrdersService(IRepository repository, IOrdersMapper ordersMapper)
     {
         this._repository = repository;
+        this._ordersMapper = ordersMapper;
     }
 
     public async Task<IEnumerable<OrderDto>> GetAllOrdersByUserIdAsync(Guid userId)
@@ -33,28 +35,16 @@ public class OrdersService : IOrdersService
                 nameof(ApplicationUser), userId));
         }
 
-        return await this._repository.AllAsReadonly<Order>()
+        IEnumerable<Order> orders = await this._repository.All<Order>()
+            .Include(o => o.OrderProducts)
+            .AsNoTracking()
             .Where(o => o.UserId == userId)
-            .OrderByDescending(o => o.SubmittedOn) // nulls go on the bottom
+            .OrderByDescending(o => o.SubmittedOn) 
             .ThenByDescending(o => o.TotalPrice)
             .ThenBy(o => o.OrderProducts.Count)
-            .Select(o => new OrderDto()
-            {
-                Id = o.Id,
-                TotalPrice = o.TotalPrice,
-                SubmittedOn = o.SubmittedOn,
-                OrderProducts = o.OrderProducts
-                    .Select(op => new OrderProductDto()
-                    {
-                        Id = op.Id,
-                        Name = op.ProductNameAtOrderTime,
-                        QuantityOrdered = op.QuantityOrdered,
-                        UnitPriceAtOrderTime = op.UnitSellingPriceAtOrderTime,
-                        TotalPriceAtOrderTime = op.TotalProductPriceAtOrderTime,
-                    })
-                    .ToArray(),
-            })
             .ToArrayAsync();
+        
+        return this._ordersMapper.ToOrderDtos(orders);
     }
 
     public async Task<bool> OrderExistsByIdAsync(Guid orderId)
@@ -142,14 +132,14 @@ public class OrdersService : IOrdersService
             {
                 UserId = userId,
                 OrderProducts = orderProducts.ToHashSet(),
-                TotalPrice = orderProducts.Sum(op => op.UnitSellingPriceAtOrderTime),
+                TotalPrice = orderProducts.Sum(op => op.TotalProductPriceAtOrderTime),
                 SubmittedOn = DateTime.UtcNow
             };
+            
             await this._repository.AddAsync(newOrder);
-
             this._repository.Remove(userCart);
-            await this._repository.SaveChangesAsync();
 
+            await this._repository.SaveChangesAsync();
             return SubmitOrderResultDto.Success();
         }
         catch (DbUpdateConcurrencyException concurrencyEx)
@@ -198,7 +188,7 @@ public class OrdersService : IOrdersService
             }
 
             if (errorProducts.Any())
-                return SubmitOrderResultDto.Failure(errorProducts);
+                return SubmitOrderResultDto.Failure(errorProducts: errorProducts);
 
             await this._repository.SaveChangesAsync();
             return SubmitOrderResultDto.Success();

@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.Services.Models;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
 

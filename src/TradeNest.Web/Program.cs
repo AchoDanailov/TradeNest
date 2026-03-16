@@ -1,11 +1,15 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+
 using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.Services.Core;
 using TradeNest.Services.Core.Interfaces;
-using Microsoft.EntityFrameworkCore;
 using TradeNest.Data.Repository;
 using TradeNest.Data.Repository.Interfaces;
+using TradeNest.Services.Core.Mappers;
+using TradeNest.Services.Core.Mappers.Interfaces;
+using ProductsMapper = TradeNest.Services.Core.Mappers.ProductsMapper;
 
 namespace TradeNest.Web;
 
@@ -15,7 +19,7 @@ public class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        string? connectionString = builder.Configuration["TradeNest:ConnectionString"] 
+        string connectionString = builder.Configuration["TradeNest:ConnectionString"] 
                                    ?? builder.Configuration.GetConnectionString("DefaultConnection") 
                                    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
@@ -24,12 +28,15 @@ public class Program
 
         builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
-            
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddControllersWithViews();
 
         builder.Services.AddScoped<IRepository, Repository>();
+
+        builder.Services.AddSingleton<IOrdersMapper, OrdersMapper>();
+        builder.Services.AddSingleton<IProductsMapper, ProductsMapper>();
+        builder.Services.AddSingleton<ICartsMapper, CartsMapper>();
 
         builder.Services.AddScoped<IProductsService, ProductsService>();
         builder.Services.AddScoped<ICategoriesService, CategoriesService>();

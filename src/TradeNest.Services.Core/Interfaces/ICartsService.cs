@@ -1,4 +1,5 @@
 using TradeNest.GCommon.Exceptions;
+using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Services.Models.Cart;
 using TradeNest.Services.Models.Product;
 

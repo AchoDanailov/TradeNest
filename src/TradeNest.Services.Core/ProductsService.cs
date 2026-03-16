@@ -5,6 +5,7 @@ using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Services.Models.Image;
 using TradeNest.Services.Models.Product;
 using static TradeNest.Services.Core.Utilities.ExceptionMessages;
@@ -14,39 +15,32 @@ namespace TradeNest.Services.Core;
 public class ProductsService : IProductsService
 {
     private readonly IRepository _repository;
+    private readonly IProductsMapper _productsMapper;
 
-    public ProductsService(IRepository repository)
+    public ProductsService(IRepository repository, IProductsMapper productsMapper)
     {
         this._repository = repository;
+        this._productsMapper = productsMapper;
     }
 
     public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync(
         string? search = null)
     {
-        IQueryable<Product> productQuery = this._repository
-            .AllAsReadonly<Product>()
+        IQueryable<Product> productsQuery = this._repository.All<Product>()
+            .Include(p => p.Category)
+            .Include(p => p.Images)
+            .AsNoTracking()
             .OrderByDescending(p => p.CreatedOn)
             .ThenBy(p => p.Name);
         if (!string.IsNullOrWhiteSpace(search))
         {
-            productQuery = productQuery
-                .Where(p => p.Name.ToLower().Contains(search) ||
-                            p.Category.Name.ToLower().Contains(search));
+            productsQuery = productsQuery
+                .Where(p => p.Name.ToLower().Contains(search.ToLower()) ||
+                            p.Category.Name.ToLower().Contains(search.ToLower()));
         }
-        
-        return await productQuery
-            .Select(p => new ProductDto()
-            {
-                Id = p.Id,
-                Name = p.Name,
-                SellingPrice = p.SellingPrice,
-                FrontImageUrl = p.Images.Any()
-                    ? p.Images
-                        .Single(i => i.IsFrontImage)!.Url
-                    : null,
-                CategoryName = p.Category.Name,
-            })
-            .ToArrayAsync();
+
+        IEnumerable<Product> products = await productsQuery.ToArrayAsync();
+        return this._productsMapper.ToProductDtos(products);
     }
 
     public async Task<IEnumerable<ProductDto>> GetAllProductsByCategoryIdAsync(
@@ -56,52 +50,36 @@ public class ProductsService : IProductsService
         if (categoryId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(categoryId)));
 
-        IQueryable<Product> productQuery = this._repository
-            .AllAsReadonly<Product>()
+        IQueryable<Product> productQuery = this._repository.All<Product>()
+            .Include(p => p.Category)
+            .Include(p => p.Images)
+            .AsNoTracking()
             .Where(p => p.CategoryId == categoryId)
             .OrderByDescending(p => p.CreatedOn)
             .ThenBy(p => p.Name);
         if (!string.IsNullOrWhiteSpace(search))
         {
             productQuery = productQuery
-                .Where(p => p.Name.ToLower().Contains(search) ||
-                            p.Category.Name.ToLower().Contains(search));
+                .Where(p => p.Name.ToLower().Contains(search.ToLower()) ||
+                            p.Category.Name.ToLower().Contains(search.ToLower()));
         }
         
-        return await productQuery
-            .Select(p => new ProductDto()
-            {
-                Id = p.Id,
-                Name = p.Name,
-                SellingPrice = p.SellingPrice, 
-                FrontImageUrl = p.Images.Any()
-                    ? p.Images
-                        .Single(i => i.IsFrontImage)!.Url
-                    : null,
-                CategoryName = p.Category.Name,
-            }) 
-            .ToArrayAsync();
+        IEnumerable<Product> products =  await productQuery.ToArrayAsync();
+        return this._productsMapper.ToProductDtos(products);
     }
 
     public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedBySellingCountDescAsync()
     {
-        return await this._repository.All<Product>()
+        IEnumerable<Product> products = await this._repository.All<Product>()
+            .Include(p => p.Category)
+            .Include(p => p.Images)
             .AsNoTracking()
             .OrderByDescending(p => p.SoldProducts
                 .Sum(sp => sp.QuantityOrdered))
             .ThenByDescending(p => p.CreatedOn)
-            .Select(p => new ProductDto()
-            {
-                Id = p.Id,
-                Name = p.Name,
-                SellingPrice = p.SellingPrice,
-                FrontImageUrl = p.Images.Any()
-                    ? p.Images
-                        .Single(i => i.IsFrontImage)!.Url
-                    : null,
-                CategoryName = p.Category.Name,
-            })
             .ToArrayAsync();
+
+        return this._productsMapper.ToProductDtos(products);
     }
 
     public async Task<bool> ProductExistsByIdAsync(Guid id)
@@ -113,8 +91,7 @@ public class ProductsService : IProductsService
             .ExistsAsync<Product>(p => p.Id == id);
     }
 
-    public async Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id,
-        Guid? userId = null)
+    public async Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id, Guid? userId = null)
     {
         if (id == Guid.Empty)
             return null;
@@ -128,27 +105,9 @@ public class ProductsService : IProductsService
             .FirstOrDefaultAsync(p => p.Id == id);
         if (product == null)
             return null;
-        
-        ProductDetailsDto productDetailsDto = new ProductDetailsDto()
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            QuantityInStock = product.QuantityInStock,
-            SellingPrice = product.SellingPrice,
-            IsEnabled = product.IsEnabled,
-            OwnerName = product.Owner.UserName ?? string.Empty,
-            IsOwner = userId != null && product.OwnerId == userId.Value,
-            CategoryName = product.Category.Name,
-            FrontImageUrl = product.Images.Any()
-                ? product.Images
-                    .Single(i => i.IsFrontImage)!.Url
-                : null,
-            ImagesUrls = product.Images
-                .Select(i => i.Url),
-        };
 
-        return productDetailsDto;
+        bool isOwner = userId != null && product.OwnerId == userId.Value;
+        return this._productsMapper.ToProductDetailsDto(product, isOwner);
     }
 
     public async Task<Guid> CreateProductAsync(Guid userId, ProductCreateDto productDto)
@@ -187,19 +146,9 @@ public class ProductsService : IProductsService
         {
             images.First().IsFrontImage = true;
         }
-                
-        Product newProduct = new Product()
-        {
-            Name = productDto.ProductName,
-            Description = productDto.Description,
-            QuantityInStock = productDto.QuantityInStock,
-            CostPrice = productDto.CostPrice,
-            SellingPrice = productDto.SellingPrice,
-            IsEnabled = productDto.IsEnabled,
-            OwnerId = userId,
-            CategoryId = passedInCategoryId,
-            Images = images
-        };
+
+        Product newProduct = this._productsMapper
+            .FromProductCreateDto(productDto, userId, images);
 
         await this._repository.AddAsync<Product>(newProduct);
         await this._repository.SaveChangesAsync();
@@ -224,6 +173,7 @@ public class ProductsService : IProductsService
         }
         
         Product? product = await this._repository.AllAsReadonly<Product>()
+            .Include(p => p.Category)
             .Include(p => p.Images)
             .SingleOrDefaultAsync(p => p.Id == id);
         if (product == null)
@@ -232,26 +182,7 @@ public class ProductsService : IProductsService
         if (userId != product.OwnerId)
             throw new UnauthorizedOperationException(userId, nameof(Product), id);
         
-        ProductEditDto productEditDto = new ProductEditDto()
-        {
-            Id = product.Id,
-            Name = product.Name,
-            Description = product.Description,
-            QuantityInStock = product.QuantityInStock,
-            SellingPrice = product.SellingPrice,
-            CostPrice = product.CostPrice,
-            IsEnabled = product.IsEnabled,
-            ProductImages = product.Images
-                .Select(i => new ImageDto()
-                {
-                    Id = i.Id,
-                    Url = i.Url
-                })
-                .ToList(),
-            CategoryId = product.CategoryId,
-        };
-
-        return productEditDto;
+        return this._productsMapper.ToProductEditDto(product);
     }
 
     public async Task DeleteProductAsync(Guid userId, Guid id)
@@ -344,13 +275,7 @@ public class ProductsService : IProductsService
         if (imagesToDelete.Any())
             this._repository.RemoveRange<Image>(imagesToDelete);
 
-        product.Name = productEditDto.Name;
-        product.Description = productEditDto.Description;
-        product.QuantityInStock = productEditDto.QuantityInStock;
-        product.SellingPrice = productEditDto.SellingPrice;
-        product.CostPrice = productEditDto.CostPrice;
-        product.IsEnabled = productEditDto.IsEnabled;
-        product.CategoryId = productEditDto.CategoryId;
+        this._productsMapper.EditProductFromProductEditDto(productEditDto, product);
 
         if (!string.IsNullOrEmpty(productEditDto.NewImagesUrls))
         {
