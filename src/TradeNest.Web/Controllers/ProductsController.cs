@@ -3,10 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
-using TradeNest.Services.Models.Image;
 using TradeNest.Services.Models.Product;
+using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.ViewModels.Category;
-using TradeNest.Web.ViewModels.Image;
 using TradeNest.Web.ViewModels.Product;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
@@ -16,16 +15,21 @@ namespace TradeNest.Web.Controllers;
 [Authorize]
 public class ProductsController : BaseController
 {
+    private readonly ILogger<ProductsController> _logger;
     private readonly IProductsService _productsService;
     private readonly ICategoriesService _categoriesService;
-    private readonly ILogger<ProductsController> _logger;
+    private readonly IProductPresentationModelsMapper _productPresentationModelsMapper;
     
-    public ProductsController(ILogger<ProductsController> logger,
-        IProductsService productsService, ICategoriesService categoriesService)
+    public ProductsController(
+        ILogger<ProductsController> logger,
+        IProductsService productsService,
+        ICategoriesService categoriesService,
+        IProductPresentationModelsMapper productPresentationModelsMapper)
     {
+        this._logger = logger;
         this._productsService = productsService;
         this._categoriesService = categoriesService;
-        this._logger = logger;
+        this._productPresentationModelsMapper = productPresentationModelsMapper;
     }
 
     [HttpGet]
@@ -77,7 +81,8 @@ public class ProductsController : BaseController
                 .GetAllProductsOrderedByDateOfCreationDescAsync(search);
         }
 
-        viewModel.Products = productDtos.Select(p => this.MapToProductViewModel(p));
+        viewModel.Products = this._productPresentationModelsMapper
+            .ToProductViewModels(productDtos);
         return View(viewModel);
     }
 
@@ -90,7 +95,7 @@ public class ProductsController : BaseController
 
         CatalogViewModel viewModel = new CatalogViewModel()
         {
-            Products = productDtos.Select(p => this.MapToProductViewModel(p)),
+            Products = this._productPresentationModelsMapper.ToProductViewModels(productDtos),
             Categories = await this.GetAllCategoriesViewModelsAsync(),
         };
         
@@ -115,21 +120,8 @@ public class ProductsController : BaseController
         if(returnUrl == null || !Url.IsLocalUrl(returnUrl)) 
             returnUrl ??= Url.Action(nameof(Index), controller: "Products");
 
-        ProductDetailsViewModel productDetailsViewModel = new ProductDetailsViewModel()
-        {
-            Id = productDetailsDto.Id,
-            Name = productDetailsDto.Name,
-            SellingPrice = productDetailsDto.SellingPrice,
-            CategoryName = productDetailsDto.CategoryName,
-            FrontImageUrl = productDetailsDto.FrontImageUrl,
-            Description = productDetailsDto.Description,
-            QuantityInStock = productDetailsDto.QuantityInStock,
-            OwnerName = productDetailsDto.OwnerName,
-            IsOwner = productDetailsDto.IsOwner,
-            ImagesUrls = productDetailsDto.ImagesUrls,
-            IsEnabled = productDetailsDto.IsEnabled,
-            ReturnUrl = returnUrl!,
-        };
+        ProductDetailsViewModel productDetailsViewModel = this._productPresentationModelsMapper
+            .ToProductDetailsViewModel(productDetailsDto, returnUrl!);
         
         return View(productDetailsViewModel);
     }
@@ -170,18 +162,8 @@ public class ProductsController : BaseController
         {
             Guid userId = this.GetUserId(throwIfNull: true);
 
-            ProductCreateDto productCreateDto = new ProductCreateDto()
-            {
-                ProductName = productCreateFormModel.ProductName,
-                SellingPrice = productCreateFormModel.SellingPrice,
-                CategoryId = productCreateFormModel.CategoryId,
-                FrontImageUrl = productCreateFormModel.FrontImageUrl,
-                ExtraImagesUrls = productCreateFormModel.ExtraImagesUrls,
-                CostPrice = productCreateFormModel.CostPrice,
-                Description = productCreateFormModel.Description,
-                QuantityInStock = productCreateFormModel.QuantityInStock,
-                IsEnabled = productCreateFormModel.IsEnabled,
-            };
+            ProductCreateDto productCreateDto = this._productPresentationModelsMapper
+                .FromProductCreateFormModel(productCreateFormModel);
 
             Guid productId = await this._productsService
                 .CreateProductAsync(userId, productCreateDto);
@@ -212,27 +194,11 @@ public class ProductsController : BaseController
         if (model == null)
             return NotFound();
         
-        ProductEditFormModel productEditFormModel = new ProductEditFormModel()
-        {
-            ProductId = model.Id,
-            ProductName = model.Name,
-            SellingPrice = model.SellingPrice,
-            CategoryId = model.CategoryId,
-            ProductImages = model.ProductImages
-                .Select(i => new ImageViewModel()
-                {
-                    Id = i.Id,
-                    Url = i.Url,
-                    IsMarkedToStay = i.IsMarkedToStay,
-                })
-                .ToList(),
-            CostPrice = model.CostPrice,
-            Description = model.Description,
-            QuantityInStock = model.QuantityInStock,
-            IsEnabled = model.IsEnabled,
-            AllCategories = await this.GetAllCategoriesViewModelsAsync(),
-        };
-
+        ProductEditFormModel productEditFormModel = this._productPresentationModelsMapper
+            .ToProductEditFormModel(
+                productEditDto: model,
+                allCategories: (await this.GetAllCategoriesViewModelsAsync()).ToList());
+        
         return View(productEditFormModel);
     }
     
@@ -261,25 +227,8 @@ public class ProductsController : BaseController
         {
             Guid userId = this.GetUserId(throwIfNull: true);
 
-            ProductEditDto productEditDto = new ProductEditDto()
-            {
-                Id = productEditFormModel.ProductId,
-                Name = productEditFormModel.ProductName,
-                IsEnabled = productEditFormModel.IsEnabled,
-                SellingPrice = productEditFormModel.SellingPrice,
-                CategoryId = productEditFormModel.CategoryId,
-                CostPrice = productEditFormModel.CostPrice,
-                Description = productEditFormModel.Description,
-                QuantityInStock = productEditFormModel.QuantityInStock,
-                ProductImages = productEditFormModel.ProductImages
-                    .Select(i => new ImageDto()
-                    {
-                        Id = i.Id,
-                        Url = i.Url,
-                        IsMarkedToStay = i.IsMarkedToStay,
-                    }),
-                NewImagesUrls = productEditFormModel.NewImagesUrls,
-            };
+            ProductEditDto productEditDto = this._productPresentationModelsMapper
+                .FromProductEditFormModel(productEditFormModel);
 
             await this._productsService.EditProductAsync(userId, productEditDto);
 
@@ -327,18 +276,6 @@ public class ProductsController : BaseController
             
             return LocalRedirect(returnUrl!);
         }
-    }
-
-    private ProductViewModel MapToProductViewModel(ProductDto productDto)
-    {
-        return new ProductViewModel()
-        {
-            Id = productDto.Id,
-            Name = productDto.Name,
-            SellingPrice = productDto.SellingPrice,
-            CategoryName = productDto.CategoryName,
-            FrontImageUrl = productDto.FrontImageUrl,
-        };
     }
 
     private async Task<IEnumerable<AllCategoriesViewModel>> GetAllCategoriesViewModelsAsync()

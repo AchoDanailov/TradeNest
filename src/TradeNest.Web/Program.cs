@@ -9,6 +9,8 @@ using TradeNest.Data.Repository;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Mappers;
 using TradeNest.Services.Core.Mappers.Interfaces;
+using TradeNest.Web.Mappers;
+using TradeNest.Web.Mappers.Interfaces;
 using ProductsMapper = TradeNest.Services.Core.Mappers.ProductsMapper;
 
 namespace TradeNest.Web;
@@ -37,6 +39,10 @@ public class Program
         builder.Services.AddSingleton<IOrdersMapper, OrdersMapper>();
         builder.Services.AddSingleton<IProductsMapper, ProductsMapper>();
         builder.Services.AddSingleton<ICartsMapper, CartsMapper>();
+        
+        builder.Services.AddSingleton<IProductPresentationModelsMapper, ProductPresentationModelsMapper>();
+        builder.Services.AddSingleton<IOrderPresentationModelsMapper, OrderPresentationModelsMapper>();
+        builder.Services.AddSingleton<ICartPresentationModelsMapper, CartPresentationModelsMapper>();
 
         builder.Services.AddScoped<IProductsService, ProductsService>();
         builder.Services.AddScoped<ICategoriesService, CategoriesService>();

@@ -6,6 +6,7 @@ using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Cart;
 using TradeNest.Services.Models.Order;
 using TradeNest.Services.Models.Product;
+using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.ViewModels.Order;
 using TradeNest.Web.ViewModels.Cart;
 using TradeNest.Web.ViewModels.Product;
@@ -20,13 +21,21 @@ public class CartController : BaseController
     private readonly ILogger<CartController> _logger;
     private readonly IOrdersService _ordersService;
     private readonly ICartsService _cartsService;
+    private readonly IOrderPresentationModelsMapper _orderPresentationModelsMapper;
+    private readonly ICartPresentationModelsMapper _cartPresentationModelsMapper;
 
-    public CartController(IOrdersService ordersService, ICartsService cartsService,
-        ILogger<CartController> logger)
+    public CartController(
+        IOrdersService ordersService,
+        ICartsService cartsService,
+        ILogger<CartController> logger, 
+        ICartPresentationModelsMapper cartPresentationModelsMapper,
+        IOrderPresentationModelsMapper orderPresentationModelsMapper)
     {
         this._logger = logger;
         this._ordersService = ordersService;
         this._cartsService = cartsService;
+        this._cartPresentationModelsMapper = cartPresentationModelsMapper;
+        this._orderPresentationModelsMapper = orderPresentationModelsMapper;
     }
 
     [HttpGet]
@@ -34,9 +43,24 @@ public class CartController : BaseController
     public async Task<IActionResult> Index()
     {
         Guid userId = this.GetUserId(throwIfNull: true);
-        CartWithOrdersViewModel viewModel 
-            = await this.PrepareCartWithOrdersViewModelByUserIdAsync(userId);
+        
+        CartDto? userCartDto = await this._cartsService
+            .GetCartByUserIdAsync(userId);
+        IEnumerable<OrderDto> userOrdersDtos = await this._ordersService
+            .GetAllOrdersByUserIdAsync(userId);
 
+        CartViewModel? cartViewModel = userCartDto != null
+            ? this._cartPresentationModelsMapper.ToCartViewModel(userCartDto)
+            : null;
+        IEnumerable<OrderViewModel> orderViewModels = this._orderPresentationModelsMapper
+            .ToOrderViewModels(userOrdersDtos);
+        
+        CartWithOrdersViewModel viewModel = new CartWithOrdersViewModel()
+        {
+            CartViewModel = cartViewModel,
+            OrderViewModels = orderViewModels,
+        };
+        
         return View(viewModel);
     }
     
@@ -52,7 +76,6 @@ public class CartController : BaseController
             Guid userId = this.GetUserId(throwIfNull: true);
 
             await this._cartsService.AddProductToCartAsync(userId, id, quantity);
-
             return RedirectToAction(nameof(Index), controllerName: "Cart");
         }
         catch (InsufficientProductQuantityInStockException notInStockEx)
@@ -90,7 +113,6 @@ public class CartController : BaseController
 
         Guid userId = this.GetUserId(throwIfNull: true);
         await this._cartsService.RemoveProductFromCartAsync(userId, id);
-
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
     
@@ -102,16 +124,9 @@ public class CartController : BaseController
 
         SubmitOrderResultDto res = await this._ordersService.SubmitOrderAsync(userId);
         if (!res.IsSuccess)
-        {
-            if (res.ErrorProducts.Any())
-                TempData["ProblemWithCartProductMessage"] = ProblemWithCartProductMessage;
-            else
-                TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
-        }
+            TempData["ProblemWithCartProductMessage"] = ProblemWithCartProductMessage;
         else
-        {
             TempData["OrderSubmittionSuccessMessage"] = OrderSubmittionSuccessMessage;
-        }
         
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
@@ -122,7 +137,6 @@ public class CartController : BaseController
     {
         Guid userId = this.GetUserId(throwIfNull: true);
         await this._cartsService.DeleteCart(userId);
-
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
     
@@ -160,54 +174,5 @@ public class CartController : BaseController
 
             return BadRequest(ex);
         }
-    }
-
-    private async Task<CartWithOrdersViewModel> PrepareCartWithOrdersViewModelByUserIdAsync(
-        Guid userId,
-        CartDto? userCartDto = null,
-        IEnumerable<OrderDto>? userOrdersDtos = null)
-    {
-        userCartDto ??= await this._cartsService.GetCartByUserIdAsync(userId);
-        userOrdersDtos ??= await this._ordersService.GetAllOrdersByUserIdAsync(userId);
-
-        CartWithOrdersViewModel viewModel = new CartWithOrdersViewModel()
-        {
-            CartViewModel = userCartDto == null
-                ? null
-                : new CartViewModel()
-                {
-                    CartId = userCartDto.CartId,
-                    TotalPrice = userCartDto.TotalPrice,
-                    CartProducts = userCartDto.CartProducts
-                        .Select(cp => new CartProductViewModel()
-                        {
-                            Id = cp.Id,
-                            Name = cp.Name,
-                            QuantityAdded = cp.QuantityAdded,
-                            UnitPrice = cp.UnitPrice,
-                            TotalPrice = cp.TotalPrice,
-                            IsEnabled = cp.IsEnabled,
-                            IsEnoughQtyLeft = cp.IsEnoughQtyLeft
-                        }),
-                },
-            OrderViewModels = userOrdersDtos
-                .Select(o => new OrderViewModel()
-                {
-                    Id = o.Id,
-                    SubmittedOn = o.SubmittedOn,
-                    OrderProducts = o.OrderProducts
-                        .Select(op => new OrderProductViewModel()
-                        {
-                            Id = op.Id,
-                            Name = op.Name,
-                            QuantityOrdered = op.QuantityOrdered,
-                            TotalPrice = op.TotalPriceAtOrderTime,
-                            UnitPrice = op.UnitPriceAtOrderTime
-                        }),
-                    TotalPrice = o.TotalPrice,
-                }),
-        };
-
-        return viewModel;
     }
 }
