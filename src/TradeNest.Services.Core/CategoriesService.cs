@@ -1,5 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Interfaces;
@@ -43,8 +41,10 @@ public class CategoriesService : ICategoriesService
         GetAllCategoriesWithBestSellerImageAsync()
     {
         IEnumerable<CategoryWithBestSellerImageDto> allCategoriesWithBestSellerImageDtos 
-            = this._categoriesRepository.GetAllAsReadOnlyAsync()
-                .GetAwaiter().GetResult()
+            = this._categoriesRepository.GetAllAsReadOnlyAsync(options => 
+                    options.OrderBy(c => c.Name))
+                .GetAwaiter()
+                .GetResult()
                 .Select(c => new CategoryWithBestSellerImageDto()
                 {
                     Id = c.Id,
@@ -52,10 +52,11 @@ public class CategoriesService : ICategoriesService
                 })
                 .ToArray();
         
+        // rethink if u want to show specifically bestseller image in the front.. query can be optimised if that wasnt the case.
         foreach (CategoryWithBestSellerImageDto category in allCategoriesWithBestSellerImageDtos)
         {
             Product? categoryBestSeller = await this._productsRepository
-                .GetCategoryBestSeller(category.Id, include: p => p.Images);
+                .GetCategoryBestSeller(category.Id);
             if (categoryBestSeller != null && categoryBestSeller.Images.Any())
             {
                 category.BestSellerImageUrl = categoryBestSeller.Images

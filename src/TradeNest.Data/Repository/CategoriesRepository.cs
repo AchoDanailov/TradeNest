@@ -1,4 +1,7 @@
+using System.Linq.Expressions;
+
 using Microsoft.EntityFrameworkCore;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 
@@ -11,11 +14,20 @@ public class CategoriesRepository : BaseRepository<Category>, ICategoriesReposit
     {
     }
 
-    public override async Task<IEnumerable<Category>> GetAllAsReadOnlyAsync()
+    public override async Task<bool> DeleteAsync(Category entity)
     {
-        return await this.DbContext.Categories
-            .AsNoTracking()
-            .OrderBy(c => c.Name)
-            .ToArrayAsync();
+        this.DbContext.Remove(entity);
+        int res = await this.DbContext.SaveChangesAsync();
+
+        return res == 1;
+    }
+
+    public override async Task<bool> DeleteRangeAsync(Expression<Func<Category, bool>> filter)
+    {
+        IQueryable<Category> targetEntries = this.DbContext.Set<Category>().Where(filter);
+        await targetEntries.ExecuteDeleteAsync();
+        int res = await this.DbContext.SaveChangesAsync();
+        
+        return res == targetEntries.Count();
     }
 }

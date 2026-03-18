@@ -5,8 +5,8 @@ namespace TradeNest.Data.Repository.Interfaces;
 public interface IRepository<T> : IDisposable
     where T : class, new()
 {
-    Task<IEnumerable<T>> GetAllAsync();
-    Task<IEnumerable<T>> GetAllAsReadOnlyAsync();
+    Task<IEnumerable<T>> GetAllAsync(Action<QueryOptions<T>>? optionsSetter = null);
+    Task<IEnumerable<T>> GetAllAsReadOnlyAsync(Action<IQueryOptions<T>>? optionsSetter = null);
     
     Task<T?> FindByIdAsync(Guid id); 
     
@@ -20,5 +20,5 @@ public interface IRepository<T> : IDisposable
 
     Task<bool> AddRangeAsync(IEnumerable<T> entities);
 
-    Task<bool> ExecuteDelete(Expression<Func<T, bool>> filter);
+    Task<bool> DeleteRangeAsync(Expression<Func<T, bool>> filter);
 }

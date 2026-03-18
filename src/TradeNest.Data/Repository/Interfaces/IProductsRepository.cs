@@ -2,7 +2,7 @@ using TradeNest.Data.Models;
 
 namespace TradeNest.Data.Repository.Interfaces;
 
-public interface IProductsRepository : IRepository
+public interface IProductsRepository : IRepository<Product> 
 {
-    Task<Product?> GetCategoryBestSeller(Guid categoryId, params Func<Product, object>[] include);
+    Task<Product?> GetCategoryBestSeller(Guid categoryId);
 }

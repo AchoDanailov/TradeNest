@@ -16,18 +16,35 @@ public abstract class BaseRepository<T> : IRepository<T>
     }
 
     protected TradeNestDbContext DbContext => this._dbContext;
-    
-    public virtual async Task<IEnumerable<T>> GetAllAsync()
+
+    public abstract Task<bool> DeleteAsync(T entity);
+
+    public abstract Task<bool> DeleteRangeAsync(Expression<Func<T, bool>> filter);
+
+    public virtual async Task<IEnumerable<T>> GetAllAsync(
+        Action<QueryOptions<T>>? optionsSetter = null)
     {
-        return await this.DbContext.Set<T>()
+        if (optionsSetter == null)
+        {
+            return await this.DbContext.Set<T>()
+                .ToArrayAsync();
+        }
+        
+        return await this.BuildQuery(optionsSetter)
             .ToArrayAsync();
     }
 
-    public virtual async Task<IEnumerable<T>> GetAllAsReadOnlyAsync()
+    public virtual async Task<IEnumerable<T>> GetAllAsReadOnlyAsync(
+        Action<IQueryOptions<T>>? optionsSetter = null)
     {
-        return await this.DbContext.Set<T>()
-            .AsNoTracking()
-            .ToArrayAsync();
+        if (optionsSetter == null)
+        {
+            return await this.DbContext.Set<T>()
+                .ToArrayAsync();
+        }
+        
+        return await this.BuildQuery(optionsSetter, isReadOnly: true)
+            .ToArrayAsync(); 
     }
 
     public virtual async Task<T?> FindByIdAsync(Guid id)
@@ -35,11 +52,12 @@ public abstract class BaseRepository<T> : IRepository<T>
         return await this.DbContext.Set<T>()
             .FindAsync(id);
     }
-    
+
     public virtual async Task<bool> AddAsync(T entity)
     {
         await this.DbContext.Set<T>().AddAsync(entity);
         int res = await this.DbContext.SaveChangesAsync();
+        
         return res == 1;
     }
 
@@ -47,13 +65,7 @@ public abstract class BaseRepository<T> : IRepository<T>
     {
         this.DbContext.Set<T>().Update(entity);
         int res = await this.DbContext.SaveChangesAsync();
-        return res == 1;
-    }
-
-    public virtual async Task<bool> DeleteAsync(T entity)
-    {
-        this.DbContext.Set<T>().Remove(entity);
-        int res = await this.DbContext.SaveChangesAsync();
+        
         return res == 1;
     }
 
@@ -66,17 +78,11 @@ public abstract class BaseRepository<T> : IRepository<T>
     public virtual async Task<bool> AddRangeAsync(IEnumerable<T> entities)
     {
         IEnumerable<T> entitiesAsArr = entities.ToArray();
+        
         await this.DbContext.Set<T>().AddRangeAsync(entitiesAsArr);
         int res = await this.DbContext.SaveChangesAsync();
+        
         return res == entitiesAsArr.Count();
-    }
-
-    public virtual async Task<bool> ExecuteDelete(Expression<Func<T, bool>> filter)
-    {
-        IQueryable<T> targetEntries = this.DbContext.Set<T>().Where(filter);
-        await targetEntries.ExecuteDeleteAsync();
-        int res = await this.DbContext.SaveChangesAsync();
-        return res == targetEntries.Count();
     }
 
     public void Dispose()
@@ -95,5 +101,34 @@ public abstract class BaseRepository<T> : IRepository<T>
             }
         }
         this._disposed = true;
+    }
+
+    protected  IQueryable<T> BuildQuery(Action<QueryOptions<T>> optionsSetter, bool? isReadOnly = null)
+    {
+        IQueryable<T> queryable = this.DbContext.Set<T>();
+        
+        QueryOptions<T> queryOptions = new QueryOptions<T>();
+        optionsSetter.Invoke(queryOptions);
+        
+        if (queryOptions.Filter != null)
+            queryable = queryable.Where(queryOptions.Filter);
+        
+        if (queryOptions.Projection != null)
+            queryable = queryable.Select(queryOptions.Projection);
+        
+        foreach (Expression<Func<T, object>> includeStatement in queryOptions.IncludeList)
+            queryable = queryable.Include(includeStatement);
+
+        if (isReadOnly is true)
+            queryable = queryable.AsNoTracking();
+
+        foreach (Expression<Func<T, object>> orderingStatement in queryOptions.OrderByAscendingStatements)
+            queryable = queryable.OrderBy(orderingStatement);
+
+        foreach (Expression<Func<T, object>> descOrderingStatement in queryOptions.OrderByDescendingStatements)
+            queryable = queryable.OrderByDescending(descOrderingStatement);
+
+        
+        return queryable;
     }
 }
