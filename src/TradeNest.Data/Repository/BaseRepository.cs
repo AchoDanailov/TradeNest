@@ -17,33 +17,29 @@ public abstract class BaseRepository<T> : IRepository<T>
 
     protected TradeNestDbContext DbContext => this._dbContext;
 
-    public abstract Task<bool> DeleteAsync(T entity);
-
-    public abstract Task<bool> DeleteRangeAsync(Expression<Func<T, bool>> filter);
-
     public virtual async Task<IEnumerable<T>> GetAllAsync(
-        Action<QueryOptions<T>>? optionsSetter = null)
+        Action<QueryBuilder<T>>? queryOptionsBuilder = null)
     {
-        if (optionsSetter == null)
+        if (queryOptionsBuilder == null)
         {
             return await this.DbContext.Set<T>()
                 .ToArrayAsync();
         }
         
-        return await this.BuildQuery(optionsSetter)
+        return await this.BuildQuery(queryOptionsBuilder)
             .ToArrayAsync();
     }
 
     public virtual async Task<IEnumerable<T>> GetAllAsReadOnlyAsync(
-        Action<IQueryOptions<T>>? optionsSetter = null)
+        Action<IQueryBuilder<T>>? queryOptionsBuilder = null)
     {
-        if (optionsSetter == null)
+        if (queryOptionsBuilder == null)
         {
             return await this.DbContext.Set<T>()
                 .ToArrayAsync();
         }
         
-        return await this.BuildQuery(optionsSetter, isReadOnly: true)
+        return await this.BuildQuery(queryOptionsBuilder, asReadOnly: true)
             .ToArrayAsync(); 
     }
 
@@ -58,7 +54,7 @@ public abstract class BaseRepository<T> : IRepository<T>
         await this.DbContext.Set<T>().AddAsync(entity);
         int res = await this.DbContext.SaveChangesAsync();
         
-        return res == 1;
+        return res > 0;
     }
 
     public virtual async Task<bool> UpdateAsync(T entity)
@@ -66,7 +62,7 @@ public abstract class BaseRepository<T> : IRepository<T>
         this.DbContext.Set<T>().Update(entity);
         int res = await this.DbContext.SaveChangesAsync();
         
-        return res == 1;
+        return res > 0;
     }
 
     public virtual async Task<bool> ExistsAsync(Expression<Func<T, bool>> filter)
@@ -82,7 +78,7 @@ public abstract class BaseRepository<T> : IRepository<T>
         await this.DbContext.Set<T>().AddRangeAsync(entitiesAsArr);
         int res = await this.DbContext.SaveChangesAsync();
         
-        return res == entitiesAsArr.Count();
+        return res >= entitiesAsArr.Count();
     }
 
     public void Dispose()
@@ -103,32 +99,29 @@ public abstract class BaseRepository<T> : IRepository<T>
         this._disposed = true;
     }
 
-    protected  IQueryable<T> BuildQuery(Action<QueryOptions<T>> optionsSetter, bool? isReadOnly = null)
+    protected IQueryable<T> BuildQuery(Action<QueryBuilder<T>> queryOptionsBuilder, 
+        IQueryable<T>? queryable = null, bool? asReadOnly = null)
     {
-        IQueryable<T> queryable = this.DbContext.Set<T>();
+        queryable ??= this.DbContext.Set<T>();
         
-        QueryOptions<T> queryOptions = new QueryOptions<T>();
-        optionsSetter.Invoke(queryOptions);
+        QueryBuilder<T> queryBuilder = new QueryBuilder<T>();
+        queryOptionsBuilder.Invoke(queryBuilder);
         
-        if (queryOptions.Filter != null)
-            queryable = queryable.Where(queryOptions.Filter);
+        if (queryBuilder.Filter != null)
+            queryable = queryable.Where(queryBuilder.Filter);
         
-        if (queryOptions.Projection != null)
-            queryable = queryable.Select(queryOptions.Projection);
-        
-        foreach (Expression<Func<T, object>> includeStatement in queryOptions.IncludeList)
+        foreach (Expression<Func<T, object>> includeStatement in queryBuilder.IncludesList)
             queryable = queryable.Include(includeStatement);
 
-        if (isReadOnly is true)
+        if (asReadOnly is true)
             queryable = queryable.AsNoTracking();
 
-        foreach (Expression<Func<T, object>> orderingStatement in queryOptions.OrderByAscendingStatements)
+        foreach (Expression<Func<T, object>> orderingStatement in queryBuilder.OrderByAscendingStatements.Reverse())
             queryable = queryable.OrderBy(orderingStatement);
 
-        foreach (Expression<Func<T, object>> descOrderingStatement in queryOptions.OrderByDescendingStatements)
+        foreach (Expression<Func<T, object>> descOrderingStatement in queryBuilder.OrderByDescendingStatements.Reverse())
             queryable = queryable.OrderByDescending(descOrderingStatement);
 
-        
         return queryable;
     }
 }

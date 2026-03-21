@@ -3,9 +3,9 @@ using TradeNest.Data.Repository.Interfaces;
 
 namespace TradeNest.Data.Repository;
 
-public class CategoriesRepository : BaseRepository<Category>, ICategoriesRepository
+public class UsersRepository : BaseRepository<ApplicationUser>, IUsersRepository
 {
-    public CategoriesRepository(TradeNestDbContext dbContext) 
+    public UsersRepository(TradeNestDbContext dbContext) 
         : base(dbContext)
     {
     }

@@ -8,7 +8,6 @@ using TradeNest.Web.ViewModels.Category;
 
 namespace TradeNest.Web.Controllers;
 
-[Authorize]
 public class CategoriesController : BaseController
 {
     private readonly ICategoriesService _categoriesService;

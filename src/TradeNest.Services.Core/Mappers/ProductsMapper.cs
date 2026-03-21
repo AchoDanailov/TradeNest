@@ -44,8 +44,7 @@ public partial class ProductsMapper : IProductsMapper
     [MapperIgnoreTarget(nameof(Product.ProductWatchlists))] [MapperIgnoreTarget(nameof(Product.Images))]
     [MapperIgnoreTarget(nameof(Product.OwnerId))] [MapperIgnoreTarget(nameof(Product.IsDeleted))]
     [MapperIgnoreTarget(nameof(Product.CreatedOn))]
-    public partial void EditProductFromProductEditDto(ProductEditDto productEditDto,
-        Product product);
+    public partial void EditProductFromProductEditDto(ProductEditDto productEditDto, Product product);
 
     private string? MapFrontImageUrl(Product product)
     {

@@ -1,4 +1,3 @@
-using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
@@ -26,42 +25,35 @@ public class CategoriesService : ICategoriesService
             .ExistsAsync(c => c.Id == id);
     }
     
-    public Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
+    public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
     {
-        return Task.FromResult(this._categoriesRepository.GetAllAsReadOnlyAsync()
-            .GetAwaiter().GetResult()
+        return (await this._categoriesRepository.GetAllAsReadOnlyAsync(options => 
+                options.AddOrderAsc(c => c.Name)))
             .Select(c => new CategoryDto()
             {
                 Id = c.Id,
                 CategoryName = c.Name,
-            }));
+            });
     }
 
     public async Task<IEnumerable<CategoryWithBestSellerImageDto>>
         GetAllCategoriesWithBestSellerImageAsync()
     {
-        IEnumerable<CategoryWithBestSellerImageDto> allCategoriesWithBestSellerImageDtos 
-            = this._categoriesRepository.GetAllAsReadOnlyAsync(options => 
-                    options.OrderBy(c => c.Name))
-                .GetAwaiter()
-                .GetResult()
-                .Select(c => new CategoryWithBestSellerImageDto()
-                {
-                    Id = c.Id,
-                    CategoryName = c.Name,
-                })
-                .ToArray();
-        
-        // rethink if u want to show specifically bestseller image in the front.. query can be optimised if that wasnt the case.
-        foreach (CategoryWithBestSellerImageDto category in allCategoriesWithBestSellerImageDtos)
-        {
-            Product? categoryBestSeller = await this._productsRepository
-                .GetCategoryBestSeller(category.Id);
-            if (categoryBestSeller != null && categoryBestSeller.Images.Any())
+        IEnumerable<CategoryWithBestSellerImageDto> allCategoriesWithBestSellerImageDtos
+            = (await this._categoriesRepository.GetAllAsReadOnlyAsync(options => 
+                options.AddOrderAsc(c => c.Name)))
+            .Select(c => new CategoryWithBestSellerImageDto()
             {
-                category.BestSellerImageUrl = categoryBestSeller.Images
-                    .Single(i => i.IsFrontImage).Url;
-            }
+                Id = c.Id,
+                CategoryName = c.Name,
+            })
+            .ToArray();
+
+        IDictionary<Guid, string?> bestSellersFrontImagesByCategoryId 
+            = await this._productsRepository.GetAllCategoriesBestSellersFrontImagesAsReadonlyAsync();
+        foreach (CategoryWithBestSellerImageDto categoryDto in allCategoriesWithBestSellerImageDtos)
+        {
+            categoryDto.BestSellerImageUrl = bestSellersFrontImagesByCategoryId[categoryDto.Id];
         }
 
         return allCategoriesWithBestSellerImageDtos;

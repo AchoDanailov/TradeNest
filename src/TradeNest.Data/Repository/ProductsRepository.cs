@@ -1,4 +1,4 @@
-using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Data.Models;
@@ -12,18 +12,48 @@ public class ProductsRepository : BaseRepository<Product>, IProductsRepository
     {
     }
 
-    public override async Task<bool> DeleteAsync(Product entity)
+    public async Task<IDictionary<Guid, string?>> 
+        GetAllCategoriesBestSellersFrontImagesAsReadonlyAsync()
     {
-        throw new NotImplementedException();
+        return await this.DbContext.Categories
+            .AsNoTracking()
+            .Select(c => new
+            {
+                Id = c.Id,
+                BestSellerImage = c.Products.OrderByDescending(p => p.SoldProducts
+                        .Sum(sp => sp.QuantityOrdered))
+                    .FirstOrDefault()!
+                    .Images.SingleOrDefault(i => i.IsFrontImage)!.Url ?? null
+            })
+            .ToDictionaryAsync(
+                c => c.Id,
+                c => c.BestSellerImage);
     }
 
-    public override async Task<bool> DeleteRangeAsync(Expression<Func<Product, bool>> filter)
+    // TODO: debug this.
+    public async Task<IEnumerable<Product>> GetAllProductsWithCategoryAndImagesAsReadonlyAsync(
+        Action<IQueryBuilder<Product>>? queryOptionsBuilder = null)
     {
-        throw new NotImplementedException();
+        IQueryable<Product> queryable = this.DbContext.Products
+            .Include(p => p.Images)
+            .Include(p => p.Category);
+        if (queryOptionsBuilder != null)
+        {
+            return await this.BuildQuery(queryOptionsBuilder, queryable, asReadOnly: true)
+                .ToArrayAsync();
+        }
+        
+        return await queryable
+            .AsNoTracking()
+            .ToArrayAsync();
     }
 
-    public async Task<Product?> GetCategoryBestSeller(Guid categoryId)
+    public async Task<bool> ArchiveAsync(Product product)
     {
-        throw new NotImplementedException();
+        product.IsDeleted = true;
+        this.DbContext.Products.Update(product);
+        
+        int res = await this.DbContext.SaveChangesAsync();
+        return res >= 1;
     }
 }

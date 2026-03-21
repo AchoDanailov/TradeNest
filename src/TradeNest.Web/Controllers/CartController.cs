@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 using TradeNest.GCommon.Exceptions;
@@ -15,7 +14,6 @@ using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
 
 namespace TradeNest.Web.Controllers;
 
-[Authorize]
 public class CartController : BaseController
 {
     private readonly ILogger<CartController> _logger;
@@ -39,7 +37,6 @@ public class CartController : BaseController
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Index()
     {
         Guid userId = this.GetUserId(throwIfNull: true);
@@ -65,7 +62,6 @@ public class CartController : BaseController
     }
     
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> AddToCart([FromRoute] Guid id, [FromForm] int quantity)
     {
         if (id == Guid.Empty || quantity < 1)
@@ -105,7 +101,6 @@ public class CartController : BaseController
     }
     
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> RemoveFromCart([FromRoute] Guid id)
     {
         if (id == Guid.Empty)
@@ -117,7 +112,6 @@ public class CartController : BaseController
     }
     
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> SubmitOrder()
     {
         Guid userId = this.GetUserId(throwIfNull: true);
@@ -132,7 +126,6 @@ public class CartController : BaseController
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> Cancel()
     {
         Guid userId = this.GetUserId(throwIfNull: true);
@@ -140,7 +133,6 @@ public class CartController : BaseController
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
     
-    [Authorize]
     [SkipStatusCodePages]
     [AcceptVerbs("POST")]
     public async Task<IActionResult> VerifyProdQty(

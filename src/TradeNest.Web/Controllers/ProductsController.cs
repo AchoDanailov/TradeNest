@@ -12,7 +12,6 @@ using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
 
 namespace TradeNest.Web.Controllers;
 
-[Authorize]
 public class ProductsController : BaseController
 {
     private readonly ILogger<ProductsController> _logger;
@@ -127,7 +126,6 @@ public class ProductsController : BaseController
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Create()
     {
         ProductCreateFormModel productCreateFormModel = new ProductCreateFormModel()
@@ -135,12 +133,10 @@ public class ProductsController : BaseController
             AllCategories = await this.GetAllCategoriesViewModelsAsync(),
         };
             
-        
         return View(productCreateFormModel);
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> Create(
         [FromForm] ProductCreateFormModel productCreateFormModel)
     {
@@ -203,7 +199,6 @@ public class ProductsController : BaseController
     }
     
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> Edit([FromForm] ProductEditFormModel productEditFormModel)
     {
         if(productEditFormModel.ProductId == Guid.Empty) 
