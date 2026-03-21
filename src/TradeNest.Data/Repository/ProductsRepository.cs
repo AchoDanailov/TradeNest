@@ -20,17 +20,19 @@ public class ProductsRepository : BaseRepository<Product>, IProductsRepository
             .Select(c => new
             {
                 Id = c.Id,
-                BestSellerImage = c.Products.OrderByDescending(p => p.SoldProducts
-                        .Sum(sp => sp.QuantityOrdered))
-                    .FirstOrDefault()!
-                    .Images.SingleOrDefault(i => i.IsFrontImage)!.Url ?? null
+                BestSellerImage = c.Products
+                    .OrderByDescending(p => p.SoldProducts.Sum(sp => sp.QuantityOrdered))
+                    .Select(p => p.Images
+                        .Where(i => i.IsFrontImage)
+                        .Select(i => i.Url)
+                        .SingleOrDefault())
+                    .FirstOrDefault()
             })
             .ToDictionaryAsync(
                 c => c.Id,
                 c => c.BestSellerImage);
     }
 
-    // TODO: debug this.
     public async Task<IEnumerable<Product>> GetAllProductsWithCategoryAndImagesAsReadonlyAsync(
         Action<IQueryBuilder<Product>>? queryOptionsBuilder = null)
     {

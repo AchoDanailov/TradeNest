@@ -93,7 +93,7 @@ public interface ICartsService
     /// <returns>A Task representing the asynchronous operation</returns>
     /// <exception cref="ArgumentException">
     /// Thrown if <paramref name="userId"/> is of value <see cref="Guid.Empty"/> or if
-    /// user with <param name="userId"></param> or the user does not have a cart.
+    /// the user with <paramref name="userId"/> does not exist or does not have a cart.
     /// </exception>
     /// <exception cref="DataPersistException">
     /// Thrown if the data is not successfully persisted.

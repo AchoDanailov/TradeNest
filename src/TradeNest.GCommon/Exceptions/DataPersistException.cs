@@ -5,17 +5,18 @@ namespace TradeNest.GCommon.Exceptions;
 /// </summary>
 public class DataPersistException : Exception
 {
-    private const string DefaultMessage = "Data persist exception occured.";
+    private const string DefaultMessage = "Data persist exception occurred.";
+
+    public DataPersistException(params string[] data)
+        : this(innerException: null, data: data)
+    {
+    }
     
-    public DataPersistException(string? message = null, Exception? innerException = null, params string[] data) 
+    public DataPersistException(Exception? innerException, params string[] data)
         : base(
-            message: !string.IsNullOrWhiteSpace(message)
-                ? data.Any(s => !string.IsNullOrWhiteSpace(s)) 
-                    ? string.Join(" ", message, string.Join(", ", data)) 
-                    : message
-                : data.Any(s => !string.IsNullOrWhiteSpace(s)) 
-                    ? string.Join(" ", DefaultMessage, string.Join(", ", data)) 
-                    : DefaultMessage,
+            message: data.Any(s => !string.IsNullOrWhiteSpace(s)) 
+                ? string.Join(" ", DefaultMessage, string.Join(", ", data)) 
+                : DefaultMessage,
             innerException: innerException)
     {
     }

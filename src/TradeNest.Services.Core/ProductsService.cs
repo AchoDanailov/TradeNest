@@ -34,17 +34,23 @@ public class ProductsService : IProductsService
         string? search = null)
     {
         IEnumerable<Product> products; 
-        if (search != null)
+        if (!string.IsNullOrWhiteSpace(search))
         {
             products = await this._productsRepository
                 .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(options =>
-                    options.AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) ||
-                                           p.Category.Name.ToLower().Contains(search.ToLower())));
+                    options
+                        .AddOrderDesc(p => p.CreatedOn)
+                        .AddOrderAsc(p => p.Name)
+                        .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) ||
+                                        p.Category.Name.ToLower().Contains(search.ToLower())));
         }
         else
         {
             products = await this._productsRepository
-                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync();
+                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(options => 
+                    options
+                        .AddOrderDesc(p => p.CreatedOn)
+                        .AddOrderAsc(p => p.Name));
         }
         
         return this._productsMapper.ToProductDtos(products);
@@ -163,7 +169,10 @@ public class ProductsService : IProductsService
 
         bool addProductResult = await this._productsRepository.AddAsync(newProduct);
         if (addProductResult == false)
-            throw new DataPersistException(nameof(addProductResult));
+        {
+            throw new DataPersistException(nameof(addProductResult),
+                $"{nameof(userId)}: {userId}");
+        }
             
         return newProduct.Id;
     }
@@ -225,7 +234,10 @@ public class ProductsService : IProductsService
 
         bool archiveProductResult = await this._productsRepository.ArchiveAsync(product);
         if (archiveProductResult == false)
-            throw new DataPersistException(nameof(archiveProductResult));
+        {
+            throw new DataPersistException(nameof(archiveProductResult), 
+                $"{nameof(userId)}: {userId}", $"productId: {product.Id}");
+        }
     }
 
     public async Task EditProductAsync(Guid userId, ProductEditDto productEditDto)
@@ -293,7 +305,10 @@ public class ProductsService : IProductsService
 
         bool updateProductResult = await this._productsRepository.UpdateAsync(product);
         if (updateProductResult == false)
-            throw new DataPersistException(nameof(updateProductResult));
+        {
+            throw new DataPersistException(nameof(updateProductResult),
+                $"productId: {product.Id}");
+        }
     }
 
     private IEnumerable<Image> DeleteImagesForDeletionIfAny(Product product,

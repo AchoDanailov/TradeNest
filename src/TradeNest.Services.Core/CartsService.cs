@@ -128,13 +128,19 @@ public class CartsService : ICartsService
         {
             bool addCartResult = await this._cartsRepository.AddAsync(cart);
             if (addCartResult == false)
-                throw new DataPersistException(nameof(addCartResult));
+            {
+                throw new DataPersistException(nameof(addCartResult), 
+                    $"{nameof(userId)}: {userId}");
+            }
         }
         else
         {
             bool updateCartResult = await this._cartsRepository.UpdateAsync(cart);
             if (updateCartResult == false)
-                throw new DataPersistException(nameof(updateCartResult));
+            {
+                throw new DataPersistException(nameof(updateCartResult), 
+                    $"{nameof(userId)}: {userId}, cartId: {cart.Id}");
+            }
         }
     }
     
@@ -174,8 +180,11 @@ public class CartsService : ICartsService
         userCart.CartProducts.Remove(cartProduct);
 
         bool updateCartResult = await this._cartsRepository.UpdateAsync(userCart);
-        if (updateCartResult == false)
-            throw new DataPersistException(nameof(updateCartResult));
+        if (updateCartResult == false) 
+        {
+            throw new DataPersistException(nameof(updateCartResult), 
+                $"{nameof(userId)}: {userId}, cartId: {userCart.Id}");
+        }
     }
 
     public async Task DeleteCart(Guid userId)
@@ -199,7 +208,10 @@ public class CartsService : ICartsService
 
         bool deleteCartResult = await this._cartsRepository.DeleteAsync(user.Cart);
         if (deleteCartResult == false)
-            throw new DataPersistException(nameof(deleteCartResult));
+        {
+            throw new DataPersistException(nameof(deleteCartResult), 
+                $"{nameof(userId)}: {userId}, cartId: {user.Cart.Id}");
+        }
     }
 
     public async Task<bool> IsValidProductQtyToAddToCartAsync(Guid userId,

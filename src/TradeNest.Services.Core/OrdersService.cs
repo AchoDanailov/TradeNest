@@ -63,18 +63,6 @@ public class OrdersService : IOrdersService
 
     public async Task<SubmitOrderResultDto> SubmitOrderAsync(Guid userId)
     {
-        try
-        {
-            return await this.TrySubmitOrder(userId);
-        }
-        catch (DataConcurrencyConflictException)
-        {
-            return await this.RetrySubmitOrder(userId);
-        }
-    }
-
-    private async Task<SubmitOrderResultDto> TrySubmitOrder(Guid userId)
-    {
         if(userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         
@@ -149,23 +137,14 @@ public class OrdersService : IOrdersService
 
         bool addNewOrderResult = await this._ordersRepository.AddAsync(newOrder);
         if (addNewOrderResult == false)
-            throw new DataPersistException(nameof(addNewOrderResult));
+        {
+            throw new DataPersistException(nameof(addNewOrderResult),
+                $"{nameof(userId)}: {userId}", "cartId: {userCart.Id}");
+        }
 
         if (!userCart.CartProducts.Any())
-             await this._cartsRepository.DeleteAsync(userCart);
+            await this._cartsRepository.DeleteAsync(userCart);
 
         return SubmitOrderResultDto.Success();
-    }
-
-    private async Task<SubmitOrderResultDto> RetrySubmitOrder(Guid userId)
-    {
-        try
-        {
-            return await this.TrySubmitOrder(userId);
-        }
-        catch (DataConcurrencyConflictException concurrencyEx)
-        {
-            throw new DataPersistException(innerException: concurrencyEx);
-        }
     }
 }

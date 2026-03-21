@@ -5,7 +5,7 @@ namespace TradeNest.Data.Repository.Interfaces;
 public interface IRepository<T> : IDisposable
     where T : class, new()
 {
-    Task<IEnumerable<T>> GetAllAsync(Action<QueryBuilder<T>>? queryOptionsBuilder = null);
+    Task<IEnumerable<T>> GetAllAsync(Action<IQueryBuilder<T>>? queryOptionsBuilder = null);
     
     Task<IEnumerable<T>> GetAllAsReadOnlyAsync(Action<IQueryBuilder<T>>? queryOptionsBuilder = null);
     

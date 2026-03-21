@@ -24,8 +24,7 @@ public partial class ProductsMapper : IProductsMapper
     
     [MapperIgnoreTarget(nameof(Product.Id))] [MapperIgnoreTarget(nameof(Product.Owner))]
     [MapperIgnoreTarget(nameof(Product.Category))] [MapperIgnoreTarget(nameof(Product.SoldProducts))]
-    [MapperIgnoreTarget(nameof(Product.RowVersion))] [MapperIgnoreTarget(nameof(Product.ProductCarts))] 
-    [MapperIgnoreTarget(nameof(Product.ProductWatchlists))]
+    [MapperIgnoreTarget(nameof(Product.ProductCarts))] [MapperIgnoreTarget(nameof(Product.ProductWatchlists))]
     [MapProperty(nameof(ProductCreateDto.ProductName), nameof(Product.Name))]
     [MapProperty(nameof(ProductCreateDto.CategoryId), nameof(Product.CategoryId))]
     [MapPropertyFromSource(nameof(Product.CreatedOn), Use = nameof(MapCreatedOn))]
@@ -40,8 +39,7 @@ public partial class ProductsMapper : IProductsMapper
 
     [MapperIgnoreTarget(nameof(Product.Id))] [MapperIgnoreTarget(nameof(Product.Owner))]
     [MapperIgnoreTarget(nameof(Product.Category))] [MapperIgnoreTarget(nameof(Product.SoldProducts))]
-    [MapperIgnoreTarget(nameof(Product.RowVersion))] [MapperIgnoreTarget(nameof(Product.ProductCarts))] 
-    [MapperIgnoreTarget(nameof(Product.ProductWatchlists))] [MapperIgnoreTarget(nameof(Product.Images))]
+    [MapperIgnoreTarget(nameof(Product.ProductCarts))] [MapperIgnoreTarget(nameof(Product.ProductWatchlists))] [MapperIgnoreTarget(nameof(Product.Images))]
     [MapperIgnoreTarget(nameof(Product.OwnerId))] [MapperIgnoreTarget(nameof(Product.IsDeleted))]
     [MapperIgnoreTarget(nameof(Product.CreatedOn))]
     public partial void EditProductFromProductEditDto(ProductEditDto productEditDto, Product product);

@@ -18,7 +18,7 @@ public abstract class BaseRepository<T> : IRepository<T>
     protected TradeNestDbContext DbContext => this._dbContext;
 
     public virtual async Task<IEnumerable<T>> GetAllAsync(
-        Action<QueryBuilder<T>>? queryOptionsBuilder = null)
+        Action<IQueryBuilder<T>>? queryOptionsBuilder = null)
     {
         if (queryOptionsBuilder == null)
         {
@@ -36,6 +36,7 @@ public abstract class BaseRepository<T> : IRepository<T>
         if (queryOptionsBuilder == null)
         {
             return await this.DbContext.Set<T>()
+                .AsNoTracking()
                 .ToArrayAsync();
         }
         
@@ -116,11 +117,30 @@ public abstract class BaseRepository<T> : IRepository<T>
         if (asReadOnly is true)
             queryable = queryable.AsNoTracking();
 
-        foreach (Expression<Func<T, object>> orderingStatement in queryBuilder.OrderByAscendingStatements.Reverse())
-            queryable = queryable.OrderBy(orderingStatement);
+        if (queryBuilder.OrderByAscendingStatements.Any())
+        {
+            queryable = queryable
+                .OrderBy(queryBuilder.OrderByAscendingStatements.Reverse().First());
 
-        foreach (Expression<Func<T, object>> descOrderingStatement in queryBuilder.OrderByDescendingStatements.Reverse())
-            queryable = queryable.OrderByDescending(descOrderingStatement);
+            foreach (Expression<Func<T, object>> orderingStatement in queryBuilder
+                         .OrderByAscendingStatements.Reverse().Skip(1))
+            {
+                queryable = ((IOrderedQueryable<T>)queryable).ThenBy(orderingStatement);
+            }
+        }
+
+        if (queryBuilder.OrderByDescendingStatements.Any())
+        {
+            queryable = queryable
+                .OrderByDescending(queryBuilder.OrderByDescendingStatements.Reverse().First());
+
+            foreach (Expression<Func<T, object>> descOrderingStatement in queryBuilder
+                         .OrderByDescendingStatements.Reverse().Skip(1))
+            {
+                queryable = ((IOrderedQueryable<T>)queryable)
+                    .ThenByDescending(descOrderingStatement);
+            }
+        }
 
         return queryable;
     }
