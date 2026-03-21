@@ -1,5 +1,4 @@
 using TradeNest.GCommon.Exceptions;
-using TradeNest.Services.Models;
 using TradeNest.Services.Models.Product;
 
 namespace TradeNest.Services.Core.Interfaces;
@@ -7,7 +6,7 @@ namespace TradeNest.Services.Core.Interfaces;
 public interface IProductsService
 {
     /// <summary>
-    /// Retrieves all products ordered by creation date (newest first).
+    /// Retrieves all products ordered by creation date descending (newest first).
     /// </summary>
     /// <param name="search">
     /// String value used to search for products that contain this value
@@ -35,7 +34,9 @@ public interface IProductsService
     /// <summary>
     /// Retrieves all products ordered by number of orders (highest first).
     /// </summary>
-    /// <returns>A task that returns the collection of products ordered by popularity.</returns>
+    /// <returns>
+    /// A task that returns the collection of products ordered by selling count descending.
+    /// </returns>
     Task<IEnumerable<ProductDto>> GetAllProductsOrderedBySellingCountDescAsync();
 
     /// <summary>
@@ -51,22 +52,24 @@ public interface IProductsService
     /// <param name="id">The product identifier.</param>
     /// <param name="userId">
     /// The identifier of the user that wants to view the product details.
-    /// In case of non authenticated user userId can be left null.
+    /// In case of unauthenticated user userId can be left null.
     /// </param>
     /// <returns>A task that returns the product details, or null if not found.</returns>
-    Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id,
-        Guid? userId = null);
+    Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id, Guid? userId = null);
 
     /// <summary>
     /// Creates a new product and saves it in the data store.
     /// </summary>
     /// <param name="userId">The identifier of the user creating the product.</param>
-    /// <param name="productCreateDto">The product data.</param>
+    /// <param name="productCreateDto">The product's data.</param>
     /// <returns>A task that returns the identifier of the newly created product.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown if the provided <paramref name="userId"/>, categoryId in the
     /// <paramref name="productCreateDto"/> are empty or entities with the
-    /// corresponding identificators do not exist
+    /// corresponding identifiers do not exist.
+    /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
     /// </exception>
     Task<Guid> CreateProductAsync(Guid userId, ProductCreateDto productCreateDto);
 
@@ -78,7 +81,7 @@ public interface IProductsService
     /// <returns>A task that returns the form model, or null if the product is not found.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown if the <paramref name="userId"/> is with value <see cref="Guid.Empty"/> or user
-    /// was not found with the specified identitficator.
+    /// was not found with the specified identifier.
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown when user with <paramref name="userId"/> is not the owner of the product with
@@ -98,11 +101,15 @@ public interface IProductsService
     /// <paramref name="userId"/> does not exist.
     /// </exception>
     /// <exception cref="ResourceNotFoundException">
-    /// Thrown if the product with id <paramref name="id"/> does not exist.
+    /// Thrown if the product with <paramref name="id"/> does not exist.
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown if the user with the provided <paramref name="userId"/> is not the owner
     /// of the product with the provided <paramref name="id"/>.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">Thrown if the product is already deleted.</exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
     /// </exception>
     Task DeleteProductAsync(Guid userId, Guid id);
 
@@ -128,6 +135,9 @@ public interface IProductsService
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown when user with <paramref name="userId"/> is not the owner of the product.
+    /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
     /// </exception>
     Task EditProductAsync(Guid userId, ProductEditDto productEditDto);
 }

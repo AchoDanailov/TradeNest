@@ -27,16 +27,16 @@ public interface IOrdersService
     Task<bool> OrderExistsByIdAsync(Guid orderId);
 
     /// <summary>
-    /// Makes and submits an order of the user's cart.
+    /// Creates and submits an order of the user's cart.
     /// </summary>
     /// <param name="userId">The user identifier to which the cart belong.</param>
     /// <returns>A Task that holds a <see cref="SubmitOrderResultDto"/></returns>
     /// <exception cref="ArgumentException">
     /// Thrown if <paramref name="userId"/> with value <see cref="Guid.Empty"/>.
-    /// Also thrown if the user with <paramref name="userId"/> does not exist.
+    /// Also thrown if the user with <paramref name="userId"/> or user cart do not exist.
     /// </exception>
-    /// <exception cref="ArgumentException">
-    /// Thrown if cart of user with the provided <paramref name="userId"/> has no products.
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
     /// </exception>
     Task<SubmitOrderResultDto> SubmitOrderAsync(Guid userId);
 }

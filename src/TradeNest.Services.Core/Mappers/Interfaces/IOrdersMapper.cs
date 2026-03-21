@@ -9,4 +9,6 @@ public interface IOrdersMapper
     IEnumerable<OrderDto> ToOrderDtos(IEnumerable<Order> orders);
     
     OrderProductDto ToOrderProductDto(OrderProduct orderProduct);
+    
+    OrderProduct OrderProductFromCartProduct(CartProduct cartProduct);
 }

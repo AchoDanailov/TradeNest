@@ -1,6 +1,3 @@
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Extensions.DependencyInjection;
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon.Exceptions;
@@ -14,12 +11,21 @@ namespace TradeNest.Services.Core;
 
 public class CartsService : ICartsService
 {
-    private IRepository _repository;
+    private ICartsRepository _cartsRepository;
+    private IUsersRepository _usersRepository;
+    private IProductsRepository _productsRepository;
     private ICartsMapper _cartsMapper;
 
-    public CartsService(IRepository repository, ICartsMapper cartsMapper)
+    public CartsService(
+        ICartsRepository cartsRepository,
+        IUsersRepository usersRepository,
+        IProductsRepository productsRepository,
+        ICartsMapper cartsMapper)
     {
-        this._repository = repository;
+        this._cartsRepository = cartsRepository;
+        this._productsRepository = productsRepository;
+        this._usersRepository = usersRepository;
+        
         this._cartsMapper = cartsMapper;
     }
 
@@ -28,17 +34,15 @@ public class CartsService : ICartsService
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
 
-        ApplicationUser? user = await this._repository.FindByIdAsync<ApplicationUser>(userId);
+        ApplicationUser? user = await this._usersRepository.FindByIdAsync(userId);
         if (user == null)
         {
             throw new ArgumentException(string.Format(NotFoundMessage,
                 nameof(ApplicationUser), userId));
         }
 
-        Cart? cart = await this._repository.All<Cart>()
-            .Include(c => c.CartProducts)
-            .ThenInclude(cp => cp.Product)
-            .SingleOrDefaultAsync(c => c.CartOwnerId == userId);
+        Cart? cart = await this._cartsRepository
+            .GetUserCartWithProductsDetailsAsync(userId, asReadOnly: true);
         if(cart == null)
             return null;
 
@@ -61,12 +65,14 @@ public class CartsService : ICartsService
                 string.Format(CantBeZeroOrNegativeNumberMessage, nameof(prodQtyToAdd)));
         }
 
-        bool userExists = await this._repository
-            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
+        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
         if (!userExists)
-            throw new ArgumentException(string.Format(NotFoundMessage, nameof(ApplicationUser), userId));
+        {
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
+        }
 
-        Product? product = await this._repository.FindByIdAsync<Product>(productId);
+        Product? product = await this._productsRepository.FindByIdAsync(productId);
         if (product == null)
             throw new ResourceNotFoundException(nameof(Product), productId);
 
@@ -79,13 +85,13 @@ public class CartsService : ICartsService
         if (!product.IsEnabled)
             throw new ProductDisabledException(productId, userId);
 
-        Cart? cart = await this._repository.All<Cart>()
-            .Include(c => c.CartProducts)
-            .SingleOrDefaultAsync(c => c.CartOwnerId == userId);
+        bool isNewCart = false;
+        
+        Cart? cart = await _cartsRepository.GetCartWithCartProductsByUserIdAsync(userId);
         if (cart == null)
         {
+            isNewCart = true;
             cart = new Cart() { CartOwnerId = userId };
-            await this._repository.AddAsync(cart);
         }
         
         int userAlreadyAddedProdQty = cart.CartProducts
@@ -101,74 +107,40 @@ public class CartsService : ICartsService
                 productQtyRequested: prodQtyToAdd + userAlreadyAddedProdQty);
         }
 
-        try
+        if (userAlreadyAddedProdQty > 0)
         {
-            if (userAlreadyAddedProdQty > 0)
-            {
-                cart.CartProducts
-                    .Single(cp => cp.ProductId == productId)
-                    .ProductQuantityAdded += prodQtyToAdd;
-            }
-            else
-            {
-                CartProduct newCartProduct = new CartProduct()
-                {
-                    ProductId = productId,
-                    ProductQuantityAdded = prodQtyToAdd,
-                };
-
-                cart.CartProducts.Add(newCartProduct);
-                await this._repository.AddAsync(newCartProduct);
-            }
-
-            await this._repository.SaveChangesAsync();
+            cart.CartProducts
+                .Single(cp => cp.ProductId == productId)
+                .ProductQuantityAdded += prodQtyToAdd;
         }
-        catch (DbUpdateConcurrencyException concurrencyEx)
+        else
         {
-            EntityEntry originalEntry = concurrencyEx.Entries.Single();
-            if (originalEntry is EntityEntry<Product> originalProductEntry)
+            CartProduct newCartProduct = new CartProduct()
             {
-                Product originalProductEntity = originalProductEntry.Entity;
-                PropertyValues? propsDbValues = await originalProductEntry.GetDatabaseValuesAsync();
+                ProductId = productId,
+                ProductQuantityAdded = prodQtyToAdd,
+            };
 
-                bool isHardOrSoftDeleted = propsDbValues == null ||
-                                           propsDbValues[nameof(originalProductEntity.IsDeleted)] is true;
-                if (isHardOrSoftDeleted)
-                {
-                    throw new ResourceNotFoundException(
-                        nameof(Product),
-                        originalProductEntry.Entity.Id,
-                        concurrencyEx);
-                }
-
-                bool prodIsEnabled 
-                    = propsDbValues![nameof(originalProductEntity.IsEnabled)] is true;
-                if (!prodIsEnabled)
-                {
-                    throw new ProductDisabledException(originalProductEntity.Id,
-                        userId, concurrencyEx);
-                }
-
-                int qtyInStock 
-                    = (int)(propsDbValues[nameof(originalProductEntity.QuantityInStock)] ?? 0);
-                bool isEnoughQtyLeft = qtyInStock >= prodQtyToAdd;
-                if (!isEnoughQtyLeft)
-                {
-                    throw new InsufficientProductQuantityInStockException(
-                        userId: userId,
-                        productId: originalProductEntity.Id,
-                        productQtyInStock: qtyInStock,
-                        productQtyRequested: prodQtyToAdd,
-                        innerException: concurrencyEx);
-                }
-                
-                originalProductEntry.OriginalValues.SetValues(propsDbValues);
-                await this._repository.SaveChangesAsync();
+            cart.CartProducts.Add(newCartProduct);
+        }
+        
+        if (isNewCart) 
+        {
+            bool addCartResult = await this._cartsRepository.AddAsync(cart);
+            if (addCartResult == false)
+            {
+                throw new DataPersistException(nameof(addCartResult), 
+                    $"{nameof(userId)}: {userId}");
             }
-            
-            // unhandled case
-            throw new InvalidOperationException(string.Format(UnhandledExceptionMessage,
-                nameof(InvalidOperationException)), concurrencyEx);
+        }
+        else
+        {
+            bool updateCartResult = await this._cartsRepository.UpdateAsync(cart);
+            if (updateCartResult == false)
+            {
+                throw new DataPersistException(nameof(updateCartResult), 
+                    $"{nameof(userId)}: {userId}, cartId: {cart.Id}");
+            }
         }
     }
     
@@ -178,16 +150,15 @@ public class CartsService : ICartsService
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if(productId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
-        
-        bool userExists = await this._repository
-            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
+
+        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
         if (!userExists)
         {
             throw new ArgumentException(string.Format(NotFoundMessage,
                 nameof(ApplicationUser), userId));
         }
-        
-        Product? product = await this._repository.FindByIdAsync<Product>(productId);
+
+        Product? product = await this._productsRepository.FindByIdAsync(productId);
         if (product == null)
             throw new ResourceNotFoundException(nameof(Product), productId);
 
@@ -196,10 +167,8 @@ public class CartsService : ICartsService
             throw new InvalidOperationException(
                 string.Format(OwnerCantRemoveProductHeOwnsFromCartMessage, userId, productId));
         }
-        
-        Cart? userCart = await this._repository.All<Cart>()
-            .Include(c => c.CartProducts)
-            .SingleOrDefaultAsync(c => c.CartOwnerId == userId);
+
+        Cart? userCart = await _cartsRepository.GetCartWithCartProductsByUserIdAsync(userId);
         if (userCart == null)
             throw new ArgumentException(string.Format(EmptyCartMessage, userId));
 
@@ -210,10 +179,12 @@ public class CartsService : ICartsService
 
         userCart.CartProducts.Remove(cartProduct);
 
-        if (!userCart.CartProducts.Any())
-            this._repository.Remove(userCart);
-
-        await this._repository.SaveChangesAsync();
+        bool updateCartResult = await this._cartsRepository.UpdateAsync(userCart);
+        if (updateCartResult == false) 
+        {
+            throw new DataPersistException(nameof(updateCartResult), 
+                $"{nameof(userId)}: {userId}, cartId: {userCart.Id}");
+        }
     }
 
     public async Task DeleteCart(Guid userId)
@@ -221,21 +192,26 @@ public class CartsService : ICartsService
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
 
-        ApplicationUser? user = await this._repository.All<ApplicationUser>()
-            .Include(u => u.Cart)
-            .SingleOrDefaultAsync(u => u.Id == userId);
+        ApplicationUser? user = (await this._usersRepository.GetAllAsync(options => 
+                options
+                    .WithRelated(u => u.Cart ?? null!)
+                    .AddFilter(u => u.Id == userId)))
+            .SingleOrDefault();
         if (user == null)
         {
             throw new ArgumentException(string.Format(NotFoundMessage,
                 nameof(ApplicationUser), userId));
         }
-
-        Cart? userCart = await this._repository.FindByIdAsync<Cart>(user.Cart!.Id);
-        if (userCart == null)
+        
+        if (user.Cart == null)
             throw new ArgumentException(string.Format(EmptyCartMessage, userId));
 
-        this._repository.Remove<Cart>(userCart);
-        await this._repository.SaveChangesAsync();
+        bool deleteCartResult = await this._cartsRepository.DeleteAsync(user.Cart);
+        if (deleteCartResult == false)
+        {
+            throw new DataPersistException(nameof(deleteCartResult), 
+                $"{nameof(userId)}: {userId}, cartId: {user.Cart.Id}");
+        }
     }
 
     public async Task<bool> IsValidProductQtyToAddToCartAsync(Guid userId,
@@ -245,22 +221,19 @@ public class CartsService : ICartsService
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if (model.Id == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(model.Id)));
-        
-        bool userExists = await this._repository
-            .ExistsAsync<ApplicationUser>(u => u.Id == userId);
+
+        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
         if (!userExists)
         {
             throw new ArgumentException(string.Format(NotFoundMessage,
                 nameof(ApplicationUser), userId));
         }
 
-        Product? product = await this._repository.FindByIdAsync<Product>(model.Id);
+        Product? product = await this._productsRepository.FindByIdAsync(model.Id);
         if (product == null)
             throw new ResourceNotFoundException(nameof(Product), model.Id);
 
-        Cart? userCart = await this._repository.All<Cart>()
-            .Include(c => c.CartProducts)
-            .SingleOrDefaultAsync(c => c.CartOwnerId == userId);
+        Cart? userCart = await _cartsRepository.GetCartWithCartProductsByUserIdAsync(userId);
         if (userCart == null)
         {
             return model.QuantityRequested > 0 &&

@@ -16,4 +16,19 @@ public partial class OrdersMapper : IOrdersMapper
     [MapProperty(nameof(OrderProduct.UnitSellingPriceAtOrderTime), nameof(OrderProductDto.UnitPriceAtOrderTime))]
     [MapProperty(nameof(OrderProduct.TotalProductPriceAtOrderTime), nameof(OrderProductDto.TotalPriceAtOrderTime))]
     public partial OrderProductDto ToOrderProductDto(OrderProduct orderProduct);
+
+    [MapperIgnoreTarget(nameof(OrderProduct.Id))] [MapperIgnoreTarget(nameof(OrderProduct.OrderId))] [MapperIgnoreTarget(nameof(OrderProduct.Order))]
+    [MapProperty(nameof(CartProduct.ProductId), nameof(OrderProduct.OriginalProductId))]
+    [MapProperty(nameof(CartProduct.Product), nameof(OrderProduct.OriginalProduct))]
+    [MapProperty(nameof(CartProduct.Product.Name), nameof(OrderProduct.ProductNameAtOrderTime))]
+    [MapProperty(nameof(CartProduct.Product.CostPrice), nameof(OrderProduct.CostPriceAtOrderTime))]
+    [MapProperty(nameof(CartProduct.Product.SellingPrice), nameof(OrderProduct.UnitSellingPriceAtOrderTime))]
+    [MapProperty(nameof(CartProduct.ProductQuantityAdded), nameof(OrderProduct.QuantityOrdered))]
+    [MapPropertyFromSource(nameof(OrderProduct.TotalProductPriceAtOrderTime), Use = nameof(MapTotalProductPriceAtOrderTime))]
+    public partial OrderProduct OrderProductFromCartProduct(CartProduct cartProduct);
+
+    private decimal MapTotalProductPriceAtOrderTime(CartProduct cartProduct)
+    {
+        return cartProduct.Product.SellingPrice * cartProduct.ProductQuantityAdded;
+    }
 }

@@ -50,10 +50,6 @@ public class Product
     [Comment("Value is used to show weather the product deleted.")]
     public bool IsDeleted { get; set; } = false;
 
-    [Required]
-    [Timestamp]
-    public byte[] RowVersion { get; set; } = null!;
-
     [ForeignKey(nameof(Owner))]
     [Comment("Foreign key referencing the product's owner primary key.")]
     public Guid OwnerId { get; set; }

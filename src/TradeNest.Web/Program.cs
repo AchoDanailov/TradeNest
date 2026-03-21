@@ -34,16 +34,24 @@ public class Program
 
         builder.Services.AddControllersWithViews();
 
-        builder.Services.AddScoped<IRepository, Repository>();
+        // repositories
+        builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
+        builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
+        builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
+        builder.Services.AddScoped<ICartsRepository, CartsRepository>();
+        builder.Services.AddScoped<IUsersRepository, UsersRepository>();
 
+        // service mappers
         builder.Services.AddSingleton<IOrdersMapper, OrdersMapper>();
         builder.Services.AddSingleton<IProductsMapper, ProductsMapper>();
         builder.Services.AddSingleton<ICartsMapper, CartsMapper>();
         
+        // presentation mappers
         builder.Services.AddSingleton<IProductPresentationModelsMapper, ProductPresentationModelsMapper>();
         builder.Services.AddSingleton<IOrderPresentationModelsMapper, OrderPresentationModelsMapper>();
         builder.Services.AddSingleton<ICartPresentationModelsMapper, CartPresentationModelsMapper>();
 
+        // services
         builder.Services.AddScoped<IProductsService, ProductsService>();
         builder.Services.AddScoped<ICategoriesService, CategoriesService>();
         builder.Services.AddScoped<IOrdersService, OrdersService>();

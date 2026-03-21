@@ -9,7 +9,6 @@
     <ItemGroup>
       <ProjectReference Include="..\TradeNest.Data\TradeNest.Data.csproj" />
       <ProjectReference Include="..\TradeNest.Services.Models\TradeNest.Services.Models.csproj" />
-      <ProjectReference Include="..\TradeNest.Web.ViewModels\TradeNest.Web.ViewModels.csproj" />
     </ItemGroup>
 
     <ItemGroup>

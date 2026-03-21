@@ -49,6 +49,9 @@ public interface ICartsService
     /// Thrown if the user with <paramref name="userId"/> is the owner of the product with the
     /// provided <paramref name="productId"/>
     /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
+    /// </exception>
     Task AddProductToCartAsync(Guid userId, Guid productId, int prodQtyToAdd);
     
     /// <summary>
@@ -78,6 +81,9 @@ public interface ICartsService
     /// Thrown if the user with <paramref name="userId"/> is the owner of the product
     /// with <paramref name="productId"/>.
     /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
+    /// </exception>
     Task RemoveProductFromCartAsync(Guid userId, Guid productId);
     
     /// <summary>
@@ -86,7 +92,11 @@ public interface ICartsService
     /// <param name="userId">The user identifier to which the orders belong.</param>
     /// <returns>A Task representing the asynchronous operation</returns>
     /// <exception cref="ArgumentException">
-    /// Thrown if <paramref name="userId"/> is of value <see cref="Guid.Empty"/>.
+    /// Thrown if <paramref name="userId"/> is of value <see cref="Guid.Empty"/> or if
+    /// the user with <paramref name="userId"/> does not exist or does not have a cart.
+    /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
     /// </exception>
     Task DeleteCart(Guid userId);
 
