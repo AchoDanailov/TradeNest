@@ -3,15 +3,11 @@ using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data;
 using TradeNest.Data.Models;
-using TradeNest.Services.Core;
 using TradeNest.Services.Core.Interfaces;
-using TradeNest.Data.Repository;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.Services.Core.Mappers;
 using TradeNest.Services.Core.Mappers.Interfaces;
-using TradeNest.Web.Mappers;
+using TradeNest.Web.Infrastructure.Extensions;
 using TradeNest.Web.Mappers.Interfaces;
-using ProductsMapper = TradeNest.Services.Core.Mappers.ProductsMapper;
 
 namespace TradeNest.Web;
 
@@ -34,28 +30,12 @@ public class Program
 
         builder.Services.AddControllersWithViews();
 
-        // repositories
-        builder.Services.AddScoped<IProductsRepository, ProductsRepository>();
-        builder.Services.AddScoped<IOrdersRepository, OrdersRepository>();
-        builder.Services.AddScoped<ICategoriesRepository, CategoriesRepository>();
-        builder.Services.AddScoped<ICartsRepository, CartsRepository>();
-        builder.Services.AddScoped<IUsersRepository, UsersRepository>();
-
-        // service mappers
-        builder.Services.AddSingleton<IOrdersMapper, OrdersMapper>();
-        builder.Services.AddSingleton<IProductsMapper, ProductsMapper>();
-        builder.Services.AddSingleton<ICartsMapper, CartsMapper>();
+        builder.Services.RegisterRepositories(typeof(IProductsRepository).Assembly);
         
-        // presentation mappers
-        builder.Services.AddSingleton<IProductPresentationModelsMapper, ProductPresentationModelsMapper>();
-        builder.Services.AddSingleton<IOrderPresentationModelsMapper, OrderPresentationModelsMapper>();
-        builder.Services.AddSingleton<ICartPresentationModelsMapper, CartPresentationModelsMapper>();
-
-        // services
-        builder.Services.AddScoped<IProductsService, ProductsService>();
-        builder.Services.AddScoped<ICategoriesService, CategoriesService>();
-        builder.Services.AddScoped<IOrdersService, OrdersService>();
-        builder.Services.AddScoped<ICartsService, CartsService>();
+        builder.Services.RegisterMappings(typeof(IProductsMapper).Assembly, 
+            typeof(IProductPresentationModelsMapper).Assembly);
+        
+        builder.Services.RegisterUserServices(typeof(IProductsService).Assembly);
 
         WebApplication app = builder.Build();
 
