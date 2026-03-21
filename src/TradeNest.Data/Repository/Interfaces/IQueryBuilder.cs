@@ -3,9 +3,9 @@ using System.Linq.Expressions;
 namespace TradeNest.Data.Repository.Interfaces;
 
 /// <summary>
-/// Interface that provides the user the options to declare specifications for the data that is requested.
+/// Interface that provides options to declare specifications about the data that is requested.
 /// </summary>
-/// <typeparam name="T">The model that holds the requested data.</typeparam>
+/// <typeparam name="T">The model type of the requested data.</typeparam>
 public interface IQueryBuilder<T> where T : class, new()
 {
     IQueryBuilder<T> AddFilter(Expression<Func<T, bool>> filter);

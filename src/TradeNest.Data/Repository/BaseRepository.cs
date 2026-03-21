@@ -117,29 +117,24 @@ public abstract class BaseRepository<T> : IRepository<T>
         if (asReadOnly is true)
             queryable = queryable.AsNoTracking();
 
-        if (queryBuilder.OrderByAscendingStatements.Any())
+        if (queryBuilder.OrderExpressionsByDirection.Any())
         {
-            queryable = queryable
-                .OrderBy(queryBuilder.OrderByAscendingStatements.Reverse().First());
+            IEnumerable<(Expression<Func<T, object>>, bool)> orderExprsByDir
+                = queryBuilder.OrderExpressionsByDirection.ToList();
+            
+            (Expression<Func<T, object>> firstExpr, bool isAscDirection) = orderExprsByDir.First();
+            IOrderedQueryable<T> orderedQueryable = isAscDirection
+                ? queryable.OrderBy(firstExpr)
+                : queryable.OrderByDescending(firstExpr);
 
-            foreach (Expression<Func<T, object>> orderingStatement in queryBuilder
-                         .OrderByAscendingStatements.Reverse().Skip(1))
+            foreach ((Expression<Func<T, object>> expr, bool isAsc) orderExprByDir in orderExprsByDir.Skip(1))
             {
-                queryable = ((IOrderedQueryable<T>)queryable).ThenBy(orderingStatement);
+                orderedQueryable = orderExprByDir.isAsc
+                    ? orderedQueryable.ThenBy(orderExprByDir.expr)
+                    : orderedQueryable.ThenByDescending(orderExprByDir.expr);
             }
-        }
 
-        if (queryBuilder.OrderByDescendingStatements.Any())
-        {
-            queryable = queryable
-                .OrderByDescending(queryBuilder.OrderByDescendingStatements.Reverse().First());
-
-            foreach (Expression<Func<T, object>> descOrderingStatement in queryBuilder
-                         .OrderByDescendingStatements.Reverse().Skip(1))
-            {
-                queryable = ((IOrderedQueryable<T>)queryable)
-                    .ThenByDescending(descOrderingStatement);
-            }
+            queryable = orderedQueryable;
         }
 
         return queryable;

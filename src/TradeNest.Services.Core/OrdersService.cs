@@ -139,11 +139,8 @@ public class OrdersService : IOrdersService
         if (addNewOrderResult == false)
         {
             throw new DataPersistException(nameof(addNewOrderResult),
-                $"{nameof(userId)}: {userId}", "cartId: {userCart.Id}");
+                $"{nameof(userId)}: {userId}", $"cartId: {userCart.Id}");
         }
-
-        if (!userCart.CartProducts.Any())
-            await this._cartsRepository.DeleteAsync(userCart);
 
         return SubmitOrderResultDto.Success();
     }

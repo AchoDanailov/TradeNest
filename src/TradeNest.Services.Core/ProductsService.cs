@@ -345,8 +345,7 @@ public class ProductsService : IProductsService
             productId: product.Id);
         foreach (Image imageToAdd in imagesToAdd)
         {
-            if(product.Images.All(productImage => productImage.Id != imageToAdd.Id))
-                product.Images.Add(imageToAdd);
+            product.Images.Add(imageToAdd);
         }
     }
     
