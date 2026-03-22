@@ -40,7 +40,9 @@ public class ProductEditFormModel
     public string? NewImagesUrls { get; set; }
 
     [Required(ErrorMessage = "The Category field is required.")]
-    public Guid CategoryId { get; set; } 
+    public Guid CategoryId { get; set; }
+
+    public string ReturnUrl { get; set; } = null!;
 
     public IEnumerable<AllCategoriesViewModel> AllCategories { get; set; }
         = new List<AllCategoriesViewModel>();

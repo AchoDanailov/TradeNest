@@ -126,11 +126,15 @@ public class ProductsController : BaseController
     }
 
     [HttpGet]
-    public async Task<IActionResult> Create()
+    public async Task<IActionResult> Create([FromQuery] string? returnUrl = null)
     {
+        if (string.IsNullOrWhiteSpace(returnUrl) || !Url.IsLocalUrl(returnUrl))
+            returnUrl = Url.Action(nameof(Index), controller: "Products");
+        
         ProductCreateFormModel productCreateFormModel = new ProductCreateFormModel()
         {
             AllCategories = await this.GetAllCategoriesViewModelsAsync(),
+            ReturnUrl = returnUrl! 
         };
             
         return View(productCreateFormModel);
@@ -178,22 +182,26 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Edit([FromRoute] Guid id)
+    public async Task<IActionResult> Edit([FromRoute] Guid id,
+        [FromQuery] string? returnUrl = null)
     {
         if (id == Guid.Empty)
             return BadRequest();
 
         Guid userId = this.GetUserId(throwIfNull: true);
                 
-        ProductEditDto? model = await this._productsService
-            .GetProductForEditAsync(userId, id);
+        ProductEditDto? model = await this._productsService.GetProductForEditAsync(userId, id);
         if (model == null)
             return NotFound();
+
+        if (string.IsNullOrWhiteSpace(returnUrl) || !Url.IsLocalUrl(returnUrl))
+            returnUrl = Url.Action(nameof(Index), controller: "Products");
         
         ProductEditFormModel productEditFormModel = this._productPresentationModelsMapper
             .ToProductEditFormModel(
                 productEditDto: model,
-                allCategories: (await this.GetAllCategoriesViewModelsAsync()).ToList());
+                allCategories: (await this.GetAllCategoriesViewModelsAsync()).ToList(),
+                returnUrl: returnUrl!);
         
         return View(productEditFormModel);
     }

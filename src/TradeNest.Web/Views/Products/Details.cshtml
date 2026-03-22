@@ -11,13 +11,13 @@
         <partial name="_SearchFormPartial"/>
         
         <div class="mt-3 mt-md-0">
-            <partial name="_BackFromProdDetailsButtonPartial" model="@Model.ReturnUrl"/>
+            <partial name="_BackButtonPartial" model="@Model.ReturnUrl"/>
         </div>
     </div>
     
     <div class="row d-md-none d-flex flex-column justify-content-center mb-4">
         <div class="mb-3">
-            <partial name="_BackFromProdDetailsButtonPartial" model="@Model.ReturnUrl"/>
+            <partial name="_BackButtonPartial" model="@Model.ReturnUrl"/>
         </div>
         
         <partial name="_SearchFormPartial"/>
@@ -181,8 +181,8 @@
             <div class="btn-group-vertical align-items-stretch">
                 @if (this.Model.IsOwner)
                 {
-                    <a asp-controller="Products" asp-action="Edit"
-                       asp-route-id="@Model.Id"
+                    <a asp-controller="Products" asp-action="Edit" asp-route-id="@Model.Id" 
+                       asp-route-returnUrl="@Url.Action("Details", controller: "Products", new { id = this.Model.Id })"
                        class="rounded-pill btn-teal p-2">Make Changes</a>
                     <button type="button"
                             class="rounded-pill btn btn-outline-danger mt-2 p-2"
