@@ -18,8 +18,8 @@ public class Program
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
         string connectionString = builder.Configuration["TradeNest:ConnectionString"] 
-                                   ?? builder.Configuration.GetConnectionString("DefaultConnection") 
-                                   ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+                                  ?? builder.Configuration.GetConnectionString("DefaultConnection") 
+                                  ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         builder.Services.AddDbContext<TradeNestDbContext>(options =>
             options.UseSqlServer(connectionString));
@@ -43,13 +43,10 @@ public class Program
 
         WebApplication app = builder.Build();
 
-        if (app.Environment.IsDevelopment())
+        app.UseExceptionHandler("/Error");
+
+        if (!app.Environment.IsDevelopment())
         {
-            app.UseMigrationsEndPoint();
-        }
-        else
-        {
-            app.UseExceptionHandler("/Error");
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }

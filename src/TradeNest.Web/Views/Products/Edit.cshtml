@@ -30,10 +30,13 @@
             <input type="hidden" asp-for="@Model.ProductId" />
             
             <div>
-                <label asp-for="@Model.ProductName"
-                       class="form-label text-navy fw-bold">Product Name: </label>
-                <input type="text" asp-for="@Model.ProductName" 
-                       class="form-control" aria-required="true"/>
+                
+            <div class="g-0">
+                    <label asp-for="@Model.ProductName"
+                           class="form-label text-navy fw-bold">Product Name: </label>
+                    <input type="text" asp-for="@Model.ProductName" 
+                           class="form-control mb-0" aria-required="true"/>
+                </div>
                 <span asp-validation-for="@Model.ProductName" class="text-danger"></span>
             </div>
             
@@ -44,8 +47,8 @@
                     <span class="input-group-text">€</span>
                     <input type="number" asp-for="@Model.SellingPrice" 
                            class="form-control" aria-required="true"/>
-                    <span asp-validation-for="@Model.SellingPrice" class="text-danger"></span>
                 </div>
+                <span asp-validation-for="@Model.SellingPrice" class="text-danger"></span>
             </div>
             
             <div>
@@ -56,8 +59,8 @@
                     <span class="input-group-text">€</span>
                     <input type="number" asp-for="@Model.CostPrice" 
                            class="form-control" aria-required="true"/>
-                    <span asp-validation-for="@Model.CostPrice" class="text-danger"></span>
                 </div>
+                <span asp-validation-for="@Model.CostPrice" class="text-danger"></span>
             </div>
             
             <div>
@@ -80,8 +83,8 @@
                         <label asp-for="IsEnabled" class="form-check-label text-navy fw-bold">
                             Is the product up for sale?
                         </label>
-                        <span asp-validation-for="@Model.IsEnabled" class="text-danger"></span>
                     </div>
+                    <span asp-validation-for="@Model.IsEnabled" class="text-danger"></span>
                 </div>
                 
                 <div class="col-12 col-md-6">
@@ -91,8 +94,8 @@
                         </label>
                         <input asp-for="QuantityInStock" type="number"
                                class="form-control form-control-sm w-auto" value="@Model.QuantityInStock"/>
-                        <span asp-validation-for="@Model.QuantityInStock" class="text-danger"></span>
                     </div>
+                    <span asp-validation-for="@Model.QuantityInStock" class="text-danger"></span>
                 </div>
             </div>
             

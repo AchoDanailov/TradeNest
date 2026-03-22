@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
 using static TradeNest.GCommon.EntityValidationConstants.Product;
@@ -38,7 +39,7 @@ public class ProductEditFormModel
     [StringLength(NewImagesUrlsMaxLengthValue, MinimumLength = NewImagesUrlsMinLengthValue)]
     public string? NewImagesUrls { get; set; }
 
-    [Required]
+    [Required(ErrorMessage = "The Category field is required.")]
     public Guid CategoryId { get; set; } 
 
     public IEnumerable<AllCategoriesViewModel> AllCategories { get; set; }
