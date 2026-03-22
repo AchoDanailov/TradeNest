@@ -139,6 +139,7 @@ public class ErrorController : BaseController
         {
             400 => new ErrorViewModel() { StatusCode = StatusCodes.Status400BadRequest, Title = BadRequest400.Title, Message = BadRequest400.Message },
             404 => new ErrorViewModel() { StatusCode = StatusCodes.Status404NotFound, Title = NotFound404.Title, Message = NotFound404.Message },
+            403 => new ErrorViewModel() { StatusCode = StatusCodes.Status403Forbidden, Title = Forbidden403.Title, Message = Forbidden403.Message },
             _ => new ErrorViewModel() { StatusCode = StatusCodes.Status500InternalServerError, Title = InternalServerError500.Title, Message = InternalServerError500.Message },
         };
 
