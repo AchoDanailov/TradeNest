@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TradeNest.Web.Infrastructure.Extensions;
 
-public static class WebApplicationBuilderExtensions
+public static class ServiceCollectionExtensions
 {
     public static IServiceCollection RegisterUserServices(this IServiceCollection services,
         Assembly assembly)
