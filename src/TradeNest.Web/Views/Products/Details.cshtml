@@ -52,11 +52,21 @@
             <p class="text-navy text-center fw-bold border-2 border-bottom">
                 @Model.OwnerName
             </p>
-            <p class="text-navy text-center fw-bold border-2 border-bottom">
-                €@Model.SellingPrice.ToString(PricesFormat)
-            </p>
             @if (this.Model.IsOwner)
             {
+                if (this.Model.CostPrice != null)
+                {
+                    <p class="form-label text-navy mb-0">Cost Price:</p>
+                    <p class="text-navy text-center fw-bold border-2 border-bottom">
+                        €@Model.CostPrice.Value.ToString(PricesFormat)
+                    </p>
+                }
+                
+                <p class="form-label text-navy mb-0">Selling Price:</p>
+                <p class="text-navy text-center fw-bold border-2 border-bottom">
+                    €@Model.SellingPrice.ToString(PricesFormat)
+                </p>
+                
                 if (this.Model.IsEnabled)
                 {
                     <div class="rounded-pill p-2 site-sections-bg-teal text-light mb-2">
@@ -67,6 +77,12 @@
                 {
                     <div class="rounded-pill p-2 bg-danger text-light mb-2">Disabled</div>
                 }
+            }
+            else
+            {
+                <p class="text-navy text-center fw-bold border-2 border-bottom">
+                    €@Model.SellingPrice.ToString(PricesFormat)
+                </p>
             }
 
             <div class="d-flex flex-column align-items-center">
