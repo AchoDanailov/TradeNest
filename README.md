@@ -39,23 +39,24 @@ cd TradeNest
 **Restore the tools & dependencies**
 ```bash
 dotnet tool restore
-dotnet restore
+dotnet restore src
 ```
 
 **Apply migrations**
 ```bash
-dotnet ef database update --project TradeNest.Data --startup-project TradeNest.Web
+dotnet ef database update --project src/TradeNest.Data --startup-project src/TradeNest.Web
 ```
 
 **Build and Run the project**
 ```bash
-dotnet run --project TradeNest.Web
+dotnet run --project src/TradeNest.Web
 ```
 
-**Open your browser and navigate to**
+**For development - open your browser and navigate to**
 ```bash 
-http://localhost:{defaultAppPort}
+http://localhost:5188
 ```
+You can configure the port if you wish in the `launchSettings.json` file located in `src/TradeNest.Web/Properties`.
 
 ---
 
@@ -64,12 +65,17 @@ http://localhost:{defaultAppPort}
 ```
 TradeNest/
 │
-├── TradeNest.Data/                # DbContext, configurations and migrations
-├── TradeNest.Data.Models/         # Entity models EFCore uses
-├── TradeNest.GCommon/             # For everething with Cross-cutting concerns
-├── TradeNest.Services.Core/       # Business logic \ service layer
-├── TradeNest.Web/                 # MVC web application (presentation layer)
-└── TradeNest.Web.ViewModels/      # ViewModels
+└── src/
+    │
+    ├── TradeNest.Data/                # DbContext, configurations and migrations, repositories
+    ├── TradeNest.Data.Models/         # Entity models(POCOs) used to model the relational models in the database
+    ├── TradeNest.Data.Common/         # Everything common only used in the Data Layer.
+    ├── TradeNest.GCommon/             # Cross-cutting concerns.
+    ├── TradeNest.Services.Core/       # Business logic (Services)
+    ├── TradeNest.Services.Models/     # Holds DTOs used to transfer data between the service layer and the presentation layer (Web project).
+    ├── TradeNest.Web/                 # MVC web application (presentation layer)
+    ├── TradeNest.Web.ViewModels/      # ViewModels and InputModels used to transfer data between the Controllers and the MVC Views.
+    └── TradeNest.Web.Infrastructure/  # Everething the Web Layer relies on: Filters, Middlewares, Extensions, etc...
 ```
 
 ---
@@ -105,24 +111,30 @@ Key settings in `appsettings.json`:
 }
 ```
 Here you can configure the connection strings the application uses when
-connecting to it's data stores. And the identity configuration options that set the
+connecting to it's data stores. And the Identity system configuration options that set the
 User Accounts options. 
 
-### Default users credentials you can use for developing and testing:
-1. Email: Har1b0@gmail.com  
-Password: Har1b0o
-2. Email: M1rk0@gmail.com  
-Password: M1rk0o
+### Default users credentials you can use for developing and testing: 
 
+1. Email: User1@gmail.com  
+Username: User1  
+Password: Password1
+
+2. Email: User2@gmail.com  
+Username: User2  
+Password: Password2
+
+You can log in using either your username or your email, along with your password.
 
 ### The .config directory
 The application uses a manifest file `dotnet-tools.json` for managing dotnet
 tools locally in the `.config/` directory. This allows the developer who is
 cloning the repository to not worry about a potential missmatch between the
 versions of the dotnet sdk and the dotnet-ef tools required for the database
-migrations - by just running `dotnet tool restore`. Keep in mind that if you
-change the version of the SDK you need to change the version of the dotnet
-ef-tools to be sure there wont be unexpected behaviour. If you have the tools
+migrations. By running `dotnet tool restore` you are set on that part.
+  
+Keep in mind that if you change the version of the SDK you need to change the version of the dotnet
+ef-tools to prevent unexpected behavior. If you have the tools
 globally on your host or you work with the Visual Studio Package Manager Console and
 wish to use either your global tools version or you Visual Studio Package
 Manager Console you are free to delete the `.config` directory. For more

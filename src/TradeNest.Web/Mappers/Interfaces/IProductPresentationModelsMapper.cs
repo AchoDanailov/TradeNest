@@ -14,7 +14,7 @@ public interface IProductPresentationModelsMapper
 
     ProductCreateDto FromProductCreateFormModel(ProductCreateFormModel productCreateFormModel);
 
-    ProductEditFormModel ToProductEditFormModel( ProductEditDto productEditDto,
-        List<AllCategoriesViewModel> allCategories);
+    ProductEditFormModel ToProductEditFormModel(ProductEditDto productEditDto,
+        List<AllCategoriesViewModel> allCategories, string returnUrl);
     ProductEditDto FromProductEditFormModel(ProductEditFormModel productEditFormModel);
 }

@@ -25,8 +25,8 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
     [MapProperty(nameof(ProductEditDto.Id), nameof(ProductEditFormModel.ProductId))]
     [MapProperty(nameof(ProductEditDto.Name), nameof(ProductEditFormModel.ProductName))]
     [MapPropertyFromSource(nameof(ProductEditFormModel.ProductImages), Use = nameof(MapProductImages))]
-    public partial ProductEditFormModel ToProductEditFormModel(
-        ProductEditDto productEditDto, List<AllCategoriesViewModel> allCategories);
+    public partial ProductEditFormModel ToProductEditFormModel(ProductEditDto productEditDto, 
+        List<AllCategoriesViewModel> allCategories, string returnUrl);
 
     [MapProperty(nameof(ProductEditFormModel.ProductId), nameof(ProductEditDto.Id))]
     [MapProperty(nameof(ProductEditFormModel.ProductName), nameof(ProductEditDto.Name))]

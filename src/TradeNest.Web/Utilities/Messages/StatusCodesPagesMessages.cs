@@ -9,13 +9,13 @@ internal static class StatusCodesPagesMessages
     {
         internal const string Title = "Page Not Found";
         internal const string Message 
-            = "We couldn’t find the page you are looking for. Please check the link or return to the homepage.";
+            = "We couldn’t find the page you are looking for. Please check if the address is valid or return to the homepage.";
     }
     
     internal static class BadRequest400
     {
         internal const string Title = "Invalid Request";
-        internal const string Message = "The request could not be processed. Please try again.";
+        internal const string Message = "The request could not be processed.";
     }
 
     internal static class Forbidden403
