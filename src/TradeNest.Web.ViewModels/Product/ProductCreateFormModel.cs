@@ -3,43 +3,44 @@ using System.ComponentModel.DataAnnotations;
 using TradeNest.Web.ViewModels.Category;
 using static TradeNest.GCommon.EntityValidationConstants.Product;
 using static TradeNest.GCommon.EntityValidationConstants.CommonValidationConstants;
+using static TradeNest.GCommon.FormsInvalidInputsNotificationMessages.Product;
 
 namespace TradeNest.Web.ViewModels.Product;
 
 public class ProductCreateFormModel
 {
-    [Required]
-    [StringLength(NameMaxLengthValue, MinimumLength = NameMinLengthValue)]
+    [Required(ErrorMessage = ProductNameRequired)]
+    [StringLength(NameMaxLengthValue, MinimumLength = NameMinLengthValue, ErrorMessage = ProductNameLength)]
     public string ProductName { get; set; } = null!;
 
-    [Required]
-    [StringLength(DescriptionMaxLengthValue, MinimumLength = DescriptionMinLengthValue)]
+    [Required(ErrorMessage = DescriptionRequired)]
+    [StringLength(DescriptionMaxLengthValue, MinimumLength = DescriptionMinLengthValue, ErrorMessage = DescriptionLength)]
     public string Description { get; set; } = null!;
 
     [Required]
-    [Range(MinQuantityInStockValue, MaxQuantityInStockValue)]
+    [Range(MinQuantityInStockValue, MaxQuantityInStockValue, ErrorMessage = QuantityInStockRange)]
     public int QuantityInStock { get; set; }
     
-    [Required]
-    [Range(minimum: (double)MinSellingPriceValue, maximum: Double.MaxValue)]
+    [Required(ErrorMessage = SellingPriceRequired)]
+    [Range(minimum: (double)MinSellingPriceValue, maximum: (double)MaxSellingPriceValue, ErrorMessage = SellingPriceRange)]
     public decimal SellingPrice { get; set; }
     
-    [Range(minimum: (double)MinCostPriceValue, maximum: Double.MaxValue)]
+    [Range(minimum: (double)MinCostPriceValue, maximum: (double)MaxCostPriceValue, ErrorMessage = CostPriceRange)]
     public decimal? CostPrice { get; set; }
     
     [Required]
     public bool IsEnabled { get; set; }
 
-    [StringLength(UrlMaxLengthValue, MinimumLength = UrlMinLengthValue)]
+    [StringLength(UrlMaxLengthValue, MinimumLength = UrlMinLengthValue, ErrorMessage = FrontImageUrlLength)]
     [DataType(DataType.ImageUrl)]
     public string? FrontImageUrl { get; set; } 
     
-    [StringLength(ExtraImagesUrlsMaxLengthValue, MinimumLength = ExtraImagesUrlsMinLengthValue)]
+    [StringLength(ExtraImagesUrlsMaxLengthValue, MinimumLength = ExtraImagesUrlsMinLengthValue, ErrorMessage = ExtraImagesUrlsLength)]
     public string? ExtraImagesUrls { get; set; }
 
-    [Required(ErrorMessage = "The Category field is required.")]
+    [Required(ErrorMessage = CategoryRequired)]
     public Guid CategoryId { get; set; }
-
+    
     public string ReturnUrl { get; set; } = null!;
 
     public IEnumerable<AllCategoriesViewModel> AllCategories { get; set; }
