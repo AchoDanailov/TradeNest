@@ -25,10 +25,10 @@ public class ProductEditFormModel
     public int QuantityInStock { get; set; }
     
     [Required(ErrorMessage = SellingPriceRequired)]
-    [Range(minimum: (double)MinSellingPriceValue, maximum: Double.MaxValue, ErrorMessage = SellingPriceRange)]
+    [Range(minimum: (double)MinSellingPriceValue, maximum: (double)MaxSellingPriceValue, ErrorMessage = SellingPriceRange)]
     public decimal SellingPrice { get; set; }
     
-    [Range(minimum: (double)MinCostPriceValue, maximum: Double.MaxValue, ErrorMessage = CostPriceRange)]
+    [Range(minimum: (double)MinCostPriceValue, maximum: (double)MaxCostPriceValue, ErrorMessage = CostPriceRange)]
     public decimal? CostPrice { get; set; }
     
     [Required]

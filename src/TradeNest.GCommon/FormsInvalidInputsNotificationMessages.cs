@@ -1,7 +1,7 @@
 namespace TradeNest.GCommon;
 
 /// <summary>
-/// Provides with constant string messages used for notifying the user of wrong inputs when filling an application form.
+/// Provides constant string messages used for notifying the user of wrong inputs when filling an application form.
 /// </summary>
 public static class FormsInvalidInputsNotificationMessages
 {

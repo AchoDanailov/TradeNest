@@ -56,7 +56,7 @@ dotnet run --project src/TradeNest.Web
 ```bash 
 http://localhost:5188
 ```
-You can configure the port if you wish in the `launchSettings.json` file localized in `TradeNest.Web/Properties`.
+You can configure the port if you wish in the `launchSettings.json` file located in `src/TradeNest.Web/Properties`.
 
 ---
 
@@ -65,17 +65,17 @@ You can configure the port if you wish in the `launchSettings.json` file localiz
 ```
 TradeNest/
 │
-├── src/
-├── │
-├── ├── TradeNest.Data/                # DbContext, configurations and migrations, repositories
-├── ├── TradeNest.Data.Models/         # Entity models(POCOs) used to model the relational models in the database
-├── ├── TradeNest.Data.Common/         # Everething common only used in the Data Layer.
-├── ├── TradeNest.GCommon/             # Cross-cutting concerns.
-├── ├── TradeNest.Services.Core/       # Business logic (Services)
-├── ├── TradeNest.Services.Models/     # Holds DTOs used to transfer data between the service layer and the presentation layer (Web project).
-├── ├── TradeNest.Web/                 # MVC web application (presentation layer)
-├── └── TradeNest.Web.ViewModels/      # ViewModels and InputModels used to transfer data between the Controllers and the MVC Views.
-├── └── TradeNest.Web.Infrastructure/  # Everething the Web Layer relies on: Filters, Middlewares, Extensions, etc...
+└── src/
+    │
+    ├── TradeNest.Data/                # DbContext, configurations and migrations, repositories
+    ├── TradeNest.Data.Models/         # Entity models(POCOs) used to model the relational models in the database
+    ├── TradeNest.Data.Common/         # Everything common only used in the Data Layer.
+    ├── TradeNest.GCommon/             # Cross-cutting concerns.
+    ├── TradeNest.Services.Core/       # Business logic (Services)
+    ├── TradeNest.Services.Models/     # Holds DTOs used to transfer data between the service layer and the presentation layer (Web project).
+    ├── TradeNest.Web/                 # MVC web application (presentation layer)
+    ├── TradeNest.Web.ViewModels/      # ViewModels and InputModels used to transfer data between the Controllers and the MVC Views.
+    └── TradeNest.Web.Infrastructure/  # Everething the Web Layer relies on: Filters, Middlewares, Extensions, etc...
 ```
 
 ---
