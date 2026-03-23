@@ -20,7 +20,10 @@
                 <a class="btn btn-teal btn-lg px-4"
                    asp-controller="Products" asp-action="Index">Shop Now</a>
                 <a class="btn btn-outline-teal btn-lg px-4"
-                   asp-controller="Products" asp-action="Create">Become a Seller</a>
+                   asp-controller="Products" asp-action="Create"
+                   asp-route-returnUrl="@Url.Action(nameof(Index), controller: "Home")">
+                    Become a Seller
+                </a>
             </div>
         </div>
 
@@ -78,7 +81,8 @@
                 </div>
                 <div class="card-footer d-flex justify-content-center">
                     <a class="btn btn-teal"
-                       asp-controller="Products" asp-action="Create">Go Now</a>
+                       asp-controller="Products" asp-action="Create"
+                       asp-route-returnUrl="@Context.Request.Path">Go Now</a>
                 </div>
             </div>
         </div>

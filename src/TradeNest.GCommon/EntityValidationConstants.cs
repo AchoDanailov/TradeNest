@@ -20,8 +20,10 @@ public static class EntityValidationConstants
         public const short MaxQuantityToAddToOrder = 10_000;
 
         public const decimal MinSellingPriceValue = 0.01m;
+        public const decimal MaxSellingPriceValue = 500_000m;
 
         public const decimal MinCostPriceValue = 0.01m;
+        public const decimal MaxCostPriceValue = 500_000m;
 
         public const byte ExtraImagesUrlsMinLengthValue = 1;
         public const short ExtraImagesUrlsMaxLengthValue 

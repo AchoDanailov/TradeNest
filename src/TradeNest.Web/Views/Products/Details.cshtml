@@ -11,13 +11,13 @@
         <partial name="_SearchFormPartial"/>
         
         <div class="mt-3 mt-md-0">
-            <partial name="_BackFromProdDetailsButtonPartial" model="@Model.ReturnUrl"/>
+            <partial name="_BackButtonPartial" model="@Model.ReturnUrl"/>
         </div>
     </div>
     
     <div class="row d-md-none d-flex flex-column justify-content-center mb-4">
         <div class="mb-3">
-            <partial name="_BackFromProdDetailsButtonPartial" model="@Model.ReturnUrl"/>
+            <partial name="_BackButtonPartial" model="@Model.ReturnUrl"/>
         </div>
         
         <partial name="_SearchFormPartial"/>
@@ -52,11 +52,21 @@
             <p class="text-navy text-center fw-bold border-2 border-bottom">
                 @Model.OwnerName
             </p>
-            <p class="text-navy text-center fw-bold border-2 border-bottom">
-                €@Model.SellingPrice.ToString(PricesFormat)
-            </p>
             @if (this.Model.IsOwner)
             {
+                if (this.Model.CostPrice != null)
+                {
+                    <p class="form-label text-navy mb-0">Cost Price:</p>
+                    <p class="text-navy text-center fw-bold border-2 border-bottom">
+                        €@Model.CostPrice.Value.ToString(PricesFormat)
+                    </p>
+                }
+                
+                <p class="form-label text-navy mb-0">Selling Price:</p>
+                <p class="text-navy text-center fw-bold border-2 border-bottom">
+                    €@Model.SellingPrice.ToString(PricesFormat)
+                </p>
+                
                 if (this.Model.IsEnabled)
                 {
                     <div class="rounded-pill p-2 site-sections-bg-teal text-light mb-2">
@@ -67,6 +77,12 @@
                 {
                     <div class="rounded-pill p-2 bg-danger text-light mb-2">Disabled</div>
                 }
+            }
+            else
+            {
+                <p class="text-navy text-center fw-bold border-2 border-bottom">
+                    €@Model.SellingPrice.ToString(PricesFormat)
+                </p>
             }
 
             <div class="d-flex flex-column align-items-center">
@@ -86,7 +102,7 @@
                     {
                         <div class="d-flex flex-column mx-auto w-75">
                             <button class="rounded-pill bg-secondary p-2 text-light" disabled>
-                                Add To Order
+                                Add To Cart
                             </button>
 
                             <a asp-area="Identity" asp-page="/Account/Login"
@@ -165,8 +181,8 @@
             <div class="btn-group-vertical align-items-stretch">
                 @if (this.Model.IsOwner)
                 {
-                    <a asp-controller="Products" asp-action="Edit"
-                       asp-route-id="@Model.Id"
+                    <a asp-controller="Products" asp-action="Edit" asp-route-id="@Model.Id" 
+                       asp-route-returnUrl="@Url.Action("Details", controller: "Products", new { id = this.Model.Id })"
                        class="rounded-pill btn-teal p-2">Make Changes</a>
                     <button type="button"
                             class="rounded-pill btn btn-outline-danger mt-2 p-2"

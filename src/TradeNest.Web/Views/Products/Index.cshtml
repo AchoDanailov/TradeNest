@@ -10,8 +10,7 @@
     <partial name="_StatusNotificationPartial" />
 
     <div class="row d-flex flex-row my-2">
-        
-        <div class="text-center text-md-start ms-md-2 col-md-4">
+        <div class="text-center d-flex justify-content-center justify-content-md-start ms-md-2 col-md-4">
             <a asp-controller="Products" asp-action="Index">
                 <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
             </a>
@@ -59,7 +58,8 @@
             </div>
 
             <div>
-                <a asp-controller="Products" asp-action="Create"
+                <a asp-controller="Products" asp-action="Create" 
+                   asp-route-returnUrl="@Context.Request.Path"
                    class="btn btn-teal mt-0">Add A New Product</a>
             </div>
 
@@ -80,6 +80,7 @@
 
         <div class="d-none d-md-flex col-md-3 me-3 align-items-center justify-content-end">
             <a asp-controller="Products" asp-action="Create"
+               asp-route-returnUrl="@Context.Request.Path"
                class="btn btn-teal">Add A New Product</a>
         </div>
     </div>
