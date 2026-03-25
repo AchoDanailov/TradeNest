@@ -14,6 +14,9 @@ internal static class ExceptionMessages
     internal const string EmptyCartMessage
         = "User with id: {0} has no products added to his cart.";
 
+    internal const string CartByCartIdAndOwnerIdNotFoundMessage
+        = "Cart with id: {0} and cart owner id: {1} was not found.";
+
     internal const string ProductNotFoundInCartMessage
         = "Product with id: {0} was not found in the user's cart.";
 

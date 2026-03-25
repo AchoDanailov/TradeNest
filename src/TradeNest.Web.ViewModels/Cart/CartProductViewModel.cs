@@ -5,8 +5,6 @@ public class CartProductViewModel
     public Guid Id { get; set; }
     
     public string Name { get; set; } = null!;
-    
-    public Guid OriginalProductId { get; set; }
 
     public int QuantityAdded { get; set; }
     

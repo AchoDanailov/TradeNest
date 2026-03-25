@@ -247,4 +247,60 @@ public class CartsService : ICartsService
         return model.QuantityRequested > 0 && 
                model.QuantityRequested <= product.QuantityInStock - productQtyAlreadyAdded;
     }
+
+    public async Task<bool> UpdateCartProduct(Guid userId, UpdateCartProductDto updateCartProductDto)
+    {
+        if(userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+        if (updateCartProductDto.ProductId == Guid.Empty)
+        {
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
+                nameof(updateCartProductDto.ProductId)));
+        }
+        if (updateCartProductDto.CartId == Guid.Empty)
+        {
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
+                nameof(updateCartProductDto.CartId)));
+        }
+
+        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
+        }
+
+        Cart? userCart = (await this._cartsRepository.GetAllAsync(options =>
+                options
+                    .WithRelated(c => c.CartProducts)
+                    .AddFilter(c => c.Id == updateCartProductDto.CartId)))
+            .SingleOrDefault();
+        if (userCart == null)
+        {
+            throw new ResourceNotFoundException(nameof(Cart), 
+                updateCartProductDto.CartId);
+        }
+
+        if (userCart.CartOwnerId != userId)
+            throw new UnauthorizedOperationException(userId, nameof(Cart), userCart.Id);
+
+        CartProduct? targetCartProduct = userCart.CartProducts
+            .SingleOrDefault(cp => cp.ProductId == updateCartProductDto.ProductId);
+        if (targetCartProduct == null)
+        {
+            throw new ResourceNotFoundException(nameof(CartProduct),
+                updateCartProductDto.ProductId);
+        }
+
+        targetCartProduct.ProductQuantityAdded = updateCartProductDto.Quantity;
+
+        bool updateCartResult = await this._cartsRepository.UpdateAsync(userCart);
+        if (!updateCartResult)
+        {
+            throw new DataPersistException(nameof(updateCartResult),
+                $"{nameof(userId)}: {userId}, cartId: {userCart.Id}");
+        }
+
+        return updateCartResult;
+    }
 }

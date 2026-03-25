@@ -13,10 +13,9 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
     });
 
     changeQtyBtn.addEventListener("click", async () => {
-        const originalProductId = changeQtyBtn.getAttribute("data-product-id");
-        const currProdQty = await getCurrProdQty(originalProductId);
+        const productId = changeQtyBtn.getAttribute("data-product-id");
+        const currProdQty = await getCurrProdQty(productId);
         if(currProdQty < 0) {
-            console.error("Fetching current product quantity was unsuccessful.")
             return;
         }
 
@@ -35,6 +34,10 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
         const saveChangesBtn = injectedPopoverInstanceEl.querySelector(".save-changes-btn");
         
         const qtyInputField = injectedPopoverInstanceEl.querySelector(".qty-input");
+        qtyInputField.value = Number(changeQtyBtn.closest(".cart-product")
+            .querySelector(".quantity-already-added").textContent
+            .split(": ").pop());
+        
         const qtyInputFieldValidationMessagesContainer = injectedPopoverInstanceEl
             .querySelector(".validation-error-container");
         
@@ -60,9 +63,12 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
             e.preventDefault();
             e.stopPropagation();
             
-            const cartProductId = changeQtyBtn.getAttribute("data-cart-product-id");
+            const productId = changeQtyBtn.getAttribute("data-product-id");
+            const cartId = changeQtyBtn.getAttribute("data-cart-id");
+            
             const updatedCartProdPayload = {
-                cartProductId: cartProductId,
+                cartId: cartId,
+                productId: productId,
                 quantity: Number(qtyInputField.value),
             };
 
@@ -83,7 +89,7 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
 
 async function getCurrProdQty(productId) {
     try {
-        const res = await fetch(`api/v1/products/${productId}`);
+        const res = await fetch(`/api/v1/products/${productId}`);
         if(!res.ok) 
             throw new Error(await res.json());
 
@@ -98,7 +104,7 @@ async function getCurrProdQty(productId) {
 async function saveChanges(updatedCartProdPayload) {
     try {
         const res = await fetch(
-            `/api/v1/cart/cartProduct/${updatedCartProdPayload.cartProductId}`, 
+            `/api/v1/cart/${updatedCartProdPayload.cartId}?productId=${updatedCartProdPayload.productId}`, 
             {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },

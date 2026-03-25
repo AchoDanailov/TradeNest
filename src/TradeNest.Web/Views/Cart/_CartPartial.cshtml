@@ -15,7 +15,7 @@
         
         bool canBuy = product.IsEnabled && product.IsEnoughQtyLeft;
         
-        <div class="card d-flex flex-column p-2 pe-4 shadow site-sections-bg rounded-3 flex-row
+        <div class="card d-flex flex-column p-2 pe-4 shadow site-sections-bg rounded-3 flex-row cart-product
             @(canBuy ? "cart-product-enabled" : "cart-product-disabled")">
             @if(warnings.Any())
             {
@@ -37,7 +37,7 @@
                         <h5 class="text-navy d-none d-md-block">@product.Name</h5>
                     }
 
-                    <p class="mb-0">Quantity: @product.QuantityAdded</p>
+                    <p class="mb-0 quantity-already-added">Quantity: @product.QuantityAdded</p>
                     <p class="mb-0">Unit Price: €@product.UnitPrice.ToString(PricesFormat)</p>
                     <p class="mb-0">Total Price: €@product.TotalPrice.ToString(PricesFormat)</p>
                 </div>
@@ -63,14 +63,11 @@
                         </form>
                     </div>
                     
-                    @if (!canBuy)
-                    {
-                        <button class="btn btn-success change-qty-button" 
-                                data-product-id="@product.OriginalProductId" 
-                                data-cart-product-id="@product.Id">
-                            Change Quantity
-                        </button>
-                    }
+                    <button class="btn btn-success change-qty-button" 
+                            data-product-id="@product.Id" 
+                            data-cart-id="@Model.CartId">
+                        Change Quantity
+                    </button>
 
                 </div>
             </div>
@@ -149,7 +146,7 @@
                         data-bs-dismiss="modal">No</button>
               
                 <form method="post" asp-controller="Cart" asp-action="SubmitOrder">
-                    <button type="submit" class="btn btn-danger">Yes</button>
+                    <button type="submit" class="btn btn-teal">Yes</button>
                 </form>
             </div>
         </div>

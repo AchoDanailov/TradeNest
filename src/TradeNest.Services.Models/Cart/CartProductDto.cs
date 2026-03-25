@@ -6,8 +6,6 @@ public class CartProductDto
     
     public string Name { get; set; } = null!;
     
-    public Guid OriginalProductId { get; set; }
-
     public int QuantityAdded { get; set; }
     
     public decimal UnitPrice { get; set; }
