@@ -2,6 +2,7 @@ using Riok.Mapperly.Abstractions;
 
 using TradeNest.Services.Models.Cart;
 using TradeNest.Web.Mappers.Interfaces;
+using TradeNest.Web.ViewModels;
 using TradeNest.Web.ViewModels.Cart;
 
 namespace TradeNest.Web.Mappers;
@@ -13,4 +14,6 @@ public partial class CartPresentationModelsMapper : ICartPresentationModelsMappe
 
     public partial CartProductViewModel ToCartProductViewModel(CartProductDto cartProductDto);
     public partial IEnumerable<CartProductViewModel> ToCartProductViewModels(IEnumerable<CartProductDto> cartProductDto);
+
+    public partial UpdateCartProductDto ToUpdateCartProductDto(UpdateCartProductRequestDto cartProductRequestDto);
 }

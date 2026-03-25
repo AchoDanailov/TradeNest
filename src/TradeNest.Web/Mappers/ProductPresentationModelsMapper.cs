@@ -1,4 +1,5 @@
 using Riok.Mapperly.Abstractions;
+
 using TradeNest.Services.Models.Image;
 using TradeNest.Services.Models.Product;
 using TradeNest.Web.Mappers.Interfaces;
@@ -34,6 +35,8 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
     [MapperIgnoreTarget(nameof(ProductEditDto.CategoryName))]
     [MapperIgnoreTarget(nameof(ProductEditDto.FrontImageUrl))]
     public partial ProductEditDto FromProductEditFormModel(ProductEditFormModel productEditFormModel);
+    
+    public partial ProductResponseDto ToProductResponseDto(ProductDetailsDto productDetailsDto);
 
     private List<ImageViewModel> MapProductImages(ProductEditDto productEditDto)
     {

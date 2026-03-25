@@ -1,5 +1,4 @@
 using TradeNest.GCommon.Exceptions;
-using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Services.Models.Cart;
 using TradeNest.Services.Models.Product;
 
@@ -118,4 +117,37 @@ public interface ICartsService
     /// Thrown if product with the provided id in <paramref name="model"/> does not exist.
     /// </exception>
     Task<bool> IsValidProductQtyToAddToCartAsync(Guid userId, ProductQtyValidationDto model);
+
+    /// <summary>
+    /// Updates the cart product in the user cart with the provided values in the
+    /// <see cref="UpdateCartProductDto"/>.
+    /// </summary>
+    /// <param name="userId">The user identifier of the user attempting the operation.</param>
+    /// <param name="updateCartProductDto">
+    /// The object that contains the values that can be updated.
+    /// </param>
+    /// <returns>
+    /// Task that contains a bool representing weather the operation was successful or not.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the provided <paramref name="userId"/> or
+    /// <paramref name="updateCartProductDto.ProductId"/> or
+    /// <paramref name="updateCartProductDto.CartId"/> are with value <see cref="Guid.Empty"/>
+    /// or if user with the provided identifier does not exist.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if a cart with <paramref name="updateCartProductDto.CartId"/> and
+    /// is not found or if a cart product with the provided
+    /// <paramref name="updateCartProductDto.ProductId"/> is not found in the user cart.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the user with <paramref name="userId"/> attempting the operation is not
+    /// the owner of the cart.
+    /// </exception>
+    /// <exception cref="InsufficientProductQuantityInStockException">
+    /// Thrown if the quantity requested from the
+    /// <paramref name="updateCartProductDto.Quantity"/> is more than the
+    /// product quantity in stock.
+    /// </exception>
+    Task<bool> UpdateCartProduct(Guid userId, UpdateCartProductDto updateCartProductDto);
 }

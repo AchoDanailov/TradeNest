@@ -1,0 +1,20 @@
+<div class="d-none change-qty-popover">
+    <div>
+        <button type="button" class="btn-close mb-3 close-popover" aria-label="Close"></button>
+
+        <p class="text-navy">
+            Current quantity in stock: <span class="text-navy curr-prod-qty"></span>
+        </p>
+
+        <form>
+            <label>Change the quantity in your cart to: </label>
+            <input type="number" class="form-control mb-2 qty-input" min="1" 
+                   aria-label="Change the quantity in your cart">
+            <p class="text-danger validation-error-container"></p>
+
+            <button class="btn btn-sm btn-teal save-changes-btn">
+                Save Changes
+            </button>
+        </form>
+    </div>
+</div>

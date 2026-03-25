@@ -247,4 +247,71 @@ public class CartsService : ICartsService
         return model.QuantityRequested > 0 && 
                model.QuantityRequested <= product.QuantityInStock - productQtyAlreadyAdded;
     }
+
+    public async Task<bool> UpdateCartProduct(Guid userId, UpdateCartProductDto updateCartProductDto)
+    {
+        if(userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+        if (updateCartProductDto.ProductId == Guid.Empty)
+        {
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
+                nameof(updateCartProductDto.ProductId)));
+        }
+        if (updateCartProductDto.CartId == Guid.Empty)
+        {
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
+                nameof(updateCartProductDto.CartId)));
+        }
+        if (updateCartProductDto.Quantity <= 0)
+        {
+            throw new ArgumentException(string.Format(CantBeZeroOrNegativeNumberMessage,
+                nameof(updateCartProductDto.Quantity)));
+        }
+
+        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
+        }
+
+        Cart? userCart = await this._cartsRepository
+            .GetCartWithProductsDetailsAsync(updateCartProductDto.CartId);
+        if (userCart == null)
+        {
+            throw new ResourceNotFoundException(nameof(Cart), 
+                updateCartProductDto.CartId);
+        }
+
+        if (userCart.CartOwnerId != userId)
+            throw new UnauthorizedOperationException(userId, nameof(Cart), userCart.Id);
+
+        CartProduct? targetCartProduct = userCart.CartProducts
+            .SingleOrDefault(cp => cp.ProductId == updateCartProductDto.ProductId);
+        if (targetCartProduct == null)
+        {
+            throw new ResourceNotFoundException(nameof(CartProduct),
+                updateCartProductDto.ProductId);
+        }
+
+        if (targetCartProduct.Product.QuantityInStock < updateCartProductDto.Quantity)
+        {
+            throw new InsufficientProductQuantityInStockException(
+                userId: userId,
+                productId: targetCartProduct.ProductId,
+                productQtyInStock: targetCartProduct.Product.QuantityInStock,
+                productQtyRequested: updateCartProductDto.Quantity);
+        }
+            
+        targetCartProduct.ProductQuantityAdded = updateCartProductDto.Quantity;
+
+        bool updateCartResult = await this._cartsRepository.UpdateAsync(userCart);
+        if (!updateCartResult)
+        {
+            throw new DataPersistException(nameof(updateCartResult),
+                $"{nameof(userId)}: {userId}, cartId: {userCart.Id}");
+        }
+
+        return updateCartResult;
+    }
 }
