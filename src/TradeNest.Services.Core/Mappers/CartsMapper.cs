@@ -15,6 +15,7 @@ public partial class CartsMapper : ICartsMapper
 
     [MapProperty(nameof(CartProduct.ProductId), nameof(CartProductDto.Id))]
     [MapProperty(nameof(CartProduct.Product.Name), nameof(CartProductDto.Name))]
+    [MapProperty(nameof(CartProduct.ProductId), nameof(CartProductDto.OriginalProductId))]
     [MapProperty(nameof(CartProduct.ProductQuantityAdded), nameof(CartProductDto.QuantityAdded))]
     [MapProperty(nameof(CartProduct.Product.SellingPrice), nameof(CartProductDto.UnitPrice))]
     [MapPropertyFromSource(nameof(CartProductDto.TotalPrice), Use = nameof(MapCartProductTotalPrice))]

@@ -21,7 +21,7 @@
             {
                 <p class="text-danger fw-bold mb-0 pb-0">@string.Join(" | ", warnings)</p>
                 <p class="text-danger fw-bold mb-1 pt-0 mt-0">
-                    Please review the product details and take necessary action.
+                    Please review the details and take necessary action.
                 </p>
             }
             
@@ -42,20 +42,36 @@
                     <p class="mb-0">Total Price: €@product.TotalPrice.ToString(PricesFormat)</p>
                 </div>
                 
-                <div class="d-flex gap-2  @(canBuy ? "align-items-center" : "align-items-start mt-2")">
-                    <a class="btn btn-teal"
-                       asp-controller="Products" asp-action="Details"
-                       asp-route-id="@product.Id" 
-                       asp-route-returnUrl="@Url.Action("Index", controller: "Cart")">
-                        Details
-                    </a>
+                <div class="d-flex gap-2 flex-wrap 
+                        @(canBuy 
+                            ? "align-items-center" 
+                            : "flex-column align-items-center justify-content-start mt-2")">
 
-                    <form method="post" asp-controller="Cart" asp-action="RemoveFromCart"
-                          asp-route-id="@product.Id">
-                        <button type="submit" class="btn btn-danger">
-                            Remove
+                    <div class="d-flex gap-2">
+                        <a class="btn btn-teal"
+                           asp-controller="Products" asp-action="Details"
+                           asp-route-id="@product.Id"
+                           asp-route-returnUrl="@Url.Action("Index", controller: "Cart")">
+                            Details
+                        </a>
+
+                        <form method="post" asp-controller="Cart" asp-action="RemoveFromCart"
+                              asp-route-id="@product.Id">
+                            <button type="submit" class="btn btn-danger">
+                                Remove
+                            </button>
+                        </form>
+                    </div>
+                    
+                    @if (!canBuy)
+                    {
+                        <button class="btn btn-success change-qty-button" 
+                                data-product-id="@product.OriginalProductId" 
+                                data-cart-product-id="@product.Id">
+                            Change Quantity
                         </button>
-                    </form>
+                    }
+
                 </div>
             </div>
         </div>
@@ -113,29 +129,31 @@
 <div class="modal fade" id="submit-order-modal" data-bs-backdrop="static"
      data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" 
      aria-hidden="true">
-  <div class="modal-dialog">
-      <div class="modal-content">
+    <div class="modal-dialog">
+        <div class="modal-content">
           
-          <div class="modal-header">
-              <h1 class="modal-title fs-5" id="staticBackdropLabel">
-                  Confirm Order
-              </h1>
-              <button type="button" class="btn-close" data-bs-dismiss="modal"
-                      aria-label="Close"></button>
-          </div>
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                    Confirm Order
+                </h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
           
-          <div class="modal-body">
-              Are you sure you want to make the order?
-          </div>
+            <div class="modal-body">
+                Are you sure you want to make the order?
+            </div>
           
-          <div class="modal-footer">
-              <button type="button" class="btn btn-secondary"
-                      data-bs-dismiss="modal">No</button>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">No</button>
               
-              <form method="post" asp-controller="Cart" asp-action="SubmitOrder">
-                  <button type="submit" class="btn btn-danger">Yes</button>
-              </form>
-          </div>
-      </div>
-  </div>
+                <form method="post" asp-controller="Cart" asp-action="SubmitOrder">
+                    <button type="submit" class="btn btn-danger">Yes</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
+
+<partial name="_ChangeCartProdQtyPopoverPartial" />

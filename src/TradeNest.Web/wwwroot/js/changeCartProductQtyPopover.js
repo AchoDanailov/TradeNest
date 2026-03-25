@@ -1,0 +1,123 @@
+const changeQtyButtonEls = document.querySelectorAll(".change-qty-button");
+const popoverTemplateEl = document.querySelector(".change-qty-popover");
+
+changeQtyButtonEls.forEach(changeQtyBtn => {
+    const popoverObj = new bootstrap.Popover(changeQtyBtn, {
+        content: () => popoverTemplateEl.innerHTML,
+        placement: "top",
+        container: ".cart-container",
+        trigger: "manual",
+        html: true,
+        sanitize: true,
+        sanitizeFn: (popoverContent) => DOMPurify.sanitize(popoverContent),
+    });
+
+    changeQtyBtn.addEventListener("click", async () => {
+        const originalProductId = changeQtyBtn.getAttribute("data-product-id");
+        const currProdQty = await getCurrProdQty(originalProductId);
+        if(currProdQty < 0) {
+            console.error("Fetching current product quantity was unsuccessful.")
+            return;
+        }
+
+        const currProductQtySpan = popoverTemplateEl.querySelector(".curr-prod-qty");
+        currProductQtySpan.textContent = currProdQty;
+
+        popoverObj.show();
+    });
+
+    // shown.bs.popover => bootstrap popover event triggered on the popover instance being shown
+    changeQtyBtn.addEventListener("shown.bs.popover", () => {
+        const popoverId = changeQtyBtn.getAttribute("aria-describedby"); // => generated popover instance id on the DOM
+        const injectedPopoverInstanceEl = document.getElementById(popoverId);
+        
+        const closePopoverBtn = injectedPopoverInstanceEl.querySelector(".close-popover");
+        const saveChangesBtn = injectedPopoverInstanceEl.querySelector(".save-changes-btn");
+        
+        const qtyInputField = injectedPopoverInstanceEl.querySelector(".qty-input");
+        const qtyInputFieldValidationMessagesContainer = injectedPopoverInstanceEl
+            .querySelector(".validation-error-container");
+        
+        const currProductQty = Number(injectedPopoverInstanceEl
+            .querySelector(".curr-prod-qty").textContent);
+        
+
+        closePopoverBtn.addEventListener("click", () => popoverObj.hide());
+
+        qtyInputField.addEventListener("input", () => {
+            if(!isValidQty(Number(qtyInputField.value), currProductQty)) {
+                qtyInputFieldValidationMessagesContainer.textContent = "Invalid quantity!";
+                saveChangesBtn?.setAttribute("disabled", "true");
+                saveChangesBtn.style.opacity="0.8";
+            } else {
+                qtyInputFieldValidationMessagesContainer.textContent = "";
+                saveChangesBtn?.removeAttribute("disabled");
+                saveChangesBtn.style.opacity="1";
+            }
+        });
+        
+        saveChangesBtn.addEventListener("click", async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const cartProductId = changeQtyBtn.getAttribute("data-cart-product-id");
+            const updatedCartProdPayload = {
+                cartProductId: cartProductId,
+                quantity: Number(qtyInputField.value),
+            };
+
+            const success = await saveChanges(updatedCartProdPayload);
+            if(!success) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Oops...",
+                  text: "Something went wrong! Please try again.",
+                });
+                return;
+            }
+            
+            document.location.href = "/Cart";
+        });
+    });
+});
+
+async function getCurrProdQty(productId) {
+    try {
+        const res = await fetch(`api/v1/products/${productId}`);
+        if(!res.ok) 
+            throw new Error(await res.json());
+
+        const productData = await res.json();
+        return productData.quantityInStock;
+    } catch (err) {
+        console.error(`Error fetching product quantity:`, err);
+        return -1;
+    }
+}
+
+async function saveChanges(updatedCartProdPayload) {
+    try {
+        const res = await fetch(
+            `/api/v1/cart/cartProduct/${updatedCartProdPayload.cartProductId}`, 
+            {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(updatedCartProdPayload),
+            }
+        );
+        if(!res.ok) 
+            throw new Error(await res.json());
+        
+        return await res.json();
+    } catch (err) {
+        console.error("Error saving new cart product qty:", err);
+        return false;
+    }
+}
+
+function isValidQty(newQuantity, currQuantityInStock) {
+    const correctTypes = !isNaN(newQuantity) && !isNaN(currQuantityInStock);
+    const validNumber = newQuantity > 0 && newQuantity <= currQuantityInStock;
+    
+    return correctTypes && validNumber;
+}
