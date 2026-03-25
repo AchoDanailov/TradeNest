@@ -9,6 +9,6 @@ public class ValidateProductQtyInputModel
     public Guid Id { get; set; }
     
     [Required]
-    [Range(MinQuantityToAddToOrder, MaxQuantityToAddToOrder)]
+    [Range(MinQuantityToAddToCart, MaxQuantityToAddToCart)]
     public int Quantity { get; set; }
 }

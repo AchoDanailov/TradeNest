@@ -34,8 +34,7 @@ public class CartApiController : BaseApiController
         [FromBody] UpdateCartProductRequestDto updateCartProductRequestDto)
     {
         if (updateCartProductRequestDto.CartId != cartId ||
-            updateCartProductRequestDto.ProductId != productId ||
-            updateCartProductRequestDto.Quantity < 0)
+            updateCartProductRequestDto.ProductId != productId)
         {
             return BadRequest();
         }
@@ -49,7 +48,7 @@ public class CartApiController : BaseApiController
             bool isSuccess = await this._cartsService.UpdateCartProduct(userId, updateCartProductDto);
             return Ok(isSuccess);
         }
-        catch (ArgumentException)
+        catch (InsufficientProductQuantityInStockException)
         {
             return BadRequest();
         }
@@ -60,6 +59,10 @@ public class CartApiController : BaseApiController
         catch (UnauthorizedOperationException)
         {
             return StatusCode(StatusCodes.Status403Forbidden);
+        }
+        catch (ArgumentException)
+        {
+            return BadRequest();
         }
         catch (Exception ex)
         {

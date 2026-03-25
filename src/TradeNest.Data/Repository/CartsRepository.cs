@@ -12,6 +12,18 @@ public class CartsRepository : BaseRepository<Cart>, ICartsRepository
     {
     }
 
+    public async Task<Cart?> GetCartWithProductsDetailsAsync(Guid cartId, bool asReadOnly = false)
+    {
+        IQueryable<Cart> query = this.DbContext.Carts
+            .Include(c => c.CartProducts)
+            .ThenInclude(cp => cp.Product);
+        if (asReadOnly)
+            query = query.AsNoTracking();
+        
+        return await query
+            .SingleOrDefaultAsync(c => c.Id == cartId);
+    }
+
     public async Task<Cart?> GetUserCartWithProductsDetailsAsync(Guid userId, bool asReadOnly = false)
     {
         IQueryable<Cart> query = this.DbContext.Carts

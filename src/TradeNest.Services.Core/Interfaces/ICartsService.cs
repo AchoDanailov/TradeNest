@@ -144,5 +144,10 @@ public interface ICartsService
     /// Thrown if the user with <paramref name="userId"/> attempting the operation is not
     /// the owner of the cart.
     /// </exception>
+    /// <exception cref="InsufficientProductQuantityInStockException">
+    /// Thrown if the quantity requested from the
+    /// <paramref name="updateCartProductDto.Quantity"/> is more than the
+    /// product quantity in stock.
+    /// </exception>
     Task<bool> UpdateCartProduct(Guid userId, UpdateCartProductDto updateCartProductDto);
 }

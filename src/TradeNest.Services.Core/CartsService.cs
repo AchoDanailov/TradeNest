@@ -262,6 +262,11 @@ public class CartsService : ICartsService
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
                 nameof(updateCartProductDto.CartId)));
         }
+        if (updateCartProductDto.Quantity <= 0)
+        {
+            throw new ArgumentException(string.Format(CantBeZeroOrNegativeNumberMessage,
+                nameof(updateCartProductDto.Quantity)));
+        }
 
         bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
         if (!userExists)
@@ -270,11 +275,8 @@ public class CartsService : ICartsService
                 nameof(ApplicationUser), userId));
         }
 
-        Cart? userCart = (await this._cartsRepository.GetAllAsync(options =>
-                options
-                    .WithRelated(c => c.CartProducts)
-                    .AddFilter(c => c.Id == updateCartProductDto.CartId)))
-            .SingleOrDefault();
+        Cart? userCart = await this._cartsRepository
+            .GetCartWithProductsDetailsAsync(updateCartProductDto.CartId);
         if (userCart == null)
         {
             throw new ResourceNotFoundException(nameof(Cart), 
@@ -292,6 +294,15 @@ public class CartsService : ICartsService
                 updateCartProductDto.ProductId);
         }
 
+        if (targetCartProduct.Product.QuantityInStock < updateCartProductDto.Quantity)
+        {
+            throw new InsufficientProductQuantityInStockException(
+                userId: userId,
+                productId: targetCartProduct.ProductId,
+                productQtyInStock: targetCartProduct.Product.QuantityInStock,
+                productQtyRequested: updateCartProductDto.Quantity);
+        }
+            
         targetCartProduct.ProductQuantityAdded = updateCartProductDto.Quantity;
 
         bool updateCartResult = await this._cartsRepository.UpdateAsync(userCart);

@@ -96,7 +96,7 @@ async function getCurrProdQty(productId) {
         const productData = await res.json();
         return productData.quantityInStock;
     } catch (err) {
-        console.error(`Error fetching product quantity:`, err);
+        console.error(`Error fetching product quantity.`, err.status);
         return -1;
     }
 }
@@ -116,7 +116,7 @@ async function saveChanges(updatedCartProdPayload) {
         
         return await res.json();
     } catch (err) {
-        console.error("Error saving new cart product qty:", err);
+        console.error("Error saving new cart product qty.", err.status);
         return false;
     }
 }
