@@ -1,0 +1,20 @@
+<div class="d-none choose-qty-popover">
+    <div>
+        <button type="button" class="btn-close mb-3 close-popover" aria-label="Close"></button>
+
+        <p class="text-navy mb-0">
+            Current quantity in stock: <span class="text-navy curr-prod-qty"></span>
+        </p>
+        
+        <p class="curr-qty-in-cart mt-0"></p>
+
+        <form>
+            <label>Choose the quantity to add to your cart: </label>
+            <input type="number" class="form-control mb-2 qty-input" min="1" 
+                   aria-label="Choose the quantity to add to your cart">
+            <p class="text-danger validation-error-container"></p>
+
+            <button class="btn btn-sm btn-teal submit-btn"> Add To Cart </button>
+        </form>
+    </div>
+</div>

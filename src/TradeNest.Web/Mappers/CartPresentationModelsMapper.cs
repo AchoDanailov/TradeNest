@@ -16,4 +16,6 @@ public partial class CartPresentationModelsMapper : ICartPresentationModelsMappe
     public partial IEnumerable<CartProductViewModel> ToCartProductViewModels(IEnumerable<CartProductDto> cartProductDto);
 
     public partial UpdateCartProductDto ToUpdateCartProductDto(UpdateCartProductRequestDto cartProductRequestDto);
+    
+    public partial CartProductResponseDto ToCartProductResponseDto(CartProductDto cartProductDto);
 }

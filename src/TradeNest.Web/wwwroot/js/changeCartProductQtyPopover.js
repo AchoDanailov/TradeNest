@@ -1,3 +1,6 @@
+import getCurrProdQty from "./getCurrProdQty.js";
+import { isValidQty } from "./dataValidationUtils.js";
+
 const changeQtyButtonEls = document.querySelectorAll(".change-qty-button");
 const popoverTemplateEl = document.querySelector(".change-qty-popover");
 
@@ -12,7 +15,9 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
         sanitizeFn: (popoverContent) => DOMPurify.sanitize(popoverContent),
     });
 
-    changeQtyBtn.addEventListener("click", async () => {
+    changeQtyBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+        
         const productId = changeQtyBtn.getAttribute("data-product-id");
         const currProdQty = await getCurrProdQty(productId);
         if(currProdQty < 0) {
@@ -75,9 +80,12 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
             const success = await saveChanges(updatedCartProdPayload);
             if(!success) {
                 Swal.fire({
-                  icon: "error",
-                  title: "Oops...",
-                  text: "Something went wrong! Please try again.",
+                    icon: "error",
+                    title: "Oops...",
+                    text: "Something went wrong! Please try again.",
+                    draggable: true,
+                    showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
+                    hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` }
                 });
                 return;
             }
@@ -86,20 +94,6 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
         });
     });
 });
-
-async function getCurrProdQty(productId) {
-    try {
-        const res = await fetch(`/api/v1/products/${productId}`);
-        if(!res.ok) 
-            throw new Error(await res.json());
-
-        const productData = await res.json();
-        return productData.quantityInStock;
-    } catch (err) {
-        console.error(`Error fetching product quantity.`, err.status);
-        return -1;
-    }
-}
 
 async function saveChanges(updatedCartProdPayload) {
     try {
@@ -119,11 +113,4 @@ async function saveChanges(updatedCartProdPayload) {
         console.error("Error saving new cart product qty.", err.status);
         return false;
     }
-}
-
-function isValidQty(newQuantity, currQuantityInStock) {
-    const correctTypes = !isNaN(newQuantity) && !isNaN(currQuantityInStock);
-    const validNumber = newQuantity > 0 && newQuantity <= currQuantityInStock;
-    
-    return correctTypes && validNumber;
 }

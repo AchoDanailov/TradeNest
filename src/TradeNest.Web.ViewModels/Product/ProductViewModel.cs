@@ -11,4 +11,6 @@ public class ProductViewModel
     public string CategoryName { get; set; } = null!;
 
     public string? FrontImageUrl { get; set; }
+    
+    public Guid OwnerId { get; set; }
 }

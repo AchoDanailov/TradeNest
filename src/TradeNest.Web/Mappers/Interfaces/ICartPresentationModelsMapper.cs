@@ -12,4 +12,6 @@ public interface ICartPresentationModelsMapper
     IEnumerable<CartProductViewModel> ToCartProductViewModels(IEnumerable<CartProductDto> cartProductDto);
 
     UpdateCartProductDto ToUpdateCartProductDto(UpdateCartProductRequestDto cartProductRequestDto);
+
+    CartProductResponseDto ToCartProductResponseDto(CartProductDto cartProductDto);
 }

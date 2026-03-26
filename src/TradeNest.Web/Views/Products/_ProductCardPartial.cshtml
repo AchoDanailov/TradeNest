@@ -1,3 +1,4 @@
+@using System.Security.Claims
 @model ProductViewModel
 
 <div class="card h-100 shadow d-flex flex-row" style="max-height: 190px">
@@ -25,7 +26,17 @@
         <div class="d-flex justify-content-end gap-2 mt-2">
             <a asp-controller="Products" asp-action="Details" asp-route-id="@this.Model.Id" 
                asp-route-returnUrl="@Url.Action("Index", controller: "Products")"
-               class="btn btn-teal">Details</a>
+               class="btn btn-outline-teal">Details</a>
+            
+            @if (User.Identity!.IsAuthenticated && 
+                 this.Model.OwnerId.ToString().ToLowerInvariant() !=
+                 User?.FindFirstValue(ClaimTypes.NameIdentifier)?.ToLowerInvariant())
+            {
+                <a asp-controller="Products" asp-action="Details" asp-route-id="@Model.Id"
+                   asp-route-returnUrl="@Url.Action("Index", controller: "Products")"
+                   class="btn btn-teal add-to-cart-btn"
+                   data-product-id="@Model.Id">Add To Cart</a>
+            }
         </div>
     </div>
 </div>

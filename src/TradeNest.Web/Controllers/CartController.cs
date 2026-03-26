@@ -129,7 +129,7 @@ public class CartController : BaseController
     public async Task<IActionResult> Cancel()
     {
         Guid userId = this.GetUserId(throwIfNull: true);
-        await this._cartsService.DeleteCart(userId);
+        await this._cartsService.DeleteCartAsync(userId);
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
     

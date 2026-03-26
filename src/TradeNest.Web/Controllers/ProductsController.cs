@@ -79,9 +79,11 @@ public class ProductsController : BaseController
             productDtos = await this._productsService
                 .GetAllProductsOrderedByDateOfCreationDescAsync(search);
         }
+        productDtos = productDtos.ToList();
 
         viewModel.Products = this._productPresentationModelsMapper
             .ToProductViewModels(productDtos);
+        
         return View(viewModel);
     }
 

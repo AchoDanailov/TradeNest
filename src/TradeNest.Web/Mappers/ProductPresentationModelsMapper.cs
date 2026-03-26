@@ -13,10 +13,11 @@ namespace TradeNest.Web.Mappers;
 public partial class ProductPresentationModelsMapper : IProductPresentationModelsMapper
 {
     public partial ProductViewModel ToProductViewModel(ProductDto productDto);
-
+    
     public partial IEnumerable<ProductViewModel> ToProductViewModels(
         IEnumerable<ProductDto> productDtos);
 
+    [MapperIgnoreTarget(nameof(ProductDetailsViewModel.IsEnabled))]
     public partial ProductDetailsViewModel ToProductDetailsViewModel(
         ProductDetailsDto productDetailsDto, string returnUrl);
     
@@ -34,6 +35,7 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
     [MapPropertyFromSource(nameof(ProductEditDto.ProductImages), Use = nameof(MapProductImagesToDtos))]
     [MapperIgnoreTarget(nameof(ProductEditDto.CategoryName))]
     [MapperIgnoreTarget(nameof(ProductEditDto.FrontImageUrl))]
+    [MapperIgnoreTarget(nameof(ProductEditDto.OwnerId))]
     public partial ProductEditDto FromProductEditFormModel(ProductEditFormModel productEditFormModel);
     
     public partial ProductResponseDto ToProductResponseDto(ProductDetailsDto productDetailsDto);
