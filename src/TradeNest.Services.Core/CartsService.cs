@@ -187,7 +187,7 @@ public class CartsService : ICartsService
         }
     }
 
-    public async Task DeleteCart(Guid userId)
+    public async Task DeleteCartAsync(Guid userId)
     {
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
@@ -248,7 +248,7 @@ public class CartsService : ICartsService
                model.QuantityRequested <= product.QuantityInStock - productQtyAlreadyAdded;
     }
 
-    public async Task<bool> UpdateCartProduct(Guid userId, UpdateCartProductDto updateCartProductDto)
+    public async Task<bool> UpdateCartProductAsync(Guid userId, UpdateCartProductDto updateCartProductDto)
     {
         if(userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
@@ -313,5 +313,32 @@ public class CartsService : ICartsService
         }
 
         return updateCartResult;
+    }
+
+    public async Task<CartProductDto?> GetCartProductDataByUserIdAndProductIdAsync(Guid userId, Guid productId)
+    {
+        if(userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+        if(productId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
+
+        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
+        if (!userExists)
+        {
+            throw new ArgumentException(string.Format(NotFoundMessage,
+                nameof(ApplicationUser), userId));
+        }
+
+        Cart? cart = await this._cartsRepository
+            .GetUserCartWithProductsDetailsAsync(userId, asReadOnly: true);
+        if (cart == null)
+            return null;
+
+        CartProduct? targetCartProduct = cart.CartProducts
+            .SingleOrDefault(cp => cp.ProductId == productId);
+        if (targetCartProduct == null)
+            return null;
+
+        return this._cartsMapper.ToCartProductDto(targetCartProduct);
     }
 }

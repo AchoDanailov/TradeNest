@@ -63,11 +63,12 @@
                         </form>
                     </div>
                     
-                    <button class="btn btn-success change-qty-button" 
-                            data-product-id="@product.Id" 
-                            data-cart-id="@Model.CartId">
-                        Change Quantity
-                    </button>
+                    <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
+                       asp-route-returnUrl="@Url.Action(nameof(Index), controller: "Cart")"
+                       class="btn btn-success change-qty-button" data-product-id="@product.Id" 
+                       data-cart-id="@Model.CartId">
+                       Change Quantity
+                    </a>
 
                 </div>
             </div>

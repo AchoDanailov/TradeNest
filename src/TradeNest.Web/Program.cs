@@ -7,6 +7,7 @@ using TradeNest.Services.Core.Interfaces;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Web.Infrastructure.Extensions;
+using TradeNest.Web.Infrastructure.Filters;
 using TradeNest.Web.Mappers.Interfaces;
 
 namespace TradeNest.Web;
@@ -27,6 +28,8 @@ public class Program
         builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
             .AddEntityFrameworkStores<TradeNestDbContext>();
+
+        builder.Services.AddScoped<WebApiExceptionFilter>();
 
         builder.Services.AddControllersWithViews();
 

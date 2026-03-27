@@ -9,8 +9,6 @@ public class ProductEditDto : ProductDto
     public string Description { get; set; } = null!;
 
     public int QuantityInStock { get; set; } 
-    
-    public bool IsEnabled { get; set; } = true;
 
     public IEnumerable<ImageDto> ProductImages { get; set; }
         = new List<ImageDto>();

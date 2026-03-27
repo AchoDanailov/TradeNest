@@ -97,7 +97,7 @@ public interface ICartsService
     /// <exception cref="DataPersistException">
     /// Thrown if the data is not successfully persisted.
     /// </exception>
-    Task DeleteCart(Guid userId);
+    Task DeleteCartAsync(Guid userId);
 
     /// <summary>
     /// Validates that the given user can add to his cart the given quantity of
@@ -149,5 +149,20 @@ public interface ICartsService
     /// <paramref name="updateCartProductDto.Quantity"/> is more than the
     /// product quantity in stock.
     /// </exception>
-    Task<bool> UpdateCartProduct(Guid userId, UpdateCartProductDto updateCartProductDto);
+    Task<bool> UpdateCartProductAsync(Guid userId, UpdateCartProductDto updateCartProductDto);
+
+    /// <summary>
+    /// Provides data about the given product added to the user cart.
+    /// </summary>
+    /// <param name="userId">The identifier of the cart owner.</param>
+    /// <param name="productId">The product that is being searched for in the user cart.</param>
+    /// <returns>
+    /// Task that contains data about the product in the user's cart <see cref="CartProductDto"/>
+    /// returns null if the product is not found in the user's cart.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if <paramref name="userId"/> or <paramref name="productId"/> are with value
+    /// <see cref="Guid.Empty"/> or if user with the provided identifier does not exist.
+    /// </exception>
+    Task<CartProductDto?> GetCartProductDataByUserIdAndProductIdAsync(Guid userId, Guid productId);
 }

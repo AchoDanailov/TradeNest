@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 
-using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Cart;
 using TradeNest.Services.Models.Order;
 using TradeNest.Services.Models.Product;
+using TradeNest.GCommon.Exceptions;
+using static TradeNest.GCommon.LoggingErrorMessages;
 using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.ViewModels.Order;
 using TradeNest.Web.ViewModels.Cart;
 using TradeNest.Web.ViewModels.Product;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
-using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
 
 namespace TradeNest.Web.Controllers;
 
@@ -129,7 +129,7 @@ public class CartController : BaseController
     public async Task<IActionResult> Cancel()
     {
         Guid userId = this.GetUserId(throwIfNull: true);
-        await this._cartsService.DeleteCart(userId);
+        await this._cartsService.DeleteCartAsync(userId);
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
     

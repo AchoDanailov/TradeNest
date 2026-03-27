@@ -4,11 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
 using TradeNest.Services.Models.Product;
-using TradeNest.Web.Mappers.Interfaces;
+using static TradeNest.GCommon.LoggingErrorMessages;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Product;
+using TradeNest.Web.Mappers.Interfaces;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
-using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
 
 namespace TradeNest.Web.Controllers;
 
@@ -79,9 +79,11 @@ public class ProductsController : BaseController
             productDtos = await this._productsService
                 .GetAllProductsOrderedByDateOfCreationDescAsync(search);
         }
+        productDtos = productDtos.ToList();
 
         viewModel.Products = this._productPresentationModelsMapper
             .ToProductViewModels(productDtos);
+        
         return View(viewModel);
     }
 

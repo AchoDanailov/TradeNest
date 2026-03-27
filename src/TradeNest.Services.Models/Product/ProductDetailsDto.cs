@@ -7,8 +7,6 @@ public class ProductDetailsDto : ProductDto
     public int QuantityInStock { get; set; } 
     
     public decimal? CostPrice { get; set; }
-    
-    public bool IsEnabled { get; set; } = true;
 
     public string OwnerName { get; set; } = null!;
     

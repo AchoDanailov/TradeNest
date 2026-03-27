@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TradeNest.GCommon.Exceptions;
 
 namespace TradeNest.Web.Controllers;
 
