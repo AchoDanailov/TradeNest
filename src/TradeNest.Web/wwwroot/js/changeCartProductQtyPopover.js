@@ -49,6 +49,11 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
         const currProductQty = Number(injectedPopoverInstanceEl
             .querySelector(".curr-prod-qty").textContent);
         
+        if(!isValidQty(Number(qtyInputField.value), currProductQty)) {
+            saveChangesBtn?.setAttribute("disabled", "true");
+            saveChangesBtn.style.opacity = "0.8";
+        }
+        
 
         closePopoverBtn.addEventListener("click", () => popoverObj.hide());
 
@@ -84,6 +89,7 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
                     title: "Oops...",
                     text: "Something went wrong! Please try again.",
                     draggable: true,
+                    confirmButtonColor: "#0FAF9A",
                     showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
                     hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` }
                 });

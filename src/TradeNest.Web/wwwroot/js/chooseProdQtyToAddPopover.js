@@ -43,25 +43,43 @@ addToCartButtons.forEach(addToCartBtn => {
         const closePopoverBtn = injectedPopoverInstanceEl.querySelector(".close-popover");
         
         const submitBtn = injectedPopoverInstanceEl.querySelector(".submit-btn");
-        submitBtn?.setAttribute("disabled", "true");
-        submitBtn.style.opacity="0.8";
         
         const qtyInputField = injectedPopoverInstanceEl.querySelector(".qty-input");
         const qtyInputFieldValidationMessagesContainer = injectedPopoverInstanceEl
             .querySelector(".validation-error-container");
         
-        const currProductQty = Number(injectedPopoverInstanceEl
+        const currProductQtyInStock = Number(injectedPopoverInstanceEl
             .querySelector(".curr-prod-qty").textContent);
         const currProductQtyInCart = Number(injectedPopoverInstanceEl
             .querySelector(".curr-qty-in-cart")?.textContent
             .split(": ")
             .pop());
+        
+        if(currProductQtyInStock - currProductQtyInCart === 0) {
+            injectedPopoverInstanceEl.querySelector(".input-label")
+                .classList.add("text-muted");
+            qtyInputField.setAttribute("disabled", "true");
+            
+            submitBtn?.setAttribute("disabled", "true");
+            submitBtn.style.opacity="0.8";
+            
+            qtyInputFieldValidationMessagesContainer.textContent 
+                = "You can not add more of this product to your cart."
+            
+            closePopoverBtn.addEventListener("click", () => popoverObj.hide());
+            return;
+        }
+        
+        if(!isValidQty(Number(qtyInputField.value), currProductQtyInStock - currProductQtyInCart)) { 
+            submitBtn?.setAttribute("disabled", "true");
+            submitBtn.style.opacity="0.8";
+        }
 
         
         closePopoverBtn.addEventListener("click", () => popoverObj.hide());
 
         qtyInputField.addEventListener("input", () => {
-            if(!isValidQty(Number(qtyInputField.value), currProductQty - currProductQtyInCart)) {
+            if(!isValidQty(Number(qtyInputField.value), currProductQtyInStock - currProductQtyInCart)) {
                 qtyInputFieldValidationMessagesContainer.textContent = "Invalid quantity!";
                 submitBtn?.setAttribute("disabled", "true");
                 submitBtn.style.opacity="0.8";
@@ -91,6 +109,7 @@ addToCartButtons.forEach(addToCartBtn => {
                     icon: "error",
                     title: "Oops...",
                     text: "Something went wrong! Please try again.",
+                    confirmButtonColor: "#0FAF9A",
                     draggable: true,
                     showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
                     hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` }

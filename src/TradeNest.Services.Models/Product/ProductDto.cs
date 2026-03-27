@@ -13,4 +13,6 @@ public class ProductDto
     public string? FrontImageUrl { get; set; }
     
     public Guid OwnerId { get; set; }
+    
+    public bool IsEnabled { get; set; }
 }

@@ -28,7 +28,7 @@
                asp-route-returnUrl="@Url.Action("Index", controller: "Products")"
                class="btn btn-outline-teal">Details</a>
             
-            @if (User.Identity!.IsAuthenticated && 
+            @if (User.Identity!.IsAuthenticated && this.Model.IsEnabled &&
                  this.Model.OwnerId.ToString().ToLowerInvariant() !=
                  User?.FindFirstValue(ClaimTypes.NameIdentifier)?.ToLowerInvariant())
             {

@@ -17,7 +17,6 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
     public partial IEnumerable<ProductViewModel> ToProductViewModels(
         IEnumerable<ProductDto> productDtos);
 
-    [MapperIgnoreTarget(nameof(ProductDetailsViewModel.IsEnabled))]
     public partial ProductDetailsViewModel ToProductDetailsViewModel(
         ProductDetailsDto productDetailsDto, string returnUrl);
     
