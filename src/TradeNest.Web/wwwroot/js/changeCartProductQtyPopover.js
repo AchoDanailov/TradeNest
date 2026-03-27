@@ -98,7 +98,7 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
             
             document.location.href = "/Cart";
         });
-    });
+    }, { once: true });
 });
 
 async function saveChanges(updatedCartProdPayload) {

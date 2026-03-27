@@ -93,7 +93,7 @@ public class CartApiController : BaseApiController
         Guid userId = this.GetUserId(throwIfNull: true);
 
         CartProductDto? cartProductDto = await this._cartsService
-            .GetCartProductDataByUserIdAndProductId(userId, productId);
+            .GetCartProductDataByUserIdAndProductIdAsync(userId, productId);
         if (cartProductDto == null)
             return Ok(new CartProductResponseDto());
 

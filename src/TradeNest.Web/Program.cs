@@ -29,8 +29,9 @@ public class Program
                 IdentityOptionsConfiguration(options, builder.Configuration))
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
-        builder.Services.AddControllersWithViews(options => 
-            options.Filters.Add<WebApiExceptionFilter>());
+        builder.Services.AddScoped<WebApiExceptionFilter>();
+
+        builder.Services.AddControllersWithViews();
 
         // Required for static assets to work properly when app is not launched in development environment and has yet not been published.
         // Should be removed once the app is published.

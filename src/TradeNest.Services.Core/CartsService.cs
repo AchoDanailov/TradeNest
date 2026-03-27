@@ -315,7 +315,7 @@ public class CartsService : ICartsService
         return updateCartResult;
     }
 
-    public async Task<CartProductDto?> GetCartProductDataByUserIdAndProductId(Guid userId, Guid productId)
+    public async Task<CartProductDto?> GetCartProductDataByUserIdAndProductIdAsync(Guid userId, Guid productId)
     {
         if(userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));

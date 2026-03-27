@@ -129,7 +129,7 @@ addToCartButtons.forEach(addToCartBtn => {
                 window.location.href = "/Catalog";
             });
         });
-    });
+    }, { once: true } );
 });
 
 async function getCurrProdQtyInCart(productId) {

@@ -164,5 +164,5 @@ public interface ICartsService
     /// Thrown if <paramref name="userId"/> or <paramref name="productId"/> are with value
     /// <see cref="Guid.Empty"/> or if user with the provided identifier does not exist.
     /// </exception>
-    Task<CartProductDto?> GetCartProductDataByUserIdAndProductId(Guid userId, Guid productId);
+    Task<CartProductDto?> GetCartProductDataByUserIdAndProductIdAsync(Guid userId, Guid productId);
 }

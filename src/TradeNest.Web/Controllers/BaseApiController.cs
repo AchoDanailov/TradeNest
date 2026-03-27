@@ -1,6 +1,8 @@
 using System.Security.Claims;
+
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using TradeNest.Web.Infrastructure.Filters;
 using TradeNest.Web.Utilities.Exceptions;
 
 namespace TradeNest.Web.Controllers;
@@ -9,6 +11,7 @@ namespace TradeNest.Web.Controllers;
 [ApiController]
 [Route("/api/v1")]
 [SkipStatusCodePages]
+[ServiceFilter<WebApiExceptionFilter>]
 public class BaseApiController : ControllerBase
 {
     protected Guid GetUserId(bool throwIfNull)
