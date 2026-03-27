@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
+using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Web.ViewModels.Error;
-using TradeNest.Web.Utilities.Messages;
 using static TradeNest.Web.Utilities.Messages.StatusCodesPagesMessages;
 
 namespace TradeNest.Web.Controllers;

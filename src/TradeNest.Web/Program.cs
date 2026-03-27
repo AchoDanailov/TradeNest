@@ -7,6 +7,7 @@ using TradeNest.Services.Core.Interfaces;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Web.Infrastructure.Extensions;
+using TradeNest.Web.Infrastructure.Filters;
 using TradeNest.Web.Mappers.Interfaces;
 
 namespace TradeNest.Web;
@@ -28,7 +29,8 @@ public class Program
                 IdentityOptionsConfiguration(options, builder.Configuration))
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
-        builder.Services.AddControllersWithViews();
+        builder.Services.AddControllersWithViews(options => 
+            options.Filters.Add<WebApiExceptionFilter>());
 
         // Required for static assets to work properly when app is not launched in development environment and has yet not been published.
         // Should be removed once the app is published.

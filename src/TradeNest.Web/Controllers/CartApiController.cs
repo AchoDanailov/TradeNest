@@ -1,12 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
 
-using TradeNest.GCommon.Exceptions;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Cart;
+using TradeNest.GCommon.Exceptions;
 using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.ViewModels;
 using TradeNest.Web.ViewModels.Cart;
-using static TradeNest.Web.Utilities.Messages.LoggingErrorMessages;
 
 namespace TradeNest.Web.Controllers;
 
@@ -14,14 +13,12 @@ public class CartApiController : BaseApiController
 {
     private readonly ICartsService _cartsService;
     private readonly ICartPresentationModelsMapper _cartMapper;
-    private readonly ILogger<CartApiController> _logger;
 
     public CartApiController(ICartsService cartsService, 
-        ICartPresentationModelsMapper cartMapper, ILogger<CartApiController> logger)
+        ICartPresentationModelsMapper cartMapper)
     {
         this._cartsService = cartsService;
         this._cartMapper = cartMapper;
-        this._logger = logger;
     }
 
     [HttpPut]
@@ -53,29 +50,6 @@ public class CartApiController : BaseApiController
         {
             return BadRequest();
         }
-        catch (ResourceNotFoundException)
-        {
-            return NotFound();
-        }
-        catch (UnauthorizedOperationException)
-        {
-            return StatusCode(StatusCodes.Status403Forbidden);
-        }
-        catch (ArgumentException)
-        {
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogError(ex,
-                string.Format(
-                    DefaultLogExceptionMessageWithControllerAndAction,
-                    ex.GetType().Name,
-                    this.GetType().Name,
-                    ControllerContext.ActionDescriptor.ActionName));
-            
-            return StatusCode(StatusCodes.Status500InternalServerError);
-        }
     }
 
     [HttpPost]
@@ -97,10 +71,6 @@ public class CartApiController : BaseApiController
 
             return Ok(true);
         }
-        catch (ResourceNotFoundException)
-        {
-            return NotFound();
-        }
         catch (InsufficientProductQuantityInStockException)
         {
             return BadRequest();
@@ -108,25 +78,6 @@ public class CartApiController : BaseApiController
         catch (ProductDisabledException)
         {
             return BadRequest();
-        }
-        catch (InvalidOperationException)
-        {
-            return BadRequest();
-        }
-        catch (ArgumentException)
-        {
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogError(ex,
-                string.Format(
-                    DefaultLogExceptionMessageWithControllerAndAction,
-                    ex.GetType().Name,
-                    this.GetType().Name,
-                    ControllerContext.ActionDescriptor.ActionName));
-            
-            return StatusCode(StatusCodes.Status500InternalServerError);
         }
     }
 
@@ -139,33 +90,15 @@ public class CartApiController : BaseApiController
         if (productId == Guid.Empty)
             return BadRequest();
 
-        try
-        {
-            Guid userId = this.GetUserId(throwIfNull: true);
+        Guid userId = this.GetUserId(throwIfNull: true);
 
-            CartProductDto? cartProductDto = await this._cartsService
-                .GetCartProductDataByUserIdAndProductId(userId, productId);
-            if (cartProductDto == null)
-                return Ok(new CartProductResponseDto());
+        CartProductDto? cartProductDto = await this._cartsService
+            .GetCartProductDataByUserIdAndProductId(userId, productId);
+        if (cartProductDto == null)
+            return Ok(new CartProductResponseDto());
 
-            CartProductResponseDto cartProductResponseDto = this._cartMapper
-                .ToCartProductResponseDto(cartProductDto);
-            return Ok(cartProductResponseDto);
-        }
-        catch (ArgumentException)
-        {
-            return BadRequest();
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogError(ex,
-                string.Format(
-                    DefaultLogExceptionMessageWithControllerAndAction,
-                    ex.GetType().Name,
-                    this.GetType().Name,
-                    ControllerContext.ActionDescriptor.ActionName));
-            
-            return StatusCode(StatusCodes.Status500InternalServerError);
-        }
+        CartProductResponseDto cartProductResponseDto = this._cartMapper
+            .ToCartProductResponseDto(cartProductDto);
+        return Ok(cartProductResponseDto);
     }
 }
