@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+
+using TradeNest.GCommon.Exceptions;
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 
@@ -12,10 +15,18 @@ public class OrdersRepository : BaseRepository<Order>, IOrdersRepository
 
     public override async Task<bool> AddAsync(Order entity)
     {
-        Cart userCartToBeDeleted = this.DbContext.Carts
-            .Single(c => c.CartOwnerId == entity.UserId);
-        this.DbContext.Remove(userCartToBeDeleted);
-        
-        return await base.AddAsync(entity);
+        try
+        {
+            Cart userCartToBeDeleted = this.DbContext.Carts
+                .Single(c => c.CartOwnerId == entity.UserId);
+            this.DbContext.Remove(userCartToBeDeleted);
+            
+            return await base.AddAsync(entity);
+        }
+        catch (DbUpdateConcurrencyException concurrencyEx)
+        {
+            this.DbContext.ChangeTracker.Clear();
+            throw new DataConcurrencyConflictException(innerException: concurrencyEx);
+        }
     }
 }
