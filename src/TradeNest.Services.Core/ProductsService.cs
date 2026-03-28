@@ -33,25 +33,20 @@ public class ProductsService : IProductsService
     public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync(
         string? search = null)
     {
-        IEnumerable<Product> products; 
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            products = await this._productsRepository
-                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(options =>
-                    options
-                        .AddOrderDesc(p => p.CreatedOn)
-                        .AddOrderAsc(p => p.Name)
+        IEnumerable<Product> products = await this._productsRepository
+            .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(queryOptions =>
+            {
+                queryOptions
+                    .AddOrderDesc(p => p.CreatedOn)
+                    .AddOrderAsc(p => p.Name);
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    queryOptions
                         .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) ||
-                                        p.Category.Name.ToLower().Contains(search.ToLower())));
-        }
-        else
-        {
-            products = await this._productsRepository
-                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(options => 
-                    options
-                        .AddOrderDesc(p => p.CreatedOn)
-                        .AddOrderAsc(p => p.Name));
-        }
+                                        p.Category.Name.ToLower().Contains(search.ToLower()));
+                }
+            });
         
         return this._productsMapper.ToProductDtos(products);
     }
@@ -62,29 +57,26 @@ public class ProductsService : IProductsService
     {
         if (categoryId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(categoryId)));
-        
-        IEnumerable<Product> products;
-        if (!string.IsNullOrWhiteSpace(search))
-        {
-            products = await this._productsRepository
-                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(options => 
-                    options
-                        .AddOrderDesc(p => p.CreatedOn)
-                        .AddOrderAsc(p => p.Name)
+
+        IEnumerable<Product> products = await this._productsRepository
+            .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(queryOptions =>
+            {
+                queryOptions
+                    .AddOrderDesc(p => p.CreatedOn)
+                    .AddOrderAsc(p => p.Name);
+
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    queryOptions
                         .AddFilter(p => p.CategoryId == categoryId &&
                                         (p.Name.ToLower().Contains(search.ToLower()) ||
-                                         p.Category.Name.ToLower().Contains(search.ToLower()))));
-            
-        }
-        else
-        {
-            products = await this._productsRepository
-                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(options =>
-                    options
-                        .AddFilter(p => p.CategoryId == categoryId)
-                        .AddOrderDesc(p => p.CreatedOn)
-                        .AddOrderAsc(p => p.Name));
-        }
+                                         p.Category.Name.ToLower().Contains(search.ToLower())));
+                }
+                else
+                {
+                    queryOptions.AddFilter(p => p.CategoryId == categoryId);
+                }
+            });
         
         return this._productsMapper.ToProductDtos(products);
     }
@@ -92,8 +84,8 @@ public class ProductsService : IProductsService
     public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedBySellingCountDescAsync()
     {
         IEnumerable<Product> products = await this._productsRepository
-            .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(options => 
-                options
+            .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(queryOptions => 
+                queryOptions
                     .AddOrderDesc(p => p.SoldProducts.Sum(sp => sp.QuantityOrdered))
                     .AddOrderDesc(p => p.CreatedOn));
         
@@ -114,8 +106,8 @@ public class ProductsService : IProductsService
         if (id == Guid.Empty)
             return null;
 
-        Product? product = (await this._productsRepository.GetAllAsReadOnlyAsync(options =>
-                options
+        Product? product = (await this._productsRepository.GetAllAsReadOnlyAsync(queryOptions =>
+                queryOptions
                     .AddFilter(p => p.Id == id)
                     .WithRelated(p => p.Owner)
                     .WithRelated(p => p.Category)
@@ -193,8 +185,8 @@ public class ProductsService : IProductsService
         }
 
         Product? product = (await this._productsRepository
-                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(options =>
-                    options.AddFilter(p => p.Id == id)))
+                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(queryOptions =>
+                    queryOptions.AddFilter(p => p.Id == id)))
             .FirstOrDefault();
         if (product == null)
             return null;
@@ -264,8 +256,8 @@ public class ProductsService : IProductsService
                 nameof(ApplicationUser), userId));
         }
 
-        Product? product = (await this._productsRepository.GetAllAsync(options => 
-                options
+        Product? product = (await this._productsRepository.GetAllAsync(queryOptions => 
+                queryOptions
                     .WithRelated(p => p.Images)
                     .AddFilter(p => p.Id == productEditDto.Id)))
             .SingleOrDefault();

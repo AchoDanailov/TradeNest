@@ -34,7 +34,7 @@ public class ProductsRepository : BaseRepository<Product>, IProductsRepository
     }
 
     public async Task<IEnumerable<Product>> GetAllProductsWithCategoryAndImagesAsReadonlyAsync(
-        Action<IQueryBuilder<Product>>? queryOptionsBuilder = null)
+        Action<IQueryOptions<Product>>? queryOptionsBuilder = null)
     {
         IQueryable<Product> queryable = this.DbContext.Products
             .Include(p => p.Images)

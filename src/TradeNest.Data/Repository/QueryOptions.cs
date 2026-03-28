@@ -3,13 +3,13 @@ using TradeNest.Data.Repository.Interfaces;
 
 namespace TradeNest.Data.Repository;
 
-public class QueryBuilder<T> : IQueryBuilder<T>
+public class QueryOptions<T> : IQueryOptions<T>
     where T : class, new()
 {
     private readonly List<Expression<Func<T, object>>> _includesList;
     private readonly List<(Expression<Func<T, object>>, bool)> _orderStatementsByDirection;
     
-    internal QueryBuilder()
+    internal QueryOptions()
     {
         this._includesList = new List<Expression<Func<T, object>>>();
         this._orderStatementsByDirection = new List<(Expression<Func<T, object>>, bool)>();
@@ -24,25 +24,26 @@ public class QueryBuilder<T> : IQueryBuilder<T>
         => this._orderStatementsByDirection.AsReadOnly();
 
 
-    public IQueryBuilder<T> AddFilter(Expression<Func<T, bool>> filter)
+    public IQueryOptions<T> AddFilter(Expression<Func<T, bool>> filter)
     {
+        // TODO: Refactor AddFilter so it supports more than one filter. Or implement a derived class that notifies filtered queryOptions object where the filter can only be reasigned explicitly from the user (rn it reasigns implicitly).
         this.Filter = filter;
         return this;
     }
 
-    public IQueryBuilder<T> WithRelated(Expression<Func<T, object>> includeStatement)
+    public IQueryOptions<T> WithRelated(Expression<Func<T, object>> includeStatement)
     {
         this._includesList.Add(includeStatement);
         return this;
     }
 
-    public IQueryBuilder<T> AddOrderAsc(Expression<Func<T, object>> orderByStatement)
+    public IQueryOptions<T> AddOrderAsc(Expression<Func<T, object>> orderByStatement)
     {
         this._orderStatementsByDirection.Add((orderByStatement, true));
         return this;
     }
     
-    public IQueryBuilder<T> AddOrderDesc(Expression<Func<T, object>> descendingOrderByStatement)
+    public IQueryOptions<T> AddOrderDesc(Expression<Func<T, object>> descendingOrderByStatement)
     {
         this._orderStatementsByDirection.Add((descendingOrderByStatement, false));
         return this;

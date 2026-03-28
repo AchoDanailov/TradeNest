@@ -18,7 +18,7 @@ public abstract class BaseRepository<T> : IRepository<T>
     protected TradeNestDbContext DbContext => this._dbContext;
 
     public virtual async Task<IEnumerable<T>> GetAllAsync(
-        Action<IQueryBuilder<T>>? queryOptionsBuilder = null)
+        Action<IQueryOptions<T>>? queryOptionsBuilder = null)
     {
         if (queryOptionsBuilder == null)
         {
@@ -31,7 +31,7 @@ public abstract class BaseRepository<T> : IRepository<T>
     }
 
     public virtual async Task<IEnumerable<T>> GetAllAsReadOnlyAsync(
-        Action<IQueryBuilder<T>>? queryOptionsBuilder = null)
+        Action<IQueryOptions<T>>? queryOptionsBuilder = null)
     {
         if (queryOptionsBuilder == null)
         {
@@ -100,27 +100,27 @@ public abstract class BaseRepository<T> : IRepository<T>
         this._disposed = true;
     }
 
-    protected IQueryable<T> BuildQuery(Action<QueryBuilder<T>> queryOptionsBuilder, 
+    protected IQueryable<T> BuildQuery(Action<QueryOptions<T>> queryOptionsBuilder, 
         IQueryable<T>? queryable = null, bool? asReadOnly = null)
     {
         queryable ??= this.DbContext.Set<T>();
         
-        QueryBuilder<T> queryBuilder = new QueryBuilder<T>();
-        queryOptionsBuilder.Invoke(queryBuilder);
+        QueryOptions<T> queryOptions = new QueryOptions<T>();
+        queryOptionsBuilder.Invoke(queryOptions);
         
-        if (queryBuilder.Filter != null)
-            queryable = queryable.Where(queryBuilder.Filter);
+        if (queryOptions.Filter != null)
+            queryable = queryable.Where(queryOptions.Filter);
         
-        foreach (Expression<Func<T, object>> includeStatement in queryBuilder.IncludesList)
+        foreach (Expression<Func<T, object>> includeStatement in queryOptions.IncludesList)
             queryable = queryable.Include(includeStatement);
 
         if (asReadOnly is true)
             queryable = queryable.AsNoTracking();
 
-        if (queryBuilder.OrderExpressionsByDirection.Any())
+        if (queryOptions.OrderExpressionsByDirection.Any())
         {
             IEnumerable<(Expression<Func<T, object>>, bool)> orderExprsByDir
-                = queryBuilder.OrderExpressionsByDirection.ToList();
+                = queryOptions.OrderExpressionsByDirection.ToList();
             
             (Expression<Func<T, object>> firstExpr, bool isAscDirection) = orderExprsByDir.First();
             IOrderedQueryable<T> orderedQueryable = isAscDirection

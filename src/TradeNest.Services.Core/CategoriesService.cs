@@ -27,8 +27,8 @@ public class CategoriesService : ICategoriesService
     
     public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
     {
-        return (await this._categoriesRepository.GetAllAsReadOnlyAsync(options => 
-                options.AddOrderAsc(c => c.Name)))
+        return (await this._categoriesRepository.GetAllAsReadOnlyAsync(queryOptions => 
+                queryOptions.AddOrderAsc(c => c.Name)))
             .Select(c => new CategoryDto()
             {
                 Id = c.Id,

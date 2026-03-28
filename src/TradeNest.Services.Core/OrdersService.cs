@@ -42,8 +42,8 @@ public class OrdersService : IOrdersService
         }
 
         IEnumerable<Order> orders = await this._ordersRepository
-            .GetAllAsReadOnlyAsync(options => 
-                options
+            .GetAllAsReadOnlyAsync(queryOptions => 
+                queryOptions
                     .WithRelated(o => o.OrderProducts)
                     .AddFilter(o => o.UserId == userId)
                     .AddOrderDesc(o => o.SubmittedOn)

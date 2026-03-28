@@ -192,8 +192,8 @@ public class CartsService : ICartsService
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
 
-        ApplicationUser? user = (await this._usersRepository.GetAllAsync(options => 
-                options
+        ApplicationUser? user = (await this._usersRepository.GetAllAsync(queryOptions => 
+                queryOptions
                     .WithRelated(u => u.Cart!)
                     .AddFilter(u => u.Id == userId)))
             .SingleOrDefault();
