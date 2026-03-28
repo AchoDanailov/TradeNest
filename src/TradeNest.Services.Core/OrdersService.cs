@@ -60,8 +60,32 @@ public class OrdersService : IOrdersService
 
         return await this._ordersRepository.ExistsAsync(o => o.Id == orderId);
     }
-
+    
     public async Task<SubmitOrderResultDto> SubmitOrderAsync(Guid userId)
+    {
+        try
+        {
+            return await this.TrySubmitOrder(userId);
+        }
+        catch (DataConcurrencyConflictException)
+        {
+            return await this.RetrySubmitOrder(userId);
+        }
+    }
+    
+    private async Task<SubmitOrderResultDto> RetrySubmitOrder(Guid userId)
+    {
+        try
+        {
+            return await this.TrySubmitOrder(userId);
+        }
+        catch (DataConcurrencyConflictException concurrencyEx)
+        {
+            throw new DataPersistException(innerException: concurrencyEx);
+        }
+    }
+
+    private async Task<SubmitOrderResultDto> TrySubmitOrder(Guid userId)
     {
         if(userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
