@@ -7,7 +7,7 @@ namespace TradeNest.GCommon.Exceptions;
 public class DataConcurrencyConflictException : InvalidOperationException
 {
     private const string DefaultMessage
-        = "An concurrency exception occured while trying to persist the data.";
+        = "A concurrency exception occurred while trying to persist the data.";
 
     public DataConcurrencyConflictException(string? message = null, Exception? innerException = null, params string[] data)
         : base(

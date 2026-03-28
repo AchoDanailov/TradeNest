@@ -81,7 +81,7 @@ public class OrdersService : IOrdersService
         }
         catch (DataConcurrencyConflictException concurrencyEx)
         {
-            throw new DataPersistException(innerException: concurrencyEx);
+            throw new DataPersistException(innerException: concurrencyEx, $"userId: {userId}");
         }
     }
 
