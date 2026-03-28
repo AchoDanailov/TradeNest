@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -25,9 +26,14 @@ public class Program
         builder.Services.AddDbContext<TradeNestDbContext>(options =>
             options.UseSqlServer(connectionString));
 
-        builder.Services.AddDefaultIdentity<ApplicationUser>(options => 
+        builder.Services
+            .AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
+            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<TradeNestDbContext>();
+
+        builder.Services.ConfigureApplicationCookie(options =>
+            ApplicationCookieConfiguration(options, builder.Configuration));
 
         builder.Services.AddScoped<WebApiExceptionFilter>();
 
@@ -54,7 +60,7 @@ public class Program
             app.UseHsts();
         }
 
-        app.UseStatusCodePagesWithReExecute("/Error/StatusCode", "?statusCode={0}");
+        app.UseStatusCodePagesWithReExecute("/Error/StatusCode/{0}");
 
         app.UseHttpsRedirection();
         app.UseStaticFiles();
@@ -102,5 +108,19 @@ public class Program
             .GetValue<bool>("IdentityOptions:Password:RequireLowercase");
         options.Password.RequireNonAlphanumeric = configuration
             .GetValue<bool>("IdentityOptions:Password:RequireNonAlphanumeric");
+    }
+
+    private static void ApplicationCookieConfiguration(CookieAuthenticationOptions options,
+        ConfigurationManager configuration)
+    {
+        IConfigurationSection section = configuration.GetSection("CookieAuthOptions");
+        
+        options.Cookie.HttpOnly = section.GetValue<bool>("Cookie:HttpOnly");
+        options.Cookie.SameSite = (SameSiteMode)section.GetValue<int>("Cookie:SameSite");
+        options.Cookie.SecurePolicy = (CookieSecurePolicy)section.GetValue<int>("Cookie:SecurePolicy");
+        
+        options.ExpireTimeSpan = TimeSpan.FromMinutes(section.GetValue<int>("ExpireTimeSpan"));
+        options.SlidingExpiration = section.GetValue<bool>("SlidingExpiration");
+        options.AccessDeniedPath = section.GetValue<string>("AccessDeniedPath");
     }
 }

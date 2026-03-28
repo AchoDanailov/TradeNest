@@ -21,6 +21,7 @@ public class ErrorController : BaseController
         this._logger = logger;
     }
 
+    [Route("/Error")]
     public IActionResult Index()
     {
         IExceptionHandlerPathFeature? originalRequest
@@ -43,6 +44,7 @@ public class ErrorController : BaseController
         return viewToReturn;
     }
 
+    [Route("/Error/StatusCode/{statusCode}")]
     public IActionResult StatusCode(string statusCode)
     {
         if (!int.TryParse(statusCode, out int status))
