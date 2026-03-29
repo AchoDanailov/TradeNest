@@ -41,7 +41,7 @@ public class ProductCreateFormModel
     [Required(ErrorMessage = CategoryRequired)]
     public Guid CategoryId { get; set; }
     
-    public string ReturnUrl { get; set; } = null!;
+    public string? ReturnUrl { get; set; } 
 
     public IEnumerable<AllCategoriesViewModel> AllCategories { get; set; }
         = new List<AllCategoriesViewModel>();
