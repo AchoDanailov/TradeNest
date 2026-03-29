@@ -102,8 +102,12 @@ addToCartButtons.forEach(addToCartBtn => {
                 productId: productId,
                 quantity: Number(qtyInputField.value),
             };
+            
+            const requestVerificationToken = document
+                .querySelectorAll("input[name=__RequestVerificationToken]")[0]
+                .value;
 
-            const success = await addToCart(requestedProductQtyPayload);
+            const success = await addToCart(requestedProductQtyPayload, requestVerificationToken);
             if(!success) {
                 Swal.fire({
                     icon: "error",
@@ -146,19 +150,21 @@ async function getCurrProdQtyInCart(productId) {
     }
 }
 
-async function addToCart(requestedProductQtyPayload) {
+async function addToCart(requestedProductQtyPayload, requestVerificationToken) {
     try {
         const res = await fetch("/api/v1/cart/addProduct", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { 
+                "Content-Type": "application/json",
+                "RequestVerificationToken": requestVerificationToken,
+            },
             body: JSON.stringify(requestedProductQtyPayload)
         });
         if(!res.ok) 
             throw new Error(await res.json());
             
         return await res.json();
-    } catch (err)
-    {
+    } catch (err) {
         console.error("Error adding product qty to user's cart.", err.status);
         return false;
     }

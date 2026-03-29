@@ -82,7 +82,11 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
                 quantity: Number(qtyInputField.value),
             };
 
-            const success = await saveChanges(updatedCartProdPayload);
+            const requestVerificationToken = document
+                .querySelectorAll("input[name=__RequestVerificationToken]")[0]
+                .value;
+
+            const success = await saveChanges(updatedCartProdPayload, requestVerificationToken);
             if(!success) {
                 Swal.fire({
                     icon: "error",
@@ -101,13 +105,16 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
     }, { once: true });
 });
 
-async function saveChanges(updatedCartProdPayload) {
+async function saveChanges(updatedCartProdPayload, requestVerificationToken) {
     try {
         const res = await fetch(
             `/api/v1/cart/${updatedCartProdPayload.cartId}?productId=${updatedCartProdPayload.productId}`, 
             {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: {
+                    "Content-Type": "application/json",
+                    "RequestVerificationToken": requestVerificationToken,
+                },
                 body: JSON.stringify(updatedCartProdPayload),
             }
         );

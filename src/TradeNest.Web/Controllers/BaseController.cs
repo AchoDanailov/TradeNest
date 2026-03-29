@@ -7,10 +7,8 @@ using TradeNest.Web.Utilities.Exceptions;
 
 namespace TradeNest.Web.Controllers;
 
-/// <summary>
-/// Provides with common utilities for all controllers and ensures compliance with no authority by default rule.
-/// </summary>
 [Authorize]
+[AutoValidateAntiforgeryToken]
 public abstract class BaseController : Controller
 {
     protected Guid GetUserId(bool throwIfNull)
