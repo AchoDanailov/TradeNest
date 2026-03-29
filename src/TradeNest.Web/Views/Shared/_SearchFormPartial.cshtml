@@ -1,3 +1,11 @@
+@model string?
+
+@{
+    string searchInputFieldValue = string.IsNullOrWhiteSpace(this.Model) 
+        ? string.Empty 
+        : this.Model;
+}
+
 <div class="d-flex flex-column align-items-center">
     <label for="searchInput" class="form-label text-navy text-center">
         Search for everything
@@ -6,7 +14,7 @@
         <div class="input-group">
             <input name="search" type="search" id="searchInput"
                    class="form-control" placeholder="Search..." 
-                   aria-label="Search" />
+                   aria-label="Search" value="@searchInputFieldValue" />
             <button class="btn btn-outline-teal" type="submit">Search</button>
         </div>
     </form>

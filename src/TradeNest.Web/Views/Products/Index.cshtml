@@ -66,8 +66,8 @@
         </div>
 
         <div class="col mt-2 mt-md-0 text-center gap-2">
-            <partial name="_SearchFormPartial"/>
-            @if (Model.SearchFilter != null)
+            <partial name="_SearchFormPartial" model="@Model.SearchFilter"/>
+            @if (this.Model.SearchFilter != null)
             {
                 <div class="my-2">
                     <span>results for: @Model.SearchFilter</span>
