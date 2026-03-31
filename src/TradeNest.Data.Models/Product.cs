@@ -37,6 +37,24 @@ public class Product
     [Column(TypeName = PriceColumnDataType)]
     [Comment("The price the product is being sold at.")]
     public decimal SellingPrice { get; set; }
+    
+    [Required]
+    [ForeignKey(nameof(Category))]
+    [Comment("Foreign key referencing the product's category primary key.")]
+    public Guid CategoryId { get; set; }
+    public Category Category { get; set; } = null!;
+
+    [ForeignKey(nameof(Owner))]
+    [Comment("Foreign key referencing the product's owner primary key.")]
+    public Guid OwnerId { get; set; }
+    public virtual ApplicationUser Owner { get; set; } = null!;
+    
+    [ForeignKey(nameof(ApprovalDecisionMaker))]
+    [Comment("Foreign key to the admin that has taken a decision on the product approval if any.")]
+    public Guid? ApprovalDecisionMakerId { get; set; }
+    public virtual Admin? ApprovalDecisionMaker { get; set; } 
+    
+    public ApprovalDecision ApprovalDecision { get; set; } = null!;
 
     [Required]
     [Comment("Date of creating. Has default universal time set on record insertion to date and time of insertion.")]
@@ -52,17 +70,6 @@ public class Product
 
     [Timestamp]
     public byte[] RowVersion { get; set; } = null!;
-
-    [ForeignKey(nameof(Owner))]
-    [Comment("Foreign key referencing the product's owner primary key.")]
-    public Guid OwnerId { get; set; }
-    public virtual ApplicationUser Owner { get; set; } = null!;
-    
-    [Required]
-    [ForeignKey(nameof(Category))]
-    [Comment("Foreign key referencing the product's category primary key.")]
-    public Guid CategoryId { get; set; }
-    public Category Category { get; set; } = null!;
 
     public virtual ICollection<Image> Images { get; set; }
         = new HashSet<Image>();

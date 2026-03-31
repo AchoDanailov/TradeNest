@@ -11,6 +11,11 @@ public static class EntityModelsConstants
         public const string DefaultValueForCreatedOnColumn = "GETUTCDATE()";
 
         public const bool DefaultValueForIsEnabledColumn = true;
+
+        public static class ApprovalTicket
+        {
+            public const string DefaultValueForCreatedOn = "GETUTCDATE()";
+        }
     }
 
     public static class CartProduct

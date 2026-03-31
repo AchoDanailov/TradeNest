@@ -60,4 +60,9 @@ public static class EntityValidationConstants
         public const byte NameMinLengthValue = 3;
         public const byte NameMaxLengthValue = 100;
     }
+    
+    public static class ProductApprovalTicket
+    {
+        public const short DecisionJustificationMaxLengthValue = 3000;
+    }
 }

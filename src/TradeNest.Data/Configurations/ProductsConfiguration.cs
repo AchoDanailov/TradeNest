@@ -2,7 +2,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using TradeNest.Data.Models;
+using TradeNest.Data.Models.Enums;
 using static TradeNest.Data.Common.EntityModelsConstants.Product;
+using static TradeNest.Data.Common.EntityModelsConstants.Product.ApprovalTicket;
 
 namespace TradeNest.Data.Configurations;
 
@@ -19,6 +21,17 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(p => p.ApprovalDecisionMaker)
+            .WithMany(a => a.ProductApprovalDecisionsGiven)
+            .HasForeignKey(p => p.ApprovalDecisionMakerId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.OwnsOne(
+            p => p.ApprovalDecision,
+            decision => decision.Property(p => p.LastUpdatedOn)
+                .HasDefaultValueSql(DefaultValueForCreatedOn)
+                .ValueGeneratedOnAddOrUpdate());
         
         builder.Property(p => p.CreatedOn)
             .HasDefaultValueSql(DefaultValueForCreatedOnColumn);
@@ -26,7 +39,8 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.IsEnabled)
             .HasDefaultValue(DefaultValueForIsEnabledColumn);
 
-        builder.HasQueryFilter(p => p.IsDeleted == false);
+        builder.HasQueryFilter(p => p.IsDeleted == false &&
+                                    p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
 
         builder.HasData(this.SeedProducts());
     }

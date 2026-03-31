@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using TradeNest.Data.Models;
+using TradeNest.Data.Models.Enums;
 
 namespace TradeNest.Data;
 
@@ -15,6 +16,7 @@ public class TradeNestDbContext
     {
     }
 
+    public virtual DbSet<Admin> Admins { get; set; } = null!;
     public virtual DbSet<Product> Products { get; set; } = null!;
     public virtual DbSet<Category> Categories { get; set; } = null!;
     public virtual DbSet<Image> Images { get; set; } = null!;
@@ -29,7 +31,8 @@ public class TradeNestDbContext
         //ChangeTracker.Entries<TEntity>() calls DetectChanges() internally.
         IEnumerable<EntityEntry<Product>> productsToModifyIsEnabledProperty = this.ChangeTracker
             .Entries<Product>()
-            .Where(entry => IsEnabledStatusShouldBeChanged(entry));
+            .Where(entry => InStockStatusChanged(entry) || HasChangedApprovalStatus(entry));
+                            
         UpdateProductIsEnabledPropertyAsRequired(productsToModifyIsEnabledProperty);
 
         return await base.SaveChangesAsync(cancellationToken);
@@ -46,31 +49,41 @@ public class TradeNestDbContext
     {
         foreach (EntityEntry<Product> productEntityEntry in productsToModifyIsEnabledProperty)
         {
-            if (StockQuantityIsChangedTo0(productEntityEntry))
+            if (WentOutOfStock(productEntityEntry) || IsNotApproved(productEntityEntry))
                 productEntityEntry.Property(p => p.IsEnabled).CurrentValue = false;
             else
                 productEntityEntry.Property(p => p.IsEnabled).CurrentValue = true;
         }
     }
     
-    private static bool IsEnabledStatusShouldBeChanged(
-        EntityEntry<Product> trackedProductEntityEntry)
+    private static bool InStockStatusChanged(EntityEntry<Product> trackedProductEntityEntry)
     {
         PropertyEntry<Product, int> stockQuantityPropertyEntry 
             = trackedProductEntityEntry.Property(p => p.QuantityInStock);
+        
         bool isStockQuantityModified = stockQuantityPropertyEntry.IsModified;
         
         return (isStockQuantityModified && stockQuantityPropertyEntry.CurrentValue == 0) ||
                (isStockQuantityModified && stockQuantityPropertyEntry is { OriginalValue: 0, CurrentValue: > 0 });
     }
 
-    private static bool StockQuantityIsChangedTo0(
-        EntityEntry<Product> trackedProductEntityEntry)
+    private static bool WentOutOfStock(EntityEntry<Product> trackedProductEntityEntry)
     {
-        PropertyEntry<Product, int> stockQuantityPropertyEntry 
-            = trackedProductEntityEntry.Property(p => p.QuantityInStock);
-        bool isStockQuantityModified = stockQuantityPropertyEntry.IsModified;
+        return trackedProductEntityEntry
+            .Property(p => p.QuantityInStock)
+            .CurrentValue == 0;
+    }
 
-        return isStockQuantityModified && stockQuantityPropertyEntry.CurrentValue == 0;
+    private static bool HasChangedApprovalStatus(EntityEntry<Product> productEntityEntry)
+    {
+        return productEntityEntry
+            .Property(p => p.ApprovalDecision.ApprovalStatus).IsModified;
+    }
+
+    private static bool IsNotApproved(EntityEntry<Product> productEntityEntry)
+    {
+        return productEntityEntry
+            .Property(p => p.ApprovalDecision.ApprovalStatus)
+            .CurrentValue != ApprovalStatus.Approved;
     }
 }

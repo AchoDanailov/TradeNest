@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using TradeNest.Data.Models;
+using TradeNest.Data.Models.Enums;
 using static TradeNest.Data.Common.EntityModelsConstants.CartProduct;
 
 namespace TradeNest.Data.Configurations;
@@ -23,6 +24,7 @@ public class CartProductConfiguration : IEntityTypeConfiguration<CartProduct>
         builder.Property(cp => cp.AddedOn)
             .HasDefaultValueSql(DefaultValueForAddedOnColumn);
 
-        builder.HasQueryFilter(cp => cp.Product.IsDeleted == false);
+        builder.HasQueryFilter(cp => cp.Product.IsDeleted == false &&
+                                     cp.Product.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
     }
 }
