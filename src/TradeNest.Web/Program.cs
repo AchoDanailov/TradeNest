@@ -6,8 +6,6 @@ using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.Data.Seeding;
-using TradeNest.Data.Seeding.Interfaces;
 using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Web.Infrastructure.Extensions;
 using TradeNest.Web.Infrastructure.Filters;
@@ -46,8 +44,6 @@ public class Program
         // Required for static assets to work properly when app is not launched in development environment and has yet not been published.
         // Should be removed once the app is published.
         builder.WebHost.UseStaticWebAssets();
-
-        builder.Services.AddScoped<IIdentitySeeder, IdentitySeeder>();
 
         builder.Services.RegisterRepositories(typeof(IProductsRepository).Assembly);
         
