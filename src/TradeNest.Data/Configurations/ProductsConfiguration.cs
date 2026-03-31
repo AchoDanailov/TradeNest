@@ -2,7 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using TradeNest.Data.Models;
-using TradeNest.Data.Models.Enums;
 using static TradeNest.Data.Common.EntityModelsConstants.Product;
 
 namespace TradeNest.Data.Configurations;
@@ -20,11 +19,6 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
-
-        builder.HasOne(p => p.AdminToApprove)
-            .WithMany(a => a.ProductsToApprove)
-            .HasForeignKey(p => p.AdminId)
-            .OnDelete(DeleteBehavior.SetNull);
         
         builder.Property(p => p.CreatedOn)
             .HasDefaultValueSql(DefaultValueForCreatedOnColumn);
@@ -33,7 +27,6 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
             .HasDefaultValue(DefaultValueForIsEnabledColumn);
 
         builder.HasQueryFilter(p => p.IsDeleted == false);
-        builder.HasQueryFilter(p => p.ApprovalStatus == ApprovalStatus.Approved);
 
         builder.HasData(this.SeedProducts());
     }

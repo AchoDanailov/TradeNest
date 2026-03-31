@@ -31,6 +31,7 @@ public class Program
         builder.Services
             .AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
+            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddResponseCompression();
@@ -45,6 +46,8 @@ public class Program
         // Required for static assets to work properly when app is not launched in development environment and has yet not been published.
         // Should be removed once the app is published.
         builder.WebHost.UseStaticWebAssets();
+
+        builder.Services.AddScoped<IIdentitySeeder, IdentitySeeder>();
 
         builder.Services.RegisterRepositories(typeof(IProductsRepository).Assembly);
         

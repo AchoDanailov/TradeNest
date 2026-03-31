@@ -157,28 +157,6 @@ namespace TradeNest.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TradeNest.Data.Models.Admin", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasComment("The primary key of the Admin entity.");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasComment("Foreign key to the user that is an admin. 1 to 1.");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("Admins", t =>
-                        {
-                            t.HasComment("Entity representing an application admin. 1 to 1 with User.");
-                        });
-                });
-
             modelBuilder.Entity("TradeNest.Data.Models.ApplicationUser", b =>
                 {
                     b.Property<Guid>("Id")
@@ -252,15 +230,15 @@ namespace TradeNest.Data.Migrations
                         {
                             Id = new Guid("d05a8fe7-cf0a-4895-89aa-9068c334ec1b"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "7143dd0e-8d3e-4d6c-96f6-3a82fd1387de",
+                            ConcurrencyStamp = "542090ca-d27b-43c5-9907-6d779fd107a0",
                             Email = "User1@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "USER1@GMAIL.COM",
                             NormalizedUserName = "USER1",
-                            PasswordHash = "AQAAAAIAAYagAAAAEBWYCfFLHQ7eQnEGv3+DlkcVqRAxJjQvsJqrx1S+x9xNRVjI5W8bWjnUsZS22619pQ==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEJaV+FYQ7PgQ7oMDgCnAtaSTn/4eoMzpCIGlzbTjY9YPLdDYlSjmFgKcxwekLjAueg==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "fa498bda-c9e9-44a9-8cba-379ca0c98e71",
+                            SecurityStamp = "4ead1fee-504b-4391-8665-d134399df7dc",
                             TwoFactorEnabled = false,
                             UserName = "User1"
                         },
@@ -268,15 +246,15 @@ namespace TradeNest.Data.Migrations
                         {
                             Id = new Guid("a8e18a83-adfb-4116-9e35-3be16446f9b8"),
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "ddbc9991-647f-4190-b6b9-2174a605800d",
+                            ConcurrencyStamp = "3e00c32f-ed63-454c-b9d8-1e2989e239bc",
                             Email = "User2@gmail.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "USER2@GMAIL.COM",
                             NormalizedUserName = "USER2",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGrmLloNwG6O96P7AJY2bWfHfsQtYUdfuPz+ONljFWG4RJBiXavdSUOSGNi/hOPRLw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEKyanlAmzzaMVnskw1TS+E6AYGiYBbVNqeaBbWmSYeJ6vvqt2A/gyeHDO+Db0k2rQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "6fcbee74-f1f8-42c1-b5d5-77e8738332ca",
+                            SecurityStamp = "d439b3a5-ad3e-4a82-b4af-eb20ec8a634f",
                             TwoFactorEnabled = false,
                             UserName = "User2"
                         });
@@ -298,7 +276,7 @@ namespace TradeNest.Data.Migrations
                     b.HasIndex("CartOwnerId")
                         .IsUnique();
 
-                    b.ToTable("Carts", t =>
+                    b.ToTable("Carts", null, t =>
                         {
                             t.HasComment("Holds Cart data.");
                         });
@@ -328,7 +306,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("CartId");
 
-                    b.ToTable("CartsProducts", t =>
+                    b.ToTable("CartsProducts", null, t =>
                         {
                             t.HasComment("Mapping entity between Cart and Products - represents product added to cart.");
                         });
@@ -349,7 +327,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", t =>
+                    b.ToTable("Categories", null, t =>
                         {
                             t.HasComment("Holds category data.");
                         });
@@ -407,7 +385,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Images", t =>
+                    b.ToTable("Images", null, t =>
                         {
                             t.HasComment("Holds Image data.");
                         });
@@ -531,7 +509,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", t =>
+                    b.ToTable("Orders", null, t =>
                         {
                             t.HasComment("Holds order's data.");
                         });
@@ -582,7 +560,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("OriginalProductId");
 
-                    b.ToTable("OrdersProducts", t =>
+                    b.ToTable("OrdersProducts", null, t =>
                         {
                             t.HasComment("Represents the product state at the moment of the order being submitted.");
                         });
@@ -594,14 +572,6 @@ namespace TradeNest.Data.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasComment("Product's primary key.");
-
-                    b.Property<Guid?>("AdminId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasComment("The foreign key to the admin entity that has the product listed for approval.");
-
-                    b.Property<int>("ApprovalStatus")
-                        .HasColumnType("int")
-                        .HasComment("Value representing weather the product has been approved or not or is still waiting for approval.");
 
                     b.Property<Guid>("CategoryId")
                         .HasColumnType("uniqueidentifier")
@@ -659,13 +629,11 @@ namespace TradeNest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AdminId");
-
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Products", t =>
+                    b.ToTable("Products", null, t =>
                         {
                             t.HasComment("Holds product's data.");
                         });
@@ -674,10 +642,9 @@ namespace TradeNest.Data.Migrations
                         new
                         {
                             Id = new Guid("a1b2c3d4-e5f6-7890-1111-222233334444"),
-                            ApprovalStatus = 0,
                             CategoryId = new Guid("c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30"),
                             CostPrice = 45.00m,
-                            CreatedOn = new DateTime(2026, 3, 31, 8, 15, 37, 326, DateTimeKind.Utc).AddTicks(327),
+                            CreatedOn = new DateTime(2026, 3, 15, 21, 10, 49, 2, DateTimeKind.Utc).AddTicks(2961),
                             Description = "High-fidelity audio with noise-cancelling features and comfortable earcups for extended listening sessions. Up to 20 hours of battery life.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -689,10 +656,9 @@ namespace TradeNest.Data.Migrations
                         new
                         {
                             Id = new Guid("b2c3d4e5-f6a7-8901-2222-333344445555"),
-                            ApprovalStatus = 0,
                             CategoryId = new Guid("c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30"),
                             CostPrice = 300.00m,
-                            CreatedOn = new DateTime(2026, 3, 31, 8, 15, 37, 326, DateTimeKind.Utc).AddTicks(332),
+                            CreatedOn = new DateTime(2026, 3, 15, 21, 10, 49, 2, DateTimeKind.Utc).AddTicks(2992),
                             Description = "4K Ultra HD Smart TV with vibrant colors and intelligent processing Built-in streaming apps for endless entertainment. Includes a voice remote.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -704,10 +670,9 @@ namespace TradeNest.Data.Migrations
                         new
                         {
                             Id = new Guid("d4e5f6a7-b8c9-0123-4444-555566667777"),
-                            ApprovalStatus = 0,
                             CategoryId = new Guid("a1b2c3d4-e5f6-7890-1234-567890abcdef"),
                             CostPrice = 12.00m,
-                            CreatedOn = new DateTime(2026, 3, 31, 8, 15, 37, 326, DateTimeKind.Utc).AddTicks(336),
+                            CreatedOn = new DateTime(2026, 3, 15, 21, 10, 49, 2, DateTimeKind.Utc).AddTicks(2996),
                             Description = "A comprehensive guide for beginners to learn C# programming language covering basics to advanced topics with practical examples and exercises.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -719,10 +684,9 @@ namespace TradeNest.Data.Migrations
                         new
                         {
                             Id = new Guid("e5f6a7b8-c9d0-1234-5555-666677778888"),
-                            ApprovalStatus = 0,
                             CategoryId = new Guid("f0e9d8c7-b6a5-4321-fedc-ba9876543210"),
                             CostPrice = 80.00m,
-                            CreatedOn = new DateTime(2026, 1, 15, 8, 15, 37, 326, DateTimeKind.Utc).AddTicks(339),
+                            CreatedOn = new DateTime(2025, 12, 30, 21, 10, 49, 2, DateTimeKind.Utc).AddTicks(3000),
                             Description = "Designed for maximum comfort and support during long working hours. Features adjustable lumbar support, armrests, and headrest.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -734,10 +698,9 @@ namespace TradeNest.Data.Migrations
                         new
                         {
                             Id = new Guid("f6a7b8c9-d0e1-2345-6666-777788889999"),
-                            ApprovalStatus = 0,
                             CategoryId = new Guid("f0e9d8c7-b6a5-4321-fedc-ba9876543210"),
                             CostPrice = 15.00m,
-                            CreatedOn = new DateTime(2026, 3, 11, 8, 15, 37, 326, DateTimeKind.Utc).AddTicks(346),
+                            CreatedOn = new DateTime(2026, 2, 23, 21, 10, 49, 2, DateTimeKind.Utc).AddTicks(3011),
                             Description = "A beautiful collection of five low-maintenance succulent plants, perfect for decorating your home or office space. Comes with decorative pots.",
                             IsDeleted = false,
                             IsEnabled = true,
@@ -762,7 +725,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("UsersWatchlistsProducts", t =>
+                    b.ToTable("UsersWatchlistsProducts", null, t =>
                         {
                             t.HasComment("Mapping entity representing a product in a user's watchlist.");
                         });
@@ -817,17 +780,6 @@ namespace TradeNest.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("TradeNest.Data.Models.Admin", b =>
-                {
-                    b.HasOne("TradeNest.Data.Models.ApplicationUser", "User")
-                        .WithOne()
-                        .HasForeignKey("TradeNest.Data.Models.Admin", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("TradeNest.Data.Models.Cart", b =>
@@ -903,11 +855,6 @@ namespace TradeNest.Data.Migrations
 
             modelBuilder.Entity("TradeNest.Data.Models.Product", b =>
                 {
-                    b.HasOne("TradeNest.Data.Models.Admin", "AdminToApprove")
-                        .WithMany("ProductsToApprove")
-                        .HasForeignKey("AdminId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("TradeNest.Data.Models.Category", "Category")
                         .WithMany("Products")
                         .HasForeignKey("CategoryId")
@@ -919,8 +866,6 @@ namespace TradeNest.Data.Migrations
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.Navigation("AdminToApprove");
 
                     b.Navigation("Category");
 
@@ -944,11 +889,6 @@ namespace TradeNest.Data.Migrations
                     b.Navigation("Product");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("TradeNest.Data.Models.Admin", b =>
-                {
-                    b.Navigation("ProductsToApprove");
                 });
 
             modelBuilder.Entity("TradeNest.Data.Models.ApplicationUser", b =>

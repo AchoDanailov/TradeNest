@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 using Microsoft.EntityFrameworkCore;
-using TradeNest.Data.Models.Enums;
+
 using static TradeNest.GCommon.EntityValidationConstants.Product;
 using static TradeNest.Data.Common.EntityModelsConstants.CommonValidationConstants;
 
@@ -45,10 +45,6 @@ public class Product
     [Required]
     [Comment("Value is used to show weather the product is enabled or disabled for selling.")]
     public bool IsEnabled { get; set; } = true;
-    
-    [Required]
-    [Comment("Value representing weather the product has been approved or not or is still waiting for approval.")]
-    public ApprovalStatus ApprovalStatus { get; set; }
 
     [Required]
     [Comment("Value is used to show weather the product deleted.")]
@@ -56,11 +52,6 @@ public class Product
 
     [Timestamp]
     public byte[] RowVersion { get; set; } = null!;
-    
-    [ForeignKey(nameof(AdminToApprove))]
-    [Comment("The foreign key to the admin entity that has the product listed for approval.")]
-    public Guid? AdminId { get; set; }
-    public virtual Admin? AdminToApprove { get; set; }
 
     [ForeignKey(nameof(Owner))]
     [Comment("Foreign key referencing the product's owner primary key.")]
