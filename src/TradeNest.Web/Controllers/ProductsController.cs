@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
 using TradeNest.Services.Models.Product;
-using static TradeNest.GCommon.LoggingErrorMessages;
+using static TradeNest.GCommon.ErrorMessages;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Product;
 using TradeNest.Web.Mappers.Interfaces;

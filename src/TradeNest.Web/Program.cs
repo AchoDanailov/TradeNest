@@ -6,6 +6,8 @@ using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Data.Repository.Interfaces;
+using TradeNest.Data.Seeding;
+using TradeNest.Data.Seeding.Interfaces;
 using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Web.Infrastructure.Extensions;
 using TradeNest.Web.Infrastructure.Filters;
@@ -15,7 +17,7 @@ namespace TradeNest.Web;
 
 public class Program
 {
-    public static void Main(string[] args)
+    public static async Task Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -32,9 +34,11 @@ public class Program
             .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
+        builder.Services.AddResponseCompression();
+
         builder.Services.ConfigureApplicationCookie(options =>
             ApplicationCookieConfiguration(options, builder.Configuration));
-
+        
         builder.Services.AddScoped<WebApiExceptionFilter>();
 
         builder.Services.AddControllersWithViews();
@@ -43,6 +47,8 @@ public class Program
         // Should be removed once the app is published.
         builder.WebHost.UseStaticWebAssets();
 
+        builder.Services.AddScoped<IIdentitySeeder, IdentitySeeder>();
+
         builder.Services.RegisterRepositories(typeof(IProductsRepository).Assembly);
         
         builder.Services.RegisterMappings(typeof(IProductsMapper).Assembly, 
@@ -50,7 +56,10 @@ public class Program
         
         builder.Services.RegisterUserServices(typeof(IProductsService).Assembly);
 
+        
         WebApplication app = builder.Build();
+
+        app.UseResponseCompression();
 
         app.UseExceptionHandler("/Error");
 
@@ -70,13 +79,21 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.MapControllerRoute(
-            name: "default",
-            pattern: "{controller=Home}/{action=Index}/{id?}");
-        
+        app.UseEndpoints(routeBuilder =>
+        {
+            routeBuilder.MapAreaControllerRoute(
+                name: "adminArea",
+                areaName: "Admin",
+                pattern: "Admin/{controller=Home}/{action=Index}");
+
+            routeBuilder.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+        });
+
         app.MapRazorPages();
 
-        app.Run();
+        await app.RunAsync();
     }
 
     private static void IdentityOptionsConfiguration(IdentityOptions options,

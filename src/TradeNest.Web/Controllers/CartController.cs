@@ -5,7 +5,7 @@ using TradeNest.Services.Models.Cart;
 using TradeNest.Services.Models.Order;
 using TradeNest.Services.Models.Product;
 using TradeNest.GCommon.Exceptions;
-using static TradeNest.GCommon.LoggingErrorMessages;
+using static TradeNest.GCommon.ErrorMessages;
 using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.ViewModels.Order;
 using TradeNest.Web.ViewModels.Cart;

@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 
 using TradeNest.GCommon.Exceptions;
-using static TradeNest.GCommon.LoggingErrorMessages;
+using static TradeNest.GCommon.ErrorMessages;
 
 namespace TradeNest.Web.Infrastructure.Filters;
 

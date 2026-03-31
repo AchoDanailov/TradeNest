@@ -28,7 +28,7 @@ public class ErrorController : BaseController
             = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
         if (originalRequest == null)
         {
-            this._logger.LogError(LoggingErrorMessages.ExceptionHandlerUnexpectedException);
+            this._logger.LogError(ErrorMessages.ExceptionHandlerUnexpectedException);
             return View("ServerError", new ErrorViewModel()
             {
                 StatusCode = StatusCodes.Status500InternalServerError,
@@ -50,7 +50,7 @@ public class ErrorController : BaseController
         if (!int.TryParse(statusCode, out int status))
         {
             HttpContext.Response.StatusCode = StatusCodes.Status500InternalServerError;
-            this._logger.LogError(LoggingErrorMessages.UnexpectedStatusCodesPagesExceptionMessage);
+            this._logger.LogError(ErrorMessages.UnexpectedStatusCodesPagesExceptionMessage);
             return View("ServerError", new ErrorViewModel()
             {
                 StatusCode = StatusCodes.Status500InternalServerError,
@@ -115,7 +115,7 @@ public class ErrorController : BaseController
         StringBuilder logMessage = new StringBuilder();
 
         logMessage.AppendFormat(
-            LoggingErrorMessages.DefaultLogExceptionMessage,
+            ErrorMessages.DefaultLogExceptionMessage,
             originalRequest.Error.GetType().Name);
 
         if (originalRequest.RouteValues?
