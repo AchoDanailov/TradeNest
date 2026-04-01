@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TradeNest.Web.Infrastructure.Extensions;
 
-public static class ServiceCollectionExtensions
+public static class WebApplicationBuilderExtensions
 {
     public static IServiceCollection RegisterUserServices(this IServiceCollection services,
         Assembly assembly)
@@ -53,6 +53,26 @@ public static class ServiceCollectionExtensions
 
         foreach (Assembly extraAssembly in assemblies)
             services = ProcessMapperAssembly(services, extraAssembly);
+
+        return services;
+    }
+    
+    public static IServiceCollection RegisterSeeders(this IServiceCollection services, Assembly assembly)
+    {
+        IEnumerable<Type> seedersInterfaces = assembly.GetExportedTypes()
+            .Where(t => t.IsInterface && t.Name.StartsWith("I") && t.Name.EndsWith("Seeder") &&
+                        !t.Name.Contains("Entity") && !t.IsGenericType);
+        foreach (Type seederInterface in seedersInterfaces)
+        {
+            Type? seederImplType = assembly.GetExportedTypes()
+                .SingleOrDefault(t => 
+                    t.IsAssignableTo(seederInterface) && t is { IsAbstract: false, IsClass: true }
+                                                      && t.Name.EndsWith("Seeder"));
+            if (seederImplType == null)
+                continue;
+
+            services.AddScoped(seederInterface, seederImplType);
+        }
 
         return services;
     }

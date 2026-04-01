@@ -6,6 +6,8 @@ using TradeNest.Data;
 using TradeNest.Data.Models;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Data.Repository.Interfaces;
+using TradeNest.Data.Seeding;
+using TradeNest.Data.Seeding.Interfaces;
 using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Web.Infrastructure.Extensions;
 using TradeNest.Web.Infrastructure.Filters;
@@ -29,7 +31,6 @@ public class Program
         builder.Services
             .AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
-            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddResponseCompression();
@@ -46,6 +47,9 @@ public class Program
         builder.WebHost.UseStaticWebAssets();
 
         builder.Services.RegisterRepositories(typeof(IProductsRepository).Assembly);
+
+        if (builder.Environment.IsDevelopment())
+            builder.Services.RegisterSeeders(typeof(IProductsSeeder).Assembly);
         
         builder.Services.RegisterMappings(typeof(IProductsMapper).Assembly, 
             typeof(IProductPresentationModelsMapper).Assembly);
@@ -63,6 +67,10 @@ public class Program
         {
             // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
+        }
+        else if (app.Environment.IsDevelopment())
+        {
+            app.UseSeeding();
         }
 
         app.UseStatusCodePagesWithReExecute("/Error/StatusCode/{0}");

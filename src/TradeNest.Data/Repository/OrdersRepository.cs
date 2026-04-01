@@ -6,22 +6,25 @@ using TradeNest.Data.Repository.Interfaces;
 
 namespace TradeNest.Data.Repository;
 
-public class OrdersRepository : BaseRepository<Order>, IOrdersRepository
+public class OrdersRepository : BaseReadRepository<Order>, IOrdersRepository
 {
     public OrdersRepository(TradeNestDbContext dbContext) 
         : base(dbContext)
     {
     }
 
-    public override async Task<bool> AddAsync(Order entity)
+    public async Task<bool> AddAsync(Order order)
     {
         try
         {
             Cart userCartToBeDeleted = this.DbContext.Carts
-                .Single(c => c.CartOwnerId == entity.UserId);
+                .Single(c => c.CartOwnerId == order.UserId);
             this.DbContext.Remove(userCartToBeDeleted);
-            
-            return await base.AddAsync(entity);
+
+            await this.DbContext.Orders.AddAsync(order);
+            int res = await this.DbContext.SaveChangesAsync();
+
+            return res >= 1;
         }
         catch (DbUpdateConcurrencyException concurrencyEx)
         {

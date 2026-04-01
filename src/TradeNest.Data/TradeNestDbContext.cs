@@ -77,13 +77,16 @@ public class TradeNestDbContext
     private static bool HasChangedApprovalStatus(EntityEntry<Product> productEntityEntry)
     {
         return productEntityEntry
-            .Property(p => p.ApprovalDecision.ApprovalStatus).IsModified;
+            .Reference(p => p.ApprovalDecision).TargetEntry!
+            .Property(d => d.ApprovalStatus)
+            .IsModified;
     }
 
     private static bool IsNotApproved(EntityEntry<Product> productEntityEntry)
     {
         return productEntityEntry
-            .Property(p => p.ApprovalDecision.ApprovalStatus)
+            .Reference(p => p.ApprovalDecision).TargetEntry!
+            .Property(d => d.ApprovalStatus)
             .CurrentValue != ApprovalStatus.Approved;
     }
 }

@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 using Microsoft.EntityFrameworkCore;
 
-using static TradeNest.GCommon.EntityValidationConstants.ProductApprovalTicket;
+using static TradeNest.GCommon.EntityValidationConstants.Product.ApprovalDecision;
 using TradeNest.Data.Models.Enums;
 
 namespace TradeNest.Data.Models;
@@ -17,9 +17,6 @@ public class ApprovalDecision
     [MaxLength(DecisionJustificationMaxLengthValue)]
     [Comment("The justification for the taken decision on the product approval.")]
     public string? DecisionJustification { get; set; }
-    
-    [Comment("Value representing the time the ticket has been created.")]
-    public DateTime LastUpdatedOn { get; set; }
     
     [Comment("Value representing the time the ticket has been processed and assigned approval status.")]
     public DateTime? TimeOfDecision { get; set; }

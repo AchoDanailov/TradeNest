@@ -2,6 +2,7 @@ using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
+using static TradeNest.GCommon.ErrorMessages;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Services.Models.Image;

@@ -5,6 +5,10 @@ namespace TradeNest.GCommon;
 /// </summary>
 public static class ErrorMessages
 {
+    public const string IdCantBeEmptyMessage = "Id can not be empty. {0}";
+
+    public const string NotFoundMessage = "{0} with id: {1} can not be found.";
+    
     public const string ExceptionHandlerUnexpectedException
         = "An unexpected exception occurred in the Error handling controller. Please check if Exception Handling is implemented correctly.";
 
@@ -22,13 +26,13 @@ public static class ErrorMessages
     public const string RemoteValidationErrorMessage
         = "Remote validation exception occurred. Controller: {0}, Action: {1}.";
 
-    public const string RoleSeedingError 
-        = "The role seeding process failed. Please view the result of the operation. RoleName: {0}";
+    public const string FileNotFound = "File with path {0} was not found.";
 
-    public const string AdminSeedingError
-        = "The admin seeding process failed. Please view the result of the operation. email: {0}";
+    public const string ProductCreatedOnAfterApprovalTimeOfDecision
+        = "Created on can not be after time of decision. productDtoId: {0}";
+    
+    public const string SeedingError
+        = "The {0} seeding process failed. Please view the result of the operation or the inner exception.";
 
-    public const string AdminUsernameNotFoundMessage = "Admin username not found.";
-    public const string AdminEmailNotFoundMessage = "Admin email not found.";
-    public const string AdminPasswordNotFoundMessage = "Admin password not found.";
+    public const string UserIsAlreadyAnAdminMessage = "A user can only be one admin.";
 }

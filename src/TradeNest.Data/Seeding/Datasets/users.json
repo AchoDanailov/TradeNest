@@ -1,0 +1,26 @@
+[
+  {
+    "Id": "a7e18a83-adfb-4116-9e35-3be16446f9b1",
+    "UserName": "Admin1",
+    "Email": "admin1@gmail.com",
+    "Password": "Admin1Password"
+  },
+  {
+    "Id": "d05a8fe7-cf0a-4895-89aa-9068c334ec1b",
+    "UserName": "User1",
+    "Email": "user1@gmail.com",
+    "Password": "Password1"
+  },
+  {
+    "Id": "a8e18a83-adfb-4116-9e35-3be16446f9b8",
+    "UserName": "User2",
+    "Email": "user2@gmail.com",
+    "Password": "Password2"
+  },
+  {
+    "Id": "f6a7b8c9-d0e1-2345-6666-777788889999",
+    "UserName": "User3",
+    "Email": "user3@gmail.com",
+    "Password": "Password3"
+  }
+]

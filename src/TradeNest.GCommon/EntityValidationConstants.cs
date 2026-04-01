@@ -32,6 +32,11 @@ public static class EntityValidationConstants
         public const byte NewImagesUrlsMinLengthValue = 1;
         public const short NewImagesUrlsMaxLengthValue 
             = CommonValidationConstants.UrlMaxLengthValue * 10;
+        
+        public static class ApprovalDecision
+        {
+            public const short DecisionJustificationMaxLengthValue = 3000;
+        }
     }
 
     public static class User
@@ -59,10 +64,5 @@ public static class EntityValidationConstants
     {
         public const byte NameMinLengthValue = 3;
         public const byte NameMaxLengthValue = 100;
-    }
-    
-    public static class ProductApprovalTicket
-    {
-        public const short DecisionJustificationMaxLengthValue = 3000;
     }
 }

@@ -1,0 +1,167 @@
+[
+  {
+    "Id": "11111111-1111-1111-1111-111111111111",
+    "Name": "Wireless Bluetooth Headphones",
+    "Description": "High-fidelity audio with noise-cancelling features.",
+    "QuantityInStock": 15,
+    "CostPrice": 45.00,
+    "SellingPrice": 89.99,
+    "CategoryId": "c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30",
+    "OwnerId": "a8e18a83-adfb-4116-9e35-3be16446f9b8",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 2,
+      "DecisionJustification": "Meets all quality standards.",
+      "TimeOfDecision": "2026-03-31T10:05:00Z"
+    },
+    "CreatedOn": "2026-03-30T12:00:00Z",
+    "IsEnabled": true,
+    "IsDeleted": false,
+    "Images": [
+      {
+        "Id": "aaaa1111-1111-1111-1111-111111111111",
+        "Url": "/images/products/headphones.png",
+        "IsFrontImage": true
+      },
+      {
+        "Id": "aaaa1111-1111-1111-1111-111111111112",
+        "Url": "/images/products/headphones_part_1.png",
+        "IsFrontImage": false
+      }
+    ]
+  },
+  {
+    "Id": "22222222-2222-2222-2222-222222222222",
+    "Name": "Smart LED TV 55-inch",
+    "Description": "4K Ultra HD Smart TV with vibrant colors.",
+    "QuantityInStock": 8,
+    "CostPrice": 300.00,
+    "SellingPrice": 549.99,
+    "CategoryId": "c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30",
+    "OwnerId": "a8e18a83-adfb-4116-9e35-3be16446f9b8",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 2,
+      "DecisionJustification": "Valid product listing.",
+      "TimeOfDecision": "2026-03-31T11:10:00Z"
+    },
+    "CreatedOn": "2026-03-30T14:00:00Z",
+    "IsEnabled": true,
+    "IsDeleted": false,
+    "Images": [
+      {
+        "Id": "aaaa2222-2222-2222-2222-222222222221",
+        "Url": "/images/products/tv.png",
+        "IsFrontImage": true
+      },
+      {
+        "Id": "aaaa2222-2222-2222-2222-222222222222",
+        "Url": "/images/products/tv_part_1.png",
+        "IsFrontImage": false
+      } 
+    ]
+  },
+  {
+    "Id": "33333333-3333-3333-3333-333333333333",
+    "Name": "Introduction to C# Programming",
+    "Description": "A comprehensive guide for beginners.",
+    "QuantityInStock": 50,
+    "CostPrice": 10.00,
+    "SellingPrice": 29.99,
+    "CategoryId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+    "OwnerId": "d05a8fe7-cf0a-4895-89aa-9068c334ec1b",
+    "ApprovalDecisionMakerId": null,
+    "ApprovalDecision": {
+      "ApprovalStatus": 0,
+      "DecisionJustification": null,
+      "TimeOfDecision": null
+    },
+    "CreatedOn": "2026-03-29T08:00:00Z",
+    "IsEnabled": false,
+    "IsDeleted": false,
+    "Images": [
+      {
+        "Id": "aaaa3333-3333-3333-3333-333333333331",
+        "Url": "/images/products/csharp_book.png", 
+        "IsFrontImage": true
+      }
+    ]
+  },
+  {
+    "Id": "44444444-4444-4444-4444-444444444444",
+    "Name": "Ergonomic Office Chair",
+    "Description": "Maximum comfort for long working hours.",
+    "QuantityInStock": 20,
+    "CostPrice": 75.00,
+    "SellingPrice": 159.99,
+    "CategoryId": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+    "OwnerId": "f6a7b8c9-d0e1-2345-6666-777788889999",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 2,
+      "DecisionJustification": "High demand item.",
+      "TimeOfDecision": "2026-03-31T08:30:00Z"
+    },
+    "CreatedOn": "2026-03-28T10:00:00Z",
+    "IsEnabled": true,
+    "IsDeleted": false,
+    "Images": [
+      {
+        "Id": "aaaa4444-4444-4444-4444-444444444441",
+        "Url": "/images/products/chair_angle_1.png",
+        "IsFrontImage": true
+      },
+      {
+        "Id": "aaaa4444-4444-4444-4444-444444444442",
+        "Url": "/images/products/chair_angle_2.png",
+        "IsFrontImage": false
+      }
+    ]
+  },
+  {
+    "Id": "55555555-5555-5555-5555-555555555555",
+    "Name": "Indoor Plant Set - Succulents",
+    "Description": "Five low-maintenance succulent plants.",
+    "QuantityInStock": 100,
+    "CostPrice": 12.00,
+    "SellingPrice": 34.99,
+    "CategoryId": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+    "OwnerId": "f6a7b8c9-d0e1-2345-6666-777788889999",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 2,
+      "DecisionJustification": "Approved.",
+      "TimeOfDecision": "2026-03-31T07:20:00Z"
+    },
+    "CreatedOn": "2026-03-27T09:00:00Z",
+    "IsEnabled": true,
+    "IsDeleted": false,
+    "Images": [
+      {
+        "Id": "aaaa5555-5555-5555-5555-555555555551",
+        "Url": "/images/products/succulents.png",
+        "IsFrontImage": true
+      }
+    ]
+  },
+  {
+    "Id": "66666666-6666-6666-6666-666666666666",
+    "Name": "Product with no images.",
+    "Description": "I just want money for no value.",
+    "QuantityInStock": 10,
+    "CostPrice": null,
+    "SellingPrice": 4.99,
+    "CategoryId": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+    "OwnerId": "f6a7b8c9-d0e1-2345-6666-777788889999",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 1,
+      "DecisionJustification": "Your article provides no images and the product description is neither descriptive or appropriate.",
+      "TimeOfDecision": "2026-03-31T08:20:00Z"
+    },
+    "CreatedOn": "2026-03-27T09:00:00Z",
+    "IsEnabled": false,
+    "IsDeleted": false,
+    "Images": []
+  }
+]

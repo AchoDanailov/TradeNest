@@ -5,7 +5,7 @@ using TradeNest.Data.Repository.Interfaces;
 
 namespace TradeNest.Data.Repository;
 
-public class CartsRepository : BaseRepository<Cart>, ICartsRepository
+public class CartsRepository : BaseReadRepository<Cart>, ICartsRepository
 {
     public CartsRepository(TradeNestDbContext dbContext) 
         : base(dbContext)
@@ -43,14 +43,21 @@ public class CartsRepository : BaseRepository<Cart>, ICartsRepository
             .SingleOrDefaultAsync(c => c.CartOwnerId == userId);
     }
 
-    public override async Task<bool> UpdateAsync(Cart entity)
+    public async Task<bool> AddAsync(Cart cart)
     {
-        if (entity.CartProducts.Any())
-            return await base.UpdateAsync(entity);
-        
-        this.DbContext.Carts.Remove(entity);
+        await this.DbContext.Carts.AddAsync(cart);
         int res = await this.DbContext.SaveChangesAsync();
-        return res > 0;
+
+        return res >= 1;
+    }
+
+    public async Task<bool> UpdateAsync(Cart cart)
+    {
+        if (!cart.CartProducts.Any())
+            this.DbContext.Carts.Remove(cart);
+        
+        int res = await this.DbContext.SaveChangesAsync();
+        return res >= 1;
     }
 
     public async Task<bool> DeleteAsync(Cart cart)
