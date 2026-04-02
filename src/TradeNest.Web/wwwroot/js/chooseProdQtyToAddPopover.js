@@ -127,10 +127,17 @@ addToCartButtons.forEach(addToCartBtn => {
                 text: "Product added to your cart successfully!",
                 draggable: true,
                 confirmButtonColor: "#0FAF9A",
+                confirmButtonText: "Continue browsing products",
+                denyButtonColor: "#198754",
+                denyButtonText: "Go to cart",
+                showDenyButton: true,
                 showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
                 hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` },
-            }).then(() => {
-                window.location.href = "/Catalog";
+            }).then((result) => {
+                if (result.isConfirmed)
+                    window.location.href = "/Catalog";
+                else if (result.isDenied) 
+                    window.location.href = "/Cart";
             });
         });
     }, { once: true } );
