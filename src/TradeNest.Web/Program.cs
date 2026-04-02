@@ -4,10 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data;
 using TradeNest.Data.Models;
-using TradeNest.Services.Core.Interfaces;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.Data.Seeding;
 using TradeNest.Data.Seeding.Interfaces;
+using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Core.Mappers.Interfaces;
 using TradeNest.Web.Infrastructure.Extensions;
 using TradeNest.Web.Infrastructure.Filters;
@@ -17,7 +16,7 @@ namespace TradeNest.Web;
 
 public class Program
 {
-    public static async Task Main(string[] args)
+    public static void Main(string[] args)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -31,6 +30,7 @@ public class Program
         builder.Services
             .AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
+            .AddRoles<IdentityRole<Guid>>()
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddResponseCompression();
@@ -97,7 +97,7 @@ public class Program
 
         app.MapRazorPages();
 
-        await app.RunAsync();
+        app.Run();
     }
 
     private static void IdentityOptionsConfiguration(IdentityOptions options,

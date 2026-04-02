@@ -11,6 +11,25 @@ public static class WebApplicationExtensions
     {
         using IServiceScope scope = app.ApplicationServices.CreateScope();
 
+        SeedRolesAsync(scope)
+            .GetAwaiter()
+            .GetResult();
+        
+        SeedEntitiesAsync(scope)
+            .GetAwaiter()
+            .GetResult();
+
+        return app;
+    }
+
+    private static async Task SeedRolesAsync(IServiceScope scope)
+    {
+        IRolesSeeder rolesSeeder = scope.ServiceProvider.GetRequiredService<IRolesSeeder>();
+        await rolesSeeder.SeedRolesAsync();
+    }
+
+    private static async Task SeedEntitiesAsync(IServiceScope scope)
+    {
         IEnumerable<IEntitySeeder> entitySeeders = new List<IEntitySeeder>()
         {
             scope.ServiceProvider.GetRequiredService<IUsersSeeder>(),
@@ -21,12 +40,7 @@ public static class WebApplicationExtensions
 
         foreach (IEntitySeeder entitySeeder in entitySeeders)
         {
-            entitySeeder
-                .SeedEntityDataAsync()
-                .GetAwaiter()
-                .GetResult();
+            await entitySeeder.SeedEntityDataAsync();
         }
-
-        return app;
     }
 }

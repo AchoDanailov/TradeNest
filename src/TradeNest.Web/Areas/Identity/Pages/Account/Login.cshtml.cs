@@ -2,13 +2,15 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 
 using System.ComponentModel.DataAnnotations;
+
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
+
 using static TradeNest.GCommon.EntityValidationConstants.User;
 using TradeNest.Data.Models;
-using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace TradeNest.Web.Areas.Identity.Pages.Account;
 
@@ -86,7 +88,6 @@ public class LoginModel : PageModel
                 Input.UserNameOrEmail, Input.Password, Input.RememberMe, lockoutOnFailure: true);
             if (userNameSignInResult.Succeeded)
             {
-                this._logger.LogInformation("User logged in.");
                 return LocalRedirect(returnUrl!);
             }
             else if (userNameSignInResult.IsLockedOut)
@@ -104,7 +105,6 @@ public class LoginModel : PageModel
                         .CheckPasswordSignInAsync(user, Input.Password, true);
                     if (emailSignInResult.Succeeded)
                     {
-                        this._logger.LogInformation("User logged in.");
                         await this._signInManager.SignInAsync(user, isPersistent: true);
                         return LocalRedirect(returnUrl!);
                     }

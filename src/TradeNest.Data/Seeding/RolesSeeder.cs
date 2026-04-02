@@ -1,0 +1,38 @@
+using Microsoft.AspNetCore.Identity;
+
+using static TradeNest.GCommon.ErrorMessages;
+using TradeNest.Data.Seeding.Interfaces;
+
+namespace TradeNest.Data.Seeding;
+
+public class RolesSeeder : IRolesSeeder
+{
+    private static readonly IEnumerable<string> ApplicationRolesNames = new string[]
+    {
+        "Admin",
+    };
+    
+    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+
+    public RolesSeeder(RoleManager<IdentityRole<Guid>> roleManager)
+    {
+        this._roleManager = roleManager;
+    }
+
+    public async Task SeedRolesAsync()
+    {
+        foreach (string roleName in ApplicationRolesNames)
+        {
+            if (await this._roleManager.RoleExistsAsync(roleName))
+                continue;
+
+            IdentityRole<Guid> newRole = new IdentityRole<Guid>(roleName);
+            IdentityResult res = await this._roleManager.CreateAsync(newRole);
+            if (!res.Succeeded)
+            {
+                throw new InvalidOperationException(string.Format(SeedingError,
+                    this.GetType().Name));
+            }
+        }   
+    }
+}

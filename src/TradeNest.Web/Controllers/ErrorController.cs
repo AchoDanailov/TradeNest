@@ -119,9 +119,16 @@ public class ErrorController : BaseController
             originalRequest.Error.GetType().Name);
 
         if (originalRequest.RouteValues?
+                .TryGetValue("area", out object? areaName) is true)
+        {
+            logMessage.AppendFormat(" Area: {0}",
+                areaName as string ?? string.Empty);
+        }
+        
+        if (originalRequest.RouteValues?
                 .TryGetValue("controller", out object? controllerName) is true)
         {
-            logMessage.AppendFormat(" Controller: {0}",
+            logMessage.AppendFormat(", Controller: {0}",
                 controllerName as string ?? string.Empty);
         }
 
