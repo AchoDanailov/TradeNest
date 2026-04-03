@@ -1,8 +1,14 @@
+@using System.Collections.Specialized
 @model CatalogViewModel
 @{
     ViewData["Title"] = "Catalog";
     TempData["CategoryFilter"] = this.Model.CategoryFilter;
     TempData["SearchFilter"] = this.Model.SearchFilter;
+}
+
+
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 }
 
 <div class="container-lg py-3">
@@ -179,6 +185,9 @@
 <partial name="_ChoseQtyPopoverPartial" />
 
 @section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.7/purify.min.js" integrity="sha512-78KH17QLT5e55GJqP76vutp1D2iAoy06WcYBXB6iBCsmO6wWzx0Qdg8EDpm8mKXv68BcvHOyeeP4wxAL0twJGQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script src="~/js/searchFormValidator.js" asp-append-version="true"></script>
     <script type="module" src="~/js/chooseProdQtyToAddPopover.js" asp-append-version="true"></script>
 }

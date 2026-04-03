@@ -27,10 +27,4 @@
     <ProjectReference Include="..\TradeNest.Web.ViewModels\TradeNest.Web.ViewModels.csproj" />
   </ItemGroup>
     
-  <ItemGroup>
-    <Folder Include="Areas\Admin\Views\" />
-    <Folder Include="Areas\Identity\Pages\" />
-    <Folder Include="wwwroot\images\" />
-  </ItemGroup>
-
 </Project>
