@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using static TradeNest.GCommon.EntityValidationConstants.Product;
 
-namespace TradeNest.Web.ViewModels;
+namespace TradeNest.Web.ViewModels.Cart;
 
 public class UpdateCartProductRequestDto
 {

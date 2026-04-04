@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap');
+
 :root {
     --tn-navy: #0B2A4A;
     --tn-teal: #0FAF9A;
@@ -30,7 +32,12 @@ ul {
 
 body {
   margin-bottom: 60px;
+  
+  & * {
+      font-family: "Lato", sans-serif;  
+  }  
 }
+
 
 .nav-link-border-radius-hover-effect-dark {
     border-radius: 0.5em;
@@ -102,4 +109,16 @@ body {
 
 .site-sections-bg-teal {
     background: var(--tn-teal);
+}
+
+.bg-white-border-neon-glow-hover-reverse-colors {
+    background: white !important;
+    border: 2px solid #20c997 !important;
+    color: #20c997 !important;
+    box-shadow: 0 0 12px rgba(32, 201, 151, 0.5) !important;
+    
+    &:hover {
+        background: #20c997 !important;
+        color: white !important;
+    }
 }

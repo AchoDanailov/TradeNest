@@ -1,0 +1,80 @@
+@model ManageAllUsersViewModel
+
+@{
+    ViewData["Title"] = "Manage Users";
+    string hoverEffect = "nav-link-border-radius-hover-effect-light";
+}
+
+<div class="container-lg d-flex flex-column mt-5 gap-5 site-sections-bg shadow border-3 rounded-3 pt-4 pb-5">
+    <div id="header" class="border-2 border-bottom">
+        <h1 class="display-2 text-teal ms-2 mb-0 pb-0">@ViewData["Title"]</h1>
+    </div>
+    
+    <div id="table-section">
+        <div id="table-wrapper">
+            <table class="table table-hover caption-top">
+                <caption>List of Users</caption>
+                <thead class="site-sections-bg-teal text-center">
+                    <tr>
+                        <th class="@hoverEffect">Username</th>
+                        <th class="@hoverEffect">Email</th>
+                        <th class="@hoverEffect">Role</th>
+                        <th class="@hoverEffect">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="tbody-top-border">
+                    @foreach (ManageUserViewModel user in this.Model.Users)
+                    {
+                        bool isAdmin = user.UserRoles.Any(r => r.RoleName == "Admin");
+                        
+                        <tr>
+                            <td>@user.Username</td>
+                            <td>@user.Email</td>
+                            <td>@string.Join(", ", user.UserRoles.Select(r => r.RoleName))</td>
+                            
+                            @if (isAdmin)
+                            {
+                                <td class="text-muted text-center">No actions available</td>
+                            }
+                            else
+                            {
+                                <td class="text-center justify-content-center">
+                                    <div class="btn-group-sm">
+                                        <button class="btn rounded-pill btn-outline-teal btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#manage-roles">
+                                            Manage Roles
+                                        </button>
+                                        
+                                        <button class="btn rounded-pill btn-outline-danger btn-sm"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                            Remove User
+                                        </button>
+                                    </div>
+                                </td>
+                                
+                                <partial name="_RemoveUserModalPartial" model="@user" />
+
+                                <partial name="_ManageUserRolesModalPartial"
+                                         model="@(new ManageUserRolesFormModel()
+                                                {
+                                                    Id = user.Id,
+                                                    Username = user.Username,
+                                                    Email = user.Email,
+                                                    AllRoles = this.Model.AllRoles
+                                                        .Select(role => new AssignRoleFormModel()
+                                                        {
+                                                            Id = role.Id,
+                                                            RoleName = role.RoleName,
+                                                            IsAssigned = user.UserRoles.Any(userRole => userRole.Id == role.Id),
+                                                            IsActionTaken = false
+                                                        })
+                                                        .ToList()
+                                                })" />
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

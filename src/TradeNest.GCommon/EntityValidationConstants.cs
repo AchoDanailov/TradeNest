@@ -65,4 +65,9 @@ public static class EntityValidationConstants
         public const byte NameMinLengthValue = 3;
         public const byte NameMaxLengthValue = 100;
     }
+
+    public static class Role
+    {
+        public const byte NameMaxLengthValue = 255;
+    }
 }
