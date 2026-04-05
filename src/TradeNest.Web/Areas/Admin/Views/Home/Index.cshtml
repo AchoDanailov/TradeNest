@@ -16,6 +16,7 @@
             <p class="text-light fw-light">Delete users, assign roles, remove roles</p>
             
             <a asp-area="Admin" asp-controller="UsersManagement" asp-action="Index"
+               asp-route-returnUrl="@Context.Request.Path"
                class="btn rounded-pill bg-white-border-neon-glow-hover-reverse-colors site-sections-bg p-2 w-25 mx-auto text-black">
                 <i class="bi bi-arrow-right"></i>
             </a>
@@ -32,10 +33,4 @@
             </a>
         </div>
     </div>
-    
-    @* <div id="add-category" class="mt-2"> *@
-    @*     <button class="btn btn-outline-teal rounded-pill px-5 py-2 fw-bold shadow-sm"> *@
-    @*         <i class="bi bi-plus-circle me-2"></i>Add New Category *@
-    @*     </button> *@
-    @* </div> *@
 </div>

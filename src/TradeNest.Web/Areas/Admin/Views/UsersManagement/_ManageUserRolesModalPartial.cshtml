@@ -1,7 +1,10 @@
 @model ManageUserRolesFormModel
+@{
+    string manageRolesModalId = $"manage-roles-{this.Model.Id}";
+}
 
-<div class="modal fade" id="manage-roles" data-bs-backdrop="static" tabindex="-1" aria-labelledby="title" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+<div class="modal fade" id="@manageRolesModalId" data-bs-backdrop="static" tabindex="-1" aria-labelledby="title" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h1 class="modal-title fs-3 text-teal" id="title">Manage User Roles</h1>
@@ -12,6 +15,7 @@
                 <input type="hidden" asp-for="Id" />
                 <input type="hidden" asp-for="Username" />
                 <input type="hidden" asp-for="Email" />
+                <input type="hidden" asp-for="ReturnUrl" />
                 
                 <div class="modal-body mb-0 pb-0">
                     <div class="d-flex justify-content-around mb-4">

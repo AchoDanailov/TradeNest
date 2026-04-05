@@ -6,7 +6,7 @@ namespace TradeNest.Web.Areas.Admin.Controllers;
 public class UsersManagementController : BaseAdminController
 {
     [HttpGet]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? returnUrl = null)
     {
         IEnumerable<ManageUserViewModel> manageUsersViewModels = new List<ManageUserViewModel>()
         {
@@ -54,6 +54,11 @@ public class UsersManagementController : BaseAdminController
             }
         };
         
+        string area = ControllerContext.RouteData.Values["area"] as string ?? string.Empty;
+        string controller = ControllerContext.RouteData.Values["controller"] as string ?? string.Empty;
+        string action = ControllerContext.RouteData.Values["action"] as string ?? string.Empty;
+        returnUrl ??= $"{area}/{controller}/{action}";
+        
         return View(new ManageAllUsersViewModel()
         {
             Users = manageUsersViewModels,
@@ -70,7 +75,7 @@ public class UsersManagementController : BaseAdminController
                     RoleName = "User",
                 },
             },
-            ReturnUrl = Url.Action(nameof(Index), controller: "Home"),
+            ReturnUrl = returnUrl,
         });
     }
 
@@ -95,5 +100,11 @@ public class UsersManagementController : BaseAdminController
                 r.IsActionTaken,
             })
         });
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ManageAllRoles()
+    {
+        return Json(StatusCodes.Status204NoContent);
     }
 }

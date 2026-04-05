@@ -5,7 +5,20 @@
     string hoverEffect = "nav-link-border-radius-hover-effect-light";
 }
 
-<div class="container-lg d-flex flex-column mt-5 gap-5 site-sections-bg shadow border-3 rounded-3 pt-4 pb-5">
+<div class="container-lg d-flex justify-content-between mt-4 px-0 px-sm-4" id="nav-buttons-wrapper">
+    <div class="pt-2 pt-md-3">
+        <partial name="_BackButtonPartial" model="@Model.ReturnUrl" />
+    </div>
+
+    <div id="manage-roles" class="mt-2">
+        <a asp-area="Admin" asp-controller="UsersManagement" asp-action="ManageAllRoles"
+            class="btn btn-outline-teal rounded-pill px-5 py-2 fw-bold shadow-sm">
+            Manage All Roles →
+        </a>
+    </div>
+</div>
+
+<div class="container-lg d-flex flex-column mt-2 gap-5 site-sections-bg shadow border-3 rounded-3 pt-4 pb-5">
     <div id="header" class="border-2 border-bottom">
         <h1 class="display-2 text-teal ms-2 mb-0 pb-0">@ViewData["Title"]</h1>
     </div>
@@ -40,15 +53,19 @@
                             {
                                 <td class="text-center justify-content-center">
                                     <div class="btn-group-sm">
+                                        
+                                        @{ string manageRolesModalId = $"#manage-roles-{user.Id}"; }
                                         <button class="btn rounded-pill btn-outline-teal btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#manage-roles">
+                                                 data-bs-toggle="modal" data-bs-target="@manageRolesModalId">
                                             Manage Roles
                                         </button>
-                                        
+
+                                        @{ string deleteModalId = $"#delete-modal-{user.Id}"; }
                                         <button class="btn rounded-pill btn-outline-danger btn-sm"
-                                                data-bs-toggle="modal" data-bs-target="#deleteModal">
+                                                data-bs-toggle="modal" data-bs-target="@deleteModalId">
                                             Remove User
                                         </button>
+                                        
                                     </div>
                                 </td>
                                 
@@ -60,13 +77,15 @@
                                                     Id = user.Id,
                                                     Username = user.Username,
                                                     Email = user.Email,
+
+                                                    ReturnUrl = Context.Request.Path,
                                                     AllRoles = this.Model.AllRoles
                                                         .Select(role => new AssignRoleFormModel()
                                                         {
                                                             Id = role.Id,
                                                             RoleName = role.RoleName,
                                                             IsAssigned = user.UserRoles.Any(userRole => userRole.Id == role.Id),
-                                                            IsActionTaken = false
+                                                            IsActionTaken = false,
                                                         })
                                                         .ToList()
                                                 })" />

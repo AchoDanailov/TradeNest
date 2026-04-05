@@ -16,6 +16,8 @@ public class ManageUserRolesFormModel
     [Required]
     [StringLength(EmailMaxLengthValue, MinimumLength = EmailMinLengthValue)]
     public string Email { get; set; } = null!;
+    
+    public string? ReturnUrl { get; set; }
 
     public List<AssignRoleFormModel> AllRoles { get; set; }
         = new List<AssignRoleFormModel>();

@@ -1,6 +1,10 @@
 @model ManageUserViewModel
 
-<div class="modal fade" id="deleteModal" data-bs-backdrop="static"
+@{
+    string deleteModalId = $"delete-modal-{this.Model.Id}";
+}
+
+<div class="modal fade" id="@deleteModalId" data-bs-backdrop="static"
      data-bs-keyboard="false" tabindex="-1" 
      aria-labelledby="staticBackdropLabel"
      aria-hidden="true">
