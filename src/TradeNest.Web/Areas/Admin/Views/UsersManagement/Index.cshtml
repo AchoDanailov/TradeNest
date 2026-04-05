@@ -40,7 +40,7 @@
                     {
                         bool isAdmin = user.UserRoles.Any(r => r.RoleName == "Admin");
                         
-                        <tr>
+                        <tr class="text-center">
                             <td>@user.Username</td>
                             <td>@user.Email</td>
                             <td>@string.Join(", ", user.UserRoles.Select(r => r.RoleName))</td>
@@ -51,8 +51,8 @@
                             }
                             else
                             {
-                                <td class="text-center justify-content-center">
-                                    <div class="btn-group-sm">
+                                <td class="text-center">
+                                    <div class="btn-group-sm d-flex flex-wrap justify-content-center gap-1 gap-sm-2 gap-md-3">
                                         
                                         @{ string manageRolesModalId = $"#manage-roles-{user.Id}"; }
                                         <button class="btn rounded-pill btn-outline-teal btn-sm"

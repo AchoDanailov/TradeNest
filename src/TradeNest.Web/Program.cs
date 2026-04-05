@@ -88,7 +88,7 @@ public class Program
             routeBuilder.MapAreaControllerRoute(
                 name: "adminArea",
                 areaName: "Admin",
-                pattern: "Admin/{controller=Home}/{action=Index}");
+                pattern: "Admin/{controller=Home}/{action=Index}/{id?}");
 
             routeBuilder.MapControllerRoute(
                 name: "default",

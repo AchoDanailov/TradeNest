@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using TradeNest.Web.ViewModels.Role;
 using TradeNest.Web.ViewModels.User;
 
 namespace TradeNest.Web.Areas.Admin.Controllers;
@@ -53,11 +54,8 @@ public class UsersManagementController : BaseAdminController
                 }
             }
         };
-        
-        string area = ControllerContext.RouteData.Values["area"] as string ?? string.Empty;
-        string controller = ControllerContext.RouteData.Values["controller"] as string ?? string.Empty;
-        string action = ControllerContext.RouteData.Values["action"] as string ?? string.Empty;
-        returnUrl ??= $"{area}/{controller}/{action}";
+
+        returnUrl ??= Url.Action(nameof(Index), controller: "Home", new { area = "Admin"});
         
         return View(new ManageAllUsersViewModel()
         {
@@ -103,8 +101,32 @@ public class UsersManagementController : BaseAdminController
     }
 
     [HttpGet]
-    public async Task<IActionResult> ManageAllRoles()
+    public async Task<IActionResult> ManageAllRoles(string? returnUrl = null)
     {
-        return Json(StatusCodes.Status204NoContent);
+        return View(new ManageAllRolesViewModel()
+        {
+            AllRoles = new List<RoleViewModel>()
+            {
+                new RoleViewModel()
+                {
+                    Id = "0",
+                    RoleName = "Admin",
+                },
+                new RoleViewModel()
+                {
+                    Id = "1",
+                    RoleName = "User",
+                },
+            },
+            ReturnUrl = returnUrl ?? 
+                        Url.Action(nameof(Index), controller: "UsersManagement")
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RemoveRole(Guid id, string? returnUrl = null)
+    {
+        // dont forget to validate for guid.empty since the model binder binds guid.empty on invalid guids.
+        return Json(new { res = "works" });
     }
 }

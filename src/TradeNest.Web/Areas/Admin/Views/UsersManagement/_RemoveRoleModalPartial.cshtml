@@ -1,4 +1,4 @@
-@model ManageUserViewModel
+@model RoleViewModel
 
 @{
     string deleteModalId = $"delete-modal-{this.Model.Id}";
@@ -19,16 +19,16 @@
                         aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                Are you sure you want to remove @Model.Username 
+                Are you sure you want to remove @Model.RoleName 
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary"
                         data-bs-dismiss="modal">Cancel</button>
                 
                 <form method="post" asp-area="Admin" asp-controller="UsersManagement"
-                      asp-action="RemoveUser" asp-route-id="@Model.Id">
+                      asp-action="RemoveRole" asp-route-id="@Model.Id">
                     <input type="hidden" name="returnUrl"
-                           value="@Url.Action("Index", controller: "UsersManagement")" />
+                           value="@Url.Action("ManageAllRoles", controller: "UsersManagement")" />
                     <button type="submit" class="btn btn-danger"> Yes </button>
                 </form>
             </div>

@@ -1,8 +1,7 @@
 using System.ComponentModel.DataAnnotations;
-
 using static TradeNest.GCommon.EntityValidationConstants.Role;
 
-namespace TradeNest.Web.ViewModels.User;
+namespace TradeNest.Web.ViewModels.Role;
 
 public class AssignRoleFormModel
 {

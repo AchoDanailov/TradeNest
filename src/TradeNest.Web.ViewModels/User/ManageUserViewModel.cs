@@ -1,3 +1,5 @@
+using TradeNest.Web.ViewModels.Role;
+
 namespace TradeNest.Web.ViewModels.User;
 
 public class ManageUserViewModel

@@ -1,5 +1,5 @@
 using System.ComponentModel.DataAnnotations;
-
+using TradeNest.Web.ViewModels.Role;
 using static TradeNest.GCommon.EntityValidationConstants.User;
 
 namespace TradeNest.Web.ViewModels.User;

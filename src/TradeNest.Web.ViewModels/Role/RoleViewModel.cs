@@ -1,4 +1,4 @@
-namespace TradeNest.Web.ViewModels.User;
+namespace TradeNest.Web.ViewModels.Role;
 
 public class RoleViewModel
 {
