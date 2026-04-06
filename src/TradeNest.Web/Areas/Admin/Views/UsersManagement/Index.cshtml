@@ -5,16 +5,22 @@
     string hoverEffect = "nav-link-border-radius-hover-effect-light";
 }
 
-<div class="container-lg d-flex justify-content-between mt-4 px-0 px-sm-4" id="nav-buttons-wrapper">
-    <div class="pt-2 pt-md-3">
-        <partial name="_BackButtonPartial" model="@Model.ReturnUrl" />
+<div>
+    <div class="mt-2 container-lg">
+        <partial name="_StatusNotificationPartial"/>
     </div>
 
-    <div id="manage-roles" class="mt-2">
-        <a asp-area="Admin" asp-controller="UsersManagement" asp-action="ManageAllRoles"
-            class="btn btn-outline-teal rounded-pill px-5 py-2 fw-bold shadow-sm">
-            Manage All Roles →
-        </a>
+    <div class="container-lg d-flex justify-content-between mt-4 px-0 px-sm-4" id="nav-buttons-wrapper">
+        <div class="pt-2 pt-md-3">
+            <partial name="_BackButtonPartial" model="@Model.ReturnUrl"/>
+        </div>
+
+        <div id="manage-roles" class="mt-2">
+            <a asp-area="Admin" asp-controller="UsersManagement" asp-action="ManageAllRoles"
+               class="btn btn-outline-teal rounded-pill px-5 py-2 fw-bold shadow-sm">
+                Manage All Roles →
+            </a>
+        </div>
     </div>
 </div>
 

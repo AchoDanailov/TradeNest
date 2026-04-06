@@ -1,4 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
+
+using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
+using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models.Role;
+using TradeNest.Services.Models.User;
+using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.ViewModels.Role;
 using TradeNest.Web.ViewModels.User;
 
@@ -6,81 +12,55 @@ namespace TradeNest.Web.Areas.Admin.Controllers;
 
 public class UsersManagementController : BaseAdminController
 {
+    private readonly IUsersService _usersService;
+    private readonly IUsersPresentationModelsMapper _usersMapper;
+
+    public UsersManagementController(IUsersService usersService,
+        IUsersPresentationModelsMapper usersMapper)
+    {
+        this._usersService = usersService;
+        this._usersMapper = usersMapper;
+    }
+
     [HttpGet]
     public async Task<IActionResult> Index(string? returnUrl = null)
     {
-        IEnumerable<ManageUserViewModel> manageUsersViewModels = new List<ManageUserViewModel>()
-        {
-            new ManageUserViewModel()
-            {
-                Id = "3",
-                Username = "Admin1",
-                Email = "Admin1@gmail.com",
-                UserRoles = new List<RoleViewModel>()
-                {
-                    new RoleViewModel()
-                    {
-                        Id = "0",
-                        RoleName = "Admin",
-                    }
-                }
-            },
-            new ManageUserViewModel()
-            {
-                Id = "1",
-                Username = "Pesho",
-                Email = "Pesho@gmail.com",
-                UserRoles = new List<RoleViewModel>()
-                {
-                    new RoleViewModel()
-                    {
-                        Id = "1",
-                        RoleName = "User",
-                    }
-                }
-            },
-            new ManageUserViewModel()
-            {
-                Id = "2",
-                Username = "Minchu",
-                Email = "Minchu@gmail.com",
-                UserRoles = new List<RoleViewModel>()
-                {
-                    new RoleViewModel()
-                    {
-                        Id = "1",
-                        RoleName = "User",
-                    }
-                }
-            }
-        };
+        if (returnUrl == null || !Url.IsLocalUrl(returnUrl))
+            returnUrl = Url.Action(nameof(Index), controller: "Home", new { area = "Admin"});
 
-        returnUrl ??= Url.Action(nameof(Index), controller: "Home", new { area = "Admin"});
+        Guid userId = this.GetAdminUserId(throwIfNull: true);
         
-        return View(new ManageAllUsersViewModel()
+        IEnumerable<UserDto> usersDtos = await this._usersService.GetAllUsersAsync(userId);
+        IEnumerable<RoleDto> allRoles = await this._usersService.GetAllRolesAsync(userId);
+
+        IEnumerable<ManageUserViewModel> usersViewModels = this._usersMapper
+            .ToManageUserViewModels(usersDtos);
+        IEnumerable<RoleViewModel> rolesViewModels = this._usersMapper
+            .ToRoleViewModels(allRoles);
+
+        ManageAllUsersViewModel viewModel = new ManageAllUsersViewModel()
         {
-            Users = manageUsersViewModels,
-            AllRoles = new List<RoleViewModel>()
-            {
-                new RoleViewModel()
-                {
-                    Id = "0",
-                    RoleName = "Admin",
-                },
-                new RoleViewModel()
-                {
-                    Id = "1",
-                    RoleName = "User",
-                },
-            },
-            ReturnUrl = returnUrl,
-        });
+            Users = usersViewModels,
+            AllRoles = rolesViewModels,
+            ReturnUrl = returnUrl
+        };
+        return View(viewModel);
     }
 
     [HttpPost]
-    public async Task<IActionResult> RemoveUser()
+    public async Task<IActionResult> RemoveUser([FromRoute(Name = "id")] Guid userToDeleteId)
     {
-        return Ok();
+        if (userToDeleteId == Guid.Empty)
+            return BadRequest();
+        
+        Guid adminUserId = this.GetAdminUserId(throwIfNull: true);
+        await this._usersService.DeleteUserByIdAsync(adminUserId, userToDeleteId);
+
+        TempData["SuccessfullyRemovedUserMessage"] = SuccessfullyRemovedUserMessage;
+        return RedirectToAction(
+            actionName: nameof(Index),
+            controllerName: "UsersManagement",
+            routeValues: new { area = "Admin" });
     }
 
     [HttpPost]
@@ -124,7 +104,7 @@ public class UsersManagementController : BaseAdminController
     }
 
     [HttpPost]
-    public async Task<IActionResult> RemoveRole(Guid id, string? returnUrl = null)
+    public async Task<IActionResult> RemoveRole(Guid userToDeleteId, string? returnUrl = null)
     {
         // dont forget to validate for guid.empty since the model binder binds guid.empty on invalid guids.
         return Json(new { res = "works" });

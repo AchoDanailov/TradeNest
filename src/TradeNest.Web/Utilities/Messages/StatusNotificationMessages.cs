@@ -24,6 +24,9 @@ internal static class StatusNotificationMessages
     internal const string OrderSubmittionSuccessMessage
         = "Your order was successfully submitted.";
 
+    internal const string SuccessfullyRemovedUserMessage
+        = "You have successfully removed the user.";
+
     internal const string UnexpectedErrorMessage
         = "Oops. Something went wrong. Please try again in a moment.";
 }

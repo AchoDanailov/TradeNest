@@ -105,16 +105,16 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> Details([FromRoute] Guid id, 
+    public async Task<IActionResult> Details([FromRoute] Guid userToDeleteId, 
         [FromQuery] string? returnUrl = null)
     {
-        if (id == Guid.Empty)
+        if (userToDeleteId == Guid.Empty)
             return BadRequest();
 
         Guid userId = this.GetUserId(throwIfNull: false);
 
         ProductDetailsDto? productDetailsDto = await this._productsService
-            .GetProductDetailsByIdAsync(id, userId);
+            .GetProductDetailsByIdAsync(userToDeleteId, userId);
         if(productDetailsDto == null)
             return NotFound();
 
@@ -184,15 +184,15 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Edit([FromRoute] Guid id,
+    public async Task<IActionResult> Edit([FromRoute] Guid userToDeleteId,
         [FromQuery] string? returnUrl = null)
     {
-        if (id == Guid.Empty)
+        if (userToDeleteId == Guid.Empty)
             return BadRequest();
 
         Guid userId = this.GetUserId(throwIfNull: true);
                 
-        ProductEditDto? model = await this._productsService.GetProductForEditAsync(userId, id);
+        ProductEditDto? model = await this._productsService.GetProductForEditAsync(userId, userToDeleteId);
         if (model == null)
             return NotFound();
 
@@ -253,10 +253,10 @@ public class ProductsController : BaseController
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Delete([FromRoute] Guid id, 
+    public async Task<IActionResult> Delete([FromRoute] Guid userToDeleteId, 
         [FromForm] string? returnUrl = null)
     {
-        if(id == Guid.Empty) 
+        if(userToDeleteId == Guid.Empty) 
             return BadRequest();
         
         if(returnUrl == null || !Url.IsLocalUrl(returnUrl))
@@ -266,7 +266,7 @@ public class ProductsController : BaseController
         {
             Guid userId = this.GetUserId(throwIfNull: true);
 
-            await this._productsService.DeleteProductAsync(userId, id);
+            await this._productsService.DeleteProductAsync(userId, userToDeleteId);
 
             TempData["ProductDeletionSuccessMessage"] = ProductDeletionSuccessMessage;
             return RedirectToAction(nameof(Index), controllerName: "Products");
