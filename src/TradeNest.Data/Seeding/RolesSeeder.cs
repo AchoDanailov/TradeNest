@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-
+using TradeNest.Data.Models;
 using static TradeNest.GCommon.ErrorMessages;
 using TradeNest.Data.Seeding.Interfaces;
 
@@ -12,9 +12,9 @@ public class RolesSeeder : IRolesSeeder
         "Admin",
     };
     
-    private readonly RoleManager<IdentityRole<Guid>> _roleManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
 
-    public RolesSeeder(RoleManager<IdentityRole<Guid>> roleManager)
+    public RolesSeeder(RoleManager<ApplicationRole> roleManager)
     {
         this._roleManager = roleManager;
     }
@@ -26,7 +26,7 @@ public class RolesSeeder : IRolesSeeder
             if (await this._roleManager.RoleExistsAsync(roleName))
                 continue;
 
-            IdentityRole<Guid> newRole = new IdentityRole<Guid>(roleName);
+            ApplicationRole newRole = new ApplicationRole(roleName);
             IdentityResult res = await this._roleManager.CreateAsync(newRole);
             if (!res.Succeeded)
             {

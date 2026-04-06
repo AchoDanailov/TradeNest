@@ -30,7 +30,7 @@ public class Program
         builder.Services
             .AddDefaultIdentity<ApplicationUser>(options => 
                 IdentityOptionsConfiguration(options, builder.Configuration))
-            .AddRoles<IdentityRole<Guid>>()
+            .AddRoles<ApplicationRole>()
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddResponseCompression();

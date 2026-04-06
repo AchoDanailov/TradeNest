@@ -8,8 +8,9 @@ using TradeNest.Data.Models.Enums;
 
 namespace TradeNest.Data;
 
-public class TradeNestDbContext 
-    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>
+public class TradeNestDbContext : IdentityDbContext<ApplicationUser, ApplicationRole, Guid,
+    IdentityUserClaim<Guid>, ApplicationUserRole, IdentityUserLogin<Guid>,
+    IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
 {
     public TradeNestDbContext(DbContextOptions<TradeNestDbContext> options)
         : base(options)

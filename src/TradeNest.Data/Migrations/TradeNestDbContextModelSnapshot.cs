@@ -173,7 +173,7 @@ namespace TradeNest.Data.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Admins", t =>
+                    b.ToTable("Admins", null, t =>
                         {
                             t.HasComment("Represents the Admin entity.");
                         });
@@ -264,7 +264,7 @@ namespace TradeNest.Data.Migrations
                     b.HasIndex("CartOwnerId")
                         .IsUnique();
 
-                    b.ToTable("Carts", t =>
+                    b.ToTable("Carts", null, t =>
                         {
                             t.HasComment("Holds Cart data.");
                         });
@@ -294,7 +294,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("CartId");
 
-                    b.ToTable("CartsProducts", t =>
+                    b.ToTable("CartsProducts", null, t =>
                         {
                             t.HasComment("Mapping entity between Cart and Products - represents product added to cart.");
                         });
@@ -315,7 +315,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories", t =>
+                    b.ToTable("Categories", null, t =>
                         {
                             t.HasComment("Holds category data.");
                         });
@@ -346,7 +346,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("Images", t =>
+                    b.ToTable("Images", null, t =>
                         {
                             t.HasComment("Holds Image data.");
                         });
@@ -377,7 +377,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Orders", t =>
+                    b.ToTable("Orders", null, t =>
                         {
                             t.HasComment("Holds order's data.");
                         });
@@ -428,7 +428,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("OriginalProductId");
 
-                    b.ToTable("OrdersProducts", t =>
+                    b.ToTable("OrdersProducts", null, t =>
                         {
                             t.HasComment("Represents the product state at the moment of the order being submitted.");
                         });
@@ -507,7 +507,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("OwnerId");
 
-                    b.ToTable("Products", t =>
+                    b.ToTable("Products", null, t =>
                         {
                             t.HasComment("Holds product's data.");
                         });
@@ -527,7 +527,7 @@ namespace TradeNest.Data.Migrations
 
                     b.HasIndex("ProductId");
 
-                    b.ToTable("UsersWatchlistsProducts", t =>
+                    b.ToTable("UsersWatchlistsProducts", null, t =>
                         {
                             t.HasComment("Mapping entity representing a product in a user's watchlist.");
                         });
@@ -685,7 +685,7 @@ namespace TradeNest.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.OwnsOne("TradeNest.Data.Models.ApprovalDecision", "ApprovalDecision", b1 =>
+                    b.OwnsOne("TradeNest.Data.Models.Product.ApprovalDecision#TradeNest.Data.Models.ApprovalDecision", "ApprovalDecision", b1 =>
                         {
                             b1.Property<Guid>("ProductId")
                                 .HasColumnType("uniqueidentifier");
@@ -705,7 +705,7 @@ namespace TradeNest.Data.Migrations
 
                             b1.HasKey("ProductId");
 
-                            b1.ToTable("Products");
+                            b1.ToTable("Products", (string)null);
 
                             b1.WithOwner()
                                 .HasForeignKey("ProductId");

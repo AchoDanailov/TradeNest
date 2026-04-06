@@ -10,7 +10,7 @@ public class AdminConfiguration : IEntityTypeConfiguration<Admin>
     public void Configure(EntityTypeBuilder<Admin> builder)
     {
         builder.HasOne(a => a.User)
-            .WithOne()
+            .WithOne(u => u.Admin)
             .HasForeignKey<Admin>(a => a.UserId)
             .OnDelete(DeleteBehavior.Cascade);
     }

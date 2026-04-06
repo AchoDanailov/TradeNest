@@ -1,8 +1,8 @@
 namespace TradeNest.GCommon.Exceptions;
 
 /// <summary>
-/// The exception that is thrown when a user attempts to modify a resource he is not the
-/// owner of.
+/// The exception that is thrown when a user attempts to access and/or modify a resource he does not
+/// have permissions too.
 /// </summary>
 public class UnauthorizedOperationException : InvalidOperationException
 {
