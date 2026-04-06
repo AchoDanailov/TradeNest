@@ -47,7 +47,8 @@ public class UsersSeeder : BaseEntitySeeder, IUsersSeeder
                     nameof(userDto.Id)));
             }
 
-            bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userDto.Id);
+            bool userExists = await this._usersRepository
+                .ExistsByIdWithForgottenIncludedAsync(userDto.Id, asReadOnly: true);
             if (userExists)
                 continue;
 

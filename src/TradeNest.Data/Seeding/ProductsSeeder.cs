@@ -72,7 +72,7 @@ public class ProductsSeeder : BaseEntitySeeder, IProductsSeeder
             }
 
             ApplicationUser? owner = await this._usersRepository
-                .FindByIdAsync(productDto.OwnerId);
+                .FindByIdWithForgottenIncludedAsync(productDto.OwnerId);
             if (owner == null)
             {
                 throw new ArgumentException(string.Format(NotFoundMessage,

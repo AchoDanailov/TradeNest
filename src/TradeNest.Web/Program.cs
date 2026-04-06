@@ -85,11 +85,10 @@ public class Program
 
         app.UseEndpoints(routeBuilder =>
         {
-            routeBuilder.MapAreaControllerRoute(
-                name: "adminArea",
-                areaName: "Admin",
-                pattern: "Admin/{controller=Home}/{action=Index}/{id?}");
-
+            routeBuilder.MapControllerRoute(
+                name: "area",
+                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+            
             routeBuilder.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");

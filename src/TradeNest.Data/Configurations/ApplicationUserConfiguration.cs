@@ -28,5 +28,7 @@ public class ApplicationUserConfiguration : IEntityTypeConfiguration<Application
                 .WithOne(e => e.User)
                 .HasForeignKey(ur => ur.UserId)
                 .IsRequired();
+
+            builder.HasQueryFilter(u => u.PersonalInformationIsDeleted == false);
     }
 }

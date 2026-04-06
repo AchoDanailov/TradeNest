@@ -15,6 +15,21 @@ public class AdminsRepository : BaseReadRepository<Admin>, IAdminsRepository
         this._userManager = userManager;
     }
 
+    public async Task<bool> IsUserAdminByUserIdAsync(Guid userId)
+    {
+        ApplicationUser? user = await this.DbContext.Users
+            .FindAsync(userId);
+        if (user == null)
+            return false;
+
+        return await this._userManager.IsInRoleAsync(user, "Admin");
+    }
+    
+    public async Task<bool> IsUserAdminAsync(ApplicationUser user)
+    {
+        return await this._userManager.IsInRoleAsync(user, "Admin");
+    }
+
     public async Task<bool> AddAsync(Admin admin)
     {
         await this.DbContext.Admins.AddAsync(admin);

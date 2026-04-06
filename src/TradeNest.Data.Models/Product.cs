@@ -44,6 +44,7 @@ public class Product
     public Guid CategoryId { get; set; }
     public Category Category { get; set; } = null!;
 
+    [Required]
     [ForeignKey(nameof(Owner))]
     [Comment("Foreign key referencing the product's owner primary key.")]
     public Guid OwnerId { get; set; }

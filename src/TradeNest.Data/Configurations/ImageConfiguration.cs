@@ -10,6 +10,11 @@ public class ImageConfiguration : IEntityTypeConfiguration<Image>
 {
     public void Configure(EntityTypeBuilder<Image> builder)
     {
+        builder.HasOne(e => e.Product)
+            .WithMany(e => e.Images)
+            .HasForeignKey(e => e.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder.HasQueryFilter(i => i.Product.IsDeleted == false &&
                                     i.Product.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
     }

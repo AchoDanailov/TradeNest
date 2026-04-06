@@ -26,11 +26,10 @@ public class OrderProduct
     [Comment("The product name at the time that the order is submitted.")]
     public string ProductNameAtOrderTime { get; set; } = null!;
     
-    [Required]
     [ForeignKey(nameof(OriginalProduct))]
     [Comment("Foreign key referencing the original product primary key.")]
-    public Guid OriginalProductId { get; set; }
-    public Product OriginalProduct { get; set; } = null!;
+    public Guid? OriginalProductId { get; set; }
+    public Product? OriginalProduct { get; set; }
     
     [Required]
     [Comment("Represents the quantity of the product that was ordered.")]

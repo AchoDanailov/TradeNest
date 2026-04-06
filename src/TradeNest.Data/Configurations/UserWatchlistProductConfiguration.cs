@@ -9,6 +9,11 @@ public class UserWatchlistProductConfiguration : IEntityTypeConfiguration<UserWa
 {
     public void Configure(EntityTypeBuilder<UserWatchlistProduct> builder)
     {
+        builder.HasOne(e => e.Product)
+            .WithMany(e => e.ProductWatchlists)
+            .HasForeignKey(e => e.ProductId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         builder.HasQueryFilter(wp => wp.Product.IsDeleted == false);
     }
 }

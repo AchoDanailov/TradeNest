@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using TradeNest.Data.Models;
 using TradeNest.Data.Models.Enums;
+using TradeNest.GCommon.Exceptions;
 
 namespace TradeNest.Data;
 
@@ -29,12 +30,16 @@ public class TradeNestDbContext : IdentityDbContext<ApplicationUser, Application
     
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
-        //ChangeTracker.Entries<TEntity>() calls DetectChanges() internally.
         IEnumerable<EntityEntry<Product>> productsToModifyIsEnabledProperty = this.ChangeTracker
             .Entries<Product>()
             .Where(entry => InStockStatusChanged(entry) || HasChangedApprovalStatus(entry));
-                            
         UpdateProductIsEnabledPropertyAsRequired(productsToModifyIsEnabledProperty);
+
+        IEnumerable<EntityEntry<ApplicationUser>> forgottenUsersEntries = this.ChangeTracker
+            .Entries<ApplicationUser>()
+            .Where(entry => entry.Property(e => e.PersonalInformationIsDeleted).IsModified &&
+                            entry.Entity.PersonalInformationIsDeleted);
+        await this.DeleteUserRelatedData(forgottenUsersEntries);
 
         return await base.SaveChangesAsync(cancellationToken);
     }
@@ -89,5 +94,26 @@ public class TradeNestDbContext : IdentityDbContext<ApplicationUser, Application
             .Reference(p => p.ApprovalDecision).TargetEntry!
             .Property(d => d.ApprovalStatus)
             .CurrentValue != ApprovalStatus.Approved;
+    }
+
+    private async Task DeleteUserRelatedData(
+        IEnumerable<EntityEntry<ApplicationUser>> forgottenUsersEntries)
+    {
+        foreach (EntityEntry<ApplicationUser> userEntry in forgottenUsersEntries)
+        {
+            Guid userId = userEntry.Entity.Id;
+            
+            await this.Products
+                .Where(p => p.OwnerId == userId)
+                .ExecuteDeleteAsync();
+
+            await this.Carts
+                .Where(c => c.CartOwnerId == userId)
+                .ExecuteDeleteAsync();
+
+            await this.UsersWatchlistsProducts
+                .Where(w => w.UserId == userId)
+                .ExecuteDeleteAsync();
+        }
     }
 }
