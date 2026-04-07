@@ -61,7 +61,7 @@
                                     <div class="btn-group-sm d-flex flex-wrap justify-content-center gap-1 gap-sm-2 gap-md-3">
                                         
                                         @{ string manageRolesModalId = $"#manage-roles-{user.Id}"; }
-                                        <button class="btn rounded-pill btn-outline-teal btn-sm"
+                                        <button class="btn rounded-pill btn-outline-teal btn-sm manage-roles-btn"
                                                  data-bs-toggle="modal" data-bs-target="@manageRolesModalId">
                                             Manage Roles
                                         </button>
@@ -80,7 +80,7 @@
                                 <partial name="_ManageUserRolesModalPartial"
                                          model="@(new ManageUserRolesFormModel()
                                                 {
-                                                    Id = user.Id,
+                                                    Id = Guid.Parse(user.Id),
                                                     Username = user.Username,
                                                     Email = user.Email,
 
@@ -88,7 +88,7 @@
                                                     AllRoles = this.Model.AllRoles
                                                         .Select(role => new AssignRoleFormModel()
                                                         {
-                                                            Id = role.Id,
+                                                            Id = Guid.Parse(role.Id),
                                                             RoleName = role.RoleName,
                                                             IsAssigned = user.UserRoles.Any(userRole => userRole.Id == role.Id),
                                                             IsActionTaken = false,
@@ -103,3 +103,7 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script src="~/js/switchSaveChangesAvailabilityButtonDynamically.js" asp-append-version="true"></script>
+}

@@ -48,4 +48,28 @@ public interface IUsersService
     /// Thrown if the user with the provided <paramref name="userToDeleteId" /> does not exist.
     /// </exception>
     Task DeleteUserByIdAsync(Guid adminUserId, Guid userToDeleteId);
+
+    /// <summary>
+    /// Assigns or removes roles provided in the <paramref name="modifyUserRolesDto.AllRoles" />
+    /// collection, for the given user.
+    /// </summary>
+    /// <param name="adminUserId">The user attempting the operation.</param>
+    /// <param name="modifyUserRolesDto">The dto caring the user and his roles related data.</param>
+    /// <returns> Task representing the asynchronous operation. </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the user or roleId are empty.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown when the <paramref name="adminUserId"/> is not an authorized administrator.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown when the target user or a role cannot be found.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when a role already possessed or remove one not possessed by the user.
+    /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
+    /// </exception>
+    Task ModifyUserRoles(Guid adminUserId, ModifyUserRolesDto modifyUserRolesDto);
 }

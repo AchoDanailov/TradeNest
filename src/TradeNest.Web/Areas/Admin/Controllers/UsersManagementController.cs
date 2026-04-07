@@ -66,18 +66,22 @@ public class UsersManagementController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> ManageUserRoles(ManageUserRolesFormModel formModel)
     {
-        return Json(new 
+        if (!ModelState.IsValid || formModel.Id == Guid.Empty ||
+            formModel.AllRoles.Any(r => r.Id == Guid.Empty))
         {
-            formModel.Id,
-            formModel.Username,
-            Roles = formModel.AllRoles.Select(r => new
-            {
-                r.Id,
-                r.RoleName,
-                r.IsAssigned,
-                r.IsActionTaken,
-            })
-        });
+            return BadRequest();
+        }
+
+        Guid adminUserId = this.GetAdminUserId(throwIfNull: true);
+        
+        ModifyUserRolesDto modifyUserRolesDto = this._usersMapper
+            .FromManageUserFormModel(formModel);
+
+        await this._usersService.ModifyUserRoles(adminUserId, modifyUserRolesDto);
+        return RedirectToAction(
+            actionName: nameof(Index),
+            controllerName: "UsersManagement",
+            routeValues: new { area = "Admin" });
     }
 
     [HttpGet]

@@ -1,13 +1,14 @@
 using System.ComponentModel.DataAnnotations;
-using TradeNest.Web.ViewModels.Role;
+
 using static TradeNest.GCommon.EntityValidationConstants.User;
+using TradeNest.Web.ViewModels.Role;
 
 namespace TradeNest.Web.ViewModels.User;
 
 public class ManageUserRolesFormModel
 {
     [Required]
-    public string Id { get; set; } = null!;
+    public Guid Id { get; set; }
 
     [Required]
     [StringLength(UserNameMaxLengthValue, MinimumLength = UserNameMinLengthValue)]

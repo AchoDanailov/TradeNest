@@ -6,7 +6,7 @@ namespace TradeNest.Web.ViewModels.Role;
 public class AssignRoleFormModel
 {
     [Required]
-    public string Id { get; set; } = null!;
+    public Guid Id { get; set; }
     
     [Required]
     [MaxLength(NameMaxLengthValue)]

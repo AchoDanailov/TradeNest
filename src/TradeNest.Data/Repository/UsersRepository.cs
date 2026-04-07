@@ -1,6 +1,9 @@
+using System.Linq.Expressions;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon.Exceptions;
@@ -18,14 +21,17 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
         this._userManager = userManager;
     }
 
-    public async Task<IEnumerable<ApplicationUser>>
-        GetAllUsersWithTheirRolesAsync(bool asReadOnly = false)
+    public async Task<IEnumerable<ApplicationUser>> GetAllUsersWithTheirRolesAsync(
+        Expression<Func<ApplicationUser, bool>>? filter = null, bool asReadOnly = false)
     {
         IQueryable<ApplicationUser> queryable = this.DbContext.Users
             .Include(u => u.UserRoles)
             .ThenInclude(ur => ur.Role);
         if (asReadOnly)
             queryable = queryable.AsNoTracking();
+
+        if (filter != null)
+            queryable = queryable.Where(filter);
 
         return await queryable.ToArrayAsync();
     }
@@ -90,5 +96,66 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
                 innerException: ex,
                 data: new string[] { "Delete user operation.", $"userId: {user.Id}" });
         }
+    }
+
+    public async Task<bool> AssignRolesAsync(ApplicationUser user,
+        IEnumerable<string> roleNames)
+    {
+        roleNames = roleNames.ToArray();
+        
+        bool result = true;
+        await using IDbContextTransaction transaction 
+            = await this.DbContext.Database.BeginTransactionAsync();
+        
+        if (roleNames.Contains("Admin"))
+            result &= await this.AddAdminModelForUserAsync(user.Id);
+        
+        IdentityResult addToRoleResult = await this._userManager.AddToRolesAsync(user, roleNames);
+        result &= addToRoleResult.Succeeded;
+
+        await transaction.CommitAsync();
+        return result;
+    }
+
+    public async Task<bool> AssignRoleAsync(ApplicationUser user, string roleName)
+    {
+        bool result = true;
+        await using IDbContextTransaction transaction 
+            = await this.DbContext.Database.BeginTransactionAsync();
+        
+        if(roleName == "Admin")
+            result &= await this.AddAdminModelForUserAsync(user.Id);
+        
+        IdentityResult addToRoleResult = await this._userManager.AddToRoleAsync(user, roleName);
+        result &= addToRoleResult.Succeeded;
+        
+        await transaction.CommitAsync();
+        return result;
+    }
+
+    public async Task<bool> RemoveUserFromRolesAsync(ApplicationUser user, 
+        IEnumerable<string> roleNames)
+    {
+        IdentityResult removeFromRolesResult 
+            = await this._userManager.RemoveFromRolesAsync(user, roleNames);
+
+        return removeFromRolesResult.Succeeded;
+    }
+
+    public async Task<bool> RemoveUserFromRoleAsync(ApplicationUser user, string roleName)
+    {
+        IdentityResult addToRoleResult = await this._userManager
+            .RemoveFromRoleAsync(user, roleName);
+        
+        return addToRoleResult.Succeeded;
+    }
+
+    private async Task<bool> AddAdminModelForUserAsync(Guid userId)
+    {
+        Admin adminModel = new Admin() { UserId = userId };
+        await this.DbContext.Admins.AddAsync(adminModel);
+            
+        int addedCount = await this.DbContext.SaveChangesAsync();
+        return addedCount > 0;
     }
 }

@@ -24,4 +24,10 @@ internal static class ExceptionMessages
 
     internal const string CantDeleteAlreadyDeletedProduct
         = "Can not delete an already deleted product. userId: {0}, productId: {1}";
+
+    internal const string CantRemoveRoleToNonAssignedUser
+        = "Can not remove a user from a role if the user isn't assigned to that role first. userId: {0}, roleId: {1}";
+
+    internal const string CantAssignRoleToAlreadyAssignedUser
+        = "Can not assign a role to a user that he is already assigned too. userId {0}, roleId: {1}";
 }

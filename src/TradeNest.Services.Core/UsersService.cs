@@ -50,7 +50,7 @@ public class UsersService : IUsersService
 
         IEnumerable<ApplicationRole> allRoles = await this._usersRepository
             .GetAllRolesAsync(asReadOnly: true);
-        
+
         return this._usersMapper.ToRolesDtos(allRoles);
     }
 
@@ -69,6 +69,103 @@ public class UsersService : IUsersService
             throw new ResourceNotFoundException(nameof(ApplicationUser), userToDeleteId);
 
         await this._usersRepository.DeleteAsync(userToDelete);
+    }
+
+    public async Task ModifyUserRoles(Guid adminUserId, ModifyUserRolesDto modifyUserRolesDto)
+    {
+        if (modifyUserRolesDto.Id == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, "userId"));
+
+        bool isValidAdminId = await this.IsValidAdminId(adminUserId);
+        if (!isValidAdminId)
+        {
+            throw new UnauthorizedOperationException(
+                userId: adminUserId,
+                resourceName: $"{nameof(ApplicationUser)}, {nameof(ApplicationRole)}",
+                resourceId: $"userId: {modifyUserRolesDto.Id}");
+        }
+
+        ApplicationUser? userToModifyRoles = (await this._usersRepository
+                .GetAllUsersWithTheirRolesAsync(u => u.Id == modifyUserRolesDto.Id))
+            .SingleOrDefault();
+        if (userToModifyRoles == null)
+        {
+            throw new ResourceNotFoundException(nameof(ApplicationUser),
+                modifyUserRolesDto.Id);
+        }
+
+        IEnumerable<ApplicationRole> allRoles = (await this._usersRepository
+                .GetAllRolesAsync(asReadOnly: true))
+            .ToArray();
+
+        ICollection<string> rolesToAssignToUser = new List<string>();
+        ICollection<string> rolesToRemoveUserFrom = new List<string>();
+        foreach (ModifyRoleDto modifyRoleDto in modifyUserRolesDto.AllRoles)
+        {
+            if (modifyRoleDto.Id == Guid.Empty)
+                throw new ArgumentException(string.Format(IdCantBeEmptyMessage, "roleId"));
+
+            if (allRoles.All(repoRole => repoRole.Id != modifyRoleDto.Id))
+                throw new ResourceNotFoundException(nameof(ApplicationRole), modifyRoleDto.Id);
+
+            if (!modifyRoleDto.IsActionTaken)
+                continue;
+
+            if (modifyRoleDto.IsAssigned)
+            {
+                if (userToModifyRoles.UserRoles.All(ur => ur.RoleId != modifyRoleDto.Id))
+                {
+                    throw new InvalidOperationException(string.Format(
+                        CantRemoveRoleToNonAssignedUser, userToModifyRoles.Id, modifyRoleDto.Id));
+                }
+
+                if (modifyRoleDto.RoleName == "Admin")
+                    continue;
+
+                rolesToRemoveUserFrom.Add(modifyRoleDto.RoleName);
+            }
+            else
+            {
+                if (userToModifyRoles.UserRoles.Any(ur => ur.RoleId == modifyRoleDto.Id))
+                {
+                    throw new InvalidOperationException(string.Format(
+                        CantAssignRoleToAlreadyAssignedUser, userToModifyRoles.Id, modifyRoleDto.Id));
+                }
+
+                rolesToAssignToUser.Add(modifyRoleDto.RoleName);
+            }
+        }
+
+        if (!rolesToAssignToUser.Any() && !rolesToRemoveUserFrom.Any())
+            return;
+        
+        bool modifyUserRolesResult = true;
+        try
+        {
+            if (rolesToAssignToUser.Any())
+            {
+                modifyUserRolesResult &= await this._usersRepository
+                    .AssignRolesAsync(userToModifyRoles, rolesToAssignToUser);
+            }
+
+            if (rolesToRemoveUserFrom.Any())
+            {
+                modifyUserRolesResult &= await this._usersRepository
+                    .RemoveUserFromRolesAsync(userToModifyRoles, rolesToRemoveUserFrom);
+            }
+
+            if (modifyUserRolesResult == false)
+            {
+                throw new DataPersistException(nameof(modifyUserRolesResult),
+                    $"userId: {userToModifyRoles.Id}");
+            }
+        }
+        catch (Exception ex)
+        {
+            throw new DataPersistException(
+                innerException: ex,
+                data: new string[] { nameof(modifyUserRolesResult), $"userId: {userToModifyRoles.Id}" });
+        }
     }
 
     private async Task<bool> IsValidAdminId(Guid userId)

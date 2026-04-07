@@ -105,16 +105,16 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [AllowAnonymous]
-    public async Task<IActionResult> Details([FromRoute] Guid userToDeleteId, 
+    public async Task<IActionResult> Details([FromRoute] Guid id, 
         [FromQuery] string? returnUrl = null)
     {
-        if (userToDeleteId == Guid.Empty)
+        if (id == Guid.Empty)
             return BadRequest();
 
         Guid userId = this.GetUserId(throwIfNull: false);
 
         ProductDetailsDto? productDetailsDto = await this._productsService
-            .GetProductDetailsByIdAsync(userToDeleteId, userId);
+            .GetProductDetailsByIdAsync(id, userId);
         if(productDetailsDto == null)
             return NotFound();
 
