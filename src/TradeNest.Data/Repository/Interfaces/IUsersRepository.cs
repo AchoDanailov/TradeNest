@@ -25,4 +25,8 @@ public interface IUsersRepository : IReadRepository<ApplicationUser>
     Task<bool> RemoveUserFromRolesAsync(ApplicationUser user, IEnumerable<string> roleNames);
     
     Task<bool> RemoveUserFromRoleAsync(ApplicationUser user, string roleName);
+
+    Task<ApplicationRole?> FindRoleByIdAsync(Guid roleId);
+
+    Task<bool> RemoveRoleAsync(ApplicationRole role);
 }

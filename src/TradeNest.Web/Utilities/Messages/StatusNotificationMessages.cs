@@ -26,6 +26,9 @@ internal static class StatusNotificationMessages
 
     internal const string SuccessfullyRemovedUserMessage
         = "You have successfully removed the user.";
+    
+    internal const string SuccessfullyRemovedRoleMessage
+        = "You have successfully removed the role.";
 
     internal const string UnexpectedErrorMessage
         = "Oops. Something went wrong. Please try again in a moment.";

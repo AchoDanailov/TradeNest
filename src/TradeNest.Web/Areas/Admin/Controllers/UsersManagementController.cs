@@ -77,7 +77,8 @@ public class UsersManagementController : BaseAdminController
         ModifyUserRolesDto modifyUserRolesDto = this._usersMapper
             .FromManageUserFormModel(formModel);
 
-        await this._usersService.ModifyUserRoles(adminUserId, modifyUserRolesDto);
+        await this._usersService.ModifyUserRolesAsync(adminUserId, modifyUserRolesDto);
+        
         return RedirectToAction(
             actionName: nameof(Index),
             controllerName: "UsersManagement",
@@ -87,30 +88,37 @@ public class UsersManagementController : BaseAdminController
     [HttpGet]
     public async Task<IActionResult> ManageAllRoles(string? returnUrl = null)
     {
-        return View(new ManageAllRolesViewModel()
+        Guid adminUserId = this.GetAdminUserId(throwIfNull: true);
+        
+        if (returnUrl == null || !Url.IsLocalUrl(returnUrl))
+            returnUrl = Url.Action(nameof(Index), controller: "UsersManagement", new { area = "Admin"});
+        
+        IEnumerable<RoleDto> roleDtos = await this._usersService
+            .GetAllRolesAsync(adminUserId);
+        IEnumerable<RoleViewModel> roleViewModels = this._usersMapper
+            .ToRoleViewModels(roleDtos);
+
+        ManageAllRolesViewModel manageAllRolesViewModel = new ManageAllRolesViewModel()
         {
-            AllRoles = new List<RoleViewModel>()
-            {
-                new RoleViewModel()
-                {
-                    Id = "0",
-                    RoleName = "Admin",
-                },
-                new RoleViewModel()
-                {
-                    Id = "1",
-                    RoleName = "User",
-                },
-            },
-            ReturnUrl = returnUrl ?? 
-                        Url.Action(nameof(Index), controller: "UsersManagement")
-        });
+            AllRoles = roleViewModels,
+            ReturnUrl = returnUrl,
+        };
+        return View(manageAllRolesViewModel);
     }
 
     [HttpPost]
-    public async Task<IActionResult> RemoveRole(Guid userToDeleteId, string? returnUrl = null)
+    public async Task<IActionResult> RemoveRole(Guid roleToDeleteId)
     {
-        // dont forget to validate for guid.empty since the model binder binds guid.empty on invalid guids.
-        return Json(new { res = "works" });
+        if (roleToDeleteId == Guid.Empty)
+            return BadRequest();
+        
+        Guid adminUserId = this.GetAdminUserId(throwIfNull: true);
+        await this._usersService.RemoveRoleAsync(adminUserId, roleToDeleteId);
+
+        TempData["SuccessfullyRemovedRoleMessage"] = SuccessfullyRemovedRoleMessage;
+        return RedirectToAction(
+            actionName: nameof(ManageAllRoles),
+            controllerName: "UsersManagement",
+            routeValues: new { area = "Admin" });
     }
 }

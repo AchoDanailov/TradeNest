@@ -35,4 +35,6 @@ public static class ErrorMessages
         = "The {0} seeding process failed. Please view the result of the operation or the inner exception.";
 
     public const string UserIsAlreadyAnAdminMessage = "A user can only be one admin.";
+
+    public const string AdminRoleCanNotBeDeletedMessage = "Admin role can not be deleted.";
 }

@@ -71,7 +71,7 @@ public class UsersService : IUsersService
         await this._usersRepository.DeleteAsync(userToDelete);
     }
 
-    public async Task ModifyUserRoles(Guid adminUserId, ModifyUserRolesDto modifyUserRolesDto)
+    public async Task ModifyUserRolesAsync(Guid adminUserId, ModifyUserRolesDto modifyUserRolesDto)
     {
         if (modifyUserRolesDto.Id == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, "userId"));
@@ -120,7 +120,7 @@ public class UsersService : IUsersService
                 }
 
                 if (modifyRoleDto.RoleName == "Admin")
-                    continue;
+                    throw new InvalidOperationException(AdminRoleCanNotBeDeletedMessage);
 
                 rolesToRemoveUserFrom.Add(modifyRoleDto.RoleName);
             }
@@ -165,6 +165,44 @@ public class UsersService : IUsersService
             throw new DataPersistException(
                 innerException: ex,
                 data: new string[] { nameof(modifyUserRolesResult), $"userId: {userToModifyRoles.Id}" });
+        }
+    }
+
+    public async Task RemoveRoleAsync(Guid adminUserId, Guid roleToDeleteId)
+    {
+        if (adminUserId == Guid.Empty)
+        {
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage,
+                nameof(adminUserId)));
+        }
+        if (roleToDeleteId == Guid.Empty)
+        {
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage,
+                nameof(roleToDeleteId)));
+        }
+        
+        bool isValidAdminId = await this.IsValidAdminId(adminUserId);
+        if (!isValidAdminId)
+        {
+            throw new UnauthorizedOperationException(
+                userId: adminUserId,
+                resourceName: nameof(ApplicationRole),
+                resourceId: roleToDeleteId);
+        }
+
+        ApplicationRole? role = await this._usersRepository
+            .FindRoleByIdAsync(roleToDeleteId);
+        if (role == null)
+            throw new ResourceNotFoundException(nameof(ApplicationRole), roleToDeleteId);
+
+        if (role.Name == "Admin")
+            throw new InvalidOperationException(AdminRoleCanNotBeDeletedMessage);
+        
+        bool removeRoleResult = await this._usersRepository.RemoveRoleAsync(role);
+        if (removeRoleResult == false)
+        {
+            throw new DataPersistException(nameof(removeRoleResult),
+                nameof(removeRoleResult), $"roleId: {roleToDeleteId}");
         }
     }
 

@@ -17,7 +17,7 @@ public partial class UsersPresentationModelsMapper : IUsersPresentationModelsMap
 
     public partial RoleViewModel ToRoleViewModel(RoleDto roleDto);
 
-    public partial IEnumerable<RoleViewModel> ToRoleViewModels(IEnumerable<RoleDto> roleDto);
+    public partial IEnumerable<RoleViewModel> ToRoleViewModels(IEnumerable<RoleDto> roleDtos);
     
     public partial ModifyUserRolesDto FromManageUserFormModel(ManageUserRolesFormModel manageUserRolesFormModel);
 }

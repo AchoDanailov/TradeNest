@@ -53,7 +53,7 @@ public interface IUsersService
     /// Assigns or removes roles provided in the <paramref name="modifyUserRolesDto.AllRoles" />
     /// collection, for the given user.
     /// </summary>
-    /// <param name="adminUserId">The user attempting the operation.</param>
+    /// <param name="adminUserId">The admin attempting the operation.</param>
     /// <param name="modifyUserRolesDto">The dto caring the user and his roles related data.</param>
     /// <returns> Task representing the asynchronous operation. </returns>
     /// <exception cref="ArgumentException">
@@ -66,10 +66,32 @@ public interface IUsersService
     /// Thrown when the target user or a role cannot be found.
     /// </exception>
     /// <exception cref="InvalidOperationException">
-    /// Thrown when a role already possessed or remove one not possessed by the user.
+    /// Thrown when a role already possessed or remove one not possessed by the user or
+    /// user tries to delete the "Admin" role.
     /// </exception>
     /// <exception cref="DataPersistException">
     /// Thrown if the data is not successfully persisted.
     /// </exception>
-    Task ModifyUserRoles(Guid adminUserId, ModifyUserRolesDto modifyUserRolesDto);
+    Task ModifyUserRolesAsync(Guid adminUserId, ModifyUserRolesDto modifyUserRolesDto);
+
+    /// <summary>
+    /// Removes the role with the provided <paramref name="roleToDeleteId" />.
+    /// </summary>
+    /// <param name="adminUserId">The admin attempting the operation.</param>
+    /// <param name="roleToDeleteId">The identifier of the role to be deleted.</param>
+    /// <returns> Task representing the asynchronous operation. </returns>
+    /// <exception cref="ArgumentException"> Thrown when the user or roleId are empty. </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown when the <paramref name="adminUserId"/> is not an authorized administrator.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown when the target role cannot be found.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the role to deleted is the "Admin" role.
+    /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
+    /// </exception>
+    Task RemoveRoleAsync(Guid adminUserId, Guid roleToDeleteId);
 }

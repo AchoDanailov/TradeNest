@@ -13,12 +13,16 @@ namespace TradeNest.Data.Repository;
 public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersRepository
 {
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly RoleManager<ApplicationRole> _roleManager;
     
-    public UsersRepository(TradeNestDbContext dbContext,
-        UserManager<ApplicationUser> userManager) 
+    public UsersRepository(
+        TradeNestDbContext dbContext,
+        UserManager<ApplicationUser> userManager, 
+        RoleManager<ApplicationRole> roleManager) 
         : base(dbContext)
     {
         this._userManager = userManager;
+        this._roleManager = roleManager;
     }
 
     public async Task<IEnumerable<ApplicationUser>> GetAllUsersWithTheirRolesAsync(
@@ -148,6 +152,34 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
             .RemoveFromRoleAsync(user, roleName);
         
         return addToRoleResult.Succeeded;
+    }
+
+    public async Task<ApplicationRole?> FindRoleByIdAsync(Guid roleId)
+    {
+        return await this._roleManager
+            .FindByIdAsync(roleId.ToString());
+    }
+
+    public async Task<bool> RemoveRoleAsync(ApplicationRole role)
+    {
+        bool result = true;
+        await using IDbContextTransaction transaction
+            = await this.DbContext.Database.BeginTransactionAsync();
+        
+        IEnumerable<ApplicationUser> usersInRole = await this._userManager
+            .GetUsersInRoleAsync(role.Name!);
+        foreach (ApplicationUser user in usersInRole)
+        {
+           IdentityResult removeFromRoleResult = await this._userManager
+               .RemoveFromRoleAsync(user, role.Name!);
+           result &= removeFromRoleResult.Succeeded;
+        }
+
+        IdentityResult deleteRoleResult = await this._roleManager.DeleteAsync(role);
+        result &= deleteRoleResult.Succeeded;
+
+        await transaction.CommitAsync();
+        return result;
     }
 
     private async Task<bool> AddAdminModelForUserAsync(Guid userId)

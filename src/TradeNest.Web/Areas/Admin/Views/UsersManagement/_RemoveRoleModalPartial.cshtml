@@ -27,8 +27,6 @@
                 
                 <form method="post" asp-area="Admin" asp-controller="UsersManagement"
                       asp-action="RemoveRole" asp-route-id="@Model.Id">
-                    <input type="hidden" name="returnUrl"
-                           value="@Url.Action("ManageAllRoles", controller: "UsersManagement")" />
                     <button type="submit" class="btn btn-danger"> Yes </button>
                 </form>
             </div>

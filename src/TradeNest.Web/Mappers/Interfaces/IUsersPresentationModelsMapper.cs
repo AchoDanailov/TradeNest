@@ -13,7 +13,7 @@ public interface IUsersPresentationModelsMapper
 
     RoleViewModel ToRoleViewModel(RoleDto roleDto);
     
-    IEnumerable<RoleViewModel> ToRoleViewModels(IEnumerable<RoleDto> roleDto);
+    IEnumerable<RoleViewModel> ToRoleViewModels(IEnumerable<RoleDto> roleDtos);
 
     ModifyUserRolesDto FromManageUserFormModel(ManageUserRolesFormModel manageUserRolesFormModel);
 }
