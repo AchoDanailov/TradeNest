@@ -1,16 +1,20 @@
-document.addEventListener('change', function (event) {
-    if (event.target.classList.contains('btn-check')) {
-        const modal = event.target.closest('.modal');
-        if (modal) {
-            const submitButton = modal.querySelector('button[type="submit"]');
-            const checkboxes = modal.querySelectorAll('.btn-check');
-            const atLeastOneChecked = Array.from(checkboxes).some(cb => cb.checked);
-
-            if (atLeastOneChecked) {
-                submitButton.removeAttribute('disabled');
-            } else {
-                submitButton.setAttribute('disabled', 'disabled');
+const allManageRolesModals = document.querySelectorAll(".manage-roles-modal");
+allManageRolesModals?.forEach(manageRolesModal => {
+    manageRolesModal?.addEventListener("change", () => {
+        const allActionButtons = manageRolesModal.querySelectorAll(".action-btn");
+        
+        let oneIsPressed = false;
+        for (const actionButton of allActionButtons) {
+            if(actionButton.checked){
+                oneIsPressed = true;
+                break;
             }
         }
-    }
+        
+        const saveChangesButton = manageRolesModal?.querySelector(".save-changes-btn");
+        if(oneIsPressed)
+            saveChangesButton?.removeAttribute('disabled');
+        else
+            saveChangesButton?.setAttribute('disabled', 'disabled');
+    });
 });
