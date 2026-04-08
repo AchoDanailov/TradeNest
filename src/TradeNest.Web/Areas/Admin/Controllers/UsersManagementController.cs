@@ -34,7 +34,10 @@ public class UsersManagementController : BaseAdminController
         IEnumerable<RoleDto> allRoles = await this._usersService.GetAllRolesAsync(userId);
 
         IEnumerable<ManageUserViewModel> usersViewModels = this._usersMapper
-            .ToManageUserViewModels(usersDtos);
+            .ToManageUserViewModels(usersDtos)
+            .OrderByDescending(u => u.UserRoles.Any())
+            .ThenBy(u => u.UserRoles.FirstOrDefault()?.RoleName ?? string.Empty);
+        
         IEnumerable<RoleViewModel> rolesViewModels = this._usersMapper
             .ToRoleViewModels(allRoles);
 

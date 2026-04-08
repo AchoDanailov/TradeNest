@@ -37,19 +37,24 @@
                     <tr>
                         <th class="@hoverEffect">Username</th>
                         <th class="@hoverEffect">Email</th>
-                        <th class="@hoverEffect">Role</th>
+                        <th class="@hoverEffect">Roles</th>
                         <th class="@hoverEffect">Actions</th>
                     </tr>
                 </thead>
                 <tbody class="tbody-top-border">
                     @foreach (ManageUserViewModel user in this.Model.Users)
                     {
+                        bool hasNoRoles = user.UserRoles.Count == 0;
                         bool isAdmin = user.UserRoles.Any(r => r.RoleName == "Admin");
                         
                         <tr class="text-center">
                             <td>@user.Username</td>
                             <td>@user.Email</td>
-                            <td>@string.Join(", ", user.UserRoles.Select(r => r.RoleName))</td>
+                            <td>
+                                @(hasNoRoles
+                                         ? "Regular User"
+                                         : string.Join(", ", user.UserRoles.Select(r => r.RoleName)))
+                            </td>
                             
                             @if (isAdmin)
                             {
