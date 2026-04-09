@@ -39,7 +39,7 @@ public class AdminsSeeder : BaseEntitySeeder, IAdminsSeeder
             throw new InvalidOperationException(string.Format(SeedingError, this.GetType().Name));
 
         IEnumerable<Admin> adminsInDb = (await this._adminsRepository
-                .GetAllAsReadOnlyAsync())
+                .GetAllAsync(queryOptions => queryOptions.AsReadOnly()))
             .ToArray();
         
         ICollection<Admin> adminsToImport = new List<Admin>();

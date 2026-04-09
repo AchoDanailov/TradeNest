@@ -27,8 +27,10 @@ public class CategoriesService : ICategoriesService
     
     public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
     {
-        return (await this._categoriesRepository.GetAllAsReadOnlyAsync(queryOptions => 
-                queryOptions.AddOrderAsc(c => c.Name)))
+        return (await this._categoriesRepository.GetAllAsync(queryOptions => 
+                queryOptions
+                    .AsReadOnly()
+                    .AddOrderAsc(c => c.Name)))
             .Select(c => new CategoryDto()
             {
                 Id = c.Id,
@@ -40,8 +42,10 @@ public class CategoriesService : ICategoriesService
         GetAllCategoriesWithBestSellerImageAsync()
     {
         IEnumerable<CategoryWithBestSellerImageDto> allCategoriesWithBestSellerImageDtos
-            = (await this._categoriesRepository.GetAllAsReadOnlyAsync(options => 
-                options.AddOrderAsc(c => c.Name)))
+            = (await this._categoriesRepository.GetAllAsync(options => 
+                options
+                    .AsReadOnly()
+                    .AddOrderAsc(c => c.Name)))
             .Select(c => new CategoryWithBestSellerImageDto()
             {
                 Id = c.Id,
@@ -50,7 +54,7 @@ public class CategoriesService : ICategoriesService
             .ToArray();
 
         IDictionary<Guid, string?> bestSellersFrontImagesByCategoryId 
-            = await this._productsRepository.GetAllCategoriesBestSellersFrontImagesAsReadonlyAsync();
+            = await this._productsRepository.GetAllCategoriesBestSellersFrontImagesAsync(asReadOnly: true);
         foreach (CategoryWithBestSellerImageDto categoryDto in allCategoriesWithBestSellerImageDtos)
         {
             categoryDto.BestSellerImageUrl = bestSellersFrontImagesByCategoryId[categoryDto.Id];

@@ -118,8 +118,8 @@ public class ProductsController : BaseController
         if(productDetailsDto == null)
             return NotFound();
 
-        if(returnUrl == null || !Url.IsLocalUrl(returnUrl)) 
-            returnUrl ??= Url.Action(nameof(Index), controller: "Products");
+        if(string.IsNullOrWhiteSpace(returnUrl) || !Url.IsLocalUrl(returnUrl)) 
+            returnUrl = Url.Action(nameof(Index), controller: "Products");
 
         ProductDetailsViewModel productDetailsViewModel = this._productPresentationModelsMapper
             .ToProductDetailsViewModel(productDetailsDto, returnUrl!);

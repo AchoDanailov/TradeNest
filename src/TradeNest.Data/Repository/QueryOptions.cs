@@ -8,12 +8,15 @@ public class QueryOptions<T> : IQueryOptions<T>
 {
     private readonly List<Expression<Func<T, object>>> _includesList;
     private readonly List<(Expression<Func<T, object>>, bool)> _orderStatementsByDirection;
+    private bool _isReadonly;
     
     internal QueryOptions()
     {
         this._includesList = new List<Expression<Func<T, object>>>();
         this._orderStatementsByDirection = new List<(Expression<Func<T, object>>, bool)>();
     }
+
+    internal bool IsReadonly => this._isReadonly;
     
     internal Expression<Func<T, bool>>? Filter { get; private set; }
 
@@ -24,9 +27,14 @@ public class QueryOptions<T> : IQueryOptions<T>
         => this._orderStatementsByDirection.AsReadOnly();
 
 
+    public IQueryOptions<T> AsReadOnly()
+    {
+        this._isReadonly = true;
+        return this;
+    }
+
     public IQueryOptions<T> AddFilter(Expression<Func<T, bool>> filter)
     {
-        // TODO: Refactor AddFilter so it supports more than one filter. Or implement a derived class that notifies filtered queryOptions object where the filter can only be reasigned explicitly from the user (rn it reasigns implicitly).
         this.Filter = filter;
         return this;
     }

@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+
 using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data.Repository.Interfaces;
@@ -13,11 +14,30 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
     {
     }
 
-    public async Task<IDictionary<Guid, string?>> 
-        GetAllCategoriesBestSellersFrontImagesAsReadonlyAsync()
+    public async Task<Product?> GetProductDetailsWithRelatedDataAsync(Guid productId,
+        bool asReadOnly = false)
     {
-        return await this.DbContext.Categories
-            .AsNoTracking()
+        IQueryable<Product> queryable = this.DbContext.Products
+            .IgnoreQueryFilters()
+            .Include(p => p.Category)
+            .Include(p => p.Images)
+            .Include(p => p.Owner)
+            .Include(p => p.ApprovalDecisionMaker)
+            .ThenInclude(p => p!.User);
+        if (asReadOnly)
+            queryable = queryable.AsNoTracking();
+
+        return await queryable.SingleOrDefaultAsync(p => p.Id == productId);
+    }
+
+    public async Task<IDictionary<Guid, string?>> 
+        GetAllCategoriesBestSellersFrontImagesAsync(bool asReadOnly = false)
+    {
+        IQueryable<Category> queryable = this.DbContext.Categories;
+        if (asReadOnly)
+            queryable = queryable.AsNoTracking();
+        
+        return await queryable
             .Select(c => new
             {
                 Id = c.Id,
@@ -34,7 +54,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
                 c => c.BestSellerImage);
     }
 
-    public async Task<IEnumerable<Product>> GetAllProductsWithCategoryAndImagesAsReadonlyAsync(
+    public async Task<IEnumerable<Product>> GetAllProductsWithCategoryAndImagesAsync(
         Action<IQueryOptions<Product>>? queryOptionsBuilder = null)
     {
         IQueryable<Product> queryable = this.DbContext.Products
@@ -42,16 +62,24 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
             .Include(p => p.Category);
         if (queryOptionsBuilder != null)
         {
-            return await this.BuildQuery(queryOptionsBuilder, queryable, asReadOnly: true)
+            return await this.BuildQuery(queryOptionsBuilder, queryable)
                 .ToArrayAsync();
         }
         
-        return await queryable
-            .AsNoTracking()
+        return await queryable.ToArrayAsync();
+    }
+
+    public async Task<IEnumerable<Product>> GetAllInclArchivedAndNotApprovedAsync(
+        Action<IQueryOptions<Product>> queryOptionsBuilder)
+    {
+        IQueryable<Product> noQueryFilterQueryable = this.DbContext.Products
+            .IgnoreQueryFilters();
+
+        return await this.BuildQuery(queryOptionsBuilder, noQueryFilterQueryable)
             .ToArrayAsync();
     }
 
-    public async Task<bool> ExistsIncludingArchivedAndNotApproved(
+    public async Task<bool> ExistsIncludingArchivedAndNotApprovedAsync(
         Expression<Func<Product, bool>> filter)
     {
         return await this.DbContext.Products

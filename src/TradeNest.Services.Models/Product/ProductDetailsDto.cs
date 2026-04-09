@@ -8,6 +8,8 @@ public class ProductDetailsDto : ProductDto
     
     public decimal? CostPrice { get; set; }
 
+    public ApprovalDecisionDto ApprovalDecision { get; set; } = null!;
+
     public string OwnerName { get; set; } = null!;
     
     public bool IsOwner { get; set; }

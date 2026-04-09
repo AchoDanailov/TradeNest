@@ -4,7 +4,9 @@ public class ProductDetailsViewModel : ProductViewModel
 {
     public string Description { get; set; } = null!;
 
-    public int QuantityInStock { get; set; } 
+    public int QuantityInStock { get; set; }
+
+    public ApprovalDecisionViewModel ApprovalDecision { get; set; } = null!;
     
     public decimal? CostPrice { get; set; }
 

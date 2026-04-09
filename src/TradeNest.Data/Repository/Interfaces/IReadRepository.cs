@@ -7,8 +7,6 @@ public interface IReadRepository<T> : IDisposable
 {
     Task<IEnumerable<T>> GetAllAsync(Action<IQueryOptions<T>>? queryOptionsBuilder = null);
     
-    Task<IEnumerable<T>> GetAllAsReadOnlyAsync(Action<IQueryOptions<T>>? queryOptionsBuilder = null);
-    
     Task<T?> FindByIdAsync(Guid id); 
     
     Task<bool> ExistsAsync(Expression<Func<T, bool>> filter);

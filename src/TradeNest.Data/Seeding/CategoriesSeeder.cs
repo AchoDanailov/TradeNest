@@ -37,7 +37,7 @@ public class CategoriesSeeder : BaseEntitySeeder, ICategoriesSeeder
             throw new InvalidOperationException(string.Format(SeedingError, this.GetType().Name));
 
         IEnumerable<Category> categoriesInDb = (await this._categoriesRepository
-                .GetAllAsReadOnlyAsync())
+                .GetAllAsync(queryOptions => queryOptions.AsReadOnly()))
             .ToArray();
 
         ICollection<Category> categoriesToImport = new List<Category>();

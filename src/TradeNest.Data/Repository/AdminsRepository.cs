@@ -1,5 +1,5 @@
 using Microsoft.AspNetCore.Identity;
-
+using Microsoft.EntityFrameworkCore;
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 
@@ -13,6 +13,12 @@ public class AdminsRepository : BaseReadRepository<Admin>, IAdminsRepository
         : base(dbContext)
     {
         this._userManager = userManager;
+    }
+
+    public async Task<Admin?> FindAdminByUserId(Guid userId)
+    {
+        return await this.DbContext.Admins
+            .SingleOrDefaultAsync(a => a.UserId == userId);
     }
 
     public async Task<bool> IsUserAdminByUserIdAsync(Guid userId)

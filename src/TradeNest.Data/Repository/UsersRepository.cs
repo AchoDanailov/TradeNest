@@ -64,6 +64,20 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
             .IgnoreQueryFilters()
             .SingleOrDefaultAsync(u => u.Id == userId);
     }
+
+    public async Task<bool> IsUserAdminUserByIdAsync(Guid userId)
+    {
+        ApplicationUser? user = await this._userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+            return false;
+
+        return await this._userManager.IsInRoleAsync(user, "Admin");
+    }
+    
+    public async Task<bool> IsUserAdminUserAsync(ApplicationUser user)
+    {
+        return await this._userManager.IsInRoleAsync(user, "Admin");
+    }
     
     public async Task<bool> AddAsync(ApplicationUser user, string password)
     {

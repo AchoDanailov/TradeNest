@@ -42,14 +42,13 @@ public class OrdersService : IOrdersService
                 nameof(ApplicationUser), userId));
         }
 
-        IEnumerable<Order> orders = await this._ordersRepository
-            .GetAllAsReadOnlyAsync(queryOptions => 
-                queryOptions
-                    .WithRelated(o => o.OrderProducts)
-                    .AddFilter(o => o.UserId == userId)
-                    .AddOrderDesc(o => o.SubmittedOn)
-                    .AddOrderDesc(o => o.TotalPrice)
-                    .AddOrderAsc(o => o.OrderProducts.Count));
+        IEnumerable<Order> orders = await this._ordersRepository.GetAllAsync(queryOptions =>
+            queryOptions.AsReadOnly()
+                .WithRelated(o => o.OrderProducts)
+                .AddFilter(o => o.UserId == userId)
+                .AddOrderDesc(o => o.SubmittedOn)
+                .AddOrderDesc(o => o.TotalPrice)
+                .AddOrderAsc(o => o.OrderProducts.Count));
         
         return this._ordersMapper.ToOrderDtos(orders);
     }

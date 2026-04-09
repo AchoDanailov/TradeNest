@@ -13,7 +13,11 @@ public interface IUsersRepository : IReadRepository<ApplicationUser>
     Task<bool> ExistsByIdWithForgottenIncludedAsync(Guid userId, bool asReadOnly = false);
 
     Task<ApplicationUser?> FindByIdWithForgottenIncludedAsync(Guid userId);
-    
+
+    Task<bool> IsUserAdminUserByIdAsync(Guid userId);
+
+    Task<bool> IsUserAdminUserAsync(ApplicationUser user);
+
     Task<bool> AddAsync(ApplicationUser user, string password);
 
     Task DeleteAsync(ApplicationUser applicationUser);

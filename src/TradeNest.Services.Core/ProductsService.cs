@@ -1,4 +1,5 @@
 using TradeNest.Data.Models;
+using TradeNest.Data.Models.Enums;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
@@ -14,20 +15,22 @@ namespace TradeNest.Services.Core;
 public class ProductsService : IProductsService
 {
     private readonly IProductsRepository _productsRepository;
-    private readonly IUsersRepository _usersRepository;
     private readonly ICategoriesRepository _categoriesRepository;
+    private readonly IUsersRepository _usersRepository;
+    private readonly IAdminsRepository _adminsRepository;
     private readonly IProductsMapper _productsMapper;
 
     public ProductsService(
         IProductsRepository productsRepository,
         IUsersRepository usersRepository,
         ICategoriesRepository categoriesRepository,
+        IAdminsRepository adminsRepository,
         IProductsMapper productsMapper)
     {
         this._productsRepository = productsRepository;
-        this._usersRepository = usersRepository;
         this._categoriesRepository = categoriesRepository;
-
+        this._usersRepository = usersRepository;
+        this._adminsRepository = adminsRepository;
         this._productsMapper = productsMapper;
     }
 
@@ -35,9 +38,10 @@ public class ProductsService : IProductsService
         string? search = null)
     {
         IEnumerable<Product> products = await this._productsRepository
-            .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(queryOptions =>
+            .GetAllProductsWithCategoryAndImagesAsync(queryOptions =>
             {
                 queryOptions
+                    .AsReadOnly()
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name);
 
@@ -60,9 +64,10 @@ public class ProductsService : IProductsService
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(categoryId)));
 
         IEnumerable<Product> products = await this._productsRepository
-            .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(queryOptions =>
+            .GetAllProductsWithCategoryAndImagesAsync(queryOptions =>
             {
                 queryOptions
+                    .AsReadOnly()
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name);
 
@@ -85,8 +90,9 @@ public class ProductsService : IProductsService
     public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedBySellingCountDescAsync()
     {
         IEnumerable<Product> products = await this._productsRepository
-            .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(queryOptions => 
+            .GetAllProductsWithCategoryAndImagesAsync(queryOptions => 
                 queryOptions
+                    .AsReadOnly()
                     .AddOrderDesc(p => p.SoldProducts.Sum(sp => sp.QuantityOrdered))
                     .AddOrderDesc(p => p.CreatedOn));
         
@@ -107,17 +113,15 @@ public class ProductsService : IProductsService
         if (id == Guid.Empty)
             return null;
 
-        Product? product = (await this._productsRepository.GetAllAsReadOnlyAsync(queryOptions =>
-                queryOptions
-                    .AddFilter(p => p.Id == id)
-                    .WithRelated(p => p.Owner)
-                    .WithRelated(p => p.Category)
-                    .WithRelated(p => p.Images)))
-            .FirstOrDefault();
+        Product? product = await this._productsRepository
+            .GetProductDetailsWithRelatedDataAsync(id, asReadOnly: true);
         if (product == null)
             return null;
 
         bool isOwner = userId != null && product.OwnerId == userId.Value;
+        if (!isOwner && product.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved)
+            return null;
+        
         return this._productsMapper.ToProductDetailsDto(product, isOwner);
     }
 
@@ -133,8 +137,8 @@ public class ProductsService : IProductsService
                 nameof(productDto.CategoryId)));
         }
 
-        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
-        if (!userExists)
+        ApplicationUser? user = await this._usersRepository.FindByIdAsync(userId);
+        if (user == null)
         {
             throw new ArgumentException(string.Format(NotFoundMessage,
                 nameof(ApplicationUser), userId));
@@ -148,7 +152,7 @@ public class ProductsService : IProductsService
                 nameof(Category), passedInCategoryId));
         }
         
-        ICollection<Image> images = this.ParseImagesInputOnImageAdding(
+        ICollection<Image> images = ParseImagesInputOnImageAdding(
                 frontImageUrl: productDto.FrontImageUrl,
                 extraImagesUrls: productDto.ExtraImagesUrls)
             .ToHashSet();
@@ -157,8 +161,18 @@ public class ProductsService : IProductsService
             images.First().IsFrontImage = true;
         }
 
-        Product newProduct = this._productsMapper
-            .FromProductCreateDto(productDto, userId, images);
+        Admin? admin = await this._adminsRepository.FindAdminByUserId(userId);
+        
+        Guid? approvalDecisionMakerId = admin?.Id ?? null;
+        ApprovalDecision approvalDecision = new ApprovalDecision()
+        {
+            ApprovalStatus = admin != null ? ApprovalStatus.Approved : ApprovalStatus.WaitingApproval,
+            DecisionJustification = null,
+            TimeOfDecision = admin != null ? DateTime.UtcNow : null
+        };
+        
+        Product newProduct = this._productsMapper.FromProductCreateDto(productDto, userId,
+            images, approvalDecisionMakerId, approvalDecision);
 
         bool addProductResult = await this._productsRepository.AddAsync(newProduct);
         if (addProductResult == false)
@@ -186,9 +200,11 @@ public class ProductsService : IProductsService
         }
 
         Product? product = (await this._productsRepository
-                .GetAllProductsWithCategoryAndImagesAsReadonlyAsync(queryOptions =>
-                    queryOptions.AddFilter(p => p.Id == id)))
-            .FirstOrDefault();
+                .GetAllInclArchivedAndNotApprovedAsync(queryOptions => 
+                    queryOptions
+                        .AsReadOnly()
+                        .AddFilter(p => p.Id == id)))
+            .SingleOrDefault();
         if (product == null)
             return null;
 
@@ -237,13 +253,11 @@ public class ProductsService : IProductsService
     {
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
-
         if (productEditDto.Id == Guid.Empty)
         {
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
                 nameof(productEditDto.Id)));
         }
-        
         if (productEditDto.CategoryId == Guid.Empty)
         {
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
@@ -257,10 +271,11 @@ public class ProductsService : IProductsService
                 nameof(ApplicationUser), userId));
         }
 
-        Product? product = (await this._productsRepository.GetAllAsync(queryOptions => 
-                queryOptions
-                    .WithRelated(p => p.Images)
-                    .AddFilter(p => p.Id == productEditDto.Id)))
+        Product? product = (await this._productsRepository
+                .GetAllInclArchivedAndNotApprovedAsync(queryOptions => 
+                    queryOptions
+                        .WithRelated(p => p.Images)
+                        .AddFilter(p => p.Id == productEditDto.Id)))
             .SingleOrDefault();
         if (product == null)
             throw new ResourceNotFoundException(nameof(Product), productEditDto.Id);
@@ -287,14 +302,14 @@ public class ProductsService : IProductsService
                 nameof(Category), productEditDto.CategoryId));
         }
 
-        IEnumerable<Image> deletedImages = this.DeleteImagesForDeletionIfAny(
-            product, productEditDto.ProductImages);
+        IEnumerable<Image> deletedImages 
+            = DeleteImagesForDeletionIfAny(product, productEditDto.ProductImages);
         
         this._productsMapper.EditProductFromProductEditDto(productEditDto, product);
 
-        this.AddNewImagesIfAny(product, productEditDto.NewImagesUrls);
+        AddNewImagesIfAny(product, productEditDto.NewImagesUrls);
 
-        this.EnsureProductHasFrontImage(deletedImages, product.Images);
+        EnsureProductHasFrontImage(deletedImages, product.Images);
 
         bool updateProductResult = await this._productsRepository.UpdateAsync(product);
         if (updateProductResult == false)
@@ -304,7 +319,7 @@ public class ProductsService : IProductsService
         }
     }
 
-    private IEnumerable<Image> DeleteImagesForDeletionIfAny(Product product,
+    private static IEnumerable<Image> DeleteImagesForDeletionIfAny(Product product,
         IEnumerable<ImageDto> imagesComingFromEditForm)
     {
         IEnumerable<ImageDto> imageViewModelsMarkedForDeletion = imagesComingFromEditForm
@@ -328,12 +343,12 @@ public class ProductsService : IProductsService
         return deletedImages;
     }
 
-    private void AddNewImagesIfAny(Product product, string? newImagesUrls)
+    private static void AddNewImagesIfAny(Product product, string? newImagesUrls)
     {
         if (string.IsNullOrWhiteSpace(newImagesUrls))
             return;
         
-        IEnumerable<Image> imagesToAdd = this.ParseImagesInputOnImageAdding(
+        IEnumerable<Image> imagesToAdd = ParseImagesInputOnImageAdding(
             extraImagesUrls: newImagesUrls,
             productId: product.Id);
         foreach (Image imageToAdd in imagesToAdd)
@@ -342,7 +357,7 @@ public class ProductsService : IProductsService
         }
     }
     
-    private void EnsureProductHasFrontImage(IEnumerable<Image> deletedImages,
+    private static void EnsureProductHasFrontImage(IEnumerable<Image> deletedImages,
         ICollection<Image> productImages)
     {
         deletedImages = deletedImages.ToArray();
@@ -369,7 +384,7 @@ public class ProductsService : IProductsService
         }
     }
     
-    private IEnumerable<Image> ParseImagesInputOnImageAdding(string? frontImageUrl = null,
+    private static IEnumerable<Image> ParseImagesInputOnImageAdding(string? frontImageUrl = null,
         string? extraImagesUrls = null, Guid? productId = null)
     {
         if (frontImageUrl == null && extraImagesUrls == null)
@@ -379,7 +394,7 @@ public class ProductsService : IProductsService
         
         if (!string.IsNullOrEmpty(frontImageUrl))
         {
-            if (this.IsValidImageUrl(frontImageUrl))
+            if (IsValidImageUrl(frontImageUrl))
             {
                 images.Add(new Image()
                 {
@@ -396,7 +411,7 @@ public class ProductsService : IProductsService
 
             foreach (string imageUrl in extraImagesUrlsSplit)
             {
-                if (this.IsValidImageUrl(imageUrl))
+                if (IsValidImageUrl(imageUrl))
                 {
                     images.Add(new Image()
                     {
@@ -416,7 +431,7 @@ public class ProductsService : IProductsService
         return images;
     }
    
-    private bool IsValidImageUrl(string? url)
+    private static bool IsValidImageUrl(string? url)
     {
         if (string.IsNullOrEmpty(url))
             return false;

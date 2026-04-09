@@ -3,14 +3,19 @@ using TradeNest.Data.Models;
 
 namespace TradeNest.Data.Repository.Interfaces;
 
-public interface IProductsRepository : IReadRepository<Product> 
+public interface IProductsRepository : IReadRepository<Product>
 {
-    Task<IDictionary<Guid, string?>> GetAllCategoriesBestSellersFrontImagesAsReadonlyAsync();
+    Task<Product?> GetProductDetailsWithRelatedDataAsync(Guid productId, bool asReadOnly = false);
 
-    Task<IEnumerable<Product>> GetAllProductsWithCategoryAndImagesAsReadonlyAsync(
+    Task<IEnumerable<Product>> GetAllInclArchivedAndNotApprovedAsync(
+        Action<IQueryOptions<Product>> queryOptionsBuilder);
+    
+    Task<IDictionary<Guid, string?>> GetAllCategoriesBestSellersFrontImagesAsync(bool asReadOnly = false);
+
+    Task<IEnumerable<Product>> GetAllProductsWithCategoryAndImagesAsync(
         Action<IQueryOptions<Product>>? queryOptionsBuilder = null);
 
-    Task<bool> ExistsIncludingArchivedAndNotApproved(Expression<Func<Product, bool>> filter);
+    Task<bool> ExistsIncludingArchivedAndNotApprovedAsync(Expression<Func<Product, bool>> filter);
 
     Task<bool> AddAsync(Product product);
 

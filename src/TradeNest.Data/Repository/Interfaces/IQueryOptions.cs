@@ -8,6 +8,8 @@ namespace TradeNest.Data.Repository.Interfaces;
 /// <typeparam name="T">The model type of the requested data.</typeparam>
 public interface IQueryOptions<T> where T : class, new()
 {
+    IQueryOptions<T> AsReadOnly();   
+    
     IQueryOptions<T> AddFilter(Expression<Func<T, bool>> filter);
     
     IQueryOptions<T> WithRelated(Expression<Func<T, object>> includeStatement);

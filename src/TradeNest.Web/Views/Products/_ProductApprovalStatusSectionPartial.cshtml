@@ -1,0 +1,43 @@
+@*TODO: Work on the styles once u fully build the system so it allows for easier testing environment.*@
+@model ApprovalDecisionViewModel
+@{
+    bool isApproved = this.Model.ApprovalStatus == ApprovalStatus.Approved;
+    bool isWaitingApproval = this.Model.ApprovalStatus == ApprovalStatus.WaitingApproval;
+}
+
+@if (!isApproved) 
+{
+    <div class="alert alert-danger" role="status">
+        @if (isWaitingApproval)
+        {
+            <p class="text-navy">
+                Your product is waiting for review and approval from an admin.
+            </p>   
+        }
+        else
+        {
+            <div class="border-bottom border-2">
+                <p class="text-navy">
+                    Your product was disapproved.
+                </p>   
+                <div class="d-flex justify-content-around mx-3">
+                    <p class="text-navy">
+                        <span class="fw-bold">Admin:</span> @this.Model.ApprovalDecisionMakerDto.ApprovalDecisionMakerUsername
+                    </p>
+                    <p class="text-navy">
+                        <span class="fw-bold">Contacts:</span> @this.Model.ApprovalDecisionMakerDto.ApprovalDecisionMakerEmail
+                    </p>
+                </div>
+                <p class="text-navy">
+                    <span class="fw-bold">Justification:</span> @this.Model.DecisionJustification
+                </p>
+            </div>
+            <div>
+                <p class="text-navy">You can make changes to the article to satisfy the requirements and fix the issues in the admin's decision justification.</p>
+            </div>
+            
+        }
+    </div>
+}
+
+    

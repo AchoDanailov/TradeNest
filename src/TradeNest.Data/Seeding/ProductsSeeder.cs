@@ -59,7 +59,7 @@ public class ProductsSeeder : BaseEntitySeeder, IProductsSeeder
             }
 
             bool productExists = await this._productsRepository
-                .ExistsIncludingArchivedAndNotApproved(p => p.Id == productDto.Id);
+                .ExistsIncludingArchivedAndNotApprovedAsync(p => p.Id == productDto.Id);
             if(productExists)
                 continue;
 

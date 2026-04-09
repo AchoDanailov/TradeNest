@@ -30,20 +30,6 @@ public abstract class BaseReadRepository<T> : IReadRepository<T>
             .ToArrayAsync();
     }
 
-    public async Task<IEnumerable<T>> GetAllAsReadOnlyAsync(
-        Action<IQueryOptions<T>>? queryOptionsBuilder = null)
-    {
-        if (queryOptionsBuilder == null)
-        {
-            return await this.DbContext.Set<T>()
-                .AsNoTracking()
-                .ToArrayAsync();
-        }
-        
-        return await this.BuildQuery(queryOptionsBuilder, asReadOnly: true)
-            .ToArrayAsync(); 
-    }
-
     public async Task<T?> FindByIdAsync(Guid id)
     {
         return await this.DbContext.Set<T>()
@@ -75,7 +61,7 @@ public abstract class BaseReadRepository<T> : IReadRepository<T>
     }
 
     protected IQueryable<T> BuildQuery(Action<QueryOptions<T>> queryOptionsBuilder, 
-        IQueryable<T>? queryable = null, bool? asReadOnly = null)
+        IQueryable<T>? queryable = null)
     {
         queryable ??= this.DbContext.Set<T>();
         
@@ -88,7 +74,7 @@ public abstract class BaseReadRepository<T> : IReadRepository<T>
         foreach (Expression<Func<T, object>> includeStatement in queryOptions.IncludesList)
             queryable = queryable.Include(includeStatement);
 
-        if (asReadOnly is true)
+        if (queryOptions.IsReadonly)
             queryable = queryable.AsNoTracking();
 
         if (queryOptions.OrderExpressionsByDirection.Any())
