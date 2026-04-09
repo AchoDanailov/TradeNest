@@ -39,6 +39,15 @@ public class UsersService : IUsersService
         return this._usersMapper.ToUserDtos(usersWithRoles);
     }
 
+    public async Task<bool> IsUserAdminUserById(Guid userId)
+    {
+        if (userId == Guid.Empty)
+            return false;
+
+        return await this._usersRepository
+            .IsUserAdminUserByIdAsync(userId);
+    }
+
     public async Task<IEnumerable<RoleDto>> GetAllRolesAsync(Guid userId)
     {
         bool isValidAdminId = await this.IsValidAdminId(userId);

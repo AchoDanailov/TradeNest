@@ -19,6 +19,8 @@ public interface IUsersService
     /// </exception>
     Task<IEnumerable<UserDto>> GetAllUsersAsync(Guid userId);
 
+    Task<bool> IsUserAdminUserById(Guid userId);
+
     /// <summary>
     /// Retrieves all roles.
     /// </summary>
