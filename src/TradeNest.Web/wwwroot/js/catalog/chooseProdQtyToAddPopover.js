@@ -1,5 +1,5 @@
-import getCurrProdQty from "./getCurrProdQty.js";
-import { isValidQty } from "./dataValidationUtils.js";
+import getCurrProdQty from "../common/getCurrProdQty.js";
+import { isValidQty } from "../utils/dataValidationUtils.js";
 
 const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
 const popoverTemplateEl = document.querySelector(".choose-qty-popover");

@@ -1,5 +1,5 @@
-import getCurrProdQty from "./getCurrProdQty.js";
-import { isValidQty } from "./dataValidationUtils.js";
+import getCurrProdQty from "../common/getCurrProdQty.js";
+import { isValidQty } from "../utils/dataValidationUtils.js";
 
 const changeQtyButtonEls = document.querySelectorAll(".change-qty-button");
 const popoverTemplateEl = document.querySelector(".change-qty-popover");
