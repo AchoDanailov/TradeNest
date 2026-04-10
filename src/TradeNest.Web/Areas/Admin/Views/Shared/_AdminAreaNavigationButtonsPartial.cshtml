@@ -1,0 +1,21 @@
+<div>
+    <div class="mt-2 container-lg">
+        <partial name="_StatusNotificationPartial"/>
+    </div>
+
+    <div class="container-lg d-flex justify-content-between mt-4 px-0 px-sm-4" id="nav-buttons-wrapper">
+        <div class="pt-2 pt-md-3">
+            <partial name="_BackButtonPartial" model="@Model.ReturnUrl"/>
+        </div>
+
+        @if (this.Model.Next is not string)
+        {
+            <div class="mt-2">
+                <a asp-area="@Model.Next.Area" asp-controller="@Model.Next.Controller" asp-action="@Model.Next.Action"
+                   class="btn btn-outline-teal rounded-pill px-5 py-2 fw-bold shadow-sm">
+                    @this.Model.Next.ForwardButtonText →
+                </a>
+            </div>
+        }
+    </div>
+</div>

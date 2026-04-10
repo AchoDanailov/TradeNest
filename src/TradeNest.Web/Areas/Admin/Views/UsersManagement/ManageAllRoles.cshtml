@@ -5,17 +5,8 @@
     string hoverEffect = "nav-link-border-radius-hover-effect-light";
 }
 
-<div>
-    <div class="mt-2 container-lg">
-        <partial name="_StatusNotificationPartial"/>
-    </div>
-
-    <div class="container-lg d-flex justify-content-between mt-4 px-0 px-sm-4" id="nav-buttons-wrapper">
-        <div class="pt-2 pt-md-3">
-            <partial name="_BackButtonPartial" model="@Model.ReturnUrl" />
-        </div>
-    </div>
-</div>
+<partial name="_AdminAreaNavigationButtonsPartial" 
+         model="@(new { Next = "", ReturnUrl = this.Model.ReturnUrl })" />
 
 <div class="container-lg d-flex flex-column mt-2 gap-5 site-sections-bg shadow border-3 rounded-3 pt-4 pb-5">
     <div id="header" class="border-2 border-bottom">

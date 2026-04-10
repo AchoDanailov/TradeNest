@@ -8,7 +8,7 @@ public class HomeController : BaseController
 {
     [HttpGet]
     [Route("/")] [Route("/Home")] [Route("/Home/Index")]
-    public async Task<IActionResult> Index()
+    public IActionResult Index()
     {
         return View();
     }

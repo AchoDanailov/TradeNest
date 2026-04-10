@@ -18,6 +18,10 @@
         {
             return "Back To Users Management";
         }
+        else if (returnUrl.ToLowerInvariant().Contains("productsmanagement"))
+        {
+            return "Back To Products Management";
+        }
         else
         {
             return "Go Back";
@@ -28,5 +32,7 @@
 }
 
 <div class="d-flex justify-content-end">
-    <a href="@Model" class="btn btn-outline-teal rounded-pill px-4 py2 fw-bold shadow-sm"> ← @returnBackText </a>
+    <a href="@Model" class="btn btn-outline-teal rounded-pill px-4 py2 fw-bold shadow-sm">
+         ← @returnBackText
+    </a>
 </div>
