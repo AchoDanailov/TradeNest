@@ -1,6 +1,5 @@
 @{
     ViewData["Title"] = "Manage Products";
-    string hoverEffect = "nav-link-border-radius-hover-effect-light";
 }
 
 <partial name="_AdminAreaNavigationButtonsPartial"
@@ -21,27 +20,15 @@
         <h1 class="display-2 text-teal ms-2 mb-0 pb-0">@ViewData["Title"]</h1>
     </div>
     
-    <div class="btn-group btn-group-lg" id="chart-controller" role="group" aria-label="Chart data control buttons.">
-        <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off">
-        <label class="btn btn-teal" for="btnradio1">Approved</label>
-
-        <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
-        <label class="btn btn-outline-teal" for="btnradio2">Not Approved</label>
-    </div> 
-
-    <div id="table-section">
-        <div id="table-wrapper">
-            <table class="table table-hover caption-top">
-                <caption></caption>
-                
-                <thead class="site-sections-bg-teal text-center"></thead>
-                
-                <tbody class="tbody-top-border"></tbody>
-            </table>
-        </div>
+    <div id="controls" class="d-flex flex-column justify-content-center">
+        
+    </div>
+    
+    <div id="table-container">
+        
     </div>
 </div>
 
 @section Scripts {
-    <script src="~/js/products-management/tableTabControllerButtonsEffects.js" asp-append-version="true"></script>
+    <script src="~/js/products-management/productsManagementMain.js" type="module" asp-append-version="true"></script>
 }

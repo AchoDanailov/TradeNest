@@ -1,5 +1,6 @@
-import getCurrProdQty from "../common/getCurrProdQty.js";
-import { isValidQty } from "../utils/dataValidationUtils.js";
+import { getCurrProdDetails } from "../api/productsService.js";
+import { updateCartProductQty } from "../api/cartsService.js";
+import { isValidQty } from "../common/dataValidationUtils.js";
 
 const changeQtyButtonEls = document.querySelectorAll(".change-qty-button");
 const popoverTemplateEl = document.querySelector(".change-qty-popover");
@@ -19,13 +20,13 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
         e.preventDefault();
         
         const productId = changeQtyBtn.getAttribute("data-product-id");
-        const currProdQty = await getCurrProdQty(productId);
-        if(currProdQty < 0) {
+        const currProdDetails = await getCurrProdDetails(productId);
+        if(!currProdDetails) {
             return;
         }
 
         const currProductQtySpan = popoverTemplateEl.querySelector(".curr-prod-qty");
-        currProductQtySpan.textContent = currProdQty;
+        currProductQtySpan.textContent = currProdDetails.quantityInStock;
 
         popoverObj.show();
     });
@@ -86,7 +87,7 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
                 .querySelectorAll("input[name=__RequestVerificationToken]")[0]
                 .value;
 
-            const success = await saveChanges(updatedCartProdPayload, requestVerificationToken);
+            const success = await updateCartProductQty(updatedCartProdPayload, requestVerificationToken);
             if(!success) {
                 Swal.fire({
                     icon: "error",
@@ -104,26 +105,3 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
         });
     }, { once: true });
 });
-
-async function saveChanges(updatedCartProdPayload, requestVerificationToken) {
-    try {
-        const res = await fetch(
-            `/api/v1/cart/${updatedCartProdPayload.cartId}?productId=${updatedCartProdPayload.productId}`, 
-            {
-                method: "PUT",
-                headers: {
-                    "Content-Type": "application/json",
-                    "RequestVerificationToken": requestVerificationToken,
-                },
-                body: JSON.stringify(updatedCartProdPayload),
-            }
-        );
-        if(!res.ok) 
-            throw new Error(await res.json());
-        
-        return await res.json();
-    } catch (err) {
-        console.error("Error saving new cart product qty.", err.status);
-        return false;
-    }
-}

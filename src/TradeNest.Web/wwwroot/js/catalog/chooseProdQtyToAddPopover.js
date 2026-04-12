@@ -1,5 +1,6 @@
-import getCurrProdQty from "../common/getCurrProdQty.js";
-import { isValidQty } from "../utils/dataValidationUtils.js";
+import { getCurrProdDetails } from "../api/productsService.js";
+import cartsService from "../api/cartsService.js";
+import { isValidQty } from "../common/dataValidationUtils.js";
 
 const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
 const popoverTemplateEl = document.querySelector(".choose-qty-popover");
@@ -20,15 +21,23 @@ addToCartButtons.forEach(addToCartBtn => {
         
         const productId = addToCartBtn.getAttribute("data-product-id");
         
-        const currProdQty = await getCurrProdQty(productId);
-        if(currProdQty < 0) return;
-        popoverTemplateEl.querySelector(".curr-prod-qty").textContent = currProdQty;
+        const currProdDetails = await getCurrProdDetails(productId);
+        if(!currProdDetails)  {
+            return;
+        }
+        
+        popoverTemplateEl.querySelector(".curr-prod-qty").textContent 
+            = currProdDetails.quantityInStock;
 
-        const currProdQtyInCart = await getCurrProdQtyInCart(productId);
+        const prodInCart = await cartsService.getProdInCart(productId);
+        if(!prodInCart) {
+            return;
+        }
+        
         const currQtyInCartContainer = popoverTemplateEl.querySelector(".curr-qty-in-cart");
-        if(currProdQtyInCart > 0) {
+        if(prodInCart.quantityAdded > 0) {
             currQtyInCartContainer.textContent
-                = `Current quantity in cart: ${currProdQtyInCart}`;
+                = `Current quantity in cart: ${prodInCart.quantityAdded}`;
         } else {
             currQtyInCartContainer.textContent = "";
         }
@@ -75,7 +84,6 @@ addToCartButtons.forEach(addToCartBtn => {
             submitBtn.style.opacity="0.8";
         }
 
-        
         closePopoverBtn.addEventListener("click", () => popoverObj.hide());
 
         qtyInputField.addEventListener("input", () => {
@@ -107,7 +115,8 @@ addToCartButtons.forEach(addToCartBtn => {
                 .querySelectorAll("input[name=__RequestVerificationToken]")[0]
                 .value;
 
-            const success = await addToCart(requestedProductQtyPayload, requestVerificationToken);
+            const success = await cartsService
+                .addToCart(requestedProductQtyPayload, requestVerificationToken);
             if(!success) {
                 Swal.fire({
                     icon: "error",
@@ -142,37 +151,3 @@ addToCartButtons.forEach(addToCartBtn => {
         });
     }, { once: true } );
 });
-
-async function getCurrProdQtyInCart(productId) {
-    try {
-        const res = await fetch(`/api/v1/cart/cartProducts/${productId}`);
-        if(!res.ok)
-            throw new Error(await res.json());
-        
-        const cartProductData = await res.json();
-        return cartProductData.quantityAdded;
-    } catch (err) {
-        console.error("Error fetching product qty from user's cart.", err.status);
-        return -1;
-    }
-}
-
-async function addToCart(requestedProductQtyPayload, requestVerificationToken) {
-    try {
-        const res = await fetch("/api/v1/cart/addProduct", {
-            method: "POST",
-            headers: { 
-                "Content-Type": "application/json",
-                "RequestVerificationToken": requestVerificationToken,
-            },
-            body: JSON.stringify(requestedProductQtyPayload)
-        });
-        if(!res.ok) 
-            throw new Error(await res.json());
-            
-        return await res.json();
-    } catch (err) {
-        console.error("Error adding product qty to user's cart.", err.status);
-        return false;
-    }
-}
