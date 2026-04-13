@@ -10,10 +10,15 @@ public interface IProductsRepository : IReadRepository<Product>
     Task<IEnumerable<Product>> GetAllInclArchivedAndNotApprovedAsync(
         Action<IQueryOptions<Product>> queryOptionsBuilder);
     
+    Task<IEnumerable<Product>> GetAllInclNotApprovedAsync(
+        Action<IQueryOptions<Product>> queryOptionsBuilder);
+    
     Task<IDictionary<Guid, string?>> GetAllCategoriesBestSellersFrontImagesAsync(bool asReadOnly = false);
 
     Task<IEnumerable<Product>> GetAllProductsWithCategoryAndImagesAsync(
         Action<IQueryOptions<Product>>? queryOptionsBuilder = null);
+
+    Task<int> GetSpecifiedProductsCount(bool? approved = null, string? search = null);
 
     Task<bool> ExistsIncludingArchivedAndNotApprovedAsync(Expression<Func<Product, bool>> filter);
 

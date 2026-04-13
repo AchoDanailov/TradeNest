@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
-
 using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Data.Models;
+using TradeNest.Data.Models.Enums;
 
 namespace TradeNest.Data.Repository;
 
@@ -62,7 +62,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
             .Include(p => p.Category);
         if (queryOptionsBuilder != null)
         {
-            return await this.BuildQuery(queryOptionsBuilder, queryable)
+            return await this.ToQueryable(queryOptionsBuilder, queryable)
                 .ToArrayAsync();
         }
         
@@ -75,9 +75,49 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         IQueryable<Product> noQueryFilterQueryable = this.DbContext.Products
             .IgnoreQueryFilters();
 
-        return await this.BuildQuery(queryOptionsBuilder, noQueryFilterQueryable)
+        return await this.ToQueryable(queryOptionsBuilder, noQueryFilterQueryable)
             .ToArrayAsync();
     }
+
+    public async Task<IEnumerable<Product>> GetAllInclNotApprovedAsync(
+        Action<IQueryOptions<Product>> queryOptionsBuilder)
+    {
+        IQueryable<Product> queryable = this.DbContext.Products
+            .IgnoreQueryFilters()
+            .Where(p => p.IsDeleted == false);
+
+        return await this.ToQueryable(queryOptionsBuilder, queryable)
+            .ToArrayAsync();
+    }
+    
+    public async Task<int> GetSpecifiedProductsCount(bool? approved = null,
+        string? search = null)
+    {
+        IQueryable<Product> queryable = this.DbContext.Products;
+        if (approved == null || approved is false)
+        {
+            queryable = queryable
+                .IgnoreQueryFilters()
+                .Where(p => p.IsDeleted == false);
+            if (approved is false)
+            {
+                queryable = queryable
+                    .Where(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+            }
+        } 
+        
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            queryable = queryable
+                .Include(p => p.Category)
+                .Where(p => p.Name.ToLower().Contains(search.ToLower()) ||
+                            p.Category.Name.ToLower().Contains(search.ToLower()));
+        }
+
+        return await queryable
+            .AsNoTracking()
+            .CountAsync();
+    } 
 
     public async Task<bool> ExistsIncludingArchivedAndNotApprovedAsync(
         Expression<Func<Product, bool>> filter)

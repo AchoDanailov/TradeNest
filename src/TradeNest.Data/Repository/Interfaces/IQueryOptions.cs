@@ -17,4 +17,6 @@ public interface IQueryOptions<T> where T : class, new()
     IQueryOptions<T> AddOrderAsc(Expression<Func<T, object>> orderByStatement);
     
     IQueryOptions<T> AddOrderDesc(Expression<Func<T, object>> descendingOrderByStatement);
+
+    IQueryOptions<T> WithPagination(int page, int? limit);
 }

@@ -26,7 +26,7 @@ public abstract class BaseReadRepository<T> : IReadRepository<T>
                 .ToArrayAsync();
         }
         
-        return await this.BuildQuery(queryOptionsBuilder)
+        return await this.ToQueryable(queryOptionsBuilder)
             .ToArrayAsync();
     }
 
@@ -60,10 +60,11 @@ public abstract class BaseReadRepository<T> : IReadRepository<T>
         this._disposed = true;
     }
 
-    protected IQueryable<T> BuildQuery(Action<QueryOptions<T>> queryOptionsBuilder, 
+    protected IQueryable<T> ToQueryable(
+        Action<QueryOptions<T>> queryOptionsBuilder, 
         IQueryable<T>? queryable = null)
     {
-        queryable ??= this.DbContext.Set<T>();
+        queryable ??= this._dbContext.Set<T>();
         
         QueryOptions<T> queryOptions = new QueryOptions<T>();
         queryOptionsBuilder.Invoke(queryOptions);
@@ -95,6 +96,14 @@ public abstract class BaseReadRepository<T> : IReadRepository<T>
             }
 
             queryable = orderedQueryable;
+        }
+
+        if (queryOptions.Page != null && queryOptions.Limit != null)
+        {
+            int skipCount = (queryOptions.Page.Value - 1) * queryOptions.Limit.Value;
+            queryable = queryable
+                .Skip(skipCount)
+                .Take(queryOptions.Limit.Value);
         }
 
         return queryable;

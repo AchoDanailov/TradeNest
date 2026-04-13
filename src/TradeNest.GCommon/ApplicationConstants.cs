@@ -10,4 +10,6 @@ public static class ApplicationConstants
     public const string DatesFormat = "dd/MM/yyyy";
 
     public const string DefaultProductImageUrl = "/images/products/default-image.png";
+
+    public const byte DefaultPaginationLimitValue = 5;
 }

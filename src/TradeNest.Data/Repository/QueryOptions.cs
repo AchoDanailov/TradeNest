@@ -1,4 +1,6 @@
 using System.Linq.Expressions;
+
+using static TradeNest.GCommon.ApplicationConstants;
 using TradeNest.Data.Repository.Interfaces;
 
 namespace TradeNest.Data.Repository;
@@ -8,7 +10,10 @@ public class QueryOptions<T> : IQueryOptions<T>
 {
     private readonly List<Expression<Func<T, object>>> _includesList;
     private readonly List<(Expression<Func<T, object>>, bool)> _orderStatementsByDirection;
+    
     private bool _isReadonly;
+    private int? _page;
+    private int? _limit;
     
     internal QueryOptions()
     {
@@ -17,6 +22,8 @@ public class QueryOptions<T> : IQueryOptions<T>
     }
 
     internal bool IsReadonly => this._isReadonly;
+    internal int? Page => this._page;
+    internal int? Limit => this._limit;
     
     internal Expression<Func<T, bool>>? Filter { get; private set; }
 
@@ -47,13 +54,22 @@ public class QueryOptions<T> : IQueryOptions<T>
 
     public IQueryOptions<T> AddOrderAsc(Expression<Func<T, object>> orderByStatement)
     {
-        this._orderStatementsByDirection.Add((orderByStatement, true));
+        this._orderStatementsByDirection
+            .Add(new ValueTuple<Expression<Func<T, object>>, bool>(orderByStatement, true));
         return this;
     }
     
     public IQueryOptions<T> AddOrderDesc(Expression<Func<T, object>> descendingOrderByStatement)
     {
-        this._orderStatementsByDirection.Add((descendingOrderByStatement, false));
+        this._orderStatementsByDirection
+            .Add(new ValueTuple<Expression<Func<T, object>>, bool>(descendingOrderByStatement, false));
+        return this;
+    }
+
+    public IQueryOptions<T> WithPagination(int page, int? limit = DefaultPaginationLimitValue)
+    {
+        this._page = page;
+        this._limit = limit;
         return this;
     }
 }
