@@ -108,6 +108,168 @@ public class ProductsService : IProductsService
             .ExistsAsync(p => p.Id == id);
     }
 
+    public async Task<int> GetSpecifiedProductsCountAsync(Guid userId, bool? approved = null,
+        string? searchQuery = null)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+
+        bool userIsAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
+        if (!userIsAdmin)
+            throw new UnauthorizedOperationException(userId, nameof(Product), "All identifiers");
+
+        return await this._productsRepository
+            .GetSpecifiedProductsCount(approved, searchQuery);
+    }
+
+    public async Task<IEnumerable<ProductDto2>> GetProductsDataWithPagination(Guid userId,
+        int page, int limit, bool? approved = null, string? search = null)
+    {
+        if(userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+        if (page <= 0)
+        {
+            throw new ArgumentException(string.Format(CantBeZeroOrNegativeNumberMessage,
+                nameof(page)));
+        }
+        if (limit <= 0)
+        {
+            throw new ArgumentException(string.Format(CantBeZeroOrNegativeNumberMessage,
+                nameof(limit)));
+        }
+    
+        bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
+        if (!isAdmin)
+            throw new UnauthorizedOperationException(userId, nameof(Product), "All identifiers");
+
+        Action<IQueryOptions<Product>> queryOptionsAction =
+            (queryOptions) =>
+            {
+                queryOptions
+                    .WithRelated(p => p.Owner)
+                    .AsReadOnly()
+                    .AddOrderDesc(p => p.CreatedOn)
+                    .AddOrderAsc(p => p.Name)
+                    .AddOrderAsc(p => p.Id);
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    queryOptions
+                        .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()));
+                }
+
+                queryOptions.WithPagination(page, limit);
+            };
+
+        IEnumerable<Product> products;
+        if (approved is true)
+        {
+            products = await this._productsRepository
+                .GetAllAsync(queryOptionsAction);
+        }
+        else
+        {
+            products = await this._productsRepository
+                .GetAllInclNotApprovedAsync(queryOptionsAction);
+            
+            if (approved is false)
+            {
+                products = await this._productsRepository
+                    .GetAllInclNotApprovedAsync(queryOptions =>
+                    {
+                        queryOptions
+                            .WithRelated(p => p.Owner)
+                            .AsReadOnly()
+                            .AddOrderDesc(p => p.CreatedOn)
+                            .AddOrderAsc(p => p.Name)
+                            .AddOrderAsc(p => p.Id);
+                        if (!string.IsNullOrWhiteSpace(search))
+                        {
+                            queryOptions
+                                .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) &&
+                                                p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                        }
+                        else
+                        {
+                            queryOptions
+                                .AddFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                        }
+
+                        queryOptions.WithPagination(page, limit);
+                    });
+            }
+        }
+
+        return this._productsMapper.ToProductDtos2(products);
+    }
+
+    public async Task<IEnumerable<ProductDto2>> GetProductsData(
+        Guid userId,
+        bool? approved = null,
+        string? search = null)
+    {
+        if(userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+        
+        bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
+        if (!isAdmin)
+            throw new UnauthorizedOperationException(userId, nameof(Product), "All identifiers");
+        
+        Action<IQueryOptions<Product>> queryOptionsAction =
+            (queryOptions) =>
+            {
+                queryOptions
+                    .WithRelated(p => p.Owner)
+                    .AsReadOnly()
+                    .AddOrderDesc(p => p.CreatedOn)
+                    .AddOrderAsc(p => p.Name)
+                    .AddOrderAsc(p => p.Id);
+                if (!string.IsNullOrWhiteSpace(search))
+                {
+                    queryOptions
+                        .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()));
+                }
+            };
+
+        IEnumerable<Product> products;
+        if (approved is true)
+        {
+            products = await this._productsRepository
+                .GetAllAsync(queryOptionsAction);
+        }
+        else
+        {
+            products = await this._productsRepository
+                .GetAllInclNotApprovedAsync(queryOptionsAction);
+            
+            if (approved is false)
+            {
+                products = await this._productsRepository
+                    .GetAllInclNotApprovedAsync(queryOptions =>
+                    {
+                        queryOptions
+                            .WithRelated(p => p.Owner)
+                            .AsReadOnly()
+                            .AddOrderDesc(p => p.CreatedOn)
+                            .AddOrderAsc(p => p.Name)
+                            .AddOrderAsc(p => p.Id);
+                        if (!string.IsNullOrWhiteSpace(search))
+                        {
+                            queryOptions
+                                .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) &&
+                                                p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                        }
+                        else
+                        {
+                            queryOptions
+                                .AddFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                        }
+                    });
+            }
+        }
+
+        return this._productsMapper.ToProductDtos2(products);
+    }
+
     public async Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id, Guid? userId = null)
     {
         if (id == Guid.Empty)

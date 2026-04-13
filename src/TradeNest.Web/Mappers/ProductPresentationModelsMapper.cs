@@ -17,6 +17,9 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
     public partial IEnumerable<ProductViewModel> ToProductViewModels(
         IEnumerable<ProductDto> productDtos);
 
+    public partial ProductResponseDto ToProductResponseDto(ProductDto2 productDto);
+    public partial IEnumerable<ProductResponseDto> ToProductResponseDtos(IEnumerable<ProductDto2> productDtos);
+
     public partial ProductDetailsViewModel ToProductDetailsViewModel(
         ProductDetailsDto productDetailsDto, string returnUrl);
     
@@ -37,7 +40,7 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
     [MapperIgnoreTarget(nameof(ProductEditDto.OwnerId))]
     public partial ProductEditDto FromProductEditFormModel(ProductEditFormModel productEditFormModel);
     
-    public partial ProductResponseDto ToProductResponseDto(ProductDetailsDto productDetailsDto);
+    public partial ProductDetailsResponseDto ToProductResponseDto(ProductDetailsDto productDetailsDto);
 
     private List<ImageViewModel> MapProductImages(ProductEditDto productEditDto)
     {

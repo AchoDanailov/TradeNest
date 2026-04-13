@@ -18,6 +18,12 @@ public partial class ProductsMapper : IProductsMapper
 
     public partial IEnumerable<ProductDto> ToProductDtos(IEnumerable<Product> products);
 
+    [MapProperty(nameof(Product.Owner.UserName), nameof(ProductDto2.OwnerName))]
+    [MapProperty(nameof(Product.ApprovalDecision.ApprovalStatus), nameof(ProductDto2.ApprovalStatus))]
+    public partial ProductDto2 ToProductDto2(Product product);
+
+    public partial IEnumerable<ProductDto2> ToProductDtos2(IEnumerable<Product> product);
+
     #pragma warning disable RMG012
     [MapProperty(nameof(Product.ApprovalDecision), nameof(ProductDetailsDto.ApprovalDecision))]
     #pragma warning restore RMG012
@@ -60,23 +66,6 @@ public partial class ProductsMapper : IProductsMapper
             ApprovalDecisionMakerEmail = product.ApprovalDecisionMaker?.User.Email,
         };
     }
-    // private ApprovalDecisionDto MapApprovalDecision(Product product)
-    // {
-    //     ApprovalDecisionDto approvalDecisionDto = new ApprovalDecisionDto()
-    //     {
-    //         ApprovalDecisionMakerDto = new ApprovalDecisionMakerDto()
-    //         {
-    //             ApprovalDecisionMakerAdminId = product.ApprovalDecisionMakerId,
-    //             ApprovalDecisionMakerUsername = product.ApprovalDecisionMaker?.User.UserName, 
-    //             ApprovalDecisionMakerEmail = product.ApprovalDecisionMaker?.User.Email,
-    //         },
-    //         ApprovalStatus = (Services.Models.Enums.ApprovalStatus)(int)product.ApprovalDecision.ApprovalStatus,
-    //         DecisionJustification = product.ApprovalDecision.DecisionJustification,
-    //         TimeOfDecision = product.ApprovalDecision.TimeOfDecision
-    //     };
-    //
-    //     return approvalDecisionDto;
-    // }
     
     private string? MapFrontImageUrl(Product product)
     {

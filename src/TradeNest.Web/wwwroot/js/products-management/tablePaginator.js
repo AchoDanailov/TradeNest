@@ -25,9 +25,8 @@ export default function getNewPaginatorInstance(stateConfig) {
     }
 
     async function getCurrPageProducts() {
-        const offset = (state.currPageNumber - 1) * state.productsPerPageCount;
         return await productsService.getCurrPageProducts(
-            offset,
+            state.currPageNumber,
             state.productsPerPageCount,
             state.productsApprovalStatus,
             state.searchQuery

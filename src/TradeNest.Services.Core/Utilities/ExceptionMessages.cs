@@ -15,6 +15,9 @@ internal static class ExceptionMessages
 
     internal const string CantBeZeroOrNegativeNumberMessage 
         = "{0} can not be zero or a negative number.";
+    
+    internal const string CantBeNegativeNumberMessage 
+        = "{0} can not be a negative number.";
 
     internal const string OwnerCantAddToCartProductHeOwnsMessage
         = "The owner of the product can not add the product to his order. userId: {0}, productId: {1}";

@@ -14,6 +14,7 @@ namespace TradeNest.Web.Controllers;
 [SkipStatusCodePages]
 [AutoValidateAntiforgeryToken]
 [ServiceFilter<WebApiExceptionFilter>]
+[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 public class BaseApiController : ControllerBase
 {
     protected Guid GetUserId(bool throwIfNull)

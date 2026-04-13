@@ -47,6 +47,68 @@ public interface IProductsService
     Task<bool> ProductExistsByIdAsync(Guid id);
 
     /// <summary>
+    /// Retrieves the specified products count in the data store.
+    /// </summary>
+    /// <param name="userId">The identifier of the user attempting the operation.</param>
+    /// <param name="approved">
+    /// Value representing weather the data should be filtered by approval status.
+    /// </param>
+    /// <param name="searchQuery">String value to search the products by products name/article title.</param>
+    /// <returns>
+    /// Task that holds an integer value representing how many of the specified products were found.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the provided <paramref name="userId"/> is with value <see cref="Guid.Empty"/>.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the user with the provided <paramref name="userId"/> is not an administrator.
+    /// </exception>
+    Task<int> GetSpecifiedProductsCountAsync(Guid userId, bool? approved = null,
+        string? searchQuery = null);
+
+    /// <summary>
+    /// Retrieves products data. The service method provides options for
+    /// pagination and for searching and filtering.
+    /// </summary>
+    /// <param name="userId">The identifier of the user making the request.</param>
+    /// <param name="page">Offset value.</param>
+    /// <param name="limit">Count per page value.</param>
+    /// <param name="approved">Value that acts as a filter for product approval status.</param>
+    /// <param name="search">Value that is used for searching.</param>
+    /// <returns>
+    /// Task that holds a collection of the specified products.
+    /// Returns an empty collection if none are found.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if <paramref name="userId"/> is with value <see cref="Guid.Empty"/> or either
+    /// <paramref name="page"/> or <paramref name="limit"/> are 0 or negative integer values.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the user with identifier <paramref name="userId"/> is not an administrator.
+    /// </exception>
+    Task<IEnumerable<ProductDto2>> GetProductsDataWithPagination(Guid userId, int page,
+            int limit, bool? approved = null, string? search = null);
+
+    /// <summary>
+    /// Retrieves products data. The service method provides options for searching and filtering.
+    /// </summary>
+    /// <param name="userId">The identifier of the user making the request.</param>
+    /// <param name="approved">Value that acts as a filter for product approval status.</param>
+    /// <param name="search">Value that is used for searching.</param>
+    /// <returns>
+    /// Task that holds a collection of the specified products.
+    /// Returns an empty collection if none are found.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the provided <paramref name="userId"/> is with value <see cref="Guid.Empty"/>.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the user with identifier <paramref name="userId"/> is not an administrator.
+    /// </exception>
+    Task<IEnumerable<ProductDto2>> GetProductsData(Guid userId, bool? approved = null,
+        string? search = null);
+    
+    /// <summary>
     /// Retrieves detailed information for the specified product.
     /// </summary>
     /// <param name="id">The product identifier.</param>

@@ -9,6 +9,9 @@ public interface IProductPresentationModelsMapper
     ProductViewModel ToProductViewModel(ProductDto productDto);
     IEnumerable<ProductViewModel> ToProductViewModels(IEnumerable<ProductDto> productDtos);
 
+    ProductResponseDto ToProductResponseDto(ProductDto2 productDto);
+    IEnumerable<ProductResponseDto> ToProductResponseDtos(IEnumerable<ProductDto2> productDtos);
+
     ProductDetailsViewModel ToProductDetailsViewModel(ProductDetailsDto productDetailsDto,
         string returnUrl);
 
@@ -18,5 +21,5 @@ public interface IProductPresentationModelsMapper
         List<AllCategoriesViewModel> allCategories, string returnUrl);
     ProductEditDto FromProductEditFormModel(ProductEditFormModel productEditFormModel);
     
-    ProductResponseDto ToProductResponseDto(ProductDetailsDto productDetailsDto);
+    ProductDetailsResponseDto ToProductResponseDto(ProductDetailsDto productDetailsDto);
 }
