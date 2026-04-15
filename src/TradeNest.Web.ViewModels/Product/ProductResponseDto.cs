@@ -7,6 +7,8 @@ public class ProductResponseDto
     public string Name { get; set; } = null!;
     
     public string OwnerName { get; set; } = null!;
+    
+    public string CategoryName { get; set; } = null!;
 
     public string ApprovalStatus { get; set; } = null!;
 }

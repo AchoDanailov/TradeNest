@@ -11,13 +11,13 @@
         <div>
             @if (this.Model.Name.Length > 20)
             {
-                <h5 class="d-md-none card-title mb-1 text-truncate">@Model.Name.Substring(0, 15)...</h5>
+                <h5 class="d-sm-none card-title mb-1 text-truncate">@Model.Name.Substring(0, 15)...</h5>
             }
             else
             {
-                <h5 class="d-md-none card-title mb-1">@Model.Name</h5>
+                <h5 class="d-sm-none card-title mb-1">@Model.Name</h5>
             }
-            <h5 class="d-none d-md-block card-title mb-1">@Model.Name</h5>
+            <h5 class="d-none d-sm-block card-title mb-1">@Model.Name</h5>
             <h6 class="card-subtitle text-muted">@this.Model.CategoryName</h6>
         </div>
         <div class="mt-2 h5 text-success">

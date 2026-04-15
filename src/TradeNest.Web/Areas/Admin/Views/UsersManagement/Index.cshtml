@@ -28,7 +28,7 @@
             <table class="table table-hover caption-top">
                 <caption>List of Users</caption>
                 <thead class="site-sections-bg-teal text-center">
-                    <tr>
+                    <tr class="text-center align-middle">
                         <th class="@hoverEffect">Username</th>
                         <th class="@hoverEffect">Email</th>
                         <th class="@hoverEffect">Roles</th>
@@ -41,7 +41,7 @@
                         bool hasNoRoles = user.UserRoles.Count == 0;
                         bool isAdmin = user.UserRoles.Any(r => r.RoleName == "Admin");
                         
-                        <tr class="text-center">
+                        <tr class="text-center align-middle">
                             <td>@user.Username</td>
                             <td>@user.Email</td>
                             <td>

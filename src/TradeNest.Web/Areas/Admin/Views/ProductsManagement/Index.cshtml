@@ -15,17 +15,17 @@
                     ReturnUrl = Url.Action("Index", controller: "Home", new { area = "Admin" })
                 })" />
 
-<div class="container-lg d-flex flex-column mt-2 gap-5 site-sections-bg shadow border-3 rounded-3 pt-4 pb-5">
-    <div id="header" class="border-2 border-bottom">
-        <h1 class="display-2 text-teal ms-2 mb-0 pb-0">@ViewData["Title"]</h1>
+<div class="container-lg d-flex flex-column mt-2 site-sections-bg shadow border-3 rounded-3 pt-4 pb-3">
+    <div id="header" class="text-center">
+        <h1 class="display-2 text-teal">@ViewData["Title"]</h1>
     </div>
-    
-    <div id="controls" class="d-flex flex-column justify-content-center">
-        
+
+    <div id="controls" class="d-flex flex-column justify-content-center w-75 mx-auto">
+
     </div>
-    
-    <div id="table-container">
-        
+
+    <div id="table-container" class="w-100 overflow-auto px-3">
+
     </div>
 </div>
 

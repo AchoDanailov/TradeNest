@@ -163,5 +163,125 @@
     "IsEnabled": false,
     "IsDeleted": false,
     "Images": []
+  },
+    {
+    "Id": "77777777-7777-7777-7777-777777777777",
+    "Name": "Mechanical Gaming Keyboard",
+    "Description": "RGB backlit mechanical keyboard with tactile switches for gaming and typing.",
+    "QuantityInStock": 30,
+    "CostPrice": 55.00,
+    "SellingPrice": 119.99,
+    "CategoryId": "c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30",
+    "OwnerId": "a8e18a83-adfb-4116-9e35-3be16446f9b8",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 2,
+      "DecisionJustification": "Product meets listing requirements.",
+      "TimeOfDecision": "2026-04-01T09:00:00Z"
+    },
+    "CreatedOn": "2026-03-31T10:00:00Z",
+    "IsEnabled": true,
+    "IsDeleted": false,
+    "Images": []
+  },
+  {
+    "Id": "88888888-8888-8888-8888-888888888888",
+    "Name": "Portable Phone Charger 20000mAh",
+    "Description": "Fast-charging power bank compatible with all USB-C and USB-A devices.",
+    "QuantityInStock": 60,
+    "CostPrice": 18.00,
+    "SellingPrice": 49.99,
+    "CategoryId": "c6b3e6e0-3e3d-4c3d-8e7c-0b9a1b4e2f30",
+    "OwnerId": "d05a8fe7-cf0a-4895-89aa-9068c334ec1b",
+    "ApprovalDecisionMakerId": null,
+    "ApprovalDecision": {
+      "ApprovalStatus": 0,
+      "DecisionJustification": null,
+      "TimeOfDecision": null
+    },
+    "CreatedOn": "2026-04-01T08:30:00Z",
+    "IsEnabled": false,
+    "IsDeleted": false,
+    "Images": []
+  },
+  {
+    "Id": "99999999-9999-9999-9999-999999999999",
+    "Name": "Yoga Mat Premium Non-Slip",
+    "Description": "Extra thick 6mm yoga mat with carrying strap, suitable for all fitness levels.",
+    "QuantityInStock": 45,
+    "CostPrice": 14.00,
+    "SellingPrice": 39.99,
+    "CategoryId": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+    "OwnerId": "f6a7b8c9-d0e1-2345-6666-777788889999",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 1,
+      "DecisionJustification": "Product description is too vague and no images were provided.",
+      "TimeOfDecision": "2026-04-01T11:15:00Z"
+    },
+    "CreatedOn": "2026-03-31T14:00:00Z",
+    "IsEnabled": false,
+    "IsDeleted": false,
+    "Images": []
+  },
+  {
+    "Id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+    "Name": "Stainless Steel Water Bottle 1L",
+    "Description": "Double-wall insulated bottle that keeps drinks cold for 24 hours or hot for 12 hours.",
+    "QuantityInStock": 200,
+    "CostPrice": 8.00,
+    "SellingPrice": 24.99,
+    "CategoryId": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+    "OwnerId": "f6a7b8c9-d0e1-2345-6666-777788889999",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 2,
+      "DecisionJustification": "Approved. Good quality listing.",
+      "TimeOfDecision": "2026-04-02T08:00:00Z"
+    },
+    "CreatedOn": "2026-04-01T09:00:00Z",
+    "IsEnabled": true,
+    "IsDeleted": false,
+    "Images": []
+  },
+  {
+    "Id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
+    "Name": "Advanced Python for Data Science",
+    "Description": "In-depth book covering pandas, NumPy, machine learning, and data visualization.",
+    "QuantityInStock": 35,
+    "CostPrice": 15.00,
+    "SellingPrice": 44.99,
+    "CategoryId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+    "OwnerId": "d05a8fe7-cf0a-4895-89aa-9068c334ec1b",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 2,
+      "DecisionJustification": "Well-described educational product.",
+      "TimeOfDecision": "2026-04-02T10:30:00Z"
+    },
+    "CreatedOn": "2026-04-01T11:00:00Z",
+    "IsEnabled": true,
+    "IsDeleted": false,
+    "Images": []
+  },
+  {
+    "Id": "cccccccc-cccc-cccc-cccc-cccccccccccc",
+    "Name": "Desk Lamp with USB Charging Port",
+    "Description": "LED desk lamp with adjustable brightness levels and a built-in USB-A charging port.",
+    "QuantityInStock": 25,
+    "CostPrice": 20.00,
+    "SellingPrice": 54.99,
+    "CategoryId": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
+    "OwnerId": "a8e18a83-adfb-4116-9e35-3be16446f9b8",
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecision": {
+      "ApprovalStatus": 1,
+      "DecisionJustification": "Missing cost price and product images are required before approval.",
+      "TimeOfDecision": "2026-04-02T12:00:00Z"
+    },
+    "CreatedOn": "2026-04-02T08:00:00Z",
+    "IsEnabled": false,
+    "IsDeleted": false,
+    "Images": []
   }
 ]

@@ -13,14 +13,14 @@ const endpoints = {
 };
 
 export async function getCurrPageProducts(
-    offset,
+    page,
     productsPerPageCount,
     productsApprovalStatus,
     searchQuery
 ) {
     try {
         const res = await fetch(endpoints.getProdsWithPagination(
-            offset,
+            page,
             productsPerPageCount,
             productsApprovalStatus,
             searchQuery
@@ -72,11 +72,11 @@ export async function getProductsCount(productsApprovalStatus, searchQuery) {
 function buildGetCountPath(approved, searchQuery) {
     let endpoint = `${BASE}/count`;
     
-     if(approved)
+     if(approved !== undefined)
         endpoint = endpoint.concat(`?approved=${approved}`);
 
     if(searchQuery) {
-        if(approved)
+        if(approved !== undefined)
             endpoint = endpoint.concat(`&search=${searchQuery}`);
         else
             endpoint = endpoint.concat(`?search=${searchQuery}`);
@@ -86,12 +86,12 @@ function buildGetCountPath(approved, searchQuery) {
 }
     
 function buildPathWithPagination(page, limit, productsApprovalStatus, searchQuery) {
-    const approved = productsApprovalStatus === "Approved";
-
     let endpoint = `${BASE}?page=${page}&limit=${limit}`;
     
-    if(approved)
+    if(productsApprovalStatus) {
+        const approved = productsApprovalStatus === "Approved";
         endpoint = endpoint.concat(`&approved=${approved}`);
+    }
     
     if(searchQuery)
         endpoint = endpoint.concat(`&search=${searchQuery}`);

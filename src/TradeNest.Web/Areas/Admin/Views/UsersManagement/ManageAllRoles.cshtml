@@ -18,7 +18,7 @@
             <table class="table table-hover caption-top">
                 <caption>List of Roles</caption>
                 <thead class="site-sections-bg-teal text-center">
-                <tr>
+                <tr class="text-center align-middle">
                     <th class="@hoverEffect">Role Name</th>
                     <th class="@hoverEffect">Actions</th>
                 </tr>
@@ -28,7 +28,7 @@
                 {
                     bool isAdmin = role.RoleName == "Admin";
                         
-                    <tr>
+                    <tr class="text-center align-middle">
                         <td class="text-center">@role.RoleName</td>
                             
                         @if (isAdmin)

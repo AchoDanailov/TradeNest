@@ -20,6 +20,7 @@ public partial class ProductsMapper : IProductsMapper
 
     [MapProperty(nameof(Product.Owner.UserName), nameof(ProductDto2.OwnerName))]
     [MapProperty(nameof(Product.ApprovalDecision.ApprovalStatus), nameof(ProductDto2.ApprovalStatus))]
+    [MapProperty(nameof(Product.Category.Name), nameof(ProductDto2.CategoryName))]
     public partial ProductDto2 ToProductDto2(Product product);
 
     public partial IEnumerable<ProductDto2> ToProductDtos2(IEnumerable<Product> product);

@@ -147,14 +147,17 @@ public class ProductsService : IProductsService
             {
                 queryOptions
                     .WithRelated(p => p.Owner)
+                    .WithRelated(p => p.Category)
                     .AsReadOnly()
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name)
+                    .AddOrderAsc(p => p.Category.Name)
                     .AddOrderAsc(p => p.Id);
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     queryOptions
-                        .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()));
+                        .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) ||
+                                        p.Category.Name.ToLower().Contains(search.ToLower()));
                 }
 
                 queryOptions.WithPagination(page, limit);
@@ -178,14 +181,17 @@ public class ProductsService : IProductsService
                     {
                         queryOptions
                             .WithRelated(p => p.Owner)
+                            .WithRelated(p => p.Category)
                             .AsReadOnly()
                             .AddOrderDesc(p => p.CreatedOn)
                             .AddOrderAsc(p => p.Name)
+                            .AddOrderAsc(p => p.Category.Name)
                             .AddOrderAsc(p => p.Id);
                         if (!string.IsNullOrWhiteSpace(search))
                         {
                             queryOptions
-                                .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) &&
+                                .AddFilter(p => (p.Name.ToLower().Contains(search.ToLower()) ||
+                                                 p.Category.Name.ToLower().Contains(search.ToLower())) &&
                                                 p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
                         }
                         else

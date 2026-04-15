@@ -9,29 +9,10 @@ export default function getNewPaginatorInstance(stateConfig) {
         productsApprovalStatus: stateConfig?.productsApprovalStatus ?? DEFAULT_PRODUCTS_APPROVAL_STATUS,
         currPageNumber: stateConfig?.startPageNumber ?? DEFAULT_START_PAGE_NUMBER,
         productsPerPageCount: stateConfig?.productsPerPageCount ?? DEFAULT_PRODUCTS_PER_PAGE_COUNT,
-        searchQuery: undefined,
+        searchQuery: "",
+        productsCount: undefined,
         totalPagesCount: undefined
     };
-
-    async function getPagesTotalCount() {
-        const productsCount = await productsService
-            .getProductsCount(state.productsApprovalStatus, state.searchQuery)
-
-        const totalPagesCount 
-            = Math.max(1, Math.ceil(productsCount / state.productsPerPageCount));
-
-        state.totalPagesCount = totalPagesCount;
-        return totalPagesCount;
-    }
-
-    async function getCurrPageProducts() {
-        return await productsService.getCurrPageProducts(
-            state.currPageNumber,
-            state.productsPerPageCount,
-            state.productsApprovalStatus,
-            state.searchQuery
-        );
-    }
     
     function setSearchQuery(searchQuery) {
         if(searchQuery.trim() === "" && state.searchQuery === "") {
@@ -52,12 +33,35 @@ export default function getNewPaginatorInstance(stateConfig) {
         state.currPageNumber = pageNumber;
     }
 
+    async function getPagesTotalCount() {
+        const productsCount = await productsService
+            .getProductsCount(state.productsApprovalStatus, state.searchQuery)
+
+        const totalPagesCount 
+            = Math.max(1, Math.ceil(productsCount / state.productsPerPageCount));
+
+        state.productsCount = productsCount;
+        state.totalPagesCount = totalPagesCount;
+        return totalPagesCount;
+    }
+
+    async function getCurrPageProducts() {
+        return await productsService.getCurrPageProducts(
+            state.currPageNumber,
+            state.productsPerPageCount,
+            state.productsApprovalStatus,
+            state.searchQuery
+        );
+    }
+
     return {
-        getCurrSearchQuery: () => state.searchQuery,
-        setSearchQuery,
+        getProductsCount: () => state.productsCount,
+        getCurrItemsOnPageCount: () => state.productsPerPageCount,
         getCurrPageNumber: () => state.currPageNumber,
-        getPagesTotalCount,
+        getCurrSearchQuery: () => state.searchQuery,
         getCurrPageProducts,
+        getPagesTotalCount,
         setPageNumber,
+        setSearchQuery,
     }; 
 }
