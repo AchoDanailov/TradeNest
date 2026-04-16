@@ -2,6 +2,11 @@
     ViewData["Title"] = "Manage Products";
 }
 
+@section Styles {
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+    <link rel="stylesheet" href="~/css/pagination.css" asp-append-version="true" />
+}
+
 <partial name="_AdminAreaNavigationButtonsPartial"
          model="@(new
                 {
@@ -27,8 +32,13 @@
     <div id="table-container" class="w-100 overflow-auto px-3">
 
     </div>
+    
+    <div id="dialogs-section">
+        
+    </div>
 </div>
 
 @section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="~/js/products-management/productsManagementMain.js" type="module" asp-append-version="true"></script>
 }

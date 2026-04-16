@@ -2,6 +2,7 @@ const productsService = {
     getCurrPageProducts,
     getCurrProdDetails,
     getProductsCount,
+    removeProduct,
 }
 export default productsService;
 
@@ -65,6 +66,24 @@ export async function getProductsCount(productsApprovalStatus, searchQuery) {
         if (err instanceof Error) {
             console.error(`Error fetching products count.`, err.status);
             return 0;
+        }
+    }
+}
+
+async function removeProduct(productId) {
+    try {
+        const servRes = await fetch(endpoints.byId(productId), {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        });
+        if(!servRes.ok) 
+            throw new Error(await servRes.json());
+        
+        return await servRes.json();
+    } catch(err) {
+        if (err instanceof Error) {
+            console.error(`Error while removing product. productId: ${productId}`, err.status);
+            return false;
         }
     }
 }

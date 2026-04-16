@@ -1,6 +1,10 @@
 import { html, render } from "../../lib/lit/lit.js";
 
+import removeProductTemplate from "./confirmRemoveProductDialogModal.js";
+
+
 const tableDivContainer = document.querySelector("div#table-container");
+const dialogsSection = document.querySelector("div#dialogs-section");
 
 export default async function showProductsTable(paginator) {
     const currPageProducts = await paginator.getCurrPageProducts();
@@ -28,7 +32,7 @@ async function template(currPageProducts, paginator) {
                 </thead>
 
                 <tbody class="tbody-top-border">
-                    ${currPageProducts.map(p => productTableRowTemplate(p))}
+                    ${currPageProducts.map(p => productTableRowTemplate(p, paginator))}
                 </tbody>
             </table>
             
@@ -37,37 +41,6 @@ async function template(currPageProducts, paginator) {
             </div>
             
         </div>
-    `;
-}
-
-function productTableRowTemplate(product) {
-    const approvalStatusTdMap = {
-        "Approved": () => [ "🟢", "Approved", "text-success fw-semibold" ],
-        "WaitingApproval": () => [ "🟡", "Waiting Approval", "text-warning fw-semibold" ],
-        "Disapproved": () => [ "🔴", "Disapproved", "text-danger fw-semibold" ],
-    };
-    const [dot, content, styles] = approvalStatusTdMap[product.approvalStatus]();
-
-    return html `
-        <tr class="text-center align-middle">
-            <td>${product.name}</td>
-            <td>${product.ownerName}</td>
-            <td>${product.categoryName}</td>
-            <td class="${styles}">${dot} ${content}</td>
-            <td>
-                <div class="btn-group-sm d-flex flex-wrap justify-content-center gap-1 gap-sm-2 gap-md-3">
-                    <button class="btn rounded-pill btn-teal btn-sm w-100" style="max-width: 12em"
-                            @click=${async () => await onViewProductDetailsHandler(product.id)}>
-                        View Details
-                    </button>
-
-                    <button class="btn rounded-pill btn-outline-danger btn-sm w-100" style="max-width: 12em"
-                            @click=${async () => await onRemoveProductHandler(product.id)}>
-                        Remove Product
-                    </button>
-                </div>
-            </td>
-        </tr>
     `;
 }
 
@@ -188,12 +161,49 @@ async function onPageNumBtnClick(paginator, pageNumber) {
     await showProductsTable(paginator);
 }
 
+function productTableRowTemplate(product, paginator) {
+    const approvalStatusTdMap = {
+        "Approved": () => [ "🟢", "Approved", "text-success fw-semibold" ],
+        "WaitingApproval": () => [ "🟡", "Waiting Approval", "text-warning fw-semibold" ],
+        "Disapproved": () => [ "🔴", "Disapproved", "text-danger fw-semibold" ],
+    };
+    const [dot, content, styles] = approvalStatusTdMap[product.approvalStatus]();
+
+    return html `
+        <tr class="text-center align-middle">
+            <td>${product.name}</td>
+            <td>${product.ownerName}</td>
+            <td>${product.categoryName}</td>
+            <td class="${styles}">${dot} ${content}</td>
+            <td>
+                <div class="btn-group-sm d-flex flex-wrap justify-content-center gap-1 gap-sm-2 gap-md-3">
+                    <button class="btn rounded-pill btn-teal btn-sm w-100" style="max-width: 12em"
+                            @click=${async () => await onViewProductDetailsHandler(product.id)}>
+                        View Details
+                    </button>
+
+                    <button class="btn rounded-pill btn-outline-danger btn-sm w-100" style="max-width: 12em"
+                            @click=${async () => await onRemoveProductHandler(product, paginator)}>
+                        Remove Product
+                    </button>
+                </div>
+            </td>
+        </tr>
+    `;
+}
+
 async function onViewProductDetailsHandler(productId) {
     alert(`View product details. id:${productId}`)
 }
 
-async function onRemoveProductHandler(productId) {
-    alert(`remove product. id:${productId}`)
+async function onRemoveProductHandler(product, paginator) {
+    render(removeProductTemplate(product, paginator), dialogsSection);
+    
+    const deleteProductModalId = `remove-product-${product.id}`;
+    const modalEl = dialogsSection.querySelector(`div#${deleteProductModalId}`)
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    
+    modal.toggle();
 }
 
 function calculatePageNumbers(currPageNumber, totalPagesCount) {
