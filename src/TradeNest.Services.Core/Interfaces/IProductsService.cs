@@ -167,7 +167,7 @@ public interface IProductsService
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown if the user with the provided <paramref name="userId"/> is not the owner
-    /// of the product with the provided <paramref name="id"/>.
+    /// of the product with the provided <paramref name="id"/> or is not an administrator.
     /// </exception>
     /// <exception cref="InvalidOperationException">Thrown if the product is already deleted.</exception>
     /// <exception cref="DataPersistException">

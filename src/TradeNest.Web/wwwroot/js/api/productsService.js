@@ -72,10 +72,7 @@ export async function getProductsCount(productsApprovalStatus, searchQuery) {
 
 async function removeProduct(productId) {
     try {
-        const servRes = await fetch(endpoints.byId(productId), {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-        });
+        const servRes = await fetch(endpoints.byId(productId), { method: "DELETE" });
         if(!servRes.ok) 
             throw new Error(await servRes.json());
         

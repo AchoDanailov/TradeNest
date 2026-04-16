@@ -61,6 +61,24 @@ public class ProductsApiController : BaseApiController
         return Ok(productsCount);
     }
 
+    [HttpDelete]
+    [Route("products/{id}")]
+    [IgnoreAntiforgeryToken]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] 
+    [ProducesResponseType(StatusCodes.Status403Forbidden)] 
+    public async Task<ActionResult<bool>> RemoveProductByIdAsync([FromRoute] string id)
+    {
+        if (!Guid.TryParse(id, out Guid validIdGuidValue))
+            return BadRequest();
+
+        Guid userId = GetUserId(throwIfNull: true);
+        await this._productsService.DeleteProductAsync(userId, validIdGuidValue);
+        return Ok(true);
+    }
+
     [HttpGet]
     [Route("products")]
     [Authorize(Roles = "Admin")]
