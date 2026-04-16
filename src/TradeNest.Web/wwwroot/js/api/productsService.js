@@ -70,9 +70,12 @@ export async function getProductsCount(productsApprovalStatus, searchQuery) {
     }
 }
 
-async function removeProduct(productId) {
+export async function removeProduct(productId, xsrfToken) {
     try {
-        const servRes = await fetch(endpoints.byId(productId), { method: "DELETE" });
+        const servRes = await fetch(endpoints.byId(productId), {
+            method: "DELETE", 
+            headers: { "X-XSRF-TOKEN": xsrfToken }
+        });
         if(!servRes.ok) 
             throw new Error(await servRes.json());
         

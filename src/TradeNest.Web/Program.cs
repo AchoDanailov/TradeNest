@@ -35,6 +35,9 @@ public class Program
 
         builder.Services.AddResponseCompression();
 
+        builder.Services.AddAntiforgery(options => 
+            options.HeaderName = "X-XSRF-TOKEN");
+
         builder.Services.ConfigureApplicationCookie(options =>
             ApplicationCookieConfiguration(options, builder.Configuration));
         

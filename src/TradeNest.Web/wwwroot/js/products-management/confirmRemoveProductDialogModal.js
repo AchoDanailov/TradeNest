@@ -1,9 +1,8 @@
 import { html } from "../../lib/lit/lit.js"
 
-import productsService from "../api/productsService.js";
 import showProductsTable from "./productsTable.js";
 
-export default function removeProductTemplate(product, paginator) {
+export default function removeProductTemplate(product, context) {
     const deleteProductModalId = `remove-product-${product.id}`;
     
     return html`
@@ -29,7 +28,7 @@ export default function removeProductTemplate(product, paginator) {
                         <button type="button" class="btn btn-secondary"
                                 data-bs-dismiss="modal">Cancel</button>
 
-                        <form @submit=${async (event) => await onConfirmRemoveProduct(event, product, paginator)}>
+                        <form @submit=${async (event) => await onConfirmRemoveProduct(event, product, context)}>
                             <button type="submit" class="btn btn-danger"> Yes </button>
                         </form>
                     </div>
@@ -39,7 +38,7 @@ export default function removeProductTemplate(product, paginator) {
     `;
 }
 
-async function onConfirmRemoveProduct(event, product, paginator) {
+async function onConfirmRemoveProduct(event, product, context) {
     event.preventDefault();
     
     const deleteProductModalId = `remove-product-${product.id}`;
@@ -47,7 +46,7 @@ async function onConfirmRemoveProduct(event, product, paginator) {
     const modal = bootstrap.Modal.getInstance(modalEl);
     modal.toggle();
     
-    const removeProductResult = await productsService.removeProduct(product.id);
+    const removeProductResult = await context.removeProduct(product.id);
     if(!removeProductResult) {
         Swal.fire({
             icon: "error",
@@ -59,7 +58,7 @@ async function onConfirmRemoveProduct(event, product, paginator) {
             hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` }
         }).then(async () => {
             modal.dispose();
-            await showProductsTable(paginator);
+            await showProductsTable(context);
         });
     } else {
         Swal.fire({
@@ -72,7 +71,7 @@ async function onConfirmRemoveProduct(event, product, paginator) {
             hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` },
         }).then(async () => {
             modal.dispose();
-            await showProductsTable(paginator);
+            await showProductsTable(context);
         });
     }
 }

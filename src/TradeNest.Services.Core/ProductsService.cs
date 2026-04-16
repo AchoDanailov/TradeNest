@@ -401,7 +401,7 @@ public class ProductsService : IProductsService
             throw new ResourceNotFoundException(nameof(Product), id);
 
         bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
-        if (userId != product.OwnerId || !isAdmin)
+        if ((userId != product.OwnerId && !isAdmin) || !isAdmin)
             throw new UnauthorizedOperationException(userId, nameof(Product), product.Id);
 
         if (product.IsDeleted)

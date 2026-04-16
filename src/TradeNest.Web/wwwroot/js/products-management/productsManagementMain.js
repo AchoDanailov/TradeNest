@@ -2,7 +2,7 @@ import { html, render } from "../../lib/lit/lit.js";
 
 import { toggleHighlight } from "./domUtils.js";
 import showProductsTable from "./productsTable.js";
-import getNewPaginatorInstance from "./tablePaginator.js";
+import getNewContextInstance from "./tableContext.js";
 
 
 const START_PAGE_NUMBER = 1;
@@ -37,11 +37,11 @@ function mainTemplate() {
 async function showProducts(approvalStatus) {
     toggleHighlight(approvalStatus);
 
-    const newPaginator = getNewPaginatorInstance({
+    const newContext = getNewContextInstance({
         productsApprovalStatus: approvalStatus,
         startPageNumber: START_PAGE_NUMBER,
         productsPerPageCount: PRODUCTS_PER_PAGE_COUNT,
     });
     
-    await showProductsTable(newPaginator);
+    await showProductsTable(newContext);
 }

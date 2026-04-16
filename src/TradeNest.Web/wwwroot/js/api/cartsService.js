@@ -33,7 +33,7 @@ export async function addToCart(requestedProductQtyPayload, requestVerificationT
             method: "POST",
             headers: { 
                 "Content-Type": "application/json",
-                "RequestVerificationToken": requestVerificationToken,
+                "X-XSRF-TOKEN": requestVerificationToken,
             },
             body: JSON.stringify(requestedProductQtyPayload)
         });
@@ -57,7 +57,7 @@ export async function updateCartProductQty(updatedCartProdPayload, requestVerifi
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
-                    "RequestVerificationToken": requestVerificationToken,
+                    "X-XSRF-TOKEN": requestVerificationToken,
                 },
                 body: JSON.stringify(updatedCartProdPayload),
             }

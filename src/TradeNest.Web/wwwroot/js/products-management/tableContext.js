@@ -4,14 +4,15 @@ const DEFAULT_PRODUCTS_APPROVAL_STATUS = "Approved";
 const DEFAULT_START_PAGE_NUMBER = 1;
 const DEFAULT_PRODUCTS_PER_PAGE_COUNT = 5;
 
-export default function getNewPaginatorInstance(stateConfig) {
+export default function getNewContextInstance(stateConfig) {
     const state = {
         productsApprovalStatus: stateConfig?.productsApprovalStatus ?? DEFAULT_PRODUCTS_APPROVAL_STATUS,
         currPageNumber: stateConfig?.startPageNumber ?? DEFAULT_START_PAGE_NUMBER,
         productsPerPageCount: stateConfig?.productsPerPageCount ?? DEFAULT_PRODUCTS_PER_PAGE_COUNT,
+        xsrfToken: "",
         searchQuery: "",
         productsCount: undefined,
-        totalPagesCount: undefined
+        totalPagesCount: undefined,
     };
     
     function setSearchQuery(searchQuery) {
@@ -46,12 +47,20 @@ export default function getNewPaginatorInstance(stateConfig) {
     }
 
     async function getCurrPageProducts() {
-        return await productsService.getCurrPageProducts(
+        const { products, xsrfToken } = await productsService.getCurrPageProducts(
             state.currPageNumber,
             state.productsPerPageCount,
             state.productsApprovalStatus,
             state.searchQuery
         );
+        
+        state.xsrfToken = xsrfToken;
+        return products;
+    }
+    
+    async function removeProduct(productId) {
+        return await productsService
+            .removeProduct(productId, state.xsrfToken);
     }
 
     return {
@@ -63,5 +72,6 @@ export default function getNewPaginatorInstance(stateConfig) {
         getPagesTotalCount,
         setPageNumber,
         setSearchQuery,
+        removeProduct,
     }; 
 }

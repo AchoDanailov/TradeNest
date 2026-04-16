@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,12 +13,16 @@ public class ProductsApiController : BaseApiController
 {
     private readonly IProductsService _productsService;
     private readonly IProductPresentationModelsMapper _productsMapper;
+    private readonly IAntiforgery _antiforgery;
 
-    public ProductsApiController(IProductsService productsService,
-        IProductPresentationModelsMapper productsMapper)
+    public ProductsApiController(
+        IProductsService productsService,
+        IProductPresentationModelsMapper productsMapper,
+        IAntiforgery antiforgery)
     {
         this._productsService = productsService;
         this._productsMapper = productsMapper;
+        this._antiforgery = antiforgery;
     }
 
     [HttpGet]
@@ -63,7 +68,6 @@ public class ProductsApiController : BaseApiController
 
     [HttpDelete]
     [Route("products/{id}")]
-    [IgnoreAntiforgeryToken]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)] 
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -83,7 +87,7 @@ public class ProductsApiController : BaseApiController
     [Route("products")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<ProductResponseDto>>> GetProductsDataAsync(
+    public async Task<ActionResult<SpecifiedProductsResponseDto>> GetProductsDataAsync(
         [FromQuery] int? page = null,
         [FromQuery] int? limit = null,
         [FromQuery] bool? approved = null,
@@ -105,6 +109,17 @@ public class ProductsApiController : BaseApiController
     
         IEnumerable<ProductResponseDto> productResponseDtos 
             = this._productsMapper.ToProductResponseDtos(productDtos);
-        return Ok(productResponseDtos);
+
+        string? token = this._antiforgery
+            .GetTokens(ControllerContext.HttpContext)
+            .RequestToken;
+
+        SpecifiedProductsResponseDto responseDto = new SpecifiedProductsResponseDto()
+        {
+            Products = productResponseDtos,
+            XsrfToken = token!,
+        };
+        
+        return Ok(responseDto);
     }
 }
