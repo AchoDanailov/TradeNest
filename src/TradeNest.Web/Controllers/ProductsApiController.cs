@@ -49,23 +49,6 @@ public class ProductsApiController : BaseApiController
         return Ok(productDetailsResponseDto);
     }
 
-    [HttpGet]
-    [Route("products/count")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK)] 
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
-    public async Task<ActionResult<int>> GetProductsCountAsync(
-        [FromQuery] bool? approved = null,
-        [FromQuery] string? search = null)
-    {
-        Guid userId = this.GetUserId(throwIfNull: true);
-        int productsCount = await this._productsService
-            .GetSpecifiedProductsCountAsync(userId, approved, search);
-        
-        return Ok(productsCount);
-    }
-
     [HttpDelete]
     [Route("products/{id}")]
     [Authorize(Roles = "Admin")]
@@ -106,9 +89,12 @@ public class ProductsApiController : BaseApiController
             productDtos = await this._productsService
                 .GetProductsData(userId, approved, search);
         }
-    
-        IEnumerable<ProductResponseDto> productResponseDtos 
+
+        IEnumerable<ProductResponseDto> productResponseDtos
             = this._productsMapper.ToProductResponseDtos(productDtos);
+        
+        int totalSpecifiedProductsCount = await this._productsService
+            .GetSpecifiedProductsCountAsync(userId, approved, search);
 
         string? token = this._antiforgery
             .GetTokens(ControllerContext.HttpContext)
@@ -117,7 +103,11 @@ public class ProductsApiController : BaseApiController
         SpecifiedProductsResponseDto responseDto = new SpecifiedProductsResponseDto()
         {
             Products = productResponseDtos,
-            XsrfToken = token!,
+            MetaData = new MetaData()
+            {
+                TotalSpecifiedProductsCount = totalSpecifiedProductsCount,
+                XsrfToken = token!,
+            }
         };
         
         return Ok(responseDto);

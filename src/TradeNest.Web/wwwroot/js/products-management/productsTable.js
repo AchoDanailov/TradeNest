@@ -1,22 +1,21 @@
 import { html, render } from "../../lib/lit/lit.js";
-
 import removeProductTemplate from "./confirmRemoveProductDialogModal.js";
 
 
 const tableDivContainer = document.querySelector("div#table-container");
 const dialogsSection = document.querySelector("div#dialogs-section");
 
-export default async function showProductsTable(paginator) {
-    const currPageProducts = await paginator.getCurrPageProducts();
-    render(await template(currPageProducts, paginator), tableDivContainer);
+export default async function showProductsTable(context) {
+    const currPageProducts = await context.getCurrPageProducts();
+    render(await template(currPageProducts, context), tableDivContainer);
 }
 
-async function template(currPageProducts, paginator) {
+async function template(currPageProducts, context) {
     const hoverEffect = "nav-link-border-radius-hover-effect-light"
 
     return html`
         <div>
-            ${searchFormTemplate(paginator)}
+            ${searchFormTemplate(context)}
         </div>
         
         <div id="table-wrapper" class="mt-0 pt-0 w-100">
@@ -32,20 +31,20 @@ async function template(currPageProducts, paginator) {
                 </thead>
 
                 <tbody class="tbody-top-border">
-                    ${currPageProducts.map(p => productTableRowTemplate(p, paginator))}
+                    ${currPageProducts.map(p => productTableRowTemplate(p, context))}
                 </tbody>
             </table>
             
             <div class="d-flex justify-content-end align-items-center gap-2 position-relative bottom-0 end-0">
-                ${await controlsTemplate(paginator)}
+                ${await controlsTemplate(context)}
             </div>
             
         </div>
     `;
 }
 
-function searchFormTemplate(paginator) {
-    const displayClass = paginator.getCurrSearchQuery().trim() === "" ? "d-none" : "";
+function searchFormTemplate(context) {
+    const displayClass = context.getCurrSearchQuery().trim() === "" ? "d-none" : "";
     
     return html`
         <div class="d-flex flex-column align-items-center mt-5 mb-3" id="search-section-wrapper">
@@ -53,19 +52,19 @@ function searchFormTemplate(paginator) {
                 Search for products
             </label>
             <form id="searchForm" class="mx-md-3"
-                  @submit=${async (event) => await onSearchFormSubmitHandler(event, paginator)}>
+                  @submit=${async (event) => await onSearchFormSubmitHandler(event, context)}>
                 <div class="input-group-sm d-flex gap-1">
                     <input name="search" type="search" id="searchInput"
                            class="form-control" placeholder="Search..."
-                           aria-label="Search" .value=${paginator.getCurrSearchQuery()} />
+                           aria-label="Search" .value=${context.getCurrSearchQuery()} />
                     <button class="btn btn-outline-teal" type="submit">Search</button>
                 </div>
             </form>
             <div class="my-2 position-relative ${displayClass}" style="right: 5px">
-                <span>results for: ${paginator.getCurrSearchQuery()}</span>
+                <span>results for: ${context.getCurrSearchQuery()}</span>
                 <a>
                     <span class="btn-sm btn-danger"
-                          @click=${async (event) => await onClearSearchForm(event, paginator)}>
+                          @click=${async (event) => await onClearSearchForm(event, context)}>
                         x
                     </span>
                 </a>
@@ -73,29 +72,29 @@ function searchFormTemplate(paginator) {
         </div>`;
 }
 
-async function onClearSearchForm(event, paginator) {
-    paginator.setSearchQuery("");
-    await showProductsTable(paginator);
+async function onClearSearchForm(event, context) {
+    context.setSearchQuery("");
+    await showProductsTable(context);
 }
 
-async function onSearchFormSubmitHandler(event, paginator) {
+async function onSearchFormSubmitHandler(event, context) {
     event.preventDefault();
 
     const formData = new FormData(event.currentTarget);
     const searchQuery = formData.get("search");
-    if(searchQuery.trim() === "" && paginator.getCurrSearchQuery() === "") {
+    if(searchQuery.trim() === "" && context.getCurrSearchQuery() === "") {
         return;
     }
 
-    paginator.setSearchQuery(searchQuery);
-    await showProductsTable(paginator);
+    context.setSearchQuery(searchQuery);
+    await showProductsTable(context);
 }
 
-async function controlsTemplate(paginator) {
-    const totalPagesCount = await paginator.getPagesTotalCount();
-    const currPageNumber = paginator.getCurrPageNumber();
-    const totalItemsCount = paginator.getProductsCount();
-    const itemsCountOnPage = paginator.getCurrItemsOnPageCount();
+async function controlsTemplate(context) {
+    const totalPagesCount = context.getPagesTotalCount();
+    const currPageNumber = context.getCurrPageNumber();
+    const totalItemsCount = context.getProductsCount();
+    const itemsCountOnPage = context.getCurrItemsOnPageCount();
     
     const pageNumbersOnScreen = calculatePageNumbers(currPageNumber, totalPagesCount)
     
@@ -116,7 +115,7 @@ async function controlsTemplate(paginator) {
                         : html`
                             <li class="page-item">
                                 <a class="page-link"
-                                   @click=${async () => await onPageNumBtnClick(paginator, currPageNumber - 1)}>
+                                   @click=${async () => await onPageNumBtnClick(context, currPageNumber - 1)}>
                                     Previous
                                 </a>
                             </li>`
@@ -133,7 +132,7 @@ async function controlsTemplate(paginator) {
                             : html `
                                 <li class="page-item">
                                     <a class="page-link"
-                                       @click=${async () => await onPageNumBtnClick(paginator, pageNum)}>
+                                       @click=${async () => await onPageNumBtnClick(context, pageNum)}>
                                         ${pageNum}
                                     </a>
                                 </li>`
@@ -147,7 +146,7 @@ async function controlsTemplate(paginator) {
                         : html`
                             <li class="page-item">
                                 <a class="page-link"
-                                   @click=${async () => await onPageNumBtnClick(paginator, currPageNumber + 1)}>
+                                   @click=${async () => await onPageNumBtnClick(context, currPageNumber + 1)}>
                                     Next
                                 </a>
                             </li>`
@@ -156,12 +155,12 @@ async function controlsTemplate(paginator) {
         </nav>`;
 }
 
-async function onPageNumBtnClick(paginator, pageNumber) {
-    paginator.setPageNumber(pageNumber);
-    await showProductsTable(paginator);
+async function onPageNumBtnClick(context, pageNumber) {
+    context.setPageNumber(pageNumber);
+    await showProductsTable(context);
 }
 
-function productTableRowTemplate(product, paginator) {
+function productTableRowTemplate(product, context) {
     const approvalStatusTdMap = {
         "Approved": () => [ "🟢", "Approved", "text-success fw-semibold" ],
         "WaitingApproval": () => [ "🟡", "Waiting Approval", "text-warning fw-semibold" ],
@@ -176,14 +175,14 @@ function productTableRowTemplate(product, paginator) {
             <td>${product.categoryName}</td>
             <td class="${styles}">${dot} ${content}</td>
             <td>
-                <div class="btn-group-sm d-flex flex-wrap justify-content-center gap-1 gap-sm-2 gap-md-3">
+                <div class="btn-group-sm d-flex flex-wrap justify-content-center gap-1 gap-sm-2 gap-md-2">
                     <button class="btn rounded-pill btn-teal btn-sm w-100" style="max-width: 12em"
                             @click=${async () => await onViewProductDetailsHandler(product.id)}>
                         View Details
                     </button>
 
                     <button class="btn rounded-pill btn-outline-danger btn-sm w-100" style="max-width: 12em"
-                            @click=${async () => await onRemoveProductHandler(product, paginator)}>
+                            @click=${async () => await onRemoveProductHandler(product, context)}>
                         Remove Product
                     </button>
                 </div>
@@ -196,8 +195,8 @@ async function onViewProductDetailsHandler(productId) {
     alert(`View product details. id:${productId}`)
 }
 
-async function onRemoveProductHandler(product, paginator) {
-    render(removeProductTemplate(product, paginator), dialogsSection);
+async function onRemoveProductHandler(product, context) {
+    render(removeProductTemplate(product, context), dialogsSection);
     
     const deleteProductModalId = `remove-product-${product.id}`;
     const modalEl = dialogsSection.querySelector(`div#${deleteProductModalId}`)
@@ -225,6 +224,8 @@ function calculateItemsNumbers(currPageNumber, totalPagesCount, totalItemsCount,
     if(currPageNumber === totalPagesCount) {
         if(totalItemsCount === 0)
             firstItemNumOnPage = 0;
+        if(currPageNumber === 1 && totalItemsCount !== 0)
+            firstItemNumOnPage = 1;
         else
             firstItemNumOnPage = lastItemNumOnPage - (lastItemNumOnPage % itemsCountOnPage) + 1;
     }

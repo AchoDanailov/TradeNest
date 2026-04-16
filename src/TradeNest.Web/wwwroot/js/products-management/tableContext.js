@@ -34,27 +34,21 @@ export default function getNewContextInstance(stateConfig) {
         state.currPageNumber = pageNumber;
     }
 
-    async function getPagesTotalCount() {
-        const productsCount = await productsService
-            .getProductsCount(state.productsApprovalStatus, state.searchQuery)
-
-        const totalPagesCount 
-            = Math.max(1, Math.ceil(productsCount / state.productsPerPageCount));
-
-        state.productsCount = productsCount;
-        state.totalPagesCount = totalPagesCount;
-        return totalPagesCount;
-    }
-
     async function getCurrPageProducts() {
-        const { products, xsrfToken } = await productsService.getCurrPageProducts(
+        const { products, metaData } = await productsService.getCurrPageProducts(
             state.currPageNumber,
             state.productsPerPageCount,
             state.productsApprovalStatus,
             state.searchQuery
         );
         
-        state.xsrfToken = xsrfToken;
+        const totalPagesCount 
+            = Math.max(1, Math.ceil(metaData.totalSpecifiedProductsCount / state.productsPerPageCount));
+
+        state.productsCount = metaData.totalSpecifiedProductsCount;
+        state.totalPagesCount = totalPagesCount;
+        state.xsrfToken = metaData.xsrfToken;
+        
         return products;
     }
     
@@ -68,10 +62,10 @@ export default function getNewContextInstance(stateConfig) {
         getCurrItemsOnPageCount: () => state.productsPerPageCount,
         getCurrPageNumber: () => state.currPageNumber,
         getCurrSearchQuery: () => state.searchQuery,
-        getCurrPageProducts,
-        getPagesTotalCount,
+        getPagesTotalCount: () => state.totalPagesCount,
         setPageNumber,
         setSearchQuery,
+        getCurrPageProducts,
         removeProduct,
     }; 
 }
