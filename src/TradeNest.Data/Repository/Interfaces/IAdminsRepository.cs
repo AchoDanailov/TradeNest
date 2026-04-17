@@ -4,7 +4,7 @@ namespace TradeNest.Data.Repository.Interfaces;
 
 public interface IAdminsRepository : IReadRepository<Admin>
 {
-    Task<Admin?> FindAdminByUserId(Guid userId);
+    Task<Admin?> GetAdminByUserId(Guid userId);
     
     Task<bool> IsUserAdminByUserIdAsync(Guid userId);
     

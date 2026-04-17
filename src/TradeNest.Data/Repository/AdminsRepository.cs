@@ -15,9 +15,10 @@ public class AdminsRepository : BaseReadRepository<Admin>, IAdminsRepository
         this._userManager = userManager;
     }
 
-    public async Task<Admin?> FindAdminByUserId(Guid userId)
+    public async Task<Admin?> GetAdminByUserId(Guid userId)
     {
         return await this.DbContext.Admins
+            .Include(a => a.User)
             .SingleOrDefaultAsync(a => a.UserId == userId);
     }
 

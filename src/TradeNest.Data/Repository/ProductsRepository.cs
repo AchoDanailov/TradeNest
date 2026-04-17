@@ -70,8 +70,15 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
     }
 
     public async Task<IEnumerable<Product>> GetAllInclArchivedAndNotApprovedAsync(
-        Action<IQueryOptions<Product>> queryOptionsBuilder)
+        Action<IQueryOptions<Product>>? queryOptionsBuilder = null)
     {
+        if (queryOptionsBuilder == null)
+        {
+            return await this.DbContext.Products
+                .IgnoreQueryFilters()
+                .ToArrayAsync();
+        }
+        
         IQueryable<Product> noQueryFilterQueryable = this.DbContext.Products
             .IgnoreQueryFilters();
 
@@ -80,8 +87,16 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
     }
 
     public async Task<IEnumerable<Product>> GetAllInclNotApprovedAsync(
-        Action<IQueryOptions<Product>> queryOptionsBuilder)
+        Action<IQueryOptions<Product>>? queryOptionsBuilder = null)
     {
+        if (queryOptionsBuilder == null)
+        {
+            return await this.DbContext.Products
+                .IgnoreQueryFilters()
+                .Where(p => p.IsDeleted == false)
+                .ToArrayAsync();
+        }
+        
         IQueryable<Product> queryable = this.DbContext.Products
             .IgnoreQueryFilters()
             .Where(p => p.IsDeleted == false);

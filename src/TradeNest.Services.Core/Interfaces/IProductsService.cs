@@ -116,7 +116,9 @@ public interface IProductsService
     /// The identifier of the user that wants to view the product details.
     /// In case of unauthenticated user userId can be left null.
     /// </param>
-    /// <returns>A task that returns the product details, or null if not found.</returns>
+    /// <returns>
+    /// A task that returns the product details, or null if not found or user is not authorized.
+    /// </returns>
     Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id, Guid? userId = null);
 
     /// <summary>
@@ -202,4 +204,32 @@ public interface IProductsService
     /// Thrown if the data is not successfully persisted.
     /// </exception>
     Task EditProductAsync(Guid userId, ProductEditDto productEditDto);
+
+    /// <summary>
+    /// Updates the specified product's approval decision with the provided data.
+    /// </summary>
+    /// <param name="userId">The identifier of the user performing the operation.</param>
+    /// <param name="productId">
+    /// The identifier of the product of which to change the approval decision.
+    /// </param>
+    /// <param name="approvalDecisionDto">
+    /// Object that caries the data to be modified on the product.
+    /// </param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if either the <see cref="userId"/>, <see cref="productId"/> are with
+    /// value <see cref="Guid.Empty"/> or if the <see cref="ApprovalDecisionDto.ApprovalStatus" />
+    /// value is not a valid value.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the user with the provided <see cref="userId"/> is not an administrator.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if the product with the specified <see cref="productId"/> was not found.
+    /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
+    /// </exception>
+    Task ChangeProductApprovalStatus(Guid userId, Guid productId,
+        EditApprovalDecisionDto approvalDecisionDto);
 }

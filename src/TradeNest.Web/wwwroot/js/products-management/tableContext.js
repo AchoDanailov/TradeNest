@@ -52,6 +52,16 @@ export default function getNewContextInstance(stateConfig) {
         return products;
     }
     
+    async function getProductDetails(productId) {
+        return await productsService
+            .getCurrProdDetails(productId);
+    }
+    
+    async function modifyProductApproval(productApprovalData) {
+        return await productsService
+            .changeProductApprovalStatus(productApprovalData, state.xsrfToken);
+    }
+    
     async function removeProduct(productId) {
         return await productsService
             .removeProduct(productId, state.xsrfToken);
@@ -66,6 +76,8 @@ export default function getNewContextInstance(stateConfig) {
         setPageNumber,
         setSearchQuery,
         getCurrPageProducts,
+        getProductDetails,
+        modifyProductApproval,
         removeProduct,
-    }; 
+    } 
 }

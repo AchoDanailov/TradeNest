@@ -149,6 +149,7 @@ public class ProductsService : IProductsService
                     .WithRelated(p => p.Owner)
                     .WithRelated(p => p.Category)
                     .AsReadOnly()
+                    .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name)
                     .AddOrderAsc(p => p.Category.Name)
@@ -183,6 +184,7 @@ public class ProductsService : IProductsService
                             .WithRelated(p => p.Owner)
                             .WithRelated(p => p.Category)
                             .AsReadOnly()
+                            .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                             .AddOrderDesc(p => p.CreatedOn)
                             .AddOrderAsc(p => p.Name)
                             .AddOrderAsc(p => p.Category.Name)
@@ -226,6 +228,7 @@ public class ProductsService : IProductsService
                 queryOptions
                     .WithRelated(p => p.Owner)
                     .AsReadOnly()
+                    .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name)
                     .AddOrderAsc(p => p.Id);
@@ -255,6 +258,7 @@ public class ProductsService : IProductsService
                         queryOptions
                             .WithRelated(p => p.Owner)
                             .AsReadOnly()
+                            .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                             .AddOrderDesc(p => p.CreatedOn)
                             .AddOrderAsc(p => p.Name)
                             .AddOrderAsc(p => p.Id);
@@ -287,7 +291,12 @@ public class ProductsService : IProductsService
             return null;
 
         bool isOwner = userId != null && product.OwnerId == userId.Value;
-        if (!isOwner && product.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved)
+        
+        bool isAdmin = false;
+        if(userId != null && userId.Value != Guid.Empty)
+            isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId.Value);
+        
+        if (!isOwner && !isAdmin)
             return null;
         
         return this._productsMapper.ToProductDetailsDto(product, isOwner);
@@ -329,7 +338,7 @@ public class ProductsService : IProductsService
             images.First().IsFrontImage = true;
         }
 
-        Admin? admin = await this._adminsRepository.FindAdminByUserId(userId);
+        Admin? admin = await this._adminsRepository.GetAdminByUserId(userId);
         
         Guid? approvalDecisionMakerId = admin?.Id ?? null;
         ApprovalDecision approvalDecision = new ApprovalDecision()
@@ -482,6 +491,50 @@ public class ProductsService : IProductsService
 
         bool updateProductResult = await this._productsRepository.UpdateAsync(product);
         if (updateProductResult == false)
+        {
+            throw new DataPersistException(nameof(updateProductResult),
+                $"productId: {product.Id}");
+        }
+    }
+
+    public async Task ChangeProductApprovalStatus(Guid userId, Guid productId,
+        EditApprovalDecisionDto approvalDecisionDto)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, userId));
+        if (productId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, productId));
+
+        bool approvalStatusIsValidValue = Enum.TryParse(
+            approvalDecisionDto.ApprovalStatus.ToString(),
+            out ApprovalStatus validApprovalStatusValue); 
+        bool isDefined = Enum.IsDefined(validApprovalStatusValue);
+        if (!approvalStatusIsValidValue || !isDefined)
+        {
+            throw new ArgumentException($"userId: {userId}, productId: {productId}",
+                nameof(approvalDecisionDto.ApprovalStatus));
+        }
+
+        Admin? admin = await this._adminsRepository.GetAdminByUserId(userId);
+        if (admin == null)
+            throw new UnauthorizedOperationException(userId, nameof(Product), productId);
+
+        Product? product = (await this._productsRepository.GetAllInclNotApprovedAsync(queryOptions => 
+                queryOptions.AddFilter(p => p.Id == productId)))
+            .SingleOrDefault();
+        if (product == null)
+            throw new ResourceNotFoundException(nameof(Product), productId);
+
+        product.ApprovalDecisionMakerId = admin.Id;
+        product.ApprovalDecision = new ApprovalDecision()
+        {
+            ApprovalStatus = validApprovalStatusValue,
+            DecisionJustification = approvalDecisionDto.DecisionJustification,
+            TimeOfDecision = DateTime.UtcNow,
+        };
+
+        bool updateProductResult = await this._productsRepository.UpdateAsync(product);
+        if (!updateProductResult)
         {
             throw new DataPersistException(nameof(updateProductResult),
                 $"productId: {product.Id}");

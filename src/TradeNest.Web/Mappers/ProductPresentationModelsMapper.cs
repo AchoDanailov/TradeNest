@@ -1,5 +1,6 @@
 using Riok.Mapperly.Abstractions;
 
+using TradeNest.Services.Models.Admin;
 using TradeNest.Services.Models.Image;
 using TradeNest.Services.Models.Product;
 using TradeNest.Web.Mappers.Interfaces;
@@ -41,6 +42,13 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
     public partial ProductEditDto FromProductEditFormModel(ProductEditFormModel productEditFormModel);
     
     public partial ProductDetailsResponseDto ToProductResponseDto(ProductDetailsDto productDetailsDto);
+
+    [MapProperty($"{nameof(ApprovalDecisionDto.ApprovalDecisionMakerDto)}.{nameof(ApprovalDecisionMakerDto.ApprovalDecisionMakerUsername)}",
+        nameof(ApprovalDecisionResponseDto.ApprovalDecisionMakerUsername))]
+    public partial ApprovalDecisionResponseDto ToApprovalDecisionResponseDto(ApprovalDecisionDto approvalDecisionDto);
+
+    public partial EditApprovalDecisionDto FromEditProductApprovalStatusRequestDto(
+        EditProductApprovalStatusRequestDto requestDto);
 
     private List<ImageViewModel> MapProductImages(ProductEditDto productEditDto)
     {

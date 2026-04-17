@@ -1,5 +1,7 @@
 import { html, render } from "../../lib/lit/lit.js";
+
 import removeProductTemplate from "./confirmRemoveProductDialogModal.js";
+import getProductDetailsModalTemplate from "./productDetailsModalTemplate.js";
 
 
 const tableDivContainer = document.querySelector("div#table-container");
@@ -177,7 +179,7 @@ function productTableRowTemplate(product, context) {
             <td>
                 <div class="btn-group-sm d-flex flex-wrap justify-content-center gap-1 gap-sm-2 gap-md-2">
                     <button class="btn rounded-pill btn-teal btn-sm w-100" style="max-width: 12em"
-                            @click=${async () => await onViewProductDetailsHandler(product.id)}>
+                            @click=${async () => await onViewProductDetailsHandler(product.id, context)}>
                         View Details
                     </button>
 
@@ -191,8 +193,14 @@ function productTableRowTemplate(product, context) {
     `;
 }
 
-async function onViewProductDetailsHandler(productId) {
-    alert(`View product details. id:${productId}`)
+async function onViewProductDetailsHandler(productId, context) {
+    render(await getProductDetailsModalTemplate(productId, context), dialogsSection);
+    
+    const productDetailsModalId = `product-details-${productId}`;
+    const modalEl = dialogsSection.querySelector(`div#${productDetailsModalId}`);
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    
+    modal.toggle();
 }
 
 async function onRemoveProductHandler(product, context) {
@@ -224,7 +232,7 @@ function calculateItemsNumbers(currPageNumber, totalPagesCount, totalItemsCount,
     if(currPageNumber === totalPagesCount) {
         if(totalItemsCount === 0)
             firstItemNumOnPage = 0;
-        if(currPageNumber === 1 && totalItemsCount !== 0)
+        else if(currPageNumber === 1 && totalItemsCount !== 0)
             firstItemNumOnPage = 1;
         else
             firstItemNumOnPage = lastItemNumOnPage - (lastItemNumOnPage % itemsCountOnPage) + 1;

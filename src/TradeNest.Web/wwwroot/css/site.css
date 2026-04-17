@@ -122,3 +122,31 @@ body {
         color: white !important;
     }
 }
+
+.horizontal-thumbnails {
+    scrollbar-width: thin;
+    scrollbar-color: var(--tn-teal) #f1f1f1;
+}
+
+.horizontal-thumbnails::-webkit-scrollbar {
+    height: 8px;
+}
+
+.horizontal-thumbnails::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.horizontal-thumbnails::-webkit-scrollbar-thumb {
+    background: var(--tn-teal);
+    border-radius: 4px;
+}
+
+.thumbnail-wrapper img {
+    transition: transform 0.2s;
+}
+
+.thumbnail-wrapper img:hover {
+    transform: scale(1.05);
+    cursor: zoom-in;
+}

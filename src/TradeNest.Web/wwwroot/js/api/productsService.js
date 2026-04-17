@@ -1,6 +1,7 @@
 const productsService = {
     getCurrPageProducts,
     getCurrProdDetails,
+    changeProductApprovalStatus,
     removeProduct,
 }
 export default productsService;
@@ -9,6 +10,7 @@ const BASE = "/api/v1/products";
 const endpoints = {
     byId: (productId) => `${BASE}/${productId}`,
     getProdsWithPagination: buildPathWithPagination,
+    approvalByProdId: (productId) => `${BASE}/approval/${productId}`,
 };
 
 export async function getCurrPageProducts(
@@ -45,8 +47,30 @@ export async function getCurrProdDetails(productId) {
         return await res.json();
     } catch (err) {
         if(err instanceof Error) {
-            console.error(`Error fetching product quantity.`, err.status);
+            console.error(`Error fetching product details.`, err.status);
             return null;
+        }
+    }
+}
+
+export async function changeProductApprovalStatus(productApprovalData, xsrfToken) {
+    try {
+        const servRes = await fetch(endpoints.approvalByProdId(productApprovalData.productId), {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "X-XSRF-TOKEN": xsrfToken,
+            },
+            body: JSON.stringify(productApprovalData)
+        });
+        if(!servRes.ok)
+            throw new Error(await servRes.json());
+        
+        return await servRes.json();
+    } catch (err) {
+        if(err instanceof Error) {
+            console.error(`Error modifying product's approval status.`, err.status);
+            return false;
         }
     }
 }

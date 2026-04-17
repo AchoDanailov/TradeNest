@@ -1,6 +1,7 @@
 import { html } from "../../lib/lit/lit.js"
 
 import showProductsTable from "./productsTable.js";
+import { showErrorSwal, showPlainSuccessSwal } from "./domUtils.js";
 
 export default function removeProductTemplate(product, context) {
     const deleteProductModalId = `remove-product-${product.id}`;
@@ -8,7 +9,7 @@ export default function removeProductTemplate(product, context) {
     return html`
         <div class="modal fade" id="${deleteProductModalId}"
              data-bs-keyboard="true" tabindex="-1" data-bs-backdrop="static"
-             aria-labelledby="remove-product-${deleteProductModalId}-dialog"
+             aria-labelledby="${deleteProductModalId}-dialog"
              aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -48,30 +49,16 @@ async function onConfirmRemoveProduct(event, product, context) {
     
     const removeProductResult = await context.removeProduct(product.id);
     if(!removeProductResult) {
-        Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "Something went wrong! Please try again.",
-            confirmButtonColor: "#0FAF9A",
-            draggable: true,
-            showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
-            hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` }
-        }).then(async () => {
-            modal.dispose();
-            await showProductsTable(context);
-        });
+        showErrorSwal()
+            .then(async () => {
+                modal.dispose();
+                await showProductsTable(context);
+            });
     } else {
-        Swal.fire({
-            icon: "success",
-            title: "Success",
-            text: "Product removed successfully!",
-            draggable: true,
-            confirmButtonColor: "#0FAF9A",
-            showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
-            hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` },
-        }).then(async () => {
-            modal.dispose();
-            await showProductsTable(context);
-        });
+        showPlainSuccessSwal("Product removed successfully!")
+            .then(async () => {
+                modal.dispose();
+                await showProductsTable(context);
+            });
     }
 }

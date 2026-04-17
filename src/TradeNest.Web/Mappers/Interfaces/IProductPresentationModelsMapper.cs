@@ -22,4 +22,7 @@ public interface IProductPresentationModelsMapper
     ProductEditDto FromProductEditFormModel(ProductEditFormModel productEditFormModel);
     
     ProductDetailsResponseDto ToProductResponseDto(ProductDetailsDto productDetailsDto);
+    
+    EditApprovalDecisionDto FromEditProductApprovalStatusRequestDto(
+        EditProductApprovalStatusRequestDto requestDto);
 }

@@ -8,10 +8,10 @@ public interface IProductsRepository : IReadRepository<Product>
     Task<Product?> GetProductDetailsWithRelatedDataAsync(Guid productId, bool asReadOnly = false);
 
     Task<IEnumerable<Product>> GetAllInclArchivedAndNotApprovedAsync(
-        Action<IQueryOptions<Product>> queryOptionsBuilder);
+        Action<IQueryOptions<Product>>? queryOptionsBuilder = null);
     
     Task<IEnumerable<Product>> GetAllInclNotApprovedAsync(
-        Action<IQueryOptions<Product>> queryOptionsBuilder);
+        Action<IQueryOptions<Product>>? queryOptionsBuilder = null);
     
     Task<IDictionary<Guid, string?>> GetAllCategoriesBestSellersFrontImagesAsync(bool asReadOnly = false);
 

@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Product;
 using TradeNest.Web.ViewModels.Product;
@@ -49,6 +48,31 @@ public class ProductsApiController : BaseApiController
         return Ok(productDetailsResponseDto);
     }
 
+    [HttpPut]
+    [Route("products/approval/{productId}")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)] [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] [ProducesResponseType(StatusCodes.Status403Forbidden)] 
+    public async Task<ActionResult<bool>> ModifyApprovalAsync([FromRoute] Guid productId,
+        [FromBody] EditProductApprovalStatusRequestDto requestDto)
+    {
+        if (requestDto.ProductId == Guid.Empty ||
+            productId == Guid.Empty ||
+            requestDto.ProductId != productId)
+        {
+            return BadRequest();
+        }
+
+        Guid userId = this.GetUserId(throwIfNull: true);
+        EditApprovalDecisionDto approvalDecisionDto = this._productsMapper
+            .FromEditProductApprovalStatusRequestDto(requestDto);
+        
+        await this._productsService
+            .ChangeProductApprovalStatus(userId, productId, approvalDecisionDto);
+        
+        return Ok(true);
+    }
+
     [HttpDelete]
     [Route("products/{id}")]
     [Authorize(Roles = "Admin")]
@@ -70,6 +94,7 @@ public class ProductsApiController : BaseApiController
     [Route("products")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<SpecifiedProductsResponseDto>> GetProductsDataAsync(
         [FromQuery] int? page = null,
         [FromQuery] int? limit = null,
