@@ -199,8 +199,13 @@ async function onViewProductDetailsHandler(productId, context) {
     const productDetailsModalId = `product-details-${productId}`;
     const modalEl = dialogsSection.querySelector(`div#${productDetailsModalId}`);
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        render(html``, dialogsSection);
+        modal.dispose();
+    }, { once: true });
     
-    modal.toggle();
+    modal.show();
 }
 
 async function onRemoveProductHandler(product, context) {
@@ -210,7 +215,12 @@ async function onRemoveProductHandler(product, context) {
     const modalEl = dialogsSection.querySelector(`div#${deleteProductModalId}`)
     const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
     
-    modal.toggle();
+    modalEl.addEventListener('hidden.bs.modal', () => {
+        render(html``, dialogsSection);
+        modal.dispose();
+    }, { once: true });
+
+    modal.show();
 }
 
 function calculatePageNumbers(currPageNumber, totalPagesCount) {

@@ -50,15 +50,9 @@ async function onConfirmRemoveProduct(event, product, context) {
     const removeProductResult = await context.removeProduct(product.id);
     if(!removeProductResult) {
         showErrorSwal()
-            .then(async () => {
-                modal.dispose();
-                await showProductsTable(context);
-            });
+            .then(async () => await showProductsTable(context));
     } else {
         showPlainSuccessSwal("Product removed successfully!")
-            .then(async () => {
-                modal.dispose();
-                await showProductsTable(context);
-            });
+            .then(async () => await showProductsTable(context));
     }
 }

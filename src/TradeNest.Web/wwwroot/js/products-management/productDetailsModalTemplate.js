@@ -135,18 +135,15 @@ function template(productDetails, productDetailsModalId, context) {
 
                             <div class="row manage-approval-row mt-4">
                                 <div class="col-12">
-                                    <form @submit=${async (event) => onModifyApproval(event, productDetails.id, context)}>
+                                    <form @submit=${async (event) => onModifyApproval(event, productDetails, context)}>
                                         <div class="card border-0 shadow-sm border-top border-4 border-teal">
                                             <div class="card-body">
                                                 <h5 class="card-title text-navy mb-4">Manage Approval Status</h5>
 
-                                                <div class="mb-4">
+                                                <div class="mb-4 select-status-section">
                                                     <label class="form-label fw-bold text-teal">Select Status</label>
-                                                    <div class="btn-group w-100" role="group" aria-label="Approval status selection">
-                                                        <input type="radio" class="btn-check" name="approvalStatus-${productDetails.id}" id="statusWaiting-${productDetails.id}"
-                                                               value="WaitingApproval" .checked=${productDetails.approvalDecision.approvalStatus === "WaitingApproval"}>
-                                                        <label class="btn btn-outline-warning" for="statusWaiting-${productDetails.id}">Waiting Approval</label>
-
+                                                    <div class="btn-group w-100" role="group" aria-label="Approval status selection"
+                                                         @change=${onStatusChangeValidation}>
                                                         <input type="radio" class="btn-check" name="approvalStatus-${productDetails.id}" id="statusApproved-${productDetails.id}"
                                                                value="Approved" .checked=${productDetails.approvalDecision.approvalStatus === "Approved"}>
                                                         <label class="btn btn-outline-success" for="statusApproved-${productDetails.id}">Approved</label>
@@ -155,14 +152,17 @@ function template(productDetails, productDetailsModalId, context) {
                                                                value="Disapproved" .checked=${productDetails.approvalDecision.approvalStatus === "Disapproved"}>
                                                         <label class="btn btn-outline-danger" for="statusDisapproved-${productDetails.id}">Disapproved</label>
                                                     </div>
+                                                    <div class="text-danger approval-validation-section"></div>
                                                 </div>
 
-                                                <div class="mb-4">
+                                                <div class="mb-4 decision-justification-section">
                                                     <label for="decisionJustification-${productDetails.id}" class="form-label fw-bold text-teal">Decision Justification</label>
                                                     <textarea class="form-control" id="decisionJustification-${productDetails.id}" 
                                                               name="decision-justification-${productDetails.id}" rows="3"
                                                               placeholder="Provide a reason for the decision..."
-                                                              .value=${productDetails.approvalDecision.decisionJustification ?? ""}></textarea>
+                                                              .value=${productDetails.approvalDecision.decisionJustification}
+                                                              @change=${approvalDecisionJustificationValidation}></textarea>
+                                                    <div class="text-danger justification-validation-section"></div>
                                                 </div>
 
                                                 <div class="d-grid">
@@ -214,34 +214,76 @@ function errTemplate(productDetailsModalId) {
         </div>`;
 }
 
-async function onModifyApproval(event, productId, context) {
+async function onModifyApproval(event, productDetails, context) {
     event.preventDefault();
+
+    const formData = new FormData(event.currentTarget);
+    const newApprovalStatus = formData.get(`approvalStatus-${productDetails.id}`);
+    const decisionJustification = formData.get(`decision-justification-${productDetails.id}`);
+
+    let isSameData = false;
+    if(newApprovalStatus === productDetails.approvalDecision.approvalStatus) {
+        event.currentTarget
+            .querySelector("div.approval-validation-section")
+            .textContent = "Approval status was not changed.";
+        
+        isSameData = true;
+    }
+    if(decisionJustification === productDetails.approvalDecision.decisionJustification) {
+        event.currentTarget
+            .querySelector("div.justification-validation-section")
+            .textContent = "Please provide a new reason for the new approval decision.";
+        
+        isSameData = true;
+    }
     
-    const modalEl = event.currentTarget.closest(`div.modal#product-details-${productId}`);
+    if(isSameData) {
+        return;
+    }
+    
+    const modalEl = event.currentTarget.closest(`div.modal#product-details-${productDetails.id}`);
     const modal = bootstrap.Modal.getInstance(modalEl);
     modal.toggle();
 
-    const formData = new FormData(event.currentTarget);
-    const newApprovalStatus = formData.get(`approvalStatus-${productId}`);
-    const decisionJustification = formData.get(`decision-justification-${productId}`);
-
     const modifyApprovalResult = await context.modifyProductApproval({
-        productId: productId,
+        productId: productDetails.id,
         approvalStatus: newApprovalStatus,
         decisionJustification: decisionJustification,
     });
     if(!modifyApprovalResult) {
         showErrorSwal()
-            .then(async () => {
-                modal.dispose();
-                await showProductsTable(context);
-            });
+            .then(async () => await showProductsTable(context));
     } else {
         showPlainSuccessSwal("The product approval status has been changed successfully.")
-            .then(async () => {
-                modal.dispose();
-                await showProductsTable(context);
-            });
+            .then(async () => await showProductsTable(context));
+    }
+}
+
+function onStatusChangeValidation(event) {
+    const validationSection = event.currentTarget
+        .closest("div.select-status-section")
+        .querySelector("div.approval-validation-section");
+    
+    if(validationSection?.textContent !== "") {
+        validationSection.textContent = "";
+    }
+}
+
+function approvalDecisionJustificationValidation(event) {
+    const submitButton = document.querySelector("#save-approval-changes");
+    const textArea = event.currentTarget;
+    const validationSection = event.currentTarget
+        .closest("div.decision-justification-section")
+        .querySelector("div.justification-validation-section");
+    
+    if(textArea.value < 4 || textArea.value > 3000) {
+        validationSection.textContent 
+            = "The decision reason should be between 4 and 3000 characters long.";
+        
+        submitButton?.setAttribute("disabled", "disabled");
+    } else {
+        validationSection.textContent = "";
+        submitButton?.removeAttribute("disabled");
     }
 }
 

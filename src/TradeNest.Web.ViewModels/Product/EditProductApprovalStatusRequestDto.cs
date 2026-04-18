@@ -12,5 +12,6 @@ public class EditProductApprovalStatusRequestDto
     public string ApprovalStatus { get; set; } = null!;
 
     [MaxLength(DecisionJustificationMaxLengthValue)]
+    [MinLength(DecisionJustificationMinLengthValue)]
     public string? DecisionJustification { get; set; } 
 }

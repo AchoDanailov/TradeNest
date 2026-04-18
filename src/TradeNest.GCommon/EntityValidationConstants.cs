@@ -35,6 +35,7 @@ public static class EntityValidationConstants
         
         public static class ApprovalDecision
         {
+            public const short DecisionJustificationMinLengthValue = 4;
             public const short DecisionJustificationMaxLengthValue = 3000;
         }
     }
