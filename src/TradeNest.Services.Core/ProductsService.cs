@@ -292,13 +292,6 @@ public class ProductsService : IProductsService
 
         bool isOwner = userId != null && product.OwnerId == userId.Value;
         
-        bool isAdmin = false;
-        if(userId != null && userId.Value != Guid.Empty)
-            isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId.Value);
-        
-        if (!isOwner && !isAdmin)
-            return null;
-        
         return this._productsMapper.ToProductDetailsDto(product, isOwner);
     }
 

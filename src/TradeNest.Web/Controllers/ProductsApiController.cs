@@ -35,10 +35,8 @@ public class ProductsApiController : BaseApiController
         if (string.IsNullOrWhiteSpace(id) || !Guid.TryParse(id, out Guid idGuidValue))
             return BadRequest();
         
-        Guid userId = this.GetUserId(throwIfNull: true);
-            
         ProductDetailsDto? productDetailsDto = await this._productsService
-            .GetProductDetailsByIdAsync(idGuidValue, userId);
+            .GetProductDetailsByIdAsync(idGuidValue);
         if (productDetailsDto == null)
             return NotFound();
             

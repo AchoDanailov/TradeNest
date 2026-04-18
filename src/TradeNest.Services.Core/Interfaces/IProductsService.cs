@@ -114,10 +114,9 @@ public interface IProductsService
     /// <param name="id">The product identifier.</param>
     /// <param name="userId">
     /// The identifier of the user that wants to view the product details.
-    /// In case of unauthenticated user userId can be left null.
     /// </param>
     /// <returns>
-    /// A task that returns the product details, or null if not found or user is not authorized.
+    /// A task that returns the product details, or null if not found. 
     /// </returns>
     Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id, Guid? userId = null);
 
