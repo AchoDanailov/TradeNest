@@ -9,10 +9,10 @@ public static class FormsInvalidInputsNotificationMessages
     {
         public const string ProductIdRequired = "Something went wrong; we couldn't identify the product you're trying to edit.";
         public const string ProductNameRequired = "Please provide a name for the product.";
-        public const string ProductNameLength = "The product name should be between {1} and {2} characters long.";
+        public const string ProductNameLength = "The product name should be between {2} and {1} characters long.";
 
         public const string DescriptionRequired = "A description is required so buyers know what they are getting.";
-        public const string DescriptionLength = "The description should be between {1} and {2} characters long.";
+        public const string DescriptionLength = "The description should be between {2} and {1} characters long.";
 
         public const string QuantityInStockRange = "The quantity must be a number between {1} and {2}.";
 
@@ -31,6 +31,6 @@ public static class FormsInvalidInputsNotificationMessages
     public static class Category
     {
         public const string NameRequired = "Please provide a name for the category.";
-        public const string CategoryNameLength = "The Category name should be between {1} and {2} characters long.";
+        public const string CategoryNameLength = "The Category name should be between {2} and {1} characters long.";
     }
 }
