@@ -501,9 +501,9 @@ public class ProductsService : IProductsService
         EditApprovalDecisionDto approvalDecisionDto)
     {
         if (userId == Guid.Empty)
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, userId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if (productId == Guid.Empty)
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, productId));
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
 
         bool approvalStatusIsValidValue = Enum.TryParse(
             approvalDecisionDto.ApprovalStatus.ToString(),

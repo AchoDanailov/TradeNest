@@ -27,6 +27,9 @@ public interface IProductsRepository : IReadRepository<Product>
     Task<bool> AddRangeAsync(IEnumerable<Product> products);
 
     Task<bool> UpdateAsync(Product product);
+
+    Task<bool> ExecuteUpdateRangeAsync<TType>(Expression<Func<Product, bool>> filter,
+        Func<Product, TType> updateProperty, TType updateValue);
     
     Task<bool> ArchiveAsync(Product product);
 }

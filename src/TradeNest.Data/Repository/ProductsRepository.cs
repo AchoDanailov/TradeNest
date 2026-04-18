@@ -166,6 +166,18 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         return res >= 1;
     }
 
+    public async Task<bool> ExecuteUpdateRangeAsync<TType>(
+        Expression<Func<Product, bool>> filter,
+        Func<Product, TType> updateProperty,
+        TType updateValue)
+    {
+        int res = await this.DbContext.Products
+            .Where(filter)
+            .ExecuteUpdateAsync(c => c.SetProperty(updateProperty, updateValue));
+        
+        return res >= 1;
+    }
+
     public async Task<bool> ArchiveAsync(Product product)
     {
         product.IsDeleted = true;

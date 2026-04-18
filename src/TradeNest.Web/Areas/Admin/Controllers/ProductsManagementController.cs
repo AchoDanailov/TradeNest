@@ -1,14 +1,72 @@
 using Microsoft.AspNetCore.Mvc;
+using TradeNest.GCommon;
+using TradeNest.Services.Core.Interfaces;
+using TradeNest.Services.Models.Category;
+using TradeNest.Web.ViewModels.Category;
+using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
 namespace TradeNest.Web.Areas.Admin.Controllers;
 
 public class ProductsManagementController : BaseAdminController
 {
+    private readonly ICategoriesService _categoriesService;
+
+    public ProductsManagementController(ICategoriesService categoriesService)
+    {
+        this._categoriesService = categoriesService;
+    }
+
+    [HttpGet]
     public IActionResult Index()
     {
-        return View(new
+        return View();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> ManageCategories()
+    {
+        IEnumerable<CategoryDto> categoryDtos = await this._categoriesService
+            .GetAllCategoriesAsync();
+        IEnumerable<AllCategoriesViewModel> categoriesViewModels = categoryDtos
+            .Select(c => new AllCategoriesViewModel()
+            {
+                Id = c.Id,
+                CategoryName = c.CategoryName,
+            });
+        
+        return View(categoriesViewModels);
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> RemoveCategory([FromRoute(Name = "id")] Guid categoryId)
+    {
+        if (categoryId == Guid.Empty)
+            return BadRequest();
+
+        Guid userId = this.GetAdminUserId(throwIfNull: true);
+
+        string messageField = "CategoryDeletionSuccessMessage";
+        string messageValue = string.Format(CategoryDeletionSuccessMessage,
+            ApplicationConstants.DefaultProductsCategory);
+        
+        DeleteCategoryResultDto result = await this._categoriesService
+            .DeleteCategoryByIdAsync(userId, categoryId);
+        if (!result.IsSuccess)
         {
-            ReturnUrl = Url.Action(nameof(Index), controller: "Home", new { area = "Admin" })
-        });
+            if (result.FailureReason == ExpectedFailureReason.NoCategoryToMoveProductsTo)
+            {
+                messageField = "NoDefaultCategoryMessage";
+                messageValue = string.Format(NoDefaultCategoryMessage,
+                    ApplicationConstants.DefaultProductsCategory);
+            }
+            else
+            {
+                messageField = "UnexpectedErrorMessage";
+                messageValue = UnexpectedErrorMessage;
+            }
+        }
+
+        TempData[messageField] = messageValue;
+        return RedirectToAction(nameof(ManageCategories), controllerName: "ProductsManagement");
     }
 }

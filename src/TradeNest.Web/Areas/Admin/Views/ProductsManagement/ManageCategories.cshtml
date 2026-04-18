@@ -1,0 +1,55 @@
+@model IEnumerable<AllCategoriesViewModel>
+
+@{
+    ViewData["Title"] = "Manage Categories";
+    string hoverEffect = "nav-link-border-radius-hover-effect-light";
+}
+
+<partial name="_AdminAreaNavigationButtonsPartial" 
+         model="@(new
+                {
+                    Next = "",
+                    ReturnUrl = Url.Action("Index", controller: "ProductsManagement", new { area = "Admin" })
+                })" />
+
+<div class="container-lg d-flex flex-column mt-2 gap-5 site-sections-bg shadow border-3 rounded-3 pt-4 pb-5">
+    <div id="header" class="border-2 border-bottom">
+        <h1 class="display-2 text-teal ms-2 mb-0 pb-0">@ViewData["Title"]</h1>
+    </div>
+    
+    <div id="table-section">
+        <div id="table-wrapper">
+            <table class="table table-hover caption-top">
+                <caption>List of Categories</caption>
+                
+                <thead class="site-sections-bg-teal text-center">
+                <tr class="text-center align-middle">
+                    <th class="@hoverEffect">Category</th>
+                    <th class="@hoverEffect">Actions</th>
+                </tr>
+                </thead>
+                
+                <tbody class="tbody-top-border">
+                    @foreach (AllCategoriesViewModel category in this.Model)
+                    {
+                        <tr class="text-center align-middle">
+                            <td>@category.CategoryName</td>
+                            
+                            <td class="text-center justify-content-center">
+                                <div class="btn-group-sm">
+                                    @{ string deleteModalId = $"#delete-modal-{category.Id}"; }
+                                    <button class="btn rounded-pill btn-outline-danger btn-sm"
+                                            data-bs-toggle="modal" data-bs-target="@deleteModalId">
+                                        Remove Role
+                                    </button>
+                                </div>
+                            </td>
+                                
+                            <partial name="_RemoveCategoryModalPartial" model="@category" />
+                        </tr>   
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

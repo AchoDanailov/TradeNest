@@ -1,4 +1,8 @@
+using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
+using TradeNest.GCommon;
+using TradeNest.GCommon.Exceptions;
+using static TradeNest.GCommon.ErrorMessages;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
 
@@ -8,21 +12,16 @@ public class CategoriesService : ICategoriesService
 {
     private readonly ICategoriesRepository _categoriesRepository;
     private readonly IProductsRepository _productsRepository;
+    private readonly IAdminsRepository _adminsRepository;
 
-    public CategoriesService(ICategoriesRepository categoriesRepository,
-        IProductsRepository productsRepository)
+    public CategoriesService(
+        ICategoriesRepository categoriesRepository,
+        IProductsRepository productsRepository,
+        IAdminsRepository adminsRepository)
     {
         this._categoriesRepository = categoriesRepository;
         this._productsRepository = productsRepository;
-    }
-    
-    public async Task<bool> CategoryExistsByIdAsync(Guid id)
-    {
-        if (id == Guid.Empty)
-            return false;
-
-        return await this._categoriesRepository
-            .ExistsAsync(c => c.Id == id);
+        this._adminsRepository = adminsRepository;
     }
     
     public async Task<IEnumerable<CategoryDto>> GetAllCategoriesAsync()
@@ -61,5 +60,66 @@ public class CategoriesService : ICategoriesService
         }
 
         return allCategoriesWithBestSellerImageDtos;
+    }
+
+    public async Task<DeleteCategoryResultDto> DeleteCategoryByIdAsync(Guid userId, Guid categoryId)
+    {
+        if (categoryId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(categoryId)));
+        if (userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+
+        Category? category = await this._categoriesRepository.FindByIdAsync(categoryId);
+        if (category == null)
+            throw new ResourceNotFoundException(nameof(Category), categoryId);
+        
+        bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
+        if (!isAdmin)
+            throw new UnauthorizedOperationException(userId, nameof(Category), categoryId);
+
+        bool categoryHasProducts = await this._productsRepository
+            .ExistsIncludingArchivedAndNotApprovedAsync(p => p.CategoryId == categoryId);
+        if (!categoryHasProducts)
+        {
+            bool deleteEmptyCategoryResult = await this._categoriesRepository
+                .DeleteCategoryAsync(category);
+            if (!deleteEmptyCategoryResult)
+            {
+                throw new DataPersistException(nameof(deleteEmptyCategoryResult), 
+                    $"categoryId: {categoryId}");
+            }
+            
+            return DeleteCategoryResultDto.Success();
+        }
+
+        Category? defaultCategory = (await this._categoriesRepository.GetAllAsync(queryOptions =>
+                queryOptions.AddFilter(c => c.Name == ApplicationConstants.DefaultProductsCategory)))
+            .SingleOrDefault();
+        if (defaultCategory == null)
+        {
+            return DeleteCategoryResultDto
+                .Failure(ExpectedFailureReason.NoCategoryToMoveProductsTo);
+        }
+
+        bool changeProductsCategoryIdsResult = await this._productsRepository
+            .ExecuteUpdateRangeAsync<Guid>(
+                filter: p => p.CategoryId == categoryId,
+                updateProperty: p => p.CategoryId,
+                updateValue: defaultCategory.Id);
+        if (!changeProductsCategoryIdsResult)
+        {
+            throw new DataPersistException(nameof(changeProductsCategoryIdsResult), 
+                $"categoryId: {categoryId}");
+        }
+        
+        bool deleteCategoryResult = await this._categoriesRepository
+            .DeleteCategoryAsync(category);
+        if (!deleteCategoryResult)
+        {
+            throw new DataPersistException(nameof(deleteCategoryResult), 
+                $"categoryId: {categoryId}");
+        }
+            
+        return DeleteCategoryResultDto.Success();
     }
 }

@@ -25,4 +25,12 @@ public class CategoriesRepository : BaseReadRepository<Category>, ICategoriesRep
 
         return res >= 1;
     }
+
+    public async Task<bool> DeleteCategoryAsync(Category category)
+    {
+        this.DbContext.Categories.Remove(category);
+        int res = await this.DbContext.SaveChangesAsync();
+
+        return res >= 1;
+    }
 }

@@ -8,6 +8,9 @@
             if (returnUrl.ToLowerInvariant().Contains("details"))
                 return "Back To Details";
             
+            if (returnUrl.ToLowerInvariant().Contains("management"))
+                return "Back To Products Management";
+            
             return "Back To Catalog";
         }
         else if (returnUrl.ToLowerInvariant().Contains("cart"))
@@ -17,10 +20,6 @@
         else if (returnUrl.ToLowerInvariant().Contains("usersmanagement"))
         {
             return "Back To Users Management";
-        }
-        else if (returnUrl.ToLowerInvariant().Contains("productsmanagement"))
-        {
-            return "Back To Products Management";
         }
         else
         {

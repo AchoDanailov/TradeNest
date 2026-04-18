@@ -17,6 +17,11 @@
         = TempData["SuccessfullyRemovedUserMessage"] as string ?? string.Empty;
     string successfullyRemovedRoleMessage
         = TempData["SuccessfullyRemovedRoleMessage"] as string ?? string.Empty;
+
+    string categoryDeletionSuccessMessage
+        = TempData["CategoryDeletionSuccessMessage"] as string ?? string.Empty;
+    string noDefaultCategoryMessage
+        = TempData["NoDefaultCategoryMessage"] as string ?? string.Empty;
     
     string unexpectedErrorMessage 
         = ViewData["UnexpectedErrorMessage"] as string ?? string.Empty;
@@ -79,6 +84,21 @@ else if (!string.IsNullOrEmpty(successfullyRemovedRoleMessage))
     <div class="alert alert-success alert-dismissible" role="alert">
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         @successfullyRemovedRoleMessage
+    </div>
+}
+
+else if (!string.IsNullOrEmpty(categoryDeletionSuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @categoryDeletionSuccessMessage
+    </div>
+}
+else if (!string.IsNullOrEmpty(noDefaultCategoryMessage))
+{
+    <div class="alert alert-danger alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @noDefaultCategoryMessage
     </div>
 }
 
