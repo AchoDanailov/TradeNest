@@ -53,7 +53,8 @@ public class ProductsManagementController : BaseAdminController
         Guid userId = this.GetAdminUserId(throwIfNull: true);
         await this._categoriesService.CreateCategoryAsync(userId, formModel.CategoryName);
 
-        TempData["SuccessfullyCreatedCategoryMessage"] = SuccessfullyCreatedCategoryMessage;
+        TempData["SuccessfullyCreatedCategoryMessage"] 
+            = string.Format(SuccessfullyCreatedCategoryMessage, formModel.CategoryName);
         return RedirectToAction(nameof(ManageCategories), controllerName: "ProductsManagement");
     }
     
@@ -65,24 +66,32 @@ public class ProductsManagementController : BaseAdminController
 
         Guid userId = this.GetAdminUserId(throwIfNull: true);
 
-        string messageField = "CategoryDeletionSuccessMessage";
-        string messageValue = string.Format(CategoryDeletionSuccessMessage,
+        string messageField = "CategoryDeletionSuccessFullMessage";
+        string messageValue = string.Format(CategoryDeletionSuccessFullMessage,
             ApplicationConstants.DefaultProductsCategory);
         
         DeleteCategoryResultDto result = await this._categoriesService
             .DeleteCategoryByIdAsync(userId, categoryId);
         if (!result.IsSuccess)
         {
-            if (result.FailureReason == ExpectedFailureReason.NoCategoryToMoveProductsTo)
+            switch (result.FailureReason)
             {
-                messageField = "NoDefaultCategoryMessage";
-                messageValue = string.Format(NoDefaultCategoryMessage,
-                    ApplicationConstants.DefaultProductsCategory);
-            }
-            else
-            {
-                messageField = "UnexpectedErrorMessage";
-                messageValue = UnexpectedErrorMessage;
+                case ExpectedFailureReason.NoCategoryToMoveProductsTo:
+                    messageField = "NoDefaultCategoryMessage";
+                    messageValue = string.Format(NoDefaultCategoryMessage,
+                        ApplicationConstants.DefaultProductsCategory);
+                    break;
+                
+                case ExpectedFailureReason.RemovingDefaultCategory:
+                    messageField = "RemovingDefaultCategoryMessage";
+                    messageValue = string.Format(RemovingDefaultCategoryMessage,
+                        ApplicationConstants.DefaultProductsCategory);
+                    break;
+                
+                default:
+                    messageField = "UnexpectedErrorMessage";
+                    messageValue = UnexpectedErrorMessage;
+                    break;
             }
         }
 

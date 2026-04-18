@@ -3,6 +3,7 @@ namespace TradeNest.Services.Models.Category;
 public enum ExpectedFailureReason
 {
     NoCategoryToMoveProductsTo = 0,
+    RemovingDefaultCategory = 1,
 }
 
 /// <summary>

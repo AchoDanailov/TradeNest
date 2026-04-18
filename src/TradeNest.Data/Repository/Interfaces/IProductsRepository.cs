@@ -28,8 +28,9 @@ public interface IProductsRepository : IReadRepository<Product>
 
     Task<bool> UpdateAsync(Product product);
 
-    Task<bool> ExecuteUpdateRangeAsync<TType>(Expression<Func<Product, bool>> filter,
-        Func<Product, TType> updateProperty, TType updateValue);
+    Task<bool> ExecuteUpdateProductsRangeCategoriesIdsAsync(
+        Expression<Func<Product, bool>> filter,
+        Guid newCategoryId);
     
     Task<bool> ArchiveAsync(Product product);
 }

@@ -114,6 +114,12 @@ public class CategoriesService : ICategoriesService
         if (!isAdmin)
             throw new UnauthorizedOperationException(userId, nameof(Category), categoryId);
 
+        if (category.Name == ApplicationConstants.DefaultProductsCategory)
+        {
+            return DeleteCategoryResultDto
+                .Failure(ExpectedFailureReason.RemovingDefaultCategory);
+        }
+        
         bool categoryHasProducts = await this._productsRepository
             .ExistsIncludingArchivedAndNotApprovedAsync(p => p.CategoryId == categoryId);
         if (!categoryHasProducts)
@@ -139,10 +145,9 @@ public class CategoriesService : ICategoriesService
         }
 
         bool changeProductsCategoryIdsResult = await this._productsRepository
-            .ExecuteUpdateRangeAsync<Guid>(
+            .ExecuteUpdateProductsRangeCategoriesIdsAsync(
                 filter: p => p.CategoryId == categoryId,
-                updateProperty: p => p.CategoryId,
-                updateValue: defaultCategory.Id);
+                newCategoryId: defaultCategory.Id);
         if (!changeProductsCategoryIdsResult)
         {
             throw new DataPersistException(nameof(changeProductsCategoryIdsResult), 

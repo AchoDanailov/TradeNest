@@ -1,14 +1,45 @@
 @model CreateCategoryFormModel
 
 @{
-    ViewData["Title"] = "Create Category";
+    ViewData["Title"] = "Add A New Category";
 }
 
 <partial name="_AdminAreaNavigationButtonsPartial" 
          model="@(new
                 {
                     Next = "",
-                    ReturnUrl = Url.Action("ManageCategories", controller: "ProductsManagement", new { area = "Admin" })
+                    ReturnUrl = Url.Action("ManageCategories", "ProductsManagement", new { area = "Admin" })
                 })" />
 
+<div class="container-lg pb-4 pt-2">
+    <div class="row mx-3 mb-5 px-4 pb-4">
+        
+        <h1 class="display-5 text-teal text-center text-md-start fw-bold mb-2">
+            @ViewData["Title"]
+        </h1>
+        
+        <form asp-area="Admin" asp-controller="ProductsManagement" asp-action="CreateCategory" method="post"
+              class="d-flex flex-column gap-4 site-sections-bg p-2 p-md-5 rounded-3 shadow border">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
+            <div>
+                <label asp-for="CategoryName" class="form-label text-navy fw-bold">Category Name: </label>
+                <input type="text" asp-for="CategoryName" class="form-control" aria-required="true" />
+                <span asp-validation-for="CategoryName" class="text-danger"></span>
+            </div>
+            
+            <div class="btn-group-lg mt-3 d-flex justify-content-end gap-3 mb-3 mb-md-0">
+                <a asp-area="Admin" asp-controller="ProductsManagement" asp-action="ManageCategories"
+                   class="btn-lg rounded-pill btn-secondary p-2 px-4 text-decoration-none">Cancel</a>
+                
+                <button type="submit" class="btn-lg rounded-pill btn-teal p-2 px-4">
+                    Submit
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
 
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

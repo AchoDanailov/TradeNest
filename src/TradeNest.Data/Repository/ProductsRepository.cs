@@ -166,14 +166,15 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         return res >= 1;
     }
 
-    public async Task<bool> ExecuteUpdateRangeAsync<TType>(
+    public async Task<bool> ExecuteUpdateProductsRangeCategoriesIdsAsync(
         Expression<Func<Product, bool>> filter,
-        Func<Product, TType> updateProperty,
-        TType updateValue)
+        Guid newCategoryId) 
     {
         int res = await this.DbContext.Products
+            .IgnoreQueryFilters()
             .Where(filter)
-            .ExecuteUpdateAsync(c => c.SetProperty(updateProperty, updateValue));
+            .ExecuteUpdateAsync(prop => 
+                prop.SetProperty(p => p.CategoryId, newCategoryId));
         
         return res >= 1;
     }

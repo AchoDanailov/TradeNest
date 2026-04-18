@@ -30,14 +30,17 @@ internal static class StatusNotificationMessages
     internal const string SuccessfullyRemovedRoleMessage
         = "You have successfully removed the role.";
 
-    internal const string CategoryDeletionSuccessMessage
-        = "You have successfully removed the category. If there were any products placed in the removed category, are now moved to the category: {0}";
+    internal const string CategoryDeletionSuccessFullMessage
+        = "You have successfully removed the category. If there were any products that had the removed category as their category, they are now moved to the category with name \"{0}\"";
+
+    internal const string RemovingDefaultCategoryMessage
+        = "The \"{0}\" category is the default category. You can not remove the default category.";
 
     internal const string NoDefaultCategoryMessage
-        = "There are products in this Category. To be able to remove the category you need to create a new category called: {0}, to which all products from the removed category will go to.";
+        = "There are products in this category. To be able to remove the category you need to create a new category called \"{0}\". All products from the removed category will be moved there.";
 
     internal const string SuccessfullyCreatedCategoryMessage
-        = "You have successfully created the {0} category.";
+        = "You have successfully created the category with name \"{0}\".";
 
     internal const string UnexpectedErrorMessage
         = "Oops. Something went wrong. Please try again in a moment.";
