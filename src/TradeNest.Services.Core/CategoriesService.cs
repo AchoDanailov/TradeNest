@@ -3,8 +3,9 @@ using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
 using static TradeNest.GCommon.ErrorMessages;
-using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
+using TradeNest.Services.Core.Interfaces;
+using static TradeNest.Services.Core.Utilities.ExceptionMessages;
 
 namespace TradeNest.Services.Core;
 
@@ -60,6 +61,42 @@ public class CategoriesService : ICategoriesService
         }
 
         return allCategoriesWithBestSellerImageDtos;
+    }
+
+    public async Task<Guid> CreateCategoryAsync(Guid userId, string categoryName)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+        if (string.IsNullOrWhiteSpace(categoryName))
+            throw new ArgumentException(string.Format(CantBeEmptyStringMessage, nameof(categoryName)));
+
+        bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
+        if (!isAdmin)
+        {
+            throw new UnauthorizedOperationException(userId,
+                nameof(Category), "Create new category");
+        }
+
+        bool createCategoryResult = await this._categoriesRepository
+            .AddAsync(new Category() { Name = categoryName });
+        if (!createCategoryResult)
+        {
+            throw new DataPersistException(nameof(createCategoryResult),
+                $"category name: {categoryName}");
+        }
+
+        Category? category = (await this._categoriesRepository.GetAllAsync(queryOptions =>
+                queryOptions
+                    .AsReadOnly()
+                    .AddFilter(c => c.Name == categoryName)))
+            .SingleOrDefault();
+        if (category == null)
+        {
+            throw new DataPersistException(nameof(createCategoryResult),
+                $"category name: {categoryName}");
+        }
+
+        return category.Id;
     }
 
     public async Task<DeleteCategoryResultDto> DeleteCategoryByIdAsync(Guid userId, Guid categoryId)

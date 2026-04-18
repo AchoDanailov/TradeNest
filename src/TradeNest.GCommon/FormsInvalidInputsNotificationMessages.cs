@@ -27,4 +27,10 @@ public static class FormsInvalidInputsNotificationMessages
         public const string ExtraImagesUrlsLength = "The additional image links are too long in total. Please remove some or use shorter URLs.";
         public const string NewImagesUrlsLength = "The new image links are too long in total. Please remove some or use shorter URLs.";
     }
+
+    public static class Category
+    {
+        public const string NameRequired = "Please provide a name for the category.";
+        public const string CategoryNameLength = "The Category name should be between {1} and {2} characters long.";
+    }
 }

@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using TradeNest.GCommon;
+
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
+using TradeNest.GCommon;
 using TradeNest.Web.ViewModels.Category;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
@@ -35,6 +36,25 @@ public class ProductsManagementController : BaseAdminController
             });
         
         return View(categoriesViewModels);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CreateCategory()
+    {
+        return View(new CreateCategoryFormModel());
+    }
+    
+    [HttpPost]
+    public async Task<IActionResult> CreateCategory(CreateCategoryFormModel formModel)
+    {
+        if (!ModelState.IsValid)
+            return View(formModel);
+
+        Guid userId = this.GetAdminUserId(throwIfNull: true);
+        await this._categoriesService.CreateCategoryAsync(userId, formModel.CategoryName);
+
+        TempData["SuccessfullyCreatedCategoryMessage"] = SuccessfullyCreatedCategoryMessage;
+        return RedirectToAction(nameof(ManageCategories), controllerName: "ProductsManagement");
     }
     
     [HttpPost]

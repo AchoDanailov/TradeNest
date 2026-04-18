@@ -36,6 +36,9 @@ internal static class StatusNotificationMessages
     internal const string NoDefaultCategoryMessage
         = "There are products in this Category. To be able to remove the category you need to create a new category called: {0}, to which all products from the removed category will go to.";
 
+    internal const string SuccessfullyCreatedCategoryMessage
+        = "You have successfully created the {0} category.";
+
     internal const string UnexpectedErrorMessage
         = "Oops. Something went wrong. Please try again in a moment.";
 }

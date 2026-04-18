@@ -1,0 +1,14 @@
+@model CreateCategoryFormModel
+
+@{
+    ViewData["Title"] = "Create Category";
+}
+
+<partial name="_AdminAreaNavigationButtonsPartial" 
+         model="@(new
+                {
+                    Next = "",
+                    ReturnUrl = Url.Action("ManageCategories", controller: "ProductsManagement", new { area = "Admin" })
+                })" />
+
+

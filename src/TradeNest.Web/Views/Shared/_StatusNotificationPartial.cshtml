@@ -18,6 +18,8 @@
     string successfullyRemovedRoleMessage
         = TempData["SuccessfullyRemovedRoleMessage"] as string ?? string.Empty;
 
+    string successfullyCreatedCategoryMessage
+        = TempData["SuccessfullyCreatedCategoryMessage"] as string ?? string.Empty;
     string categoryDeletionSuccessMessage
         = TempData["CategoryDeletionSuccessMessage"] as string ?? string.Empty;
     string noDefaultCategoryMessage
@@ -87,6 +89,13 @@ else if (!string.IsNullOrEmpty(successfullyRemovedRoleMessage))
     </div>
 }
 
+else if (!string.IsNullOrEmpty(successfullyCreatedCategoryMessage))
+{
+    <div class="alert alert-success alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @successfullyCreatedCategoryMessage
+    </div>
+}
 else if (!string.IsNullOrEmpty(categoryDeletionSuccessMessage))
 {
     <div class="alert alert-success alert-dismissible" role="alert">

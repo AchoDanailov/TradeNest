@@ -21,6 +21,28 @@ public interface ICategoriesService
     Task<IEnumerable<CategoryWithBestSellerImageDto>> GetAllCategoriesWithBestSellerImageAsync();
 
     /// <summary>
+    /// Creates a new category with the specified name.
+    /// </summary>
+    /// <param name="userId">The identifier of the user attempting the operation.</param>
+    /// <param name="categoryName">
+    /// The category name to be set as the name of the newly created category.
+    /// </param>
+    /// <returns>
+    /// Task that holds the newly created category's identifier.
+    /// </returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the provided <paramref name="userId"/> is with value <see cref="Guid.Empty"/> or
+    /// if the provided <paramref name="categoryName"/> is null or white space.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the user with the provided <paramref name="userId"/> is not an administrator.
+    /// </exception>
+    /// <exception cref="DataPersistException">
+    /// Thrown if the data is not successfully persisted.
+    /// </exception>
+    Task<Guid> CreateCategoryAsync(Guid userId, string categoryName);
+
+    /// <summary>
     /// Attempts to delete the category with the provided <paramref name="categoryId"/> identifier.
     /// </summary>
     /// <param name="userId">The identifier of the user attempting the operation.</param>
