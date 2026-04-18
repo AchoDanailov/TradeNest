@@ -391,19 +391,20 @@ public class ProductsService : IProductsService
         if(id == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(id)));
         
-        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
-        if (!userExists)
-        {
-            throw new ArgumentException(string.Format(NotFoundMessage,
-                nameof(ApplicationUser), userId));
-        }
-
-        Product? product = await this._productsRepository.FindByIdAsync(id);
-        if (product == null)
-            throw new ResourceNotFoundException(nameof(Product), id);
-
         bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
-        if ((userId != product.OwnerId && !isAdmin) || !isAdmin)
+        if(!isAdmin)
+            throw new UnauthorizedOperationException(userId, nameof(Product), id);
+        
+        Product? product = (await this._productsRepository
+                .GetAllInclArchivedAndNotApprovedAsync(queryOptions =>
+                    queryOptions.AddFilter(p => p.Id == id)))
+            .SingleOrDefault();
+        if (product == null)
+        {
+            throw new ResourceNotFoundException(nameof(Product), id);
+        }
+        
+        if (userId != product.OwnerId && !isAdmin)
             throw new UnauthorizedOperationException(userId, nameof(Product), product.Id);
 
         if (product.IsDeleted)
@@ -501,7 +502,9 @@ public class ProductsService : IProductsService
         bool approvalStatusIsValidValue = Enum.TryParse(
             approvalDecisionDto.ApprovalStatus.ToString(),
             out ApprovalStatus validApprovalStatusValue); 
+        
         bool isDefined = Enum.IsDefined(validApprovalStatusValue);
+        
         if (!approvalStatusIsValidValue || !isDefined)
         {
             throw new ArgumentException($"userId: {userId}, productId: {productId}",

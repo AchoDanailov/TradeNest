@@ -160,8 +160,7 @@ public interface IProductsService
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <exception cref="ArgumentException">
     /// Thrown if the provided <paramref name="userId"/> and <paramref name="id"/> are
-    /// with value <see cref="Guid.Empty"/> or user with the specified identifier
-    /// <paramref name="userId"/> does not exist.
+    /// with value <see cref="Guid.Empty"/>.
     /// </exception>
     /// <exception cref="ResourceNotFoundException">
     /// Thrown if the product with <paramref name="id"/> does not exist.
