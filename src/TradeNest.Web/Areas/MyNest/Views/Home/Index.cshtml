@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "My Nest Dashboard";
+}
+
+<div class="container-lg d-flex flex-column gap-5 pt-3 pb-5 mt-5 justify-content-around align-items-center site-sections-bg shadow border-3 rounded-3 px-4 px-md-5">
+    <div id="header" class="row mb-2 mt-5">
+        <div class="col-12 border-bottom border-2 text-center">
+            <h1 class="text-teal display-1">@ViewData["Title"]</h1>
+            <p class="lead text-navy mt-3">Add new products or see how your current products are doing.</p>
+        </div>
+    </div>
+    
+    <div class="row mx-auto text-center justify-content-lg-between justify-content-center align-items-stretch gap-5 gap-lg-0 mb-5">
+        <div id="add-product"
+             class="col-10 col-lg-5 d-flex flex-column gap-2 p-5 site-sections-bg-teal shadow rounded-3 border-3">
+            <i class="bi bi-plus-circle-dotted display-3 text-navy mb-2"></i>
+            <h3 class="display-6 text-navy mt-1 mb-0 pb-0">Add New Product</h3>
+            <p class="text-light fw-light">Have something to sell? Start a new listing here.</p>
+            
+            <a asp-area="" asp-controller="Products" asp-action="Create"
+               asp-route-returnUrl="@Context.Request.Path"
+               class="btn rounded-pill bg-white-border-neon-glow-hover-reverse-colors site-sections-bg p-2 w-25 mx-auto text-black mt-3">
+                <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+        
+        <div id="manage-products"
+             class="col-10 col-lg-5 d-flex flex-column gap-2 p-5 site-sections-bg-teal shadow rounded-3">
+            <i class="bi bi-graph-up-arrow display-3 text-navy mb-2"></i>
+            <h3 class="display-6 text-navy mb-0 pb-0">Manage My Products</h3>
+            <p class="text-light fw-light">See your sales, revenue, and if your products are approved.</p>
+            
+            <a asp-area="MyNest" asp-controller="MyProducts" asp-action="Index"
+               class="btn rounded-pill site-sections-bg p-2 w-25 mx-auto text-black bg-white-border-neon-glow-hover-reverse-colors mt-3">
+                <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+    </div>
+</div>
