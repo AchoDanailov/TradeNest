@@ -1,0 +1,42 @@
+[
+  {
+    "Id": "e1111111-1111-1111-1111-111111111111",
+    "SubmittedOn": "2026-04-15T14:30:00Z",
+    "TotalPrice": 169.98,
+    "UserId": "d05a8fe7-cf0a-4895-89aa-9068c334ec1b",
+    "OrderProducts": [
+      {
+        "Id": "f1111111-1111-1111-1111-111111111111",
+        "ProductNameAtOrderTime": "Mechanical Gaming Keyboard",
+        "OriginalProductId": "77777777-7777-7777-7777-777777777777",
+        "QuantityOrdered": 1,
+        "CostPriceAtOrderTime": 55.00,
+        "UnitSellingPriceAtOrderTime": 119.99
+      },
+      {
+        "Id": "f2222222-2222-2222-2222-222222222222",
+        "ProductNameAtOrderTime": "Portable Phone Charger 20000mAh",
+        "OriginalProductId": "88888888-8888-8888-8888-888888888888",
+        "QuantityOrdered": 1,
+        "CostPriceAtOrderTime": 18.00,
+        "UnitSellingPriceAtOrderTime": 49.99
+      }
+    ]
+  },
+  {
+    "Id": "e3333333-3333-3333-3333-333333333333",
+    "SubmittedOn": "2026-04-16T09:15:00Z",
+    "TotalPrice": 24.99,
+    "UserId": "f6a7b8c9-d0e1-2345-6666-777788889999",
+    "OrderProducts": [
+      {
+        "Id": "f3333333-3333-3333-3333-333333333333",
+        "ProductNameAtOrderTime": "Stainless Steel Water Bottle 1L",
+        "OriginalProductId": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
+        "QuantityOrdered": 1,
+        "CostPriceAtOrderTime": 8.00,
+        "UnitSellingPriceAtOrderTime": 24.99
+      }
+    ]
+  }
+]

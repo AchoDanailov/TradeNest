@@ -51,6 +51,14 @@ public class CartsRepository : BaseReadRepository<Cart>, ICartsRepository
         return res >= 1;
     }
 
+    public async Task<bool> AddRangeAsync(IEnumerable<Cart> carts)
+    {
+        await this.DbContext.Carts.AddRangeAsync(carts);
+        int res = await this.DbContext.SaveChangesAsync();
+
+        return res >= 1;
+    }
+
     public async Task<bool> UpdateAsync(Cart cart)
     {
         if (!cart.CartProducts.Any())

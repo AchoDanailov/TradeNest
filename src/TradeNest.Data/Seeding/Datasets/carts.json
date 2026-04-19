@@ -1,0 +1,35 @@
+[
+  {
+    "Id": "c1111111-1111-1111-1111-111111111111",
+    "CartOwnerId": "d05a8fe7-cf0a-4895-89aa-9068c334ec1b",
+    "CartProducts": [
+      {
+        "ProductId": "22222222-2222-2222-2222-222222222222",
+        "ProductQuantityAdded": 1,
+        "AddedOn": "2026-04-18T10:00:00Z"
+      }
+    ]
+  },
+  {
+    "Id": "c2222222-2222-2222-2222-222222222222",
+    "CartOwnerId": "a8e18a83-adfb-4116-9e35-3be16446f9b8",
+    "CartProducts": [
+      {
+        "ProductId": "33333333-3333-3333-3333-333333333333",
+        "ProductQuantityAdded": 1,
+        "AddedOn": "2026-04-18T11:00:00Z"
+      }
+    ]
+  },
+  {
+    "Id": "c3333333-3333-3333-3333-333333333333",
+    "CartOwnerId": "f6a7b8c9-d0e1-2345-6666-777788889999",
+    "CartProducts": [
+      {
+        "ProductId": "11111111-1111-1111-1111-111111111111",
+        "ProductQuantityAdded": 20,
+        "AddedOn": "2026-04-18T12:00:00Z"
+      }
+    ]
+  }
+]

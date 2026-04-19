@@ -12,6 +12,8 @@ public interface ICartsRepository : IReadRepository<Cart>
 
     Task<bool> AddAsync(Cart cart);
 
+    Task<bool> AddRangeAsync(IEnumerable<Cart> carts);
+
     Task<bool> UpdateAsync(Cart cart);
 
     Task<bool> DeleteAsync(Cart cart);

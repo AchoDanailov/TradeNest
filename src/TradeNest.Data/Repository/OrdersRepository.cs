@@ -32,4 +32,12 @@ public class OrdersRepository : BaseReadRepository<Order>, IOrdersRepository
             throw new DataConcurrencyConflictException(innerException: concurrencyEx);
         }
     }
+
+    public async Task<bool> AddRangeAsync(IEnumerable<Order> orders)
+    {
+        await this.DbContext.Orders.AddRangeAsync(orders);
+        int res = await this.DbContext.SaveChangesAsync();
+
+        return res >= 1;
+    }
 }

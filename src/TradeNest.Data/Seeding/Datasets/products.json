@@ -58,7 +58,7 @@
         "Id": "aaaa2222-2222-2222-2222-222222222222",
         "Url": "/images/products/tv_part_1.png",
         "IsFrontImage": false
-      } 
+      }
     ]
   },
   {
@@ -70,11 +70,11 @@
     "SellingPrice": 29.99,
     "CategoryId": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
     "OwnerId": "d05a8fe7-cf0a-4895-89aa-9068c334ec1b",
-    "ApprovalDecisionMakerId": null,
+    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
     "ApprovalDecision": {
-      "ApprovalStatus": 0,
-      "DecisionJustification": null,
-      "TimeOfDecision": null
+      "ApprovalStatus": 2,
+      "DecisionJustification": "Good stuff!",
+      "TimeOfDecision": "2026-03-31T11:10:05Z"
     },
     "CreatedOn": "2026-03-29T08:00:00Z",
     "IsEnabled": false,
@@ -82,7 +82,7 @@
     "Images": [
       {
         "Id": "aaaa3333-3333-3333-3333-333333333331",
-        "Url": "/images/products/csharp_book.png", 
+        "Url": "/images/products/csharp_book.png",
         "IsFrontImage": true
       }
     ]
@@ -164,7 +164,7 @@
     "IsDeleted": false,
     "Images": []
   },
-    {
+  {
     "Id": "77777777-7777-7777-7777-777777777777",
     "Name": "Mechanical Gaming Keyboard",
     "Description": "RGB backlit mechanical keyboard with tactile switches for gaming and typing.",
@@ -182,7 +182,18 @@
     "CreatedOn": "2026-03-31T10:00:00Z",
     "IsEnabled": true,
     "IsDeleted": false,
-    "Images": []
+    "Images": [
+      {
+        "Id": "711404a9-13ec-443c-bbc1-3d1346bf7621",
+        "Url": "/images/products/keyboard_bottom.png",
+        "IsFrontImage": true
+      },
+      {
+        "Id": "9383a7c6-bcfc-43ad-b11d-8f2103984298",
+        "Url": "/images/products/keyboard_top.png",
+        "IsFrontImage": false
+      }
+    ]
   },
   {
     "Id": "88888888-8888-8888-8888-888888888888",
@@ -200,9 +211,20 @@
       "TimeOfDecision": null
     },
     "CreatedOn": "2026-04-01T08:30:00Z",
-    "IsEnabled": false,
+    "IsEnabled": true,
     "IsDeleted": false,
-    "Images": []
+    "Images": [
+      {
+        "Id": "cfd53cba-99dc-4382-bb19-cfeb42609d1c",
+        "Url": "/images/products/powerbank_bottom.png",
+        "IsFrontImage": true
+      },
+      {
+        "Id": "2af69f8a-7d39-472c-ac59-0701c95387b1",
+        "Url": "/images/products/powerbank_top.png",
+        "IsFrontImage": false
+      }
+    ]
   },
   {
     "Id": "99999999-9999-9999-9999-999999999999",
@@ -213,16 +235,22 @@
     "SellingPrice": 39.99,
     "CategoryId": "f0e9d8c7-b6a5-4321-fedc-ba9876543210",
     "OwnerId": "f6a7b8c9-d0e1-2345-6666-777788889999",
-    "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
+    "ApprovalDecisionMakerId": null,
     "ApprovalDecision": {
-      "ApprovalStatus": 1,
-      "DecisionJustification": "Product description is too vague and no images were provided.",
-      "TimeOfDecision": "2026-04-01T11:15:00Z"
+      "ApprovalStatus": 0,
+      "DecisionJustification": null,
+      "TimeOfDecision": null
     },
     "CreatedOn": "2026-03-31T14:00:00Z",
     "IsEnabled": false,
     "IsDeleted": false,
-    "Images": []
+    "Images": [
+      {
+        "Id": "0b4fc93e-51c8-4899-abdb-0d8b0c535c7c",
+        "Url": "/images/products/yoga_mat.png",
+        "IsFrontImage": true
+      }
+    ]
   },
   {
     "Id": "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa",
@@ -242,7 +270,13 @@
     "CreatedOn": "2026-04-01T09:00:00Z",
     "IsEnabled": true,
     "IsDeleted": false,
-    "Images": []
+    "Images": [
+      {
+        "Id": "4b333481-7c62-46ac-9ce5-d81bcd56796f",
+        "Url": "/images/products/steel-bottle.png",
+        "IsFrontImage": true
+      }
+    ]
   },
   {
     "Id": "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb",
@@ -255,8 +289,8 @@
     "OwnerId": "d05a8fe7-cf0a-4895-89aa-9068c334ec1b",
     "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
     "ApprovalDecision": {
-      "ApprovalStatus": 2,
-      "DecisionJustification": "Well-described educational product.",
+      "ApprovalStatus": 1,
+      "DecisionJustification": "We only do C likes and Rust here sry.",
       "TimeOfDecision": "2026-04-02T10:30:00Z"
     },
     "CreatedOn": "2026-04-01T11:00:00Z",
@@ -276,7 +310,7 @@
     "ApprovalDecisionMakerId": "e1c5502a-9b1a-416e-8567-f32e52d99f9c",
     "ApprovalDecision": {
       "ApprovalStatus": 1,
-      "DecisionJustification": "Missing cost price and product images are required before approval.",
+      "DecisionJustification": "Images are required before approval.",
       "TimeOfDecision": "2026-04-02T12:00:00Z"
     },
     "CreatedOn": "2026-04-02T08:00:00Z",

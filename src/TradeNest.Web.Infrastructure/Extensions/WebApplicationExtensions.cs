@@ -35,7 +35,9 @@ public static class WebApplicationExtensions
             scope.ServiceProvider.GetRequiredService<IUsersSeeder>(),
             scope.ServiceProvider.GetRequiredService<IAdminsSeeder>(),
             scope.ServiceProvider.GetRequiredService<ICategoriesSeeder>(),
-            scope.ServiceProvider.GetRequiredService<IProductsSeeder>()
+            scope.ServiceProvider.GetRequiredService<IProductsSeeder>(),
+            scope.ServiceProvider.GetRequiredService<ICartsSeeder>(),
+            scope.ServiceProvider.GetRequiredService<IOrdersSeeder>()
         };
 
         foreach (IEntitySeeder entitySeeder in entitySeeders)
