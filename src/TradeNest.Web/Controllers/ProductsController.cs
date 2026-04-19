@@ -184,15 +184,15 @@ public class ProductsController : BaseController
 
     [HttpGet]
     [Authorize]
-    public async Task<IActionResult> Edit([FromRoute] Guid userToDeleteId,
+    public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromQuery] string? returnUrl = null)
     {
-        if (userToDeleteId == Guid.Empty)
+        if (id == Guid.Empty)
             return BadRequest();
 
         Guid userId = this.GetUserId(throwIfNull: true);
                 
-        ProductEditDto? model = await this._productsService.GetProductForEditAsync(userId, userToDeleteId);
+        ProductEditDto? model = await this._productsService.GetProductForEditAsync(userId, id);
         if (model == null)
             return NotFound();
 
@@ -253,10 +253,10 @@ public class ProductsController : BaseController
 
     [HttpPost]
     [Authorize]
-    public async Task<IActionResult> Delete([FromRoute] Guid userToDeleteId, 
+    public async Task<IActionResult> Delete([FromRoute] Guid id, 
         [FromForm] string? returnUrl = null)
     {
-        if(userToDeleteId == Guid.Empty) 
+        if(id == Guid.Empty) 
             return BadRequest();
         
         if(returnUrl == null || !Url.IsLocalUrl(returnUrl))
@@ -266,7 +266,7 @@ public class ProductsController : BaseController
         {
             Guid userId = this.GetUserId(throwIfNull: true);
 
-            await this._productsService.DeleteProductAsync(userId, userToDeleteId);
+            await this._productsService.DeleteProductAsync(userId, id);
 
             TempData["ProductDeletionSuccessMessage"] = ProductDeletionSuccessMessage;
             return RedirectToAction(nameof(Index), controllerName: "Products");

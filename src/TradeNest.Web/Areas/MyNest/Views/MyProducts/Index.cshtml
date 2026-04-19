@@ -1,4 +1,266 @@
+@model SellerDashboardViewModel
 @{
-    ViewData["Title"] = "My Products";
+    ViewData["Title"] = "My Products Hub";
 }
 
+<div class="container-lg mt-4 p-4 border rounded-4 shadow-lg site-sections-bg d-flex flex-column gap-4 animate__animated animate__fadeIn">
+    
+    <div class="row align-items-center">
+        <div class="col-auto">
+            <partial name="_BackButtonPartial" 
+                     model="@Url.Action("Index", controller: "Home", new { area = "MyNest" })" />
+        </div>
+        <div class="col text-center me-md-5">
+            <h1 class="display-5 text-navy fw-bold">@ViewData["Title"]</h1>
+        </div>
+    </div>
+
+    <partial name="_StatusNotificationPartial" />
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-md-4">
+            <div class="card h-100 site-sections-bg-teal text-white shadow border-0 rounded-4">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-cart-check display-4 mb-3"></i>
+                    <h3 class="fw-light">Total Sales</h3>
+                    <h2 class="display-6 fw-bold">@Model.TotalSales</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 site-sections-bg-teal text-white shadow border-0 rounded-4">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-cash-stack display-4 mb-3"></i>
+                    <h3 class="fw-light">Total Revenue</h3>
+                    <h2 class="display-6 fw-bold">€@Model.TotalRevenue.ToString(PricesFormat)</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100 site-sections-bg-teal text-white shadow border-0 rounded-4">
+                <div class="card-body text-center p-4">
+                    <i class="bi bi-piggy-bank display-4 mb-3"></i>
+                    <h3 class="fw-light">Total Surplus</h3>
+                    <h2 class="display-6 fw-bold">€@Model.TotalSurplus.ToString(PricesFormat)</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-12 mb-3">
+            <h2 class="display-6 text-navy border-bottom pb-2">
+                <i class="bi bi-check-circle-fill text-teal me-2"></i>Approved Listings
+            </h2>
+        </div>
+        @if (this.Model.ApprovedProducts.Any())
+        {
+            <div class="row g-4 px-3">
+                @foreach (SellerProductViewModel product in this.Model.ApprovedProducts)
+                {
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 rounded-3 site-sections-bg h-100 overflow-hidden">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-md-2 p-2 text-center">
+                                    <img src="@(product.ImageUrl ?? DefaultProductImageUrl)" 
+                                         class="img-fluid rounded-3" style="max-height: 120px;" alt="@product.Name">
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="card-body py-3">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h4 class="card-title text-navy mb-0">@product.Name</h4>
+                                            @if (product.IsEnabled)
+                                            {
+                                                <span class="badge bg-success rounded-pill">Enabled</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary rounded-pill">Disabled</span>
+                                            }
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-6 col-sm-3">
+                                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Cost Price</small>
+                                                <span class="text-navy fw-semibold">€@(product.CostPrice?.ToString(PricesFormat) ?? "N/A")</span>
+                                            </div>
+                                            <div class="col-6 col-sm-3">
+                                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Unit Price</small>
+                                                <span class="text-teal fw-bold">€@product.UnitPrice.ToString(PricesFormat)</span>
+                                            </div>
+                                            <div class="col-6 col-sm-3">
+                                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Times Sold</small>
+                                                <span class="text-navy">@product.TimesSold</span>
+                                            </div>
+                                            <div class="col-6 col-sm-3 border-start">
+                                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Total Surplus</small>
+                                                <span class="text-success fw-bold">€@(product.TotalSurplus?.ToString(PricesFormat) ?? "N/A")</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 p-3 text-end border-start">
+                                    <div class="d-grid gap-2">
+                                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
+                                           asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
+                                           class="btn btn-sm btn-outline-teal">View Details</a>
+                                        
+                                        <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id"
+                                           asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
+                                           class="btn btn-sm btn-outline-secondary">Make Changes</a>
+                                        
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-modal"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-product-name="@product.Name" data-product-id="@product.Id">
+                                            Remove Product
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <p class="text-muted h5 fw-light">You have no approved products yet.</p>
+            </div>
+        }
+    </div>
+
+    <div class="row mt-4 mb-4">
+        <div class="col-12 mb-3">
+            <h2 class="display-6 text-navy border-bottom pb-2">
+                <i class="bi bi-clock-history text-warning me-2"></i>Under Review / Issues
+            </h2>
+        </div>
+        @if (this.Model.NonApprovedProducts.Any())
+        {
+            <div class="row g-4 px-3">
+                @foreach (SellerProductViewModel product in this.Model.NonApprovedProducts)
+                {
+                    bool productHasBeenSoldBefore = product.TimesSold > 0;
+                             
+                    <div class="col-12">
+                        <div class="card shadow-sm border-0 rounded-3 bg-light h-100 overflow-hidden opacity-75">
+                            <div class="row g-0 align-items-center">
+                                <div class="col-md-2 p-2 text-center">
+                                    <img src="@(product.ImageUrl ?? DefaultProductImageUrl)" 
+                                         class="img-fluid rounded-3 grayscale" style="max-height: 120px;" alt="@product.Name">
+                                </div>
+                                <div class="col-md-7">
+                                    <div class="card-body py-3">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h4 class="card-title text-navy mb-0">@product.Name</h4>
+                                            @if (product.ApprovalStatus == ApprovalStatus.WaitingApproval)
+                                            {
+                                                <span class="badge bg-warning text-dark rounded-pill">Waiting Approval</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-danger rounded-pill">Disapproved</span>
+                                            }
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-6 col-sm-3">
+                                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Cost Price</small>
+                                                <span>€@(product.CostPrice?.ToString(PricesFormat) ?? "N/A")</span>
+                                            </div>
+                                            
+                                            <div class="col-6 col-sm-3">
+                                                <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Unit Price</small>
+                                                <span>€@product.UnitPrice.ToString(PricesFormat)</span>
+                                            </div>
+                                            
+                                            @if (productHasBeenSoldBefore)
+                                            {
+                                                <div class="col-6 col-sm-3">
+                                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Times Sold</small>
+                                                    <span class="text-navy">@product.TimesSold</span>
+                                                </div>
+                                                <div class="col-6 col-sm-3 border-start">
+                                                    <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Total Surplus</small>
+                                                    <span class="text-success fw-bold">€@(product.TotalSurplus?.ToString(PricesFormat) ?? "N/A")</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <div class="col-12 col-sm-6 text-muted italic">
+                                                    <small>This product is currently hidden from the catalog.</small>
+                                                </div>
+                                            }
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-3 p-3 text-end border-start">
+                                    <div class="d-grid gap-2">
+                                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
+                                           asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
+                                           class="btn btn-sm btn-outline-secondary">Preview Details</a>
+                                        
+                                        <a asp-area="" asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id"
+                                           asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
+                                           class="btn btn-sm btn-outline-secondary">Fix Issues</a>
+                                        
+                                        <button type="button" class="btn btn-sm btn-outline-danger remove-modal"
+                                                data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                                data-product-name="@product.Name" data-product-id="@product.Id">
+                                            Remove Product
+                                            </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="col-12 text-center py-5">
+                <p class="text-muted h5 fw-light">All your products are currently approved or you have no listings.</p>
+            </div>
+        }
+    </div>
+
+</div>
+
+<div class="modal fade" id="deleteModal" data-bs-backdrop="static"
+     data-bs-keyboard="false" tabindex="-1" 
+     aria-labelledby="staticBackdropLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                    Confirm Deletion
+                </h1>
+                <button type="button" class="btn-close" 
+                        data-bs-dismiss="modal"
+                        aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                 @* asp-route-id="@Model.Id" *@
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary"
+                        data-bs-dismiss="modal">Cancel</button>
+                
+                <form id="submit-delete" method="post" asp-controller="Products"
+                      asp-action="Delete">
+                    <input type="hidden" name="returnUrl"
+                           value="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })" />
+                    <button type="submit" class="btn btn-danger">
+                        Yes
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/my-products/deleteProductModalDynamicContentLoading.js" asp-append-version="true"></script>
+}
