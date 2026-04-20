@@ -179,6 +179,19 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         return res >= 1;
     }
 
+    public async Task<bool> ExecuteDisapproveAndDisableProductsRangeAsync(
+        Expression<Func<Product, bool>> filter)
+    {
+        int res = await this.DbContext.Products
+            .Where(filter)
+            .ExecuteUpdateAsync(setPropCalls =>
+                setPropCalls
+                    .SetProperty(p => p.ApprovalDecision.ApprovalStatus, ApprovalStatus.Disapproved)
+                    .SetProperty(p => p.IsEnabled, false));
+
+        return res >= 1;
+    }
+
     public async Task<bool> ArchiveAsync(Product product)
     {
         product.IsDeleted = true;

@@ -31,6 +31,9 @@ public interface IProductsRepository : IReadRepository<Product>
     Task<bool> ExecuteUpdateProductsRangeCategoriesIdsAsync(
         Expression<Func<Product, bool>> filter,
         Guid newCategoryId);
+
+    Task<bool> ExecuteDisapproveAndDisableProductsRangeAsync(
+        Expression<Func<Product, bool>> filter);
     
     Task<bool> ArchiveAsync(Product product);
 }

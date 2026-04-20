@@ -149,6 +149,7 @@ public class ProductsService : IProductsService
                     .WithRelated(p => p.Owner)
                     .WithRelated(p => p.Category)
                     .AsReadOnly()
+                    .AddOrderAsc(p => p.Owner.PersonalInformationIsDeleted)
                     .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name)
@@ -184,6 +185,7 @@ public class ProductsService : IProductsService
                             .WithRelated(p => p.Owner)
                             .WithRelated(p => p.Category)
                             .AsReadOnly()
+                            .AddOrderAsc(p => p.Owner.PersonalInformationIsDeleted)
                             .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                             .AddOrderDesc(p => p.CreatedOn)
                             .AddOrderAsc(p => p.Name)
@@ -228,6 +230,7 @@ public class ProductsService : IProductsService
                 queryOptions
                     .WithRelated(p => p.Owner)
                     .AsReadOnly()
+                    .AddOrderAsc(p => p.Owner.PersonalInformationIsDeleted)
                     .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name)
@@ -258,6 +261,7 @@ public class ProductsService : IProductsService
                         queryOptions
                             .WithRelated(p => p.Owner)
                             .AsReadOnly()
+                            .AddOrderAsc(p => p.Owner.PersonalInformationIsDeleted)
                             .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                             .AddOrderDesc(p => p.CreatedOn)
                             .AddOrderAsc(p => p.Name)

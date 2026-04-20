@@ -61,7 +61,9 @@ function template(productDetails, productDetailsModalId, context) {
                                             </h5>
                                             <div class="row mb-2">
                                                 <div class="col-5 fw-bold text-teal">Owner:</div>
-                                                <div class="col-7">${productDetails.ownerName}</div>
+                                                ${productDetails.ownerName == null
+                                                        ? html`<div class="col-7 text-danger">Account Deleted</div>`
+                                                        : html`<div class="col-7">${productDetails.ownerName}</div>`}
                                             </div>
                                             <div class="row mb-2">
                                                 <div class="col-5 fw-bold text-teal">Category:</div>
@@ -133,48 +135,52 @@ function template(productDetails, productDetailsModalId, context) {
                                 </div>
                             </div>
 
-                            <div class="row manage-approval-row mt-4">
-                                <div class="col-12">
-                                    <form @submit=${async (event) => onModifyApproval(event, productDetails, context)}>
-                                        <div class="card border-0 shadow-sm border-top border-4 border-teal">
-                                            <div class="card-body">
-                                                <h5 class="card-title text-navy mb-4">Manage Approval Status</h5>
+                            ${productDetails.ownerName != null
+                                    ? html`
+                                        <div class="row manage-approval-row mt-4">
+                                            <div class="col-12">
+                                                <form @submit=${async (event) => onModifyApproval(event, productDetails, context)}>
+                                                    <div class="card border-0 shadow-sm border-top border-4 border-teal">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title text-navy mb-4">Manage Approval Status</h5>
 
-                                                <div class="mb-4 select-status-section">
-                                                    <label class="form-label fw-bold text-teal">Select Status</label>
-                                                    <div class="btn-group w-100" role="group" aria-label="Approval status selection"
-                                                         @change=${onStatusChangeValidation}>
-                                                        <input type="radio" class="btn-check" name="approvalStatus-${productDetails.id}" id="statusApproved-${productDetails.id}"
-                                                               value="Approved" .checked=${productDetails.approvalDecision.approvalStatus === "Approved"}>
-                                                        <label class="btn btn-outline-success" for="statusApproved-${productDetails.id}">Approved</label>
+                                                            <div class="mb-4 select-status-section">
+                                                                <label class="form-label fw-bold text-teal">Select Status</label>
+                                                                <div class="btn-group w-100" role="group" aria-label="Approval status selection"
+                                                                     @change=${onStatusChangeValidation}>
+                                                                    <input type="radio" class="btn-check" name="approvalStatus-${productDetails.id}" id="statusApproved-${productDetails.id}"
+                                                                           value="Approved" .checked=${productDetails.approvalDecision.approvalStatus === "Approved"}>
+                                                                    <label class="btn btn-outline-success" for="statusApproved-${productDetails.id}">Approved</label>
 
-                                                        <input type="radio" class="btn-check" name="approvalStatus-${productDetails.id}" id="statusDisapproved-${productDetails.id}"
-                                                               value="Disapproved" .checked=${productDetails.approvalDecision.approvalStatus === "Disapproved"}>
-                                                        <label class="btn btn-outline-danger" for="statusDisapproved-${productDetails.id}">Disapproved</label>
+                                                                    <input type="radio" class="btn-check" name="approvalStatus-${productDetails.id}" id="statusDisapproved-${productDetails.id}"
+                                                                           value="Disapproved" .checked=${productDetails.approvalDecision.approvalStatus === "Disapproved"}>
+                                                                    <label class="btn btn-outline-danger" for="statusDisapproved-${productDetails.id}">Disapproved</label>
+                                                                </div>
+                                                                <div class="text-danger approval-validation-section"></div>
+                                                            </div>
+
+                                                            <div class="mb-4 decision-justification-section">
+                                                                <label for="decisionJustification-${productDetails.id}" class="form-label fw-bold text-teal">Decision Justification</label>
+                                                                <textarea class="form-control" id="decisionJustification-${productDetails.id}"
+                                                                          name="decision-justification-${productDetails.id}" rows="3"
+                                                                          placeholder="Provide a reason for the decision..."
+                                                                          .value=${productDetails.approvalDecision.decisionJustification}
+                                                                          @change=${approvalDecisionJustificationValidation}></textarea>
+                                                                <div class="text-danger justification-validation-section"></div>
+                                                            </div>
+
+                                                            <div class="d-grid">
+                                                                <button type="submit" class="btn btn-teal btn-lg shadow-sm" id="save-approval-changes">
+                                                                    Save Approval Changes
+                                                                </button>
+                                                            </div>
+                                                        </div>
                                                     </div>
-                                                    <div class="text-danger approval-validation-section"></div>
-                                                </div>
-
-                                                <div class="mb-4 decision-justification-section">
-                                                    <label for="decisionJustification-${productDetails.id}" class="form-label fw-bold text-teal">Decision Justification</label>
-                                                    <textarea class="form-control" id="decisionJustification-${productDetails.id}" 
-                                                              name="decision-justification-${productDetails.id}" rows="3"
-                                                              placeholder="Provide a reason for the decision..."
-                                                              .value=${productDetails.approvalDecision.decisionJustification}
-                                                              @change=${approvalDecisionJustificationValidation}></textarea>
-                                                    <div class="text-danger justification-validation-section"></div>
-                                                </div>
-
-                                                <div class="d-grid">
-                                                    <button type="submit" class="btn btn-teal btn-lg shadow-sm" id="save-approval-changes">
-                                                        Save Approval Changes
-                                                    </button>
-                                                </div>
+                                                </form>
                                             </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
+                                        </div>`
+                                    : html``
+                            }
                         </div>
                     </div>
 

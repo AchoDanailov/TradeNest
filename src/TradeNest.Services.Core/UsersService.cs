@@ -14,13 +14,18 @@ public class UsersService : IUsersService
 {
     private readonly IUsersRepository _usersRepository;
     private readonly IAdminsRepository _adminsRepository;
+    private readonly IProductsRepository _productsRepository;
     private readonly IUsersMapper _usersMapper;
 
-    public UsersService(IUsersRepository usersRepository,
-        IUsersMapper usersMapper, IAdminsRepository adminsRepository)
+    public UsersService(
+        IUsersRepository usersRepository,
+        IAdminsRepository adminsRepository,
+        IProductsRepository productsRepository,
+        IUsersMapper usersMapper)
     {
         this._usersRepository = usersRepository;
         this._adminsRepository = adminsRepository;
+        this._productsRepository = productsRepository;
         this._usersMapper = usersMapper;
     }
 
@@ -37,15 +42,6 @@ public class UsersService : IUsersService
             .GetAllUsersWithTheirRolesAsync(asReadOnly: true);
 
         return this._usersMapper.ToUserDtos(usersWithRoles);
-    }
-
-    public async Task<bool> IsUserAdminUserById(Guid userId)
-    {
-        if (userId == Guid.Empty)
-            return false;
-
-        return await this._usersRepository
-            .IsUserAdminUserByIdAsync(userId);
     }
 
     public async Task<IEnumerable<RoleDto>> GetAllRolesAsync(Guid userId)
@@ -72,11 +68,18 @@ public class UsersService : IUsersService
                 nameof(ApplicationUser), userToDeleteId);
         }
 
-        ApplicationUser? userToDelete = await this._usersRepository
-            .FindByIdAsync(userToDeleteId);
+        ApplicationUser? userToDelete = await this._usersRepository.FindByIdAsync(userToDeleteId);
         if (userToDelete == null)
             throw new ResourceNotFoundException(nameof(ApplicationUser), userToDeleteId);
 
+        bool disapproveAndDisableUserProductsResult = await this._productsRepository
+            .ExecuteDisapproveAndDisableProductsRangeAsync(p => p.OwnerId == userToDeleteId);
+        if (!disapproveAndDisableUserProductsResult)
+        {
+            throw new DataPersistException(nameof(disapproveAndDisableUserProductsResult),
+                $"Delete user operation.", $"userToDeleteId: {userToDeleteId}");
+        }
+        
         await this._usersRepository.DeleteAsync(userToDelete);
     }
 
