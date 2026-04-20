@@ -290,7 +290,14 @@ public class ProductsService : IProductsService
         if (product == null)
             return null;
 
+        bool isApproved = product.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved;
         bool isOwner = userId != null && product.OwnerId == userId.Value;
+        bool isAdmin = userId != null &&
+                       await this._adminsRepository.IsUserAdminByUserIdAsync(userId.Value);
+        if (!isApproved && !isOwner && !isAdmin)
+        {
+            return null;
+        }
         
         return this._productsMapper.ToProductDetailsDto(product, isOwner);
     }
@@ -372,6 +379,8 @@ public class ProductsService : IProductsService
         Product? product = (await this._productsRepository
                 .GetAllInclArchivedAndNotApprovedAsync(queryOptions => 
                     queryOptions
+                        .WithRelated(p => p.Category)
+                        .WithRelated(p => p.Images)
                         .AsReadOnly()
                         .AddFilter(p => p.Id == id)))
             .SingleOrDefault();
@@ -391,10 +400,6 @@ public class ProductsService : IProductsService
         if(id == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(id)));
         
-        bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
-        if(!isAdmin)
-            throw new UnauthorizedOperationException(userId, nameof(Product), id);
-        
         Product? product = (await this._productsRepository
                 .GetAllInclArchivedAndNotApprovedAsync(queryOptions =>
                     queryOptions.AddFilter(p => p.Id == id)))
@@ -403,8 +408,10 @@ public class ProductsService : IProductsService
         {
             throw new ResourceNotFoundException(nameof(Product), id);
         }
-        
-        if (userId != product.OwnerId && !isAdmin)
+
+        bool isOwner = userId == product.OwnerId;
+        bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
+        if (!isOwner && !isAdmin)
             throw new UnauthorizedOperationException(userId, nameof(Product), product.Id);
 
         if (product.IsDeleted)
@@ -476,6 +483,10 @@ public class ProductsService : IProductsService
 
         IEnumerable<Image> deletedImages 
             = DeleteImagesForDeletionIfAny(product, productEditDto.ProductImages);
+
+        bool changesRequireAdminReview = RequiresAdminReview(productEditDto, product);
+        if (changesRequireAdminReview)
+            ResetApprovalStatus(product);
         
         this._productsMapper.EditProductFromProductEditDto(productEditDto, product);
 
@@ -628,7 +639,26 @@ public class ProductsService : IProductsService
             product.Images.Add(imageToAdd);
         }
     }
-    
+
+    private static bool RequiresAdminReview(ProductEditDto productEditDto, Product product)
+    {
+        return productEditDto.CategoryId != product.CategoryId ||
+               productEditDto.Description != product.Description ||
+               !string.IsNullOrWhiteSpace(productEditDto.NewImagesUrls) ||
+               productEditDto.SellingPrice != product.SellingPrice ||
+               productEditDto.Name != product.Name ||
+               product.Images.Count == 0;
+    }
+
+    private static void ResetApprovalStatus(Product product)
+    {
+        product.ApprovalDecision.ApprovalStatus = ApprovalStatus.WaitingApproval;
+        product.ApprovalDecision.DecisionJustification = null;
+        product.ApprovalDecision.TimeOfDecision = null;
+        product.ApprovalDecisionMakerId = null;
+        product.ApprovalDecisionMaker = null;
+    }
+
     private static void EnsureProductHasFrontImage(IEnumerable<Image> deletedImages,
         ICollection<Image> productImages)
     {

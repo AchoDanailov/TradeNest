@@ -73,9 +73,18 @@
 
                 if (this.Model.IsEnabled)
                 {
-                    <div class="rounded-pill p-2 site-sections-bg-teal text-light mb-2">
-                        Enabled
-                    </div>
+                    if (this.Model.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved)
+                    {
+                        <div class="rounded-pill p-2 site-sections-bg-teal text-light mb-2">
+                            Enabled
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="rounded-pill p-2 site-sections-bg-teal text-light mb-2">
+                            Automatically Enabled if approved
+                        </div>
+                    }
                 }
                 else
                 {
@@ -157,27 +166,30 @@
                     }
                     else
                     {
-                        <form method="post" asp-controller="Cart" asp-action="AddToCart"
-                              asp-route-id="@Model.Id" id="add-to-order-form">
+                        if (this.Model.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved)
+                        {
+                            <form method="post" asp-controller="Cart" asp-action="AddToCart"
+                                  asp-route-id="@Model.Id" id="add-to-order-form">
 
-                        <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="id" value="@Model.Id" />
 
-                            <input type="number" name="quantity" id="quantityInput"
-                                   class="form-control-sm" value="1" aria-label="Quantity" />
+                                <input type="number" name="quantity" id="quantityInput"
+                                       class="form-control-sm" value="1" aria-label="Quantity" />
 
-                            <div class="text-danger" id="prod-qty-validation">
-                                <small></small>
-                            </div>
+                                <div class="text-danger" id="prod-qty-validation">
+                                    <small></small>
+                                </div>
 
-                            <p id="available-quantity-ui" class="text-navy text-muted mt-2">
-                                @Model.QuantityInStock available
-                            </p>
+                                <p id="available-quantity-ui" class="text-navy text-muted mt-2">
+                                    @Model.QuantityInStock available
+                                </p>
 
-                            <button type="submit" id="add-to-order-btn"
-                                    class="rounded-pill btn-teal p-2">
-                                Add To Order
-                            </button>
-                        </form>
+                                <button type="submit" id="add-to-order-btn"
+                                        class="rounded-pill btn-teal p-2">
+                                    Add To Cart
+                                </button>
+                            </form>
+                        }
                     }
                 }
             </div>

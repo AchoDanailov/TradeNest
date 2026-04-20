@@ -9,5 +9,7 @@ deleteModal?.addEventListener("show.bs.modal", (event) => {
     modalBody.textContent = `Are you sure you want to delete ${productName} from your inventory?`;
     
     const submitFormEl = deleteModal.querySelector("#submit-delete");
-    submitFormEl.setAttribute("asp-route-id", productId);
+    const formAction = submitFormEl?.getAttribute("action");
+    const appendedFormActionWithProdId = formAction.concat(`/${productId}`);
+    submitFormEl.setAttribute("action", appendedFormActionWithProdId);
 });

@@ -63,7 +63,7 @@ public class ProductsController : BaseController
         };
         
         if (categoryFilter.HasValue && 
-            !this.IsValidCategory(categoryFilter.Value, viewModel.Categories))
+            !IsValidCategory(categoryFilter.Value, viewModel.Categories))
         {
             return NotFound();
         }
@@ -148,7 +148,7 @@ public class ProductsController : BaseController
     {
         productCreateFormModel.AllCategories = await this.GetAllCategoriesViewModelsAsync();
 
-        bool isValidCategory = this.IsValidCategory(
+        bool isValidCategory = IsValidCategory(
             productCreateFormModel.CategoryId,
             productCreateFormModel.AllCategories);
         if (!isValidCategory)
@@ -183,7 +183,6 @@ public class ProductsController : BaseController
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> Edit([FromRoute] Guid id,
         [FromQuery] string? returnUrl = null)
     {
@@ -216,7 +215,7 @@ public class ProductsController : BaseController
 
         productEditFormModel.AllCategories = await this.GetAllCategoriesViewModelsAsync();
         
-        bool isValidCategory = this.IsValidCategory(
+        bool isValidCategory = IsValidCategory(
             productEditFormModel.CategoryId,
             productEditFormModel.AllCategories);
         if (!isValidCategory)
@@ -252,7 +251,6 @@ public class ProductsController : BaseController
     }
 
     [HttpPost]
-    [Authorize]
     public async Task<IActionResult> Delete([FromRoute] Guid id, 
         [FromForm] string? returnUrl = null)
     {
@@ -296,7 +294,7 @@ public class ProductsController : BaseController
             });
     }
     
-    private bool IsValidCategory(Guid id,
+    private static bool IsValidCategory(Guid id,
         IEnumerable<AllCategoriesViewModel> allCategoriesViewModels)
     {
         bool isNotEmptyGuid = id != Guid.Empty;

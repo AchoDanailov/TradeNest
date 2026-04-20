@@ -56,6 +56,8 @@ public partial class ProductsMapper : IProductsMapper
     [MapperIgnoreTarget(nameof(Product.ProductCarts))] [MapperIgnoreTarget(nameof(Product.ProductWatchlists))]
     [MapperIgnoreTarget(nameof(Product.Images))] [MapperIgnoreTarget(nameof(Product.OwnerId))]
     [MapperIgnoreTarget(nameof(Product.IsDeleted))] [MapperIgnoreTarget(nameof(Product.CreatedOn))]
+    [MapperIgnoreTarget(nameof(Product.RowVersion))] [MapperIgnoreTarget(nameof(Product.ApprovalDecision))]
+    [MapperIgnoreTarget(nameof(Product.ApprovalDecisionMakerId))] [MapperIgnoreTarget(nameof(Product.ApprovalDecisionMaker))]
     public partial void EditProductFromProductEditDto(ProductEditDto productEditDto, Product product);
     
     [MapProperty($"{nameof(Product.ApprovalDecision)}.{nameof(ApprovalDecision.ApprovalStatus)}", nameof(SellerProductDto.ApprovalStatus))]
