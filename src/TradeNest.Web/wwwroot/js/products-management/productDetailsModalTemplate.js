@@ -282,7 +282,7 @@ function approvalDecisionJustificationValidation(event) {
         .closest("div.decision-justification-section")
         .querySelector("div.justification-validation-section");
     
-    if(textArea.value < 4 || textArea.value > 3000) {
+    if(textArea.value.length < 4 || textArea.value.length > 3000) {
         validationSection.textContent 
             = "The decision reason should be between 4 and 3000 characters long.";
         
