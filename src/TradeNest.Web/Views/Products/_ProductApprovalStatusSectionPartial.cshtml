@@ -1,43 +1,65 @@
-@*TODO: Work on the styles once u fully build the system so it allows for easier testing environment.*@
 @model ApprovalDecisionViewModel
 @{
     bool isApproved = this.Model.ApprovalStatus == ApprovalStatus.Approved;
     bool isWaitingApproval = this.Model.ApprovalStatus == ApprovalStatus.WaitingApproval;
 }
 
-@if (!isApproved) 
+@if (!isApproved)
 {
-    <div class="alert alert-danger" role="status">
+    <div class="col-12 mb-4 animate__animated animate__fadeInDown">
         @if (isWaitingApproval)
         {
-            <p class="text-navy">
-                Your product is waiting for review and approval from an admin.
-            </p>   
+            <div class="alert alert-info border-0 border-start border-4 border-teal shadow-sm rounded-4 p-4 d-flex align-items-center" role="status">
+                <i class="bi bi-hourglass-split display-6 text-teal me-4"></i>
+                <div>
+                    <h5 class="text-navy fw-bold mb-1">Under Review</h5>
+                    <p class="text-navy mb-0 opacity-75">
+                        Your product is currently waiting for review and approval from an admin. It is hidden from the public catalog until approved.
+                    </p>
+                </div>
+            </div>
         }
         else
         {
-            <div class="border-bottom border-2">
-                <p class="text-navy">
-                    Your product was disapproved.
-                </p>   
-                <div class="d-flex justify-content-around mx-3">
-                    <p class="text-navy">
-                        <span class="fw-bold">Admin:</span> @this.Model.ApprovalDecisionMakerDto.ApprovalDecisionMakerUsername
-                    </p>
-                    <p class="text-navy">
-                        <span class="fw-bold">Contacts:</span> @this.Model.ApprovalDecisionMakerDto.ApprovalDecisionMakerEmail
-                    </p>
+            <div class="alert alert-danger border-0 border-start border-4 border-danger shadow-sm rounded-4 p-4" role="status">
+                <div class="d-flex align-items-center mb-3">
+                    <i class="bi bi-exclamation-octagon-fill display-6 text-danger me-4"></i>
+                    <div>
+                        <h5 class="text-navy fw-bold mb-1">Action Required: Listing Disapproved</h5>
+                        <p class="text-navy mb-0 opacity-75">Your product listing does not meet our requirements. Please see the details below to fix the issues.</p>
+                    </div>
                 </div>
-                <p class="text-navy">
-                    <span class="fw-bold">Justification:</span> @this.Model.DecisionJustification
-                </p>
+
+                <div class="bg-white rounded-3 p-3 mb-3 shadow-sm border">
+                    <div class="row g-3">
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Reviewing Admin</small>
+                            <span class="text-navy fw-semibold">
+                                <i class="bi bi-person-badge me-1"></i>
+                                @this.Model.ApprovalDecisionMakerDto.ApprovalDecisionMakerUsername
+                            </span>
+                        </div>
+                        <div class="col-sm-6">
+                            <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Contact Email</small>
+                            <span class="text-navy">
+                                <i class="bi bi-envelope me-1"></i>
+                                @this.Model.ApprovalDecisionMakerDto.ApprovalDecisionMakerEmail
+                            </span>
+                        </div>
+                        <div class="col-12 mt-3 border-top pt-2">
+                            <small class="text-muted d-block text-uppercase fw-bold mb-1" style="font-size: 0.7rem;">Justification & Feedback</small>
+                            <p class="text-navy mb-0 bg-light p-2 rounded-2 border-start border-3 border-danger">
+                                @this.Model.DecisionJustification
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex align-items-center text-navy opacity-75">
+                    <i class="bi bi-info-circle me-2"></i>
+                    <small>You can update your product details to address these concerns and resubmit it for approval.</small>
+                </div>
             </div>
-            <div>
-                <p class="text-navy">You can make changes to the article to satisfy the requirements and fix the issues in the admin's decision justification.</p>
-            </div>
-            
         }
     </div>
 }
-
-    

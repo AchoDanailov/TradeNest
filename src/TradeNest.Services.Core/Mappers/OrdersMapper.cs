@@ -27,7 +27,7 @@ public partial class OrdersMapper : IOrdersMapper
     [MapPropertyFromSource(nameof(OrderProduct.TotalProductPriceAtOrderTime), Use = nameof(MapTotalProductPriceAtOrderTime))]
     public partial OrderProduct OrderProductFromCartProduct(CartProduct cartProduct);
 
-    private decimal MapTotalProductPriceAtOrderTime(CartProduct cartProduct)
+    private static decimal MapTotalProductPriceAtOrderTime(CartProduct cartProduct)
     {
         return cartProduct.Product.SellingPrice * cartProduct.ProductQuantityAdded;
     }

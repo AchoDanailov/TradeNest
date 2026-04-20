@@ -53,12 +53,20 @@ public partial class ProductsMapper : IProductsMapper
 
     [MapperIgnoreTarget(nameof(Product.Id))] [MapperIgnoreTarget(nameof(Product.Owner))]
     [MapperIgnoreTarget(nameof(Product.Category))] [MapperIgnoreTarget(nameof(Product.SoldProducts))]
-    [MapperIgnoreTarget(nameof(Product.ProductCarts))] [MapperIgnoreTarget(nameof(Product.ProductWatchlists))] [MapperIgnoreTarget(nameof(Product.Images))]
-    [MapperIgnoreTarget(nameof(Product.OwnerId))] [MapperIgnoreTarget(nameof(Product.IsDeleted))]
-    [MapperIgnoreTarget(nameof(Product.CreatedOn))]
+    [MapperIgnoreTarget(nameof(Product.ProductCarts))] [MapperIgnoreTarget(nameof(Product.ProductWatchlists))]
+    [MapperIgnoreTarget(nameof(Product.Images))] [MapperIgnoreTarget(nameof(Product.OwnerId))]
+    [MapperIgnoreTarget(nameof(Product.IsDeleted))] [MapperIgnoreTarget(nameof(Product.CreatedOn))]
     public partial void EditProductFromProductEditDto(ProductEditDto productEditDto, Product product);
+    
+    [MapProperty($"{nameof(Product.ApprovalDecision)}.{nameof(ApprovalDecision.ApprovalStatus)}", nameof(SellerProductDto.ApprovalStatus))]
+    [MapPropertyFromSource(nameof(SellerProductDto.TotalSurplus), Use = nameof(MapProductTotalSurplus))]
+    [MapPropertyFromSource(nameof(SellerProductDto.ImageUrl), Use = nameof(MapFrontImageUrl))]
+    [MapPropertyFromSource(nameof(SellerProductDto.TimesSold), Use = nameof(MapTimesSold))]
+    public partial SellerProductDto ToSellerProductDto(Product product);
+    
+    public partial IEnumerable<SellerProductDto> ToSellerProductDtos(IEnumerable<Product> products);
 
-    private ApprovalDecisionMakerDto MapApprovalDecisionMakerDto(Product product)
+    private static ApprovalDecisionMakerDto MapApprovalDecisionMakerDto(Product product)
     {
         return new ApprovalDecisionMakerDto()
         {
@@ -67,30 +75,48 @@ public partial class ProductsMapper : IProductsMapper
             ApprovalDecisionMakerEmail = product.ApprovalDecisionMaker?.User.Email,
         };
     }
+
+    private static decimal? MapProductTotalSurplus(Product product)
+    {
+        if (product.SoldProducts.Count == 0)
+            return 0;
+
+        if (product.CostPrice == null)
+            return null;
+        
+        int numberOfTimesSold = product.SoldProducts.Select(op => op.QuantityOrdered).Sum();
+        decimal unitSurplus = product.SellingPrice - product.CostPrice!.Value;
+        return unitSurplus * numberOfTimesSold;
+    }
+
+    private static int MapTimesSold(Product product)
+    {
+        return product.SoldProducts.Count;
+    }
     
-    private string? MapFrontImageUrl(Product product)
+    private static string? MapFrontImageUrl(Product product)
     {
         return product.Images
             .SingleOrDefault(i => i.IsFrontImage)?
             .Url ?? null;
     }
 
-    private IEnumerable<string> MapImagesUrls(Product product)
+    private static IEnumerable<string> MapImagesUrls(Product product)
     {
         return product.Images.Select(i => i.Url);
     }
 
-    private DateTime MapCreatedOn(object _)
+    private static DateTime MapCreatedOn(object _)
     {
         return DateTime.UtcNow;
     }
 
-    private bool MapIsDeleted(object _)
+    private static bool MapIsDeleted(object _)
     {
         return false;
     }
 
-    private IEnumerable<ImageDto> MapProductImages(Product product)
+    private static IEnumerable<ImageDto> MapProductImages(Product product)
     {
         return product.Images
             .Select(i => new ImageDto()

@@ -537,6 +537,60 @@ public class ProductsService : IProductsService
         }
     }
 
+    public async Task<SellerProductsStatsDto> GetSellerProductsStatisticsAsync(Guid userId)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+
+        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new ResourceNotFoundException(nameof(ApplicationUser), userId);
+
+        IEnumerable<Product> userProducts = (await this._productsRepository
+                .GetAllInclNotApprovedAsync(queryOptions =>
+                    queryOptions
+                        .WithRelated(p => p.SoldProducts)
+                        .AsReadOnly()
+                        .AddFilter(p => p.OwnerId == userId)))
+            .ToArray();
+
+        return new SellerProductsStatsDto()
+        {
+            TotalRevenue = userProducts
+                .Sum(p => p.SoldProducts.Select(op => op.QuantityOrdered * p.SellingPrice).Sum()),
+            
+            TotalSales = userProducts
+                .Sum(p => p.SoldProducts.Select(op => op.QuantityOrdered).Sum()),
+            
+            TotalSurplus = userProducts
+                .Where(p => p.SoldProducts.Count >= 1 && p.CostPrice != null)
+                .Select(p => CalculateSurplus(p)).Sum()
+        };
+    }
+
+    public async Task<IEnumerable<SellerProductDto>> GetSellerProductsAsync(Guid userId)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+
+        bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
+        if (!userExists)
+            throw new ResourceNotFoundException(nameof(ApplicationUser), userId);
+
+        IEnumerable<Product> userProducts = await this._productsRepository
+            .GetAllInclNotApprovedAsync(queryOptions =>
+                queryOptions
+                    .WithRelated(p => p.Category)
+                    .WithRelated(p => p.Images)
+                    .WithRelated(p => p.SoldProducts)
+                    .AsReadOnly()
+                    .AddFilter(p => p.OwnerId == userId)
+                    .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
+                    .AddOrderAsc(p => p.Id));
+
+        return this._productsMapper.ToSellerProductDtos(userProducts);
+    }
+
     private static IEnumerable<Image> DeleteImagesForDeletionIfAny(Product product,
         IEnumerable<ImageDto> imagesComingFromEditForm)
     {
@@ -647,6 +701,14 @@ public class ProductsService : IProductsService
         }
 
         return images;
+    }
+
+    private static decimal CalculateSurplus(Product product)
+    {
+        int numberOfTimesSold = product.SoldProducts.Select(op => op.QuantityOrdered).Sum();
+        decimal unitSurplus = product.SellingPrice - product.CostPrice!.Value;
+        
+        return unitSurplus * numberOfTimesSold;
     }
    
     private static bool IsValidImageUrl(string? url)

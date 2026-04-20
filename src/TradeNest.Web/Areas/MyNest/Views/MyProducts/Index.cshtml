@@ -45,6 +45,15 @@
                 </div>
             </div>
         </div>
+       @if (this.Model.HasProductsWithoutCostPrice)
+        {
+            <div class="col-12 text-center mt-2">
+                <small class="text-muted opacity-75">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Note: Total surplus excludes products without a provided cost price.
+                </small>
+            </div>
+        }
     </div>
 
     <div class="row mt-4">
@@ -85,7 +94,7 @@
                                             </div>
                                             <div class="col-6 col-sm-3">
                                                 <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Unit Price</small>
-                                                <span class="text-teal fw-bold">€@product.UnitPrice.ToString(PricesFormat)</span>
+                                                <span class="text-teal fw-bold">€@product.SellingPrice.ToString(PricesFormat)</span>
                                             </div>
                                             <div class="col-6 col-sm-3">
                                                 <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Times Sold</small>
@@ -100,11 +109,11 @@
                                 </div>
                                 <div class="col-md-3 p-3 text-end border-start">
                                     <div class="d-grid gap-2">
-                                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
+                                        <a asp-area="" asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
                                            asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
                                            class="btn btn-sm btn-outline-teal">View Details</a>
                                         
-                                        <a asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id"
+                                        <a asp-area="" asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id"
                                            asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
                                            class="btn btn-sm btn-outline-secondary">Make Changes</a>
                                         
@@ -170,7 +179,7 @@
                                             
                                             <div class="col-6 col-sm-3">
                                                 <small class="text-muted d-block text-uppercase fw-bold" style="font-size: 0.7rem;">Unit Price</small>
-                                                <span>€@product.UnitPrice.ToString(PricesFormat)</span>
+                                                <span>€@product.SellingPrice.ToString(PricesFormat)</span>
                                             </div>
                                             
                                             @if (productHasBeenSoldBefore)
@@ -196,19 +205,15 @@
                                 </div>
                                 <div class="col-md-3 p-3 text-end border-start">
                                     <div class="d-grid gap-2">
-                                        <a asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
+                                        <a asp-area="" asp-controller="Products" asp-action="Details" asp-route-id="@product.Id" 
                                            asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
                                            class="btn btn-sm btn-outline-secondary">Preview Details</a>
-                                        
-                                        <a asp-area="" asp-controller="Products" asp-action="Edit" asp-route-id="@product.Id"
-                                           asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
-                                           class="btn btn-sm btn-outline-secondary">Fix Issues</a>
                                         
                                         <button type="button" class="btn btn-sm btn-outline-danger remove-modal"
                                                 data-bs-toggle="modal" data-bs-target="#deleteModal"
                                                 data-product-name="@product.Name" data-product-id="@product.Id">
                                             Remove Product
-                                            </button>
+                                        </button>
                                     </div>
                                 </div>
                             </div>
@@ -242,14 +247,13 @@
                         aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                 @* asp-route-id="@Model.Id" *@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary"
                         data-bs-dismiss="modal">Cancel</button>
                 
-                <form id="submit-delete" method="post" asp-controller="Products"
-                      asp-action="Delete">
+                <form id="submit-delete" method="post" asp-area="" 
+                      asp-controller="Products" asp-action="Delete">
                     <input type="hidden" name="returnUrl"
                            value="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })" />
                     <button type="submit" class="btn btn-danger">

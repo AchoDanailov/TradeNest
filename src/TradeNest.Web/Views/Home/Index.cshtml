@@ -20,7 +20,7 @@
                 <a class="btn btn-teal btn-lg px-4"
                    asp-controller="Products" asp-action="Index">Shop Now</a>
                 <a class="btn btn-outline-teal btn-lg px-4"
-                   asp-controller="Products" asp-action="Create"
+                   asp-area="MyNest" asp-controller="Home" asp-action="Index"
                    asp-route-returnUrl="@Url.Action(nameof(Index), controller: "Home")">
                     Become a Seller
                 </a>

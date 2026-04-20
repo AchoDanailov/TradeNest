@@ -7,6 +7,10 @@
 
     <partial name="_StatusNotificationPartial" />
 
+    <div class="row">
+        <partial name="_ProductApprovalStatusSectionPartial" model="@Model.ApprovalDecision"/>
+    </div>
+
     <div class="row d-none d-md-flex flex-column justify-content-center mb-4">
         <partial name="_SearchFormPartial" model="@string.Empty"/>
 
@@ -23,10 +27,6 @@
         <partial name="_SearchFormPartial" model="@string.Empty"/>
     </div>
     
-    <div class="row">
-        <partial name="_ProductApprovalStatusSectionPartial" model="@Model.ApprovalDecision"/>
-    </div>
-
     <div class="row d-flex gap-4 align-items-start">
 
         <div class="col d-flex flex-column align-items-center">

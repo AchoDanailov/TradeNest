@@ -1,8 +1,8 @@
-using TradeNest.Web.ViewModels.Enums;
+using TradeNest.Services.Models.Enums;
 
-namespace TradeNest.Web.ViewModels.MyNest;
+namespace TradeNest.Services.Models.Product;
 
-public class SellerProductViewModel
+public class SellerProductDto
 {
     public Guid Id { get; set; }
     

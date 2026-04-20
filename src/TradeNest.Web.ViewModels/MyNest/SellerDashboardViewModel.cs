@@ -7,8 +7,12 @@ public class SellerDashboardViewModel
     public decimal TotalRevenue { get; set; }
     
     public decimal TotalSurplus { get; set; }
+
+    public bool HasProductsWithoutCostPrice { get; set; }
     
-    public IEnumerable<SellerProductViewModel> ApprovedProducts { get; set; } = new List<SellerProductViewModel>();
+    public IEnumerable<SellerProductViewModel> ApprovedProducts { get; set; } 
+        = new List<SellerProductViewModel>();
     
-    public IEnumerable<SellerProductViewModel> NonApprovedProducts { get; set; } = new List<SellerProductViewModel>();
+    public IEnumerable<SellerProductViewModel> NonApprovedProducts { get; set; } 
+        = new List<SellerProductViewModel>();
 }

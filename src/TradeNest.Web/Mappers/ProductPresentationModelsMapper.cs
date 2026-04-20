@@ -6,6 +6,7 @@ using TradeNest.Services.Models.Product;
 using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.ViewModels.Category;
 using TradeNest.Web.ViewModels.Image;
+using TradeNest.Web.ViewModels.MyNest;
 using TradeNest.Web.ViewModels.Product;
 
 namespace TradeNest.Web.Mappers;
@@ -49,8 +50,13 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
 
     public partial EditApprovalDecisionDto FromEditProductApprovalStatusRequestDto(
         EditProductApprovalStatusRequestDto requestDto);
+    
+    public partial SellerProductViewModel ToSellerProductViewModel(SellerProductDto sellerProductDto);
+    
+    public partial IEnumerable<SellerProductViewModel> ToSellerProductViewModels(
+        IEnumerable<SellerProductDto> sellerProductDtos);
 
-    private List<ImageViewModel> MapProductImages(ProductEditDto productEditDto)
+    private static List<ImageViewModel> MapProductImages(ProductEditDto productEditDto)
     {
         return productEditDto.ProductImages
             .Select(i => new ImageViewModel()
@@ -62,7 +68,7 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
             .ToList();
     }
 
-    private IEnumerable<ImageDto> MapProductImagesToDtos(ProductEditFormModel productEditFormModel)
+    private static IEnumerable<ImageDto> MapProductImagesToDtos(ProductEditFormModel productEditFormModel)
     {
         return productEditFormModel.ProductImages
             .Select(i => new ImageDto()

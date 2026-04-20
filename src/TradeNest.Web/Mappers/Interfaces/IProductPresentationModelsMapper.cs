@@ -1,5 +1,6 @@
 using TradeNest.Services.Models.Product;
 using TradeNest.Web.ViewModels.Category;
+using TradeNest.Web.ViewModels.MyNest;
 using TradeNest.Web.ViewModels.Product;
 
 namespace TradeNest.Web.Mappers.Interfaces;
@@ -25,4 +26,8 @@ public interface IProductPresentationModelsMapper
     
     EditApprovalDecisionDto FromEditProductApprovalStatusRequestDto(
         EditProductApprovalStatusRequestDto requestDto);
+
+    SellerProductViewModel ToSellerProductViewModel(SellerProductDto sellerProductDto);
+    IEnumerable<SellerProductViewModel> ToSellerProductViewModels(
+        IEnumerable<SellerProductDto> sellerProductDtos);
 }

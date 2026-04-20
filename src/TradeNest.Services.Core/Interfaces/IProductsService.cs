@@ -230,4 +230,30 @@ public interface IProductsService
     /// </exception>
     Task ChangeProductApprovalStatus(Guid userId, Guid productId,
         EditApprovalDecisionDto approvalDecisionDto);
+
+    /// <summary>
+    /// Provides with key business statistics of the seller's products.
+    /// </summary>
+    /// <param name="userId">The identifier of the user which the products belong to.</param>
+    /// <returns>Task holding the business statistic values.</returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if either the <see cref="userId"/> is with value <see cref="Guid.Empty"/>.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if the user with the provided <paramref name="userId"/> was not found.
+    /// </exception>
+    Task<SellerProductsStatsDto> GetSellerProductsStatisticsAsync(Guid userId);
+
+    /// <summary>
+    /// Provides the products being sold from the user, with key business values.
+    /// </summary>
+    /// <param name="userId">The identifier of the user which the products belong to.</param>
+    /// <returns></returns>
+    /// <exception cref="ArgumentException">
+    /// Thrown if either the <see cref="userId"/> is with value <see cref="Guid.Empty"/>.
+    /// </exception>
+    /// <exception cref="ResourceNotFoundException">
+    /// Thrown if the user with the provided <paramref name="userId"/> was not found.
+    /// </exception>
+    Task<IEnumerable<SellerProductDto>> GetSellerProductsAsync(Guid userId);
 }

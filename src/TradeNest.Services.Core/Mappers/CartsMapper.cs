@@ -22,19 +22,19 @@ public partial class CartsMapper : ICartsMapper
     [MapPropertyFromSource(nameof(CartProductDto.IsEnoughQtyLeft), Use = nameof(MapIsEnoughQtyLeft))]
     public partial CartProductDto ToCartProductDto(CartProduct cartProduct);
 
-    private decimal MapTotalPrice(Cart cart)
+    private static decimal MapTotalPrice(Cart cart)
     {
         return cart.CartProducts
             .Select(cp => cp.ProductQuantityAdded * cp.Product.SellingPrice)
             .Sum();
     }
 
-    private decimal MapCartProductTotalPrice(CartProduct cartProduct)
+    private static decimal MapCartProductTotalPrice(CartProduct cartProduct)
     {
         return cartProduct.ProductQuantityAdded * cartProduct.Product.SellingPrice;
     }
 
-    private bool MapIsEnoughQtyLeft(CartProduct cartProduct)
+    private static bool MapIsEnoughQtyLeft(CartProduct cartProduct)
     {
         return cartProduct.Product.QuantityInStock >= cartProduct.ProductQuantityAdded;
     }

@@ -18,4 +18,7 @@ public interface IProductsMapper
 
     ProductEditDto ToProductEditDto(Product product);
     void EditProductFromProductEditDto(ProductEditDto productEditDto, Product product);
+
+    SellerProductDto ToSellerProductDto(Product product);
+    IEnumerable<SellerProductDto> ToSellerProductDtos(IEnumerable<Product> products);
 }
