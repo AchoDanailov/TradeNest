@@ -173,9 +173,7 @@ function productTableRowTemplate(product, context) {
     return html `
         <tr class="text-center align-middle">
             <td>${product.name}</td>
-            ${product.ownerName == null 
-                    ? html`<td>Account Deleted</td>`
-                    : html`<td>${product.ownerName}</td>`}
+            <td>${product.ownerName}</td>
             <td>${product.categoryName}</td>
             <td class="${styles}">${dot} ${content}</td>
             <td>

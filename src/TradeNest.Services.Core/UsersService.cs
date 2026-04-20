@@ -72,14 +72,6 @@ public class UsersService : IUsersService
         if (userToDelete == null)
             throw new ResourceNotFoundException(nameof(ApplicationUser), userToDeleteId);
 
-        bool disapproveAndDisableUserProductsResult = await this._productsRepository
-            .ExecuteDisapproveAndDisableProductsRangeAsync(p => p.OwnerId == userToDeleteId);
-        if (!disapproveAndDisableUserProductsResult)
-        {
-            throw new DataPersistException(nameof(disapproveAndDisableUserProductsResult),
-                $"Delete user operation.", $"userToDeleteId: {userToDeleteId}");
-        }
-        
         await this._usersRepository.DeleteAsync(userToDelete);
     }
 

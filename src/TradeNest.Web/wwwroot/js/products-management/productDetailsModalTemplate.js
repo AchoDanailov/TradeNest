@@ -61,9 +61,7 @@ function template(productDetails, productDetailsModalId, context) {
                                             </h5>
                                             <div class="row mb-2">
                                                 <div class="col-5 fw-bold text-teal">Owner:</div>
-                                                ${productDetails.ownerName == null
-                                                        ? html`<div class="col-7 text-danger">Account Deleted</div>`
-                                                        : html`<div class="col-7">${productDetails.ownerName}</div>`}
+                                                <div class="col-7">${productDetails.ownerName}</div>
                                             </div>
                                             <div class="row mb-2">
                                                 <div class="col-5 fw-bold text-teal">Category:</div>

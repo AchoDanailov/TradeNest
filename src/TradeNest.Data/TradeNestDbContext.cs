@@ -103,7 +103,8 @@ public class TradeNestDbContext : IdentityDbContext<ApplicationUser, Application
         {
             Guid userId = userEntry.Entity.Id;
             
-            await this.Products
+             await this.Products
+                .IgnoreQueryFilters()
                 .Where(p => p.OwnerId == userId)
                 .ExecuteDeleteAsync();
 

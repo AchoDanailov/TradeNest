@@ -47,9 +47,6 @@ public interface IUsersService
     /// <exception cref="ResourceNotFoundException">
     /// Thrown if the user with the provided <paramref name="userToDeleteId" /> does not exist.
     /// </exception>
-    /// <exception cref="DataPersistException">
-    /// Thrown if the data is not successfully persisted.
-    /// </exception>
     Task DeleteUserByIdAsync(Guid adminUserId, Guid userToDeleteId);
 
     /// <summary>
