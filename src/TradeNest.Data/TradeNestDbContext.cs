@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -96,23 +97,33 @@ public class TradeNestDbContext : IdentityDbContext<ApplicationUser, Application
             .CurrentValue != ApprovalStatus.Approved;
     }
 
+    // TODO: Implement UnitOfWork pattern and move out some of this logic there (since some of it in most cases is considered business logic).
     private async Task DeleteUserRelatedData(
         IEnumerable<EntityEntry<ApplicationUser>> forgottenUsersEntries)
     {
         foreach (EntityEntry<ApplicationUser> userEntry in forgottenUsersEntries)
         {
             Guid userId = userEntry.Entity.Id;
+
+            Expression<Func<Cart, bool>> cartsThatGetLeftWithNoProductsFilter = (c) => 
+                c.CartProducts.Any(cp => cp.Product.OwnerId == userId) &&
+                c.CartProducts.Count(cp => cp.Product.OwnerId == userId) == c.CartProducts.Count;
             
-             await this.Products
+            await this.Carts
+                .Where(cartsThatGetLeftWithNoProductsFilter)
+                .ExecuteDeleteAsync();
+            
+            await this.Carts
+                .Where(c => c.CartOwnerId == userId)
+                .ExecuteDeleteAsync();
+            
+            await this.Products
                 .IgnoreQueryFilters()
                 .Where(p => p.OwnerId == userId)
                 .ExecuteDeleteAsync();
 
-            await this.Carts
-                .Where(c => c.CartOwnerId == userId)
-                .ExecuteDeleteAsync();
-
             await this.UsersWatchlistsProducts
+                .IgnoreQueryFilters()
                 .Where(w => w.UserId == userId)
                 .ExecuteDeleteAsync();
         }
