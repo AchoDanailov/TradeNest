@@ -22,7 +22,7 @@
             @ViewData["Title"]
         </h1>
         
-        <form method="post" asp-controller="Products" asp-action="Edit"
+        <form method="post" asp-area="" asp-controller="Products" asp-action="Edit"
               asp-route-id="@Model.ProductId"
               class="d-flex flex-column gap-4 site-sections-bg p-2 p-md-5 rounded-3 shadow border">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>

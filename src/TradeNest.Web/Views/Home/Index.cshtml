@@ -18,7 +18,7 @@
 
             <div class="d-flex gap-3 mt-4 justify-content-center justify-content-md-start">
                 <a class="btn btn-teal btn-lg px-4"
-                   asp-controller="Products" asp-action="Index">Shop Now</a>
+                   asp-area="" asp-controller="Products" asp-action="Index">Shop Now</a>
                 <a class="btn btn-outline-teal btn-lg px-4"
                    asp-area="MyNest" asp-controller="Home" asp-action="Index"
                    asp-route-returnUrl="@Url.Action(nameof(Index), controller: "Home")">
@@ -46,7 +46,7 @@
                     </p>
                 </div>
                 <div class="card-footer d-flex justify-content-center">
-                    <a asp-controller="Products" asp-action="BestSellers"
+                    <a asp-area="" asp-controller="Products" asp-action="BestSellers"
                        class="btn btn-teal">Go Now</a>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                 </div>
                 <div class="card-footer d-flex justify-content-center">
                     <a class="btn btn-teal"
-                       asp-controller="Categories" asp-action="Index">Go Now</a>
+                       asp-area="" asp-controller="Categories" asp-action="Index">Go Now</a>
                 </div>
             </div>
         </div>

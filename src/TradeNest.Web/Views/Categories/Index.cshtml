@@ -42,7 +42,7 @@
                     <div class="card-body">
                         <h5 class="card-title text-teal">@category.CategoryName</h5>
                         <a class="btn btn-teal w-100"
-                           asp-controller="Products" asp-action="Index"
+                           asp-area="" asp-controller="Products" asp-action="Index"
                            asp-route-categoryId="@category.Id">
                             View All @category.CategoryName
                         </a>

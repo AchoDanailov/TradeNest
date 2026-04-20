@@ -16,7 +16,7 @@
 
     <div class="row d-flex flex-row my-2">
         <div class="text-center d-flex justify-content-center justify-content-md-start ms-md-2 col-md-4">
-            <a asp-controller="Products" asp-action="Index">
+            <a asp-area="" asp-controller="Products" asp-action="Index">
                 <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
             </a>
         </div>
@@ -26,7 +26,7 @@
             @if (Model.CategoryFilter != null && Model.CategoryFilter.Value != Guid.Empty)
             {
                 <div class="ms-1 d-md-none">
-                    <a asp-controller="Products" asp-action="Index"
+                    <a asp-area="" asp-controller="Products" asp-action="Index"
                        asp-route-categoryId="@Guid.Empty"
                        class="small text-muted">
                         <span class="border-bottom">
@@ -53,7 +53,7 @@
                         }
                         
                         <li class="nav-item">
-                            <a asp-controller="Products" asp-action="Index"
+                            <a asp-area="" asp-controller="Products" asp-action="Index"
                                asp-route-categoryId="@category.Id" class="dropdown-item">
                                 @category.CategoryName
                             </a>
@@ -76,7 +76,7 @@
             {
                 <div class="my-2">
                     <span>results for: @Model.SearchFilter</span>
-                    <a asp-controller="Products" asp-action="Index" asp-route-search="clear">
+                    <a asp-area="" asp-controller="Products" asp-action="Index" asp-route-search="clear">
                         <span class="btn-sm btn-danger">x</span>
                     </a>
                 </div>
@@ -97,7 +97,7 @@
             @if (Model.CategoryFilter != null && Model.CategoryFilter.Value != Guid.Empty)
             {
                 <div class="text-center mb-4">
-                    <a asp-controller="Products" asp-action="Index"
+                    <a asp-area="" asp-controller="Products" asp-action="Index"
                        asp-route-categoryId="@Guid.Empty"
                        class="small text-muted">
                         <span class="border-bottom">
@@ -117,7 +117,7 @@
                         category.Id == Model.CategoryFilter.Value)
                     {
                         <li class="nav-item">
-                            <a asp-controller="Products" asp-action="Index"
+                            <a asp-area="" asp-controller="Products" asp-action="Index"
                                asp-route-categoryId="@category.Id"
                                class="nav-link nav-link-border-radius-hover-effect-light selected">
                                 @category.CategoryName
@@ -128,7 +128,7 @@
                     }
                     
                     <li class="nav-item">
-                        <a asp-controller="Products" asp-action="Index"
+                        <a asp-area="" asp-controller="Products" asp-action="Index"
                            asp-route-categoryId="@category.Id"
                            class="nav-link nav-link-border-radius-hover-effect-light">
                             @category.CategoryName

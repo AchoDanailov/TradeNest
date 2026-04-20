@@ -168,7 +168,7 @@
                     {
                         if (this.Model.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved)
                         {
-                            <form method="post" asp-controller="Cart" asp-action="AddToCart"
+                            <form method="post" asp-area="" asp-controller="Cart" asp-action="AddToCart"
                                   asp-route-id="@Model.Id" id="add-to-order-form">
 
                             <input type="hidden" name="id" value="@Model.Id" />

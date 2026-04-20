@@ -24,7 +24,7 @@
             €@this.Model.SellingPrice.ToString(PricesFormat)
         </div>
         <div class="d-flex justify-content-end gap-2 mt-2">
-            <a asp-controller="Products" asp-action="Details" asp-route-id="@this.Model.Id" 
+            <a asp-area="" asp-controller="Products" asp-action="Details" asp-route-id="@this.Model.Id" 
                asp-route-returnUrl="@Url.Action("Index", controller: "Products")"
                class="btn btn-outline-teal">Details</a>
             
@@ -32,7 +32,7 @@
                  this.Model.OwnerId.ToString().ToLowerInvariant() !=
                  User?.FindFirstValue(ClaimTypes.NameIdentifier)?.ToLowerInvariant())
             {
-                <a asp-controller="Products" asp-action="Details" asp-route-id="@Model.Id"
+                <a asp-area="" asp-controller="Products" asp-action="Details" asp-route-id="@Model.Id"
                    asp-route-returnUrl="@Url.Action("Index", controller: "Products")"
                    class="btn btn-teal add-to-cart-btn"
                    data-product-id="@Model.Id">Add To Cart</a>

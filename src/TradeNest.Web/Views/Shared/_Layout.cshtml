@@ -25,7 +25,7 @@
     <header>
         <nav class="navbar navbar-expand-md navbar-toggleable-md navbar-dark bg-dark border-bottom border-light box-shadow">
             <div class="container-lg ">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">
+                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
                     <img src="~/images/tradenest-logo/logo-transparent-small.png" 
                          class="d-inline-block" alt="TradeNest" width="50" height="43" />
                     Trade<span class="text-teal">Nest</span>
@@ -58,17 +58,17 @@
                         }
                         <li class="nav-item">
                             <a class="nav-link nav-link-border-radius-hover-effect-dark text-light"
-                               asp-controller="Products" asp-action="Index">Catalog</a>
+                               asp-area="" asp-controller="Products" asp-action="Index">Catalog</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link nav-link-border-radius-hover-effect-dark text-light"
-                               asp-controller="Categories" asp-action="Index">Categories</a>
+                               asp-area="" asp-controller="Categories" asp-action="Index">Categories</a>
                         </li>
                         @if (User.Identity?.IsAuthenticated ?? false)
                         {
                             <li class="nav-item">
                                 <a class="nav-link nav-link-border-radius-hover-effect-dark text-light"
-                                   asp-controller="Cart" asp-action="Index">Cart</a>
+                                   asp-area="" asp-controller="Cart" asp-action="Index">Cart</a>
                             </li>
                         }
                     </ul>
@@ -85,7 +85,7 @@
 
 <footer class="border-top footer text-muted site-sections-bg-teal">
     <div class="container-lg">
-        &copy; @currentYear - TradeNest - <a asp-controller="Home" 
+        &copy; @currentYear - TradeNest - <a asp-area="" asp-controller="Home" 
                                              asp-action="Privacy">Privacy</a>
     </div>
 </footer>
