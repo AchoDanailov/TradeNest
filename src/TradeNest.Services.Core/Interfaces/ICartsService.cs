@@ -41,6 +41,9 @@ public interface ICartsService
     /// Thrown if there is less quantity in stock of the given product than requested
     /// product quantity to add (<paramref name="prodQtyToAdd" />).
     /// </exception>
+    /// <exception cref="ProductNotApprovedException">
+    /// Thrown if the product with <paramref name="productId"/> is not currently approved.
+    /// </exception>
     /// <exception cref="ProductDisabledException">
     /// Thrown if the product with <paramref name="productId"/> has status disabled.
     /// </exception>

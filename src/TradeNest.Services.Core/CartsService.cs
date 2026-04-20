@@ -1,4 +1,5 @@
 using TradeNest.Data.Models;
+using TradeNest.Data.Models.Enums;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon.Exceptions;
 using static TradeNest.GCommon.ErrorMessages;
@@ -82,6 +83,9 @@ public class CartsService : ICartsService
             throw new InvalidOperationException(
                 string.Format(OwnerCantAddToCartProductHeOwnsMessage, userId, productId));
         }
+
+        if (product.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved)
+            throw new ProductNotApprovedException(productId, userId);
         
         if (!product.IsEnabled)
             throw new ProductDisabledException(productId, userId);

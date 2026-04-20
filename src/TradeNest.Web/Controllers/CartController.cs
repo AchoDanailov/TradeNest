@@ -62,16 +62,16 @@ public class CartController : BaseController
     }
     
     [HttpPost]
-    public async Task<IActionResult> AddToCart([FromRoute] Guid userToDeleteId, [FromForm] int quantity)
+    public async Task<IActionResult> AddToCart([FromRoute] Guid id, [FromForm] int quantity)
     {
-        if (userToDeleteId == Guid.Empty || quantity < 1)
+        if (id == Guid.Empty || quantity < 1)
             return BadRequest();
         
         try
         {
             Guid userId = this.GetUserId(throwIfNull: true);
 
-            await this._cartsService.AddProductToCartAsync(userId, userToDeleteId, quantity);
+            await this._cartsService.AddProductToCartAsync(userId, id, quantity);
             return RedirectToAction(nameof(Index), controllerName: "Cart");
         }
         catch (InsufficientProductQuantityInStockException notInStockEx)
@@ -84,7 +84,7 @@ public class CartController : BaseController
                     ControllerContext.ActionDescriptor.ActionName));
             
             TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
-            return RedirectToAction("Details", controllerName: "Products", new { id = userToDeleteId });
+            return RedirectToAction("Details", controllerName: "Products", new { id = id });
         }
         catch (ProductDisabledException prodStatusEx)
         {
@@ -96,18 +96,18 @@ public class CartController : BaseController
                     ControllerContext.ActionDescriptor.ActionName));
             
             TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
-            return RedirectToAction("Details", controllerName: "Products", new { id = userToDeleteId });
+            return RedirectToAction("Details", controllerName: "Products", new { id = id });
         }
     }
     
     [HttpPost]
-    public async Task<IActionResult> RemoveFromCart([FromRoute] Guid userToDeleteId)
+    public async Task<IActionResult> RemoveFromCart([FromRoute] Guid id)
     {
-        if (userToDeleteId == Guid.Empty)
+        if (id == Guid.Empty)
             return BadRequest();
 
         Guid userId = this.GetUserId(throwIfNull: true);
-        await this._cartsService.RemoveProductFromCartAsync(userId, userToDeleteId);
+        await this._cartsService.RemoveProductFromCartAsync(userId, id);
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
     
