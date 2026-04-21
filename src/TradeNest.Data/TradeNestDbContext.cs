@@ -40,7 +40,7 @@ public class TradeNestDbContext : IdentityDbContext<ApplicationUser, Application
             .Entries<ApplicationUser>()
             .Where(entry => entry.Property(e => e.PersonalInformationIsDeleted).IsModified &&
                             entry.Entity.PersonalInformationIsDeleted);
-        await this.DeleteUserRelatedData(forgottenUsersEntries);
+        await this.DeleteUserRelatedDataAsync(forgottenUsersEntries);
 
         return await base.SaveChangesAsync(cancellationToken);
     }
@@ -97,8 +97,9 @@ public class TradeNestDbContext : IdentityDbContext<ApplicationUser, Application
             .CurrentValue != ApprovalStatus.Approved;
     }
 
-    // TODO: Implement UnitOfWork pattern and move out some of this logic there (since some of it in most cases is considered business logic).
-    private async Task DeleteUserRelatedData(
+    /* TODO: Implement UnitOfWork pattern which implementation will compose repositories and expose the ability for the service layer to handle this cases in an atomic and data integrity safe manner.
+     Current implementation has way too many implicit behaviour, it's mixing concerns, and is coupling the data layer with the business logic layer and at places is unsafe regarding data correctness/integrity. */
+    private async Task DeleteUserRelatedDataAsync(
         IEnumerable<EntityEntry<ApplicationUser>> forgottenUsersEntries)
     {
         foreach (EntityEntry<ApplicationUser> userEntry in forgottenUsersEntries)
