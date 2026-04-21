@@ -67,14 +67,16 @@ TradeNest/
 │
 └── src/
     │
-    ├── TradeNest.Data/                # DbContext, configurations and migrations, repositories
+    ├── TradeNest.Data/                # DbContext, configurations, migrations, repositories
     ├── TradeNest.Data.Models/         # Entity models(POCOs) used to model the relational models in the database
     ├── TradeNest.Data.Common/         # Everything common only used in the Data Layer.
+    ├── TradeNest.Data.Tests/          # Tests for data layer classes (Repositories, QueryOptions, Helpers, etc...)
     ├── TradeNest.GCommon/             # Cross-cutting concerns.
-    ├── TradeNest.Services.Core/       # Business logic (Services)
-    ├── TradeNest.Services.Models/     # Holds DTOs used to transfer data between the service layer and the presentation layer (Web project).
-    ├── TradeNest.Web/                 # MVC web application (presentation layer)
-    ├── TradeNest.Web.ViewModels/      # ViewModels and InputModels used to transfer data between the Controllers and the MVC Views.
+    ├── TradeNest.Services.Core/       # Business logic (Services, Mapperly mappers).
+    ├── TradeNest.Services.Tests/      # Business logic Tests.
+    ├── TradeNest.Services.Models/     # Holds DTOs used to transfer data between the service layer and the presentation layer.
+    ├── TradeNest.Web/                 # Presentation layer (Controllers, WebApiControllers, Views, Areas, PresentationModel Mapperly mappers)
+    ├── TradeNest.Web.Models/          # Models for transfering data outside application boundaries and to MVC Views.
     └── TradeNest.Web.Infrastructure/  # Everething the Web Layer relies on: Filters, Middlewares, Extensions, etc...
 ```
 
@@ -82,12 +84,17 @@ TradeNest/
 
 ## Features
 
-- [x] User registration and login (ASP.NET Identity)
+- [x] Authentication using ASP.NET Identity
+- [x] Role based authorization
 - [x] Responsive UI with Bootstrap 5
+- [x] Dynamic loading of content
+- [x] Dynamic and XSS/CSRF protected workflows using SPA techniques, Lit-Html and Bootstrap components.
 - [x] CRUD operations for Products
-- [ ] Indirect CRUD for Order, Watchlist
-- [ ] My Products Dashboard
-- [ ] Admin Dashboard
+- [x] Products quality approval system. Workflow: User creates or modifies listing of a product he owns and sells, admins review and give decision.
+- [x] CRUD operations for Carts and CartProducts
+- [x] Tracking of SoldProducts, Orders and related data with analytics purposes for the application sellers.
+- [x] MyProducts Dashboard - A place where product sellers can manage their products. Complimented by information about admins reviews, and product sales. 
+- [x] Admin Dashboard - A place where admins can manage Users, Roles, Categories, Products.
 
 ---
 
@@ -105,16 +112,13 @@ Key settings in `appsettings.json`:
   "AllowedHosts": "*",
   "ConnectionStrings": {
     "DefaultConnection": "Server=127.0.0.1;Database=TradeNestDb;Trusted_Connection=True;TrustServerCertificate=True;Encrypt=False"
-  },
-  ...
-  ...
+  }
 }
 ```
 Here you can configure the connection strings the application uses when
-connecting to it's data stores. And the Identity system configuration options that set the
-User Accounts options. 
+connecting to it's data stores, authentication options and others application configuration values. 
 
-### Default users credentials you can use for developing and testing: 
+### Default users credentials you can use for developing and testing:
 
 1. Email: User1@gmail.com  
 Username: User1  
@@ -124,14 +128,23 @@ Password: Password1
 Username: User2  
 Password: Password2
 
-You can log in using either your username or your email, along with your password.
+3. Email: User3@gmail.com
+Username: User3
+Password: Password3
+
+4. Email: Admin1@gmail.com
+Username: Admin1
+Password: Admin1Password
+
+You can log in using one of either your username or your email, along with your password.
+I have written an extension method to seed some test data when the application is in Development. I also spread it across the different accounts for ease of review, test and development of different scenarios.
 
 ### The .config directory
 The application uses a manifest file `dotnet-tools.json` for managing dotnet
 tools locally in the `.config/` directory. This allows the developer who is
-cloning the repository to not worry about a potential missmatch between the
+cloning the repository to not worry about a potential mismatch between the
 versions of the dotnet sdk and the dotnet-ef tools required for the database
-migrations. By running `dotnet tool restore` you are set on that part.
+migrations and other tooling. By running `dotnet tool restore` you are set on that part.
   
 Keep in mind that if you change the version of the SDK you need to change the version of the dotnet
 ef-tools to prevent unexpected behavior. If you have the tools
@@ -171,3 +184,4 @@ Contributions are welcome. To contribute:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+All Images used in test data including the logo are generated with an LLM.
