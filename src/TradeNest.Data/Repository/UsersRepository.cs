@@ -93,6 +93,7 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
         try
         {
             this.DbContext.Attach(user);
+            user.PersonalInformationIsDeleted = true;
 
             await this._userManager.SetUserNameAsync(user, null);
             await this._userManager.SetEmailAsync(user, null);
@@ -103,13 +104,12 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
             IEnumerable<string> userRoles = await this._userManager.GetRolesAsync(user);
             await this._userManager.RemoveFromRolesAsync(user, userRoles);
 
-            user.PersonalInformationIsDeleted = true;
             await this.DbContext.SaveChangesAsync();
-
             await transaction.CommitAsync();
         }
         catch (Exception ex)
         {
+            await transaction.RollbackAsync();
             throw new DataPersistException(
                 innerException: ex,
                 data: new string[] { "Delete user operation.", $"userId: {user.Id}" });
