@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Product;
-using TradeNest.Web.ViewModels.Product;
+using TradeNest.Web.Models.Product;
 using TradeNest.Web.Mappers.Interfaces;
 
 namespace TradeNest.Web.Controllers;

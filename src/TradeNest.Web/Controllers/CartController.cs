@@ -7,9 +7,9 @@ using TradeNest.Services.Models.Product;
 using TradeNest.GCommon.Exceptions;
 using static TradeNest.GCommon.ErrorMessages;
 using TradeNest.Web.Mappers.Interfaces;
-using TradeNest.Web.ViewModels.Order;
-using TradeNest.Web.ViewModels.Cart;
-using TradeNest.Web.ViewModels.Product;
+using TradeNest.Web.Models.Order;
+using TradeNest.Web.Models.Cart;
+using TradeNest.Web.Models.Product;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
 namespace TradeNest.Web.Controllers;

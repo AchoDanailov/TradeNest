@@ -4,8 +4,8 @@ using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Cart;
 using TradeNest.GCommon.Exceptions;
 using TradeNest.Web.Mappers.Interfaces;
-using TradeNest.Web.ViewModels;
-using TradeNest.Web.ViewModels.Cart;
+using TradeNest.Web.Models;
+using TradeNest.Web.Models.Cart;
 
 namespace TradeNest.Web.Controllers;
 

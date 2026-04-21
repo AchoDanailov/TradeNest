@@ -4,10 +4,10 @@ using TradeNest.Services.Models.Admin;
 using TradeNest.Services.Models.Image;
 using TradeNest.Services.Models.Product;
 using TradeNest.Web.Mappers.Interfaces;
-using TradeNest.Web.ViewModels.Category;
-using TradeNest.Web.ViewModels.Image;
-using TradeNest.Web.ViewModels.MyNest;
-using TradeNest.Web.ViewModels.Product;
+using TradeNest.Web.Models.Category;
+using TradeNest.Web.Models.Image;
+using TradeNest.Web.Models.MyNest;
+using TradeNest.Web.Models.Product;
 
 namespace TradeNest.Web.Mappers;
 

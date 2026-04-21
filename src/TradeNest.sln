@@ -9,7 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data", "Data", "{6800AD4F-1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Web", "TradeNest.Web\TradeNest.Web.csproj", "{BFF5E5BB-6A6C-4A91-9626-0C6097E5C738}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Web.ViewModels", "TradeNest.Web.ViewModels\TradeNest.Web.ViewModels.csproj", "{97EDD34A-D4FD-4176-8385-0D248AF17F6D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Web.Models", "TradeNest.Web.Models\TradeNest.Web.Models.csproj", "{97EDD34A-D4FD-4176-8385-0D248AF17F6D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Data", "TradeNest.Data\TradeNest.Data.csproj", "{AFBF263D-3496-41F1-AC94-E8D53456578B}"
 EndProject

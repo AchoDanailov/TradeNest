@@ -1,5 +1,5 @@
 using TradeNest.Services.Models.Order;
-using TradeNest.Web.ViewModels.Order;
+using TradeNest.Web.Models.Order;
 
 namespace TradeNest.Web.Mappers.Interfaces;
 

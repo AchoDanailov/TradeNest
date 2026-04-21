@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.GCommon;
 using TradeNest.Services.Models.Category;
-using TradeNest.Web.ViewModels.Category;
+using TradeNest.Web.Models.Category;
 
 namespace TradeNest.Web.Controllers;
 

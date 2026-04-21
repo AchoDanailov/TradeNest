@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
 using TradeNest.GCommon;
-using TradeNest.Web.ViewModels.Category;
+using TradeNest.Web.Models.Category;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
 namespace TradeNest.Web.Areas.Admin.Controllers;

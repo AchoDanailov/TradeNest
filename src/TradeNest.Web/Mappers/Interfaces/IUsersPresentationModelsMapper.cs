@@ -1,7 +1,7 @@
 using TradeNest.Services.Models.Role;
 using TradeNest.Services.Models.User;
-using TradeNest.Web.ViewModels.Role;
-using TradeNest.Web.ViewModels.User;
+using TradeNest.Web.Models.Role;
+using TradeNest.Web.Models.User;
 
 namespace TradeNest.Web.Mappers.Interfaces;
 

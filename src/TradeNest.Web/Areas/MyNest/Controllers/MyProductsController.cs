@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Product;
 using TradeNest.Web.Mappers.Interfaces;
-using TradeNest.Web.ViewModels.Enums;
-using TradeNest.Web.ViewModels.MyNest;
+using TradeNest.Web.Models.Enums;
+using TradeNest.Web.Models.MyNest;
 
 namespace TradeNest.Web.Areas.MyNest.Controllers;
 

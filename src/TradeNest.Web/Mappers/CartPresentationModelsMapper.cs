@@ -2,8 +2,7 @@ using Riok.Mapperly.Abstractions;
 
 using TradeNest.Services.Models.Cart;
 using TradeNest.Web.Mappers.Interfaces;
-using TradeNest.Web.ViewModels;
-using TradeNest.Web.ViewModels.Cart;
+using TradeNest.Web.Models.Cart;
 
 namespace TradeNest.Web.Mappers;
 

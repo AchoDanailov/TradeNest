@@ -5,8 +5,8 @@ using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;
 using TradeNest.Services.Models.Product;
 using static TradeNest.GCommon.ErrorMessages;
-using TradeNest.Web.ViewModels.Category;
-using TradeNest.Web.ViewModels.Product;
+using TradeNest.Web.Models.Category;
+using TradeNest.Web.Models.Product;
 using TradeNest.Web.Mappers.Interfaces;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
