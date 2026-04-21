@@ -66,13 +66,29 @@ public class ProductsManagementController : BaseAdminController
 
         Guid userId = this.GetAdminUserId(throwIfNull: true);
 
-        string messageField = "CategoryDeletionSuccessFullMessage";
-        string messageValue = string.Format(CategoryDeletionSuccessFullMessage,
-            ApplicationConstants.DefaultProductsCategory);
+        string messageField = "UnexpectedErrorMessage";
+        string messageValue = UnexpectedErrorMessage;
         
         DeleteCategoryResultDto result = await this._categoriesService
             .DeleteCategoryByIdAsync(userId, categoryId);
-        if (!result.IsSuccess)
+        
+        if (result.IsSuccess)
+        {
+            switch (result.WereProductsMoved)
+            {
+                case true:
+                    messageField = "CategoryDeletionSuccessFullMessage";
+                    messageValue = string.Format(CategoryDeletionSuccessFullMessage,
+                        ApplicationConstants.DefaultProductsCategory);
+                    break;
+                
+                case false:
+                    messageField = "CategoryDeletionSuccessMessage";
+                    messageValue = CategoryDeletionSuccessMessage;
+                    break;
+            }
+        }
+        else
         {
             switch (result.FailureReason)
             {
@@ -87,15 +103,13 @@ public class ProductsManagementController : BaseAdminController
                     messageValue = string.Format(RemovingDefaultCategoryMessage,
                         ApplicationConstants.DefaultProductsCategory);
                     break;
-                
-                default:
-                    messageField = "UnexpectedErrorMessage";
-                    messageValue = UnexpectedErrorMessage;
-                    break;
             }
         }
 
         TempData[messageField] = messageValue;
-        return RedirectToAction(nameof(ManageCategories), controllerName: "ProductsManagement");
+        return RedirectToAction(
+            actionName: nameof(ManageCategories),
+            controllerName: "ProductsManagement",
+            routeValues:new { area = "Admin" });
     }
 }

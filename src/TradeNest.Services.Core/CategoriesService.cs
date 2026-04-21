@@ -132,7 +132,7 @@ public class CategoriesService : ICategoriesService
                     $"categoryId: {categoryId}");
             }
             
-            return DeleteCategoryResultDto.Success();
+            return DeleteCategoryResultDto.Success(wereProductsMoved: false);
         }
 
         Category? defaultCategory = (await this._categoriesRepository.GetAllAsync(queryOptions =>
@@ -162,6 +162,6 @@ public class CategoriesService : ICategoriesService
                 $"categoryId: {categoryId}");
         }
             
-        return DeleteCategoryResultDto.Success();
+        return DeleteCategoryResultDto.Success(wereProductsMoved: true);
     }
 }

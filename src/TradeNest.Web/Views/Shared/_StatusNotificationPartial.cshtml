@@ -22,6 +22,8 @@
         = TempData["SuccessfullyCreatedCategoryMessage"] as string ?? string.Empty;
     string categoryDeletionSuccessFullMessage
         = TempData["CategoryDeletionSuccessFullMessage"] as string ?? string.Empty;
+    string categoryDeletionSuccessMessage
+        = TempData["CategoryDeletionSuccessMessage"] as string ?? string.Empty;
     string removingDefaultCategoryMessage
         = TempData["RemovingDefaultCategoryMessage"] as string ?? string.Empty;
     string noDefaultCategoryMessage
@@ -103,6 +105,13 @@ else if (!string.IsNullOrEmpty(categoryDeletionSuccessFullMessage))
     <div class="alert alert-success alert-dismissible" role="alert">
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         @categoryDeletionSuccessFullMessage
+    </div>
+}
+else if (!string.IsNullOrEmpty(categoryDeletionSuccessMessage))
+{
+    <div class="alert alert-success alert-dismissible" role="alert">
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        @categoryDeletionSuccessMessage
     </div>
 }
 else if (!string.IsNullOrEmpty(removingDefaultCategoryMessage))

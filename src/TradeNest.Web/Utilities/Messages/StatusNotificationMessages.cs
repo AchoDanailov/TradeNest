@@ -33,6 +33,9 @@ internal static class StatusNotificationMessages
     internal const string CategoryDeletionSuccessFullMessage
         = "You have successfully removed the category. If there were any products that had the removed category as their category, they are now moved to the category with name \"{0}\"";
 
+    internal const string CategoryDeletionSuccessMessage
+        = "You have successfully removed the category.";
+
     internal const string RemovingDefaultCategoryMessage
         = "The \"{0}\" category is the default category. You can not remove the default category.";
 

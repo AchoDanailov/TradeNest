@@ -48,6 +48,12 @@ public class CartsService : ICartsService
         if(cart == null)
             return null;
 
+        if (cart.CartProducts.Count == 0)
+        {
+            await this._cartsRepository.DeleteAsync(cart);
+            return null;
+        }
+
         CartDto cartDto = this._cartsMapper.ToCartDto(cart);
         cartDto.CartProducts = cartDto.CartProducts.OrderBy(cp => cp.AddedOn);
 
