@@ -142,7 +142,7 @@ public class UsersService : IUsersService
 
         if (!rolesToAssignToUser.Any() && !rolesToRemoveUserFrom.Any())
             return;
-        
+
         bool modifyUserRolesResult = true;
         try
         {
@@ -184,7 +184,7 @@ public class UsersService : IUsersService
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage,
                 nameof(roleToDeleteId)));
         }
-        
+
         bool isValidAdminId = await this.IsValidAdminId(adminUserId);
         if (!isValidAdminId)
         {
@@ -201,7 +201,7 @@ public class UsersService : IUsersService
 
         if (role.Name == "Admin")
             throw new InvalidOperationException(AdminRoleCanNotBeDeletedMessage);
-        
+
         bool removeRoleResult = await this._usersRepository.RemoveRoleAsync(role);
         if (removeRoleResult == false)
         {
@@ -214,7 +214,7 @@ public class UsersService : IUsersService
     {
         if(userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
-        
+
         return await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
     }
 }

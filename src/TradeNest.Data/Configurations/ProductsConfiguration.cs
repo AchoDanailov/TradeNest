@@ -15,7 +15,7 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
             .WithMany(u => u.Products)
             .HasForeignKey(p => p.OwnerId)
             .OnDelete(DeleteBehavior.Restrict);
-        
+
         builder.HasOne(p => p.Category)
             .WithMany(c => c.Products)
             .HasForeignKey(p => p.CategoryId)
@@ -27,7 +27,7 @@ public class ProductsConfiguration : IEntityTypeConfiguration<Product>
             .OnDelete(DeleteBehavior.SetNull);
 
         builder.OwnsOne(p => p.ApprovalDecision);
-        
+
         builder.Property(p => p.CreatedOn)
             .HasDefaultValueSql(DefaultValueForCreatedOnColumn);
 

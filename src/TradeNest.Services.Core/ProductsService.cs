@@ -52,12 +52,12 @@ public class ProductsService : IProductsService
                                         p.Category.Name.ToLower().Contains(search.ToLower()));
                 }
             });
-        
+
         return this._productsMapper.ToProductDtos(products);
     }
 
     public async Task<IEnumerable<ProductDto>> GetAllProductsByCategoryIdAsync(
-        Guid categoryId, 
+        Guid categoryId,
         string? search = null)
     {
         if (categoryId == Guid.Empty)
@@ -83,19 +83,19 @@ public class ProductsService : IProductsService
                     queryOptions.AddFilter(p => p.CategoryId == categoryId);
                 }
             });
-        
+
         return this._productsMapper.ToProductDtos(products);
     }
 
     public async Task<IEnumerable<ProductDto>> GetAllProductsOrderedBySellingCountDescAsync()
     {
         IEnumerable<Product> products = await this._productsRepository
-            .GetAllProductsWithCategoryAndImagesAsync(queryOptions => 
+            .GetAllProductsWithCategoryAndImagesAsync(queryOptions =>
                 queryOptions
                     .AsReadOnly()
                     .AddOrderDesc(p => p.SoldProducts.Sum(sp => sp.QuantityOrdered))
                     .AddOrderDesc(p => p.CreatedOn));
-        
+
         return this._productsMapper.ToProductDtos(products);
     }
 
@@ -137,7 +137,7 @@ public class ProductsService : IProductsService
             throw new ArgumentException(string.Format(CantBeZeroOrNegativeNumberMessage,
                 nameof(limit)));
         }
-    
+
         bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
         if (!isAdmin)
             throw new UnauthorizedOperationException(userId, nameof(Product), "All identifiers");
@@ -169,42 +169,26 @@ public class ProductsService : IProductsService
         if (approved is true)
         {
             products = await this._productsRepository
-                .GetAllAsync(queryOptionsAction);
+                .GetAllInclNotApprovedAsync(queryOptions =>
+                {
+                    queryOptionsAction(queryOptions);
+                    queryOptions.AddFilter(p =>
+                        p.IsDeleted == false && p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
+                });
         }
         else
         {
             products = await this._productsRepository
                 .GetAllInclNotApprovedAsync(queryOptionsAction);
-            
+
             if (approved is false)
             {
                 products = await this._productsRepository
                     .GetAllInclNotApprovedAsync(queryOptions =>
                     {
+                        queryOptionsAction(queryOptions);
                         queryOptions
-                            .WithRelated(p => p.Owner)
-                            .WithRelated(p => p.Category)
-                            .AsReadOnly()
-                            .AddOrderAsc(p => p.Owner.PersonalInformationIsDeleted)
-                            .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
-                            .AddOrderDesc(p => p.CreatedOn)
-                            .AddOrderAsc(p => p.Name)
-                            .AddOrderAsc(p => p.Category.Name)
-                            .AddOrderAsc(p => p.Id);
-                        if (!string.IsNullOrWhiteSpace(search))
-                        {
-                            queryOptions
-                                .AddFilter(p => (p.Name.ToLower().Contains(search.ToLower()) ||
-                                                 p.Category.Name.ToLower().Contains(search.ToLower())) &&
-                                                p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
-                        }
-                        else
-                        {
-                            queryOptions
-                                .AddFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
-                        }
-
-                        queryOptions.WithPagination(page, limit);
+                            .AddFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
                     });
             }
         }
@@ -219,11 +203,11 @@ public class ProductsService : IProductsService
     {
         if(userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
-        
+
         bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
         if (!isAdmin)
             throw new UnauthorizedOperationException(userId, nameof(Product), "All identifiers");
-        
+
         Action<IQueryOptions<Product>> queryOptionsAction =
             (queryOptions) =>
             {
@@ -246,37 +230,26 @@ public class ProductsService : IProductsService
         if (approved is true)
         {
             products = await this._productsRepository
-                .GetAllAsync(queryOptionsAction);
+                .GetAllInclNotApprovedAsync(queryOptions =>
+                {
+                    queryOptionsAction(queryOptions);
+                    queryOptions.AddFilter(p =>
+                        p.IsDeleted == false && p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
+                });
         }
         else
         {
             products = await this._productsRepository
                 .GetAllInclNotApprovedAsync(queryOptionsAction);
-            
+
             if (approved is false)
             {
                 products = await this._productsRepository
                     .GetAllInclNotApprovedAsync(queryOptions =>
                     {
+                        queryOptionsAction(queryOptions);
                         queryOptions
-                            .WithRelated(p => p.Owner)
-                            .AsReadOnly()
-                            .AddOrderAsc(p => p.Owner.PersonalInformationIsDeleted)
-                            .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
-                            .AddOrderDesc(p => p.CreatedOn)
-                            .AddOrderAsc(p => p.Name)
-                            .AddOrderAsc(p => p.Id);
-                        if (!string.IsNullOrWhiteSpace(search))
-                        {
-                            queryOptions
-                                .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) &&
-                                                p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
-                        }
-                        else
-                        {
-                            queryOptions
-                                .AddFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
-                        }
+                            .AddFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
                     });
             }
         }
@@ -302,7 +275,7 @@ public class ProductsService : IProductsService
         {
             return null;
         }
-        
+
         return this._productsMapper.ToProductDetailsDto(product, isOwner);
     }
 
@@ -310,7 +283,7 @@ public class ProductsService : IProductsService
     {
         if (userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
-        
+
         Guid passedInCategoryId = productDto.CategoryId;
         if (passedInCategoryId == Guid.Empty)
         {
@@ -332,7 +305,7 @@ public class ProductsService : IProductsService
             throw new ArgumentException(string.Format(NotFoundMessage,
                 nameof(Category), passedInCategoryId));
         }
-        
+
         ICollection<Image> images = ParseImagesInputOnImageAdding(
                 frontImageUrl: productDto.FrontImageUrl,
                 extraImagesUrls: productDto.ExtraImagesUrls)
@@ -343,7 +316,7 @@ public class ProductsService : IProductsService
         }
 
         Admin? admin = await this._adminsRepository.GetAdminByUserId(userId);
-        
+
         Guid? approvalDecisionMakerId = admin?.Id ?? null;
         ApprovalDecision approvalDecision = new ApprovalDecision()
         {
@@ -351,7 +324,7 @@ public class ProductsService : IProductsService
             DecisionJustification = null,
             TimeOfDecision = admin != null ? DateTime.UtcNow : null
         };
-        
+
         Product newProduct = this._productsMapper.FromProductCreateDto(productDto, userId,
             images, approvalDecisionMakerId, approvalDecision);
 
@@ -361,7 +334,7 @@ public class ProductsService : IProductsService
             throw new DataPersistException(nameof(addProductResult),
                 $"{nameof(userId)}: {userId}");
         }
-            
+
         return newProduct.Id;
     }
 
@@ -381,7 +354,7 @@ public class ProductsService : IProductsService
         }
 
         Product? product = (await this._productsRepository
-                .GetAllInclArchivedAndNotApprovedAsync(queryOptions => 
+                .GetAllInclArchivedAndNotApprovedAsync(queryOptions =>
                     queryOptions
                         .WithRelated(p => p.Category)
                         .WithRelated(p => p.Images)
@@ -393,7 +366,7 @@ public class ProductsService : IProductsService
 
         if (userId != product.OwnerId)
             throw new UnauthorizedOperationException(userId, nameof(Product), id);
-        
+
         return this._productsMapper.ToProductEditDto(product);
     }
 
@@ -403,7 +376,7 @@ public class ProductsService : IProductsService
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if(id == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(id)));
-        
+
         Product? product = (await this._productsRepository
                 .GetAllInclArchivedAndNotApprovedAsync(queryOptions =>
                     queryOptions.AddFilter(p => p.Id == id)))
@@ -427,7 +400,7 @@ public class ProductsService : IProductsService
         bool archiveProductResult = await this._productsRepository.ArchiveAsync(product);
         if (archiveProductResult == false)
         {
-            throw new DataPersistException(nameof(archiveProductResult), 
+            throw new DataPersistException(nameof(archiveProductResult),
                 $"{nameof(userId)}: {userId}", $"productId: {product.Id}");
         }
     }
@@ -438,15 +411,15 @@ public class ProductsService : IProductsService
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if (productEditDto.Id == Guid.Empty)
         {
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage,
                 nameof(productEditDto.Id)));
         }
         if (productEditDto.CategoryId == Guid.Empty)
         {
-            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, 
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage,
                 nameof(productEditDto.CategoryId)));
         }
-        
+
         bool userExists = await this._usersRepository.ExistsAsync(u => u.Id == userId);
         if (!userExists)
         {
@@ -455,7 +428,7 @@ public class ProductsService : IProductsService
         }
 
         Product? product = (await this._productsRepository
-                .GetAllInclArchivedAndNotApprovedAsync(queryOptions => 
+                .GetAllInclArchivedAndNotApprovedAsync(queryOptions =>
                     queryOptions
                         .WithRelated(p => p.Images)
                         .AddFilter(p => p.Id == productEditDto.Id)))
@@ -465,7 +438,7 @@ public class ProductsService : IProductsService
 
         if (userId != product.OwnerId)
             throw new UnauthorizedOperationException(userId, nameof(Product), productEditDto.Id);
-        
+
         if (productEditDto.ProductImages.Any())
         {
             bool allImagesAreValid = productEditDto.ProductImages
@@ -481,17 +454,17 @@ public class ProductsService : IProductsService
             .ExistsAsync(c => c.Id == productEditDto.CategoryId);
         if (!categoryExists)
         {
-            throw new ArgumentException(string.Format(NotFoundMessage, 
+            throw new ArgumentException(string.Format(NotFoundMessage,
                 nameof(Category), productEditDto.CategoryId));
         }
 
-        IEnumerable<Image> deletedImages 
+        IEnumerable<Image> deletedImages
             = DeleteImagesForDeletionIfAny(product, productEditDto.ProductImages);
 
         bool changesRequireAdminReview = RequiresAdminReview(productEditDto, product);
         if (changesRequireAdminReview)
             ResetApprovalStatus(product);
-        
+
         this._productsMapper.EditProductFromProductEditDto(productEditDto, product);
 
         AddNewImagesIfAny(product, productEditDto.NewImagesUrls);
@@ -516,10 +489,10 @@ public class ProductsService : IProductsService
 
         bool approvalStatusIsValidValue = Enum.TryParse(
             approvalDecisionDto.ApprovalStatus.ToString(),
-            out ApprovalStatus validApprovalStatusValue); 
-        
+            out ApprovalStatus validApprovalStatusValue);
+
         bool isDefined = Enum.IsDefined(validApprovalStatusValue);
-        
+
         if (!approvalStatusIsValidValue || !isDefined)
         {
             throw new ArgumentException($"userId: {userId}, productId: {productId}",
@@ -530,7 +503,7 @@ public class ProductsService : IProductsService
         if (admin == null)
             throw new UnauthorizedOperationException(userId, nameof(Product), productId);
 
-        Product? product = (await this._productsRepository.GetAllInclNotApprovedAsync(queryOptions => 
+        Product? product = (await this._productsRepository.GetAllInclNotApprovedAsync(queryOptions =>
                 queryOptions.AddFilter(p => p.Id == productId)))
             .SingleOrDefault();
         if (product == null)
@@ -573,10 +546,10 @@ public class ProductsService : IProductsService
         {
             TotalRevenue = userProducts
                 .Sum(p => p.SoldProducts.Select(op => op.QuantityOrdered * p.SellingPrice).Sum()),
-            
+
             TotalSales = userProducts
                 .Sum(p => p.SoldProducts.Select(op => op.QuantityOrdered).Sum()),
-            
+
             TotalSurplus = userProducts
                 .Where(p => p.SoldProducts.Count >= 1 && p.CostPrice != null)
                 .Select(p => CalculateSurplus(p)).Sum()
@@ -634,7 +607,7 @@ public class ProductsService : IProductsService
     {
         if (string.IsNullOrWhiteSpace(newImagesUrls))
             return;
-        
+
         IEnumerable<Image> imagesToAdd = ParseImagesInputOnImageAdding(
             extraImagesUrls: newImagesUrls,
             productId: product.Id);
@@ -667,15 +640,15 @@ public class ProductsService : IProductsService
         ICollection<Image> productImages)
     {
         deletedImages = deletedImages.ToArray();
-        
+
         bool isFrontImageMarkedForDeletion = deletedImages.Any(i => i.IsFrontImage);
         bool productHasImagesLeft = productImages
             .Any(prodImg => deletedImages.All(delImg => delImg.Id != prodImg.Id));
-            
+
         if (isFrontImageMarkedForDeletion && productHasImagesLeft)
         {
             deletedImages.Single(i => i.IsFrontImage).IsFrontImage = false;
-                
+
             productImages
                 .First(img => deletedImages.All(delImg => img.Id != delImg.Id))
                 .IsFrontImage = true;
@@ -689,15 +662,15 @@ public class ProductsService : IProductsService
                 .IsFrontImage = true;
         }
     }
-    
+
     private static IEnumerable<Image> ParseImagesInputOnImageAdding(string? frontImageUrl = null,
         string? extraImagesUrls = null, Guid? productId = null)
     {
         if (frontImageUrl == null && extraImagesUrls == null)
             return Array.Empty<Image>();
-        
+
         ICollection<Image> images = new List<Image>();
-        
+
         if (!string.IsNullOrEmpty(frontImageUrl))
         {
             if (IsValidImageUrl(frontImageUrl))
@@ -709,7 +682,7 @@ public class ProductsService : IProductsService
                 });
             }
         }
-            
+
         if (!string.IsNullOrEmpty(extraImagesUrls))
         {
             IEnumerable<string> extraImagesUrlsSplit = extraImagesUrls
@@ -741,10 +714,10 @@ public class ProductsService : IProductsService
     {
         int numberOfTimesSold = product.SoldProducts.Select(op => op.QuantityOrdered).Sum();
         decimal unitSurplus = product.SellingPrice - product.CostPrice!.Value;
-        
+
         return unitSurplus * numberOfTimesSold;
     }
-   
+
     private static bool IsValidImageUrl(string? url)
     {
         if (string.IsNullOrEmpty(url))

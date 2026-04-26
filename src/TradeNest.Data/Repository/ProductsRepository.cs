@@ -9,7 +9,7 @@ namespace TradeNest.Data.Repository;
 
 public class ProductsRepository : BaseReadRepository<Product>, IProductsRepository
 {
-    public ProductsRepository(TradeNestDbContext dbContext) 
+    public ProductsRepository(TradeNestDbContext dbContext)
         : base(dbContext)
     {
     }
@@ -30,13 +30,13 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         return await queryable.SingleOrDefaultAsync(p => p.Id == productId);
     }
 
-    public async Task<IDictionary<Guid, string?>> 
+    public async Task<IDictionary<Guid, string?>>
         GetAllCategoriesBestSellersFrontImagesAsync(bool asReadOnly = false)
     {
         IQueryable<Category> queryable = this.DbContext.Categories;
         if (asReadOnly)
             queryable = queryable.AsNoTracking();
-        
+
         return await queryable
             .Select(c => new
             {
@@ -65,7 +65,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
             return await this.ToQueryable(queryOptionsBuilder, queryable)
                 .ToArrayAsync();
         }
-        
+
         return await queryable.ToArrayAsync();
     }
 
@@ -78,7 +78,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
                 .IgnoreQueryFilters()
                 .ToArrayAsync();
         }
-        
+
         IQueryable<Product> noQueryFilterQueryable = this.DbContext.Products
             .IgnoreQueryFilters();
 
@@ -96,7 +96,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
                 .Where(p => p.IsDeleted == false)
                 .ToArrayAsync();
         }
-        
+
         IQueryable<Product> queryable = this.DbContext.Products
             .IgnoreQueryFilters()
             .Where(p => p.IsDeleted == false);
@@ -104,23 +104,28 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         return await this.ToQueryable(queryOptionsBuilder, queryable)
             .ToArrayAsync();
     }
-    
+
     public async Task<int> GetSpecifiedProductsCount(bool? approved = null,
         string? search = null)
     {
-        IQueryable<Product> queryable = this.DbContext.Products;
-        if (approved == null || approved is false)
+        IQueryable<Product> queryable = this.DbContext.Products
+            .IgnoreQueryFilters();
+
+        if (approved is true)
         {
-            queryable = queryable
-                .IgnoreQueryFilters()
-                .Where(p => p.IsDeleted == false);
+            queryable = queryable.Where(p =>
+                p.IsDeleted == false && p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
+        }
+        else
+        {
+            queryable = queryable.Where(p => p.IsDeleted == false);
             if (approved is false)
             {
                 queryable = queryable
                     .Where(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
             }
-        } 
-        
+        }
+
         if (!string.IsNullOrWhiteSpace(search))
         {
             queryable = queryable
@@ -132,7 +137,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         return await queryable
             .AsNoTracking()
             .CountAsync();
-    } 
+    }
 
     public async Task<bool> ExistsIncludingArchivedAndNotApprovedAsync(
         Expression<Func<Product, bool>> filter)
@@ -168,14 +173,14 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
 
     public async Task<bool> ExecuteUpdateProductsRangeCategoriesIdsAsync(
         Expression<Func<Product, bool>> filter,
-        Guid newCategoryId) 
+        Guid newCategoryId)
     {
         int res = await this.DbContext.Products
             .IgnoreQueryFilters()
             .Where(filter)
-            .ExecuteUpdateAsync(prop => 
+            .ExecuteUpdateAsync(prop =>
                 prop.SetProperty(p => p.CategoryId, newCategoryId));
-        
+
         return res >= 1;
     }
 
@@ -183,7 +188,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
     {
         product.IsDeleted = true;
         this.DbContext.Products.Update(product);
-        
+
         int res = await this.DbContext.SaveChangesAsync();
         return res >= 1;
     }
