@@ -1,0 +1,41 @@
+{
+    "compileOnSave": true,
+    "compilerOptions": {
+        "target": "ES2022",
+        "module": "ESNext",
+        "lib": [ "ES2022", "DOM", "DOM.Iterable" ],
+        "rootDir": "FrontEndScripts",
+        "outDir": "wwwroot/js",
+        "sourceMap": false,
+        "inlineSourceMap": true,
+        "inlineSources": true,
+        "strict": true,
+        "useDefineForClassFields": true,
+        "skipLibCheck": true,
+        "esModuleInterop": true, // allows for import syntax
+        "forceConsistentCasingInFileNames": true,
+        "noUncheckedIndexedAccess": true, // sets undefined union with uknown elements at any array index
+        "noUnusedLocals": true,
+        "noUnusedParameters": true,
+        "erasableSyntaxOnly": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedSideEffectImports": true,
+    },
+    "include": [
+        "FrontEndScripts/**/*"
+    ],
+    "exclude:": [
+        "node_modules",
+        "wwwroot"
+    ],
+}
+
+
+        /* Bundler mode */
+        // "allowImportingTsExtensions": true,
+        // "verbatimModuleSyntax": true,
+        // "moduleDetection": "force",
+        // "noEmit": true, // => this options lets a bundler handle the bundling (set true if using bundler).
+
+        /* Bundler mode */
+        // wImpallowImportingTsExtensions": true,

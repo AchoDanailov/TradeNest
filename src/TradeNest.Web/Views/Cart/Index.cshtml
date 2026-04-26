@@ -9,10 +9,10 @@
 
 <div class="mt-3 d-md-none">
     <partial name="_SearchFormPartial" model="@string.Empty" />
-</div>   
+</div>
 
 <div class="container-lg mt-4 p-3 border rounded-3 shadow site-sections-bg d-flex flex-column gap-3">
-    
+
     <partial name="_StatusNotificationPartial" />
 
     <div class="row">
@@ -20,7 +20,7 @@
             <partial name="_SearchFormPartial" model="@string.Empty" />
         </div>
     </div>
-    
+
     <div class="row d-flex flex-column">
         <div>
             <h5 class="display-5 text-navy ms-md-3">Cart</h5>
@@ -70,9 +70,6 @@
 </div>
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.7/purify.min.js" integrity="sha512-78KH17QLT5e55GJqP76vutp1D2iAoy06WcYBXB6iBCsmO6wWzx0Qdg8EDpm8mKXv68BcvHOyeeP4wxAL0twJGQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script src="~/js/common/searchFormValidator.js" asp-append-version="true"></script>
+    <script src="~/js/utils/searchFormValidator.js" asp-append-version="true"></script>
     <script type="module" src="~/js/cart/changeCartProductQtyPopover.js" asp-append-version="true"></script>
 }

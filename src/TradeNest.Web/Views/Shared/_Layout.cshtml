@@ -9,13 +9,24 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
-    
+
+    <script type="importmap">
+    {
+      "imports": {
+        "bootstrap": "https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/+esm",
+        "lit-html": "https://cdn.jsdelivr.net/npm/lit-html@3.2.1/+esm",
+        "sweetalert2": "https://cdn.jsdelivr.net/npm/sweetalert2@11.10.5/+esm",
+        "dompurify": "https://cdn.jsdelivr.net/npm/dompurify@3.0.9/+esm"
+      }
+    }
+    </script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/TradeNest.Web.styles.css" asp-append-version="true" />
     @await RenderSectionAsync("Styles", false)
-    
+
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
@@ -26,12 +37,12 @@
         <nav class="navbar navbar-expand-md navbar-toggleable-md navbar-dark bg-dark border-bottom border-light box-shadow">
             <div class="container-lg ">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">
-                    <img src="~/images/tradenest-logo/logo-transparent-small.png" 
+                    <img src="~/images/tradenest-logo/logo-transparent-small.png"
                          class="d-inline-block" alt="TradeNest" width="50" height="43" />
                     Trade<span class="text-teal">Nest</span>
                 </a>
-                <button class="navbar-toggler" type="button" 
-                        data-bs-toggle="collapse" data-bs-target="#navbarContent" 
+                <button class="navbar-toggler" type="button"
+                        data-bs-toggle="collapse" data-bs-target="#navbarContent"
                         aria-controls="navbarSupportedContent" aria-expanded="false"
                         aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -85,7 +96,7 @@
 
 <footer class="border-top footer text-muted site-sections-bg-teal">
     <div class="container-lg">
-        &copy; @currentYear - TradeNest - <a asp-area="" asp-controller="Home" 
+        &copy; @currentYear - TradeNest - <a asp-area="" asp-controller="Home"
                                              asp-action="Privacy">Privacy</a>
     </div>
 </footer>

@@ -1,6 +1,9 @@
-export function toggleHighlight(approvalStatus) {
-    const label1 = document.querySelector('label[for="btnradio1"]');
-    const label2 = document.querySelector('label[for="btnradio2"]');
+import Swal, { type SweetAlertOptions, type SweetAlertResult } from "sweetalert2";
+import type { ProductsApprovalStatus } from "../types/products.ts";
+
+export function toggleHighlight(approvalStatus: ProductsApprovalStatus): void {
+    const label1 = document.querySelector<HTMLLabelElement>('label[for="btnradio1"]')!;
+    const label2 = document.querySelector<HTMLLabelElement>('label[for="btnradio2"]')!;
 
     if(approvalStatus === "Approved") {
         label1.classList.replace("btn-outline-teal", "btn-teal");
@@ -11,7 +14,7 @@ export function toggleHighlight(approvalStatus) {
     }
 }
 
-export function showErrorSwal() {
+export function showErrorSwal(): Promise<SweetAlertResult> {
     return Swal.fire({
         icon: "error",
         title: "Oops...",
@@ -20,10 +23,10 @@ export function showErrorSwal() {
         draggable: true,
         showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
         hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` }
-    });
+    } as SweetAlertOptions);
 }
 
-export function showPlainSuccessSwal(text) {
+export function showPlainSuccessSwal(text?: string): Promise<SweetAlertResult> {
     return Swal.fire({
         icon: "success",
         title: "Success",
@@ -32,5 +35,5 @@ export function showPlainSuccessSwal(text) {
         confirmButtonColor: "#0FAF9A",
         showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
         hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` },
-    })
+    } as SweetAlertOptions)
 }

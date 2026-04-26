@@ -2,7 +2,7 @@
 @model ProductViewModel
 
 <div class="card h-100 shadow d-flex flex-row" style="max-height: 190px">
-    <div class="card-img-container ms-2 mt-1"> 
+    <div class="card-img-container ms-2 mt-1">
         <img src="@(Model.FrontImageUrl ?? DefaultProductImageUrl)"
              class="card-img-left" loading="lazy"
              alt="@Model.Name" />
@@ -24,10 +24,10 @@
             €@this.Model.SellingPrice.ToString(PricesFormat)
         </div>
         <div class="d-flex justify-content-end gap-2 mt-2">
-            <a asp-area="" asp-controller="Products" asp-action="Details" asp-route-id="@this.Model.Id" 
+            <a asp-area="" asp-controller="Products" asp-action="Details" asp-route-id="@this.Model.Id"
                asp-route-returnUrl="@Url.Action("Index", controller: "Products")"
                class="btn btn-outline-teal">Details</a>
-            
+
             @if (User.Identity!.IsAuthenticated && this.Model.IsEnabled &&
                  this.Model.OwnerId.ToString().ToLowerInvariant() !=
                  User?.FindFirstValue(ClaimTypes.NameIdentifier)?.ToLowerInvariant())

@@ -25,7 +25,7 @@ public class CartController : BaseController
     public CartController(
         IOrdersService ordersService,
         ICartsService cartsService,
-        ILogger<CartController> logger, 
+        ILogger<CartController> logger,
         ICartPresentationModelsMapper cartPresentationModelsMapper,
         IOrderPresentationModelsMapper orderPresentationModelsMapper)
     {
@@ -40,7 +40,7 @@ public class CartController : BaseController
     public async Task<IActionResult> Index()
     {
         Guid userId = this.GetUserId(throwIfNull: true);
-        
+
         CartDto? userCartDto = await this._cartsService
             .GetCartByUserIdAsync(userId);
         IEnumerable<OrderDto> userOrdersDtos = await this._ordersService
@@ -51,22 +51,22 @@ public class CartController : BaseController
             : null;
         IEnumerable<OrderViewModel> orderViewModels = this._orderPresentationModelsMapper
             .ToOrderViewModels(userOrdersDtos);
-        
+
         CartWithOrdersViewModel viewModel = new CartWithOrdersViewModel()
         {
             CartViewModel = cartViewModel,
             OrderViewModels = orderViewModels,
         };
-        
+
         return View(viewModel);
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> AddToCart([FromRoute] Guid id, [FromForm] int quantity)
     {
         if (id == Guid.Empty || quantity < 1)
             return BadRequest();
-        
+
         try
         {
             Guid userId = this.GetUserId(throwIfNull: true);
@@ -82,7 +82,7 @@ public class CartController : BaseController
                     nameof(InsufficientProductQuantityInStockException),
                     this.GetType().Name,
                     ControllerContext.ActionDescriptor.ActionName));
-            
+
             TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
             return RedirectToAction("Details", controllerName: "Products", new { id = id });
         }
@@ -94,12 +94,12 @@ public class CartController : BaseController
                     nameof(ProductDisabledException),
                     this.GetType().Name,
                     ControllerContext.ActionDescriptor.ActionName));
-            
+
             TempData["CartModificationErrorMessage"] = CartModificationErrorMessage;
             return RedirectToAction("Details", controllerName: "Products", new { id = id });
         }
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> RemoveFromCart([FromRoute] Guid id)
     {
@@ -110,7 +110,7 @@ public class CartController : BaseController
         await this._cartsService.RemoveProductFromCartAsync(userId, id);
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
-    
+
     [HttpPost]
     public async Task<IActionResult> SubmitOrder()
     {
@@ -121,7 +121,7 @@ public class CartController : BaseController
             TempData["ProblemWithCartProductMessage"] = ProblemWithCartProductMessage;
         else
             TempData["OrderSubmittionSuccessMessage"] = OrderSubmittionSuccessMessage;
-        
+
         return RedirectToAction(nameof(Index), controllerName: "Cart");
     }
 
@@ -131,40 +131,5 @@ public class CartController : BaseController
         Guid userId = this.GetUserId(throwIfNull: true);
         await this._cartsService.DeleteCartAsync(userId);
         return RedirectToAction(nameof(Index), controllerName: "Cart");
-    }
-    
-    [SkipStatusCodePages]
-    [AcceptVerbs("POST")]
-    public async Task<IActionResult> VerifyProdQty(
-        [FromBody] ValidateProductQtyInputModel inputModel)
-    {
-        if (!ModelState.IsValid)
-            return BadRequest(ModelState);
-        
-        if (inputModel.Id == Guid.Empty)
-            throw new ArgumentException($"Id can not be empty.", nameof(inputModel.Id));
-
-        try
-        {
-            Guid userId = this.GetUserId(throwIfNull: true);
-
-            ProductQtyValidationDto dto = new ProductQtyValidationDto()
-            {
-                Id = inputModel.Id,
-                QuantityRequested = inputModel.Quantity,
-            };
-
-            bool isValidProdQtyToAdd = await this._cartsService
-                .IsValidProductQtyToAddToCartAsync(userId, dto);
-
-            return Ok(isValidProdQtyToAdd);
-        }
-        catch (Exception ex)
-        {
-            this._logger.LogWarning(ex, string.Format(RemoteValidationErrorMessage,
-                this.GetType().Name, ControllerContext.ActionDescriptor.ActionName));
-
-            return BadRequest(ex);
-        }
     }
 }
