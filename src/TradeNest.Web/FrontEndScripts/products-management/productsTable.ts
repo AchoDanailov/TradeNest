@@ -1,4 +1,4 @@
-import bootstrap from "bootstrap";
+import * as bootstrap from "bootstrap";
 import { html, render, type TemplateResult } from "lit-html";
 
 import type { Product, ProductsApprovalStatus } from "../types/products.ts";

@@ -1,4 +1,4 @@
-import bootstrap from "bootstrap";
+import * as bootstrap from "bootstrap";
 import DOMPurify from "dompurify";
 import Swal, { type SweetAlertOptions } from "sweetalert2";
 

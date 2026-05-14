@@ -1,4 +1,4 @@
-import bootstrap from "bootstrap";
+import * as bootstrap from "bootstrap";
 import { html } from "lit-html";
 
 import type { Product } from "../types/products.ts";

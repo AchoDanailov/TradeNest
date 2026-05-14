@@ -73,6 +73,7 @@ TradeNest/
 
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0): You'll need the .NET 8 SDK to build and run the project. Newer SDK versions can typically build .NET 8 projects, but .NET 8 is the official target.
 - [SQL Server 2022 or higher](https://www.microsoft.com/en-us/sql-server/sql-server-downloads): The application uses SQL server 2022.
+- [npm](https://www.npmjs.com/): Required for frontend dependencies.
 
 ### Setup
 
@@ -86,8 +87,9 @@ git clone https://github.com/AchoDanailov/TradeNest.git
 cd TradeNest
 ```
 
-**Restore the tools & dependencies**
+**Restore the tools & dependencies**  
 ```bash
+cd src/TradeNest.Web && npm install && cd ../..
 dotnet tool restore
 dotnet restore src
 ```

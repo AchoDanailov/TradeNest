@@ -1,4 +1,4 @@
-import bootstrap from "bootstrap";
+import * as bootstrap from "bootstrap";
 import { html, type TemplateResult } from "lit-html";
 
 import type {
