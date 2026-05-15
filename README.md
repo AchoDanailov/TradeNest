@@ -9,18 +9,6 @@ buy and sell a wide variety of products.
 
 ---
 
-## Project's Context
-This is a project I developed throughout out SoftUni's Web module with ASP.NET Core.
-
-**Some important things about the development of the project:**
-- I have worked on this project for around 4 months while learning ASP.NET Core.
-- AI usage:
-    - I have used AI in less than 5% of the entire project (100% of it was UI and Unit Tests related).
-    - I have not delegated any of the design, implementation and problem solving to AI.
-    - All images including the logo were generated with AI.
-
----
-
 ## Tech Stack
 - **Backend** – C# & ASP.NET Core MVC.
 - **Database** – SQL Server & Entity Framework Core for data access and data store.
