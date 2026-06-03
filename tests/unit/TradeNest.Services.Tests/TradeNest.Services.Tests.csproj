@@ -19,10 +19,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TradeNest.Services.Core\TradeNest.Services.Core.csproj" />
-        <ProjectReference Include="..\TradeNest.Data\TradeNest.Data.csproj" />
-        <ProjectReference Include="..\TradeNest.GCommon\TradeNest.GCommon.csproj" />
-        <ProjectReference Include="..\TradeNest.Services.Models\TradeNest.Services.Models.csproj" />
+        <ProjectReference Include="..\..\..\src\TradeNest.Services.Core\TradeNest.Services.Core.csproj" />
+        <ProjectReference Include="..\..\..\src\TradeNest.Data\TradeNest.Data.csproj" />
+        <ProjectReference Include="..\..\..\src\TradeNest.GCommon\TradeNest.GCommon.csproj" />
+        <ProjectReference Include="..\..\..\src\TradeNest.Services.Models\TradeNest.Services.Models.csproj" />
     </ItemGroup>
 
     <ItemGroup>

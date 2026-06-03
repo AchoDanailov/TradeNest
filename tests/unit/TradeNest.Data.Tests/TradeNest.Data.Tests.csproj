@@ -20,10 +20,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\TradeNest.Data\TradeNest.Data.csproj" />
-        <ProjectReference Include="..\TradeNest.Data.Models\TradeNest.Data.Models.csproj" />
-        <ProjectReference Include="..\TradeNest.GCommon\TradeNest.GCommon.csproj" />
-        <ProjectReference Include="..\TradeNest.Data.Common\TradeNest.Data.Common.csproj" />
+        <ProjectReference Include="..\..\..\src\TradeNest.Data\TradeNest.Data.csproj" />
+        <ProjectReference Include="..\..\..\src\TradeNest.Data.Models\TradeNest.Data.Models.csproj" />
+        <ProjectReference Include="..\..\..\src\TradeNest.GCommon\TradeNest.GCommon.csproj" />
+        <ProjectReference Include="..\..\..\src\TradeNest.Data.Common\TradeNest.Data.Common.csproj" />
     </ItemGroup>
 
     <ItemGroup>
