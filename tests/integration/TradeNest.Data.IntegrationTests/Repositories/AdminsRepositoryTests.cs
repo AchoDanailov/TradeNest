@@ -1,9 +1,10 @@
-using Moq;
 using Microsoft.AspNetCore.Identity;
+using Moq;
+using NUnit.Framework;
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository;
 
-namespace TradeNest.Data.Tests.Repositories;
+namespace TradeNest.Data.IntegrationTests.Repositories;
 
 [TestFixture]
 public class AdminsRepositoryTests : RepositoryTestsBase

@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using NUnit.Framework;
 
-namespace TradeNest.Data.Tests;
+namespace TradeNest.Data.IntegrationTests;
 
 public abstract class RepositoryTestsBase
 {
