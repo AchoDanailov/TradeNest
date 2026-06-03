@@ -38,19 +38,32 @@ buy and sell a wide variety of products.
 ```
 TradeNest/
 │
-└── src/
-    │
-    ├── TradeNest.Data/                # DbContext, configurations, migrations, repositories
-    ├── TradeNest.Data.Models/         # Entity models(POCOs) used to model the relational models in the database
-    ├── TradeNest.Data.Common/         # Everything common only used in the Data Layer.
-    ├── TradeNest.Data.Tests/          # Tests for data layer classes (Repositories, QueryOptions, Helpers, etc...)
-    ├── TradeNest.GCommon/             # Cross-cutting concerns.
-    ├── TradeNest.Services.Core/       # Business logic (Services, Mapperly mappers).
-    ├── TradeNest.Services.Tests/      # Business logic Tests.
-    ├── TradeNest.Services.Models/     # Holds DTOs used to transfer data between the service layer and the presentation layer.
-    ├── TradeNest.Web/                 # Presentation layer (Controllers, WebApiControllers, Views, Areas, PresentationModel Mapperly mappers)
-    ├── TradeNest.Web.Models/          # Models for transferring data outside application boundaries and to MVC Views.
-    └── TradeNest.Web.Infrastructure/  # Everything the Web Layer relies on: Filters, Middlewares, Extensions, etc...
+├── docs/
+│   └── SRS/                           # Lightweight specifications (mainly used as reference of the functionality and the workflows)
+│
+├── .config/
+│   └── dotnet-tools.json              # Manifest file for dotnet tools (e.g. dotnet-ef)
+│
+├── src/
+│   ├── TradeNest.Data/                # DbContext, configurations, migrations, repositories
+│   ├── TradeNest.Data.Models/         # Entity models(POCOs) used to model the relational models in the database
+│   ├── TradeNest.Data.Common/         # Everything common only used in the Data Layer.
+│   ├── TradeNest.GCommon/             # Cross-cutting concerns.
+│   ├── TradeNest.Services.Core/       # Business logic (Services, Mapperly mappers).
+│   ├── TradeNest.Services.Models/     # Holds DTOs used to transfer data between the service layer and the presentation layer.
+│   ├── TradeNest.Web/                 # Presentation layer (Controllers, WebApiControllers, Views, Areas, PresentationModel Mapperly mappers)
+│   ├── TradeNest.Web.Models/          # Models for transferring data outside application boundaries and to MVC Views.
+│   └── TradeNest.Web.Infrastructure/  # Everything the Web Layer relies on: Filters, Middlewares, Extensions, etc...
+│
+├── tests/
+│   ├── unit/                          
+│   │   ├── TradeNest.Services.Tests/  # Business logic Unit Tests.
+│   │   └── TradeNest.Data.Tests/      # Unit Tests for data layer classes (Repositories, QueryOptions, Helpers, etc...)
+│   │
+│   ├── integration/                   # Integration Tests 
+│   │   └── TradeNest.Data.IntegrationTests/  
+│   │
+│   └── e2e/                           # End to end tests
 ```
 
 ---
@@ -78,8 +91,7 @@ cd TradeNest
 **Restore the tools & dependencies**  
 ```bash
 cd src/TradeNest.Web && npm install && cd ../..
-dotnet tool restore
-dotnet restore src
+dotnet tool restore && dotnet restore
 ```
 
 **Apply migrations**
@@ -122,21 +134,24 @@ connecting to its data stores, authentication options and others application con
 
 ### Default users credentials you can use for developing and testing:
 
-1. Email: User1@gmail.com
-Username: User1
-Password: Password1
+1. Email: User1@gmail.com  
+Username: User1  
+Password: Password1  
 
-2. Email: User2@gmail.com
-Username: User2
+
+2. Email: User2@gmail.com  
+Username: User2  
 Password: Password2
 
-3. Email: User3@gmail.com
-Username: User3
-Password: Password3
 
-4. Email: Admin1@gmail.com
-Username: Admin1
-Password: Admin1Password
+3. Email: User3@gmail.com  
+Username: User3  
+Password: Password3  
+
+
+4. Email: Admin1@gmail.com  
+Username: Admin1  
+Password: Admin1Password  
 
 You can log in using one of either your username or your email, along with your password.
 I have written an extension method to seed some test data when the application is in Development. I also spread it across the different accounts for ease of review, test and development of different scenarios.
