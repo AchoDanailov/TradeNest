@@ -56,6 +56,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SRS", "SRS", "{C0D4E791-317
 		docs\SRS\UserAccount.md = docs\SRS\UserAccount.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration", "{7B960692-72D2-48C7-A18E-38A16BD8FA23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Data.IntegrationTests", "tests\integration\TradeNest.Data.IntegrationTests\TradeNest.Data.IntegrationTests.csproj", "{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -82,6 +86,8 @@ Global
 		{CA12E92C-93B4-464C-8073-B826B0E6B722} = {1E5EF072-C712-489A-B80E-4B69007EE79E}
 		{C0D4E791-3173-4B80-8B6C-2386AC5452A5} = {A201FF97-FEA4-4515-BB62-98E6F259E974}
 		{A201FF97-FEA4-4515-BB62-98E6F259E974} = {D33D1E52-5C82-4FF9-97A2-FDBAACC7D41B}
+		{7B960692-72D2-48C7-A18E-38A16BD8FA23} = {0D44396B-5F26-4E8D-8C98-DE686233E361}
+		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA} = {7B960692-72D2-48C7-A18E-38A16BD8FA23}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{839C63FE-08C8-4BA0-970B-D0A226C304C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -128,5 +134,9 @@ Global
 		{B5AC9971-6BD6-41EC-B183-7217B0B62520}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5AC9971-6BD6-41EC-B183-7217B0B62520}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B5AC9971-6BD6-41EC-B183-7217B0B62520}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
