@@ -33,6 +33,7 @@
     <ProjectReference Include="..\TradeNest.Services.Core\TradeNest.Services.Core.csproj" />
     <ProjectReference Include="..\TradeNest.Web.Infrastructure\TradeNest.Web.Infrastructure.csproj" />
     <ProjectReference Include="..\TradeNest.Web.Models\TradeNest.Web.Models.csproj" />
+    <ProjectReference Include="..\TradeNest.GCommon\TradeNest.GCommon.csproj" />
   </ItemGroup>
 
 </Project>
