@@ -284,19 +284,22 @@ public class ProductsServiceTests
             .ReturnsAsync(true);
         
         this._productsRepositoryMock
-            .Setup(pr => pr.GetSpecifiedProductsCount(approved, searchQuery))
+            .Setup(pr => pr.GetSpecifiedProductsCount(
+                It.IsAny<bool?>(),
+                It.IsAny<string?>()))
             .ReturnsAsync(() =>
             {
                 IEnumerable<Product> ret = products;
-                
+
                 if (approved is false)
-                {
                     ret = ret.Where(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
-                }
-                
+                else if (approved is true)
+                    ret = ret.Where(p => p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
+
                 if (!string.IsNullOrWhiteSpace(searchQuery))
-                    ret = ret.Where(p => p.Name.Contains(searchQuery));
-                
+                    ret = ret.Where(p => p.Name.ToLower().Contains(searchQuery.ToLower()) ||
+                                         p.Category.Name.ToLower().Contains(searchQuery.ToLower()));
+
                 return ret.Count();
             });
         
@@ -305,28 +308,31 @@ public class ProductsServiceTests
             .GetSpecifiedProductsCountAsync(Guid.NewGuid(), approved, searchQuery);
         
         // Assert
-        int expected = -1;
+        int expected;
         if (approved is false)
         {
-            if (!string.IsNullOrWhiteSpace(searchQuery))
-            {
-                expected = products
-                    .Count(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved &&
-                                p.Name.Contains(searchQuery));
-            }
-            else
-            {
-                expected = products
-                    .Count(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
-            }
+            expected = !string.IsNullOrWhiteSpace(searchQuery)
+                ? products.Count(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved &&
+                                      (p.Name.ToLower().Contains(searchQuery.ToLower()) ||
+                                       p.Category.Name.ToLower().Contains(searchQuery.ToLower())))
+                : products.Count(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+        }
+        else if (approved is true)
+        {
+            expected = !string.IsNullOrWhiteSpace(searchQuery)
+                ? products.Count(p => p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved &&
+                                      (p.Name.ToLower().Contains(searchQuery.ToLower()) ||
+                                       p.Category.Name.ToLower().Contains(searchQuery.ToLower())))
+                : products.Count(p => p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
         }
         else
         {
-            expected = !string.IsNullOrWhiteSpace(searchQuery) 
-                ? products.Count(p => p.Name.Contains(searchQuery)) 
+            expected = !string.IsNullOrWhiteSpace(searchQuery)
+                ? products.Count(p => p.Name.ToLower().Contains(searchQuery.ToLower()) ||
+                                      p.Category.Name.ToLower().Contains(searchQuery.ToLower()))
                 : products.Count();
         }
-        
+
         Assert.That(actual, Is.EqualTo(expected));
     }
 
@@ -406,6 +412,16 @@ public class ProductsServiceTests
         Assert.That(product.ApprovalDecision.ApprovalStatus, Is.EqualTo(ApprovalStatus.Approved));
     }
 
+    /// <summary>
+    /// Orchestrates Test Collection
+    /// </summary>
+    /// <param name="productId">If passed first item in the collection will take this identifier.</param>
+    /// <param name="categoryIdWithCategoryName">
+    /// Value Tuple holding data for category id and category name.
+    /// The values will be set on the first three elements in the collection.
+    /// </param>
+    /// <param name="withSomeDisapproved">If set to true the first element will be with disapproved status.</param>
+    /// <returns>Test collection of Products</returns>
     private static IEnumerable<Product> SetupProductsCollection(
         Guid? productId = null,
         ValueTuple<Guid, string>? categoryIdWithCategoryName = null,
@@ -419,7 +435,7 @@ public class ProductsServiceTests
             new Product()
             {
                 Id = productId.Value, Name = "Big TV", CategoryId = categoryIdWithCategoryName.Value.Item1,
-                ApprovalDecision = new ApprovalDecision { ApprovalStatus = withSomeDisapproved ? ApprovalStatus.Disapproved :  ApprovalStatus.Approved },
+                ApprovalDecision = new ApprovalDecision { ApprovalStatus = withSomeDisapproved ? ApprovalStatus.Disapproved : ApprovalStatus.Approved },
                 Category = new Category() { Name = categoryIdWithCategoryName.Value.Item2 }
             },
             new Product()
