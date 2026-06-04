@@ -1,9 +1,9 @@
 using System.Linq.Expressions;
 
+using TradeNest.Data.QueryOptions.Interfaces;
 using static TradeNest.GCommon.ApplicationConstants;
-using TradeNest.Data.Repository.Interfaces;
 
-namespace TradeNest.Data.Repository;
+namespace TradeNest.Data.QueryOptions;
 
 public class QueryOptions<T> : IQueryOptions<T>
     where T : class, new()
@@ -15,22 +15,22 @@ public class QueryOptions<T> : IQueryOptions<T>
     private int? _page;
     private int? _limit;
     
-    internal QueryOptions()
+    public QueryOptions()
     {
         this._includesList = new List<Expression<Func<T, object>>>();
         this._orderStatementsByDirection = new List<(Expression<Func<T, object>>, bool)>();
     }
 
-    internal bool IsReadonly => this._isReadonly;
-    internal int? Page => this._page;
-    internal int? Limit => this._limit;
+    public bool IsReadonly => this._isReadonly;
+    public int? Page => this._page;
+    public int? Limit => this._limit;
     
-    internal Expression<Func<T, bool>>? Filter { get; private set; }
+    public Expression<Func<T, bool>>? Filter { get; private set; }
 
-    internal IReadOnlyCollection<Expression<Func<T, object>>> IncludesList
+    public IReadOnlyCollection<Expression<Func<T, object>>> IncludesList
         => this._includesList.AsReadOnly();
 
-    internal IReadOnlyCollection<(Expression<Func<T, object>>, bool)> OrderExpressionsByDirection 
+    public IReadOnlyCollection<(Expression<Func<T, object>>, bool)> OrderExpressionsByDirection 
         => this._orderStatementsByDirection.AsReadOnly();
 
 
@@ -40,7 +40,7 @@ public class QueryOptions<T> : IQueryOptions<T>
         return this;
     }
 
-    public IQueryOptions<T> AddFilter(Expression<Func<T, bool>> filter)
+    public IQueryOptions<T> SetFilter(Expression<Func<T, bool>> filter)
     {
         this.Filter = filter;
         return this;

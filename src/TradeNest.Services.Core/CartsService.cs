@@ -206,7 +206,7 @@ public class CartsService : ICartsService
         ApplicationUser? user = (await this._usersRepository.GetAllAsync(queryOptions => 
                 queryOptions
                     .WithRelated(u => u.Cart!)
-                    .AddFilter(u => u.Id == userId)))
+                    .SetFilter(u => u.Id == userId)))
             .SingleOrDefault();
         if (user == null)
         {

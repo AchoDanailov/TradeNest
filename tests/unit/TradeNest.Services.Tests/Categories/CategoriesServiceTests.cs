@@ -1,5 +1,6 @@
 using Moq;
 using TradeNest.Data.Models;
+using TradeNest.Data.QueryOptions.Interfaces;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;

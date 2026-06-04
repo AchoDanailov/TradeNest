@@ -88,7 +88,7 @@ public class CategoriesService : ICategoriesService
         Category? category = (await this._categoriesRepository.GetAllAsync(queryOptions =>
                 queryOptions
                     .AsReadOnly()
-                    .AddFilter(c => c.Name == categoryName)))
+                    .SetFilter(c => c.Name == categoryName)))
             .SingleOrDefault();
         if (category == null)
         {
@@ -136,7 +136,7 @@ public class CategoriesService : ICategoriesService
         }
 
         Category? defaultCategory = (await this._categoriesRepository.GetAllAsync(queryOptions =>
-                queryOptions.AddFilter(c => c.Name == ApplicationConstants.DefaultProductsCategory)))
+                queryOptions.SetFilter(c => c.Name == ApplicationConstants.DefaultProductsCategory)))
             .SingleOrDefault();
         if (defaultCategory == null)
         {

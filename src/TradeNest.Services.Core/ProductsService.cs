@@ -1,5 +1,6 @@
 using TradeNest.Data.Models;
 using TradeNest.Data.Models.Enums;
+using TradeNest.Data.QueryOptions.Interfaces;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.GCommon;
 using TradeNest.GCommon.Exceptions;
@@ -48,7 +49,7 @@ public class ProductsService : IProductsService
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     queryOptions
-                        .AddFilter(p => p.Name.ToLower().Contains(search.ToLower()) ||
+                        .SetFilter(p => p.Name.ToLower().Contains(search.ToLower()) ||
                                         p.Category.Name.ToLower().Contains(search.ToLower()));
                 }
             });
@@ -74,13 +75,13 @@ public class ProductsService : IProductsService
                 if (!string.IsNullOrWhiteSpace(search))
                 {
                     queryOptions
-                        .AddFilter(p => p.CategoryId == categoryId &&
+                        .SetFilter(p => p.CategoryId == categoryId &&
                                         (p.Name.ToLower().Contains(search.ToLower()) ||
                                          p.Category.Name.ToLower().Contains(search.ToLower())));
                 }
                 else
                 {
-                    queryOptions.AddFilter(p => p.CategoryId == categoryId);
+                    queryOptions.SetFilter(p => p.CategoryId == categoryId);
                 }
             });
 
@@ -417,7 +418,7 @@ public class ProductsService : IProductsService
                         .WithRelated(p => p.Category)
                         .WithRelated(p => p.Images)
                         .AsReadOnly()
-                        .AddFilter(p => p.Id == id)))
+                        .SetFilter(p => p.Id == id)))
             .SingleOrDefault();
         if (product == null)
             return null;
@@ -437,7 +438,7 @@ public class ProductsService : IProductsService
 
         Product? product = (await this._productsRepository
                 .GetAllInclArchivedAndNotApprovedAsync(queryOptions =>
-                    queryOptions.AddFilter(p => p.Id == id)))
+                    queryOptions.SetFilter(p => p.Id == id)))
             .SingleOrDefault();
         if (product == null)
         {
@@ -489,7 +490,7 @@ public class ProductsService : IProductsService
                 .GetAllInclArchivedAndNotApprovedAsync(queryOptions =>
                     queryOptions
                         .WithRelated(p => p.Images)
-                        .AddFilter(p => p.Id == productEditDto.Id)))
+                        .SetFilter(p => p.Id == productEditDto.Id)))
             .SingleOrDefault();
         if (product == null)
             throw new ResourceNotFoundException(nameof(Product), productEditDto.Id);
@@ -562,7 +563,7 @@ public class ProductsService : IProductsService
             throw new UnauthorizedOperationException(userId, nameof(Product), productId);
 
         Product? product = (await this._productsRepository.GetAllInclNotApprovedAsync(queryOptions =>
-                queryOptions.AddFilter(p => p.Id == productId)))
+                queryOptions.SetFilter(p => p.Id == productId)))
             .SingleOrDefault();
         if (product == null)
             throw new ResourceNotFoundException(nameof(Product), productId);
@@ -597,7 +598,7 @@ public class ProductsService : IProductsService
                     queryOptions
                         .WithRelated(p => p.SoldProducts)
                         .AsReadOnly()
-                        .AddFilter(p => p.OwnerId == userId)))
+                        .SetFilter(p => p.OwnerId == userId)))
             .ToArray();
 
         return new SellerProductsStatsDto()
@@ -630,7 +631,7 @@ public class ProductsService : IProductsService
                     .WithRelated(p => p.Images)
                     .WithRelated(p => p.SoldProducts)
                     .AsReadOnly()
-                    .AddFilter(p => p.OwnerId == userId)
+                    .SetFilter(p => p.OwnerId == userId)
                     .AddOrderAsc(p => p.ApprovalDecision.ApprovalStatus)
                     .AddOrderAsc(p => p.Id));
 
