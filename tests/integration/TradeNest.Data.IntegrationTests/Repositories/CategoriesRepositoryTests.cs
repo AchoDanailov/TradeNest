@@ -64,7 +64,7 @@ public class CategoriesRepositoryTests : RepositoryTestsBase
         );
 
         // Act
-        var result = await _repository.GetAllAsync(options => options.AddFilter(c => c.Name == "Books"));
+        var result = await _repository.GetAllAsync(options => options.SetFilter(c => c.Name == "Books"));
 
         // Assert
         Assert.That(result.Count(), Is.EqualTo(1));
