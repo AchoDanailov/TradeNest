@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Data.Models;
 using TradeNest.Data.Models.Enums;
+using TradeNest.Data.QueryOptions;
+using TradeNest.Data.QueryOptions.Interfaces;
 
 namespace TradeNest.Data.Repository;
 
@@ -62,7 +64,8 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
             .Include(p => p.Category);
         if (queryOptionsBuilder != null)
         {
-            return await this.ToQueryable(queryOptionsBuilder, queryable)
+            return await QueryOptionsTranslator<Product>
+                .ToQueryable(queryable, queryOptionsBuilder)
                 .ToArrayAsync();
         }
 
@@ -82,7 +85,8 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         IQueryable<Product> noQueryFilterQueryable = this.DbContext.Products
             .IgnoreQueryFilters();
 
-        return await this.ToQueryable(queryOptionsBuilder, noQueryFilterQueryable)
+        return await QueryOptionsTranslator<Product>
+            .ToQueryable(noQueryFilterQueryable, queryOptionsBuilder)
             .ToArrayAsync();
     }
 
@@ -101,7 +105,8 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
             .IgnoreQueryFilters()
             .Where(p => p.IsDeleted == false);
 
-        return await this.ToQueryable(queryOptionsBuilder, queryable)
+        return await QueryOptionsTranslator<Product>
+            .ToQueryable(queryable, queryOptionsBuilder)
             .ToArrayAsync();
     }
 

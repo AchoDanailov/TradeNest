@@ -45,7 +45,7 @@ public class OrdersService : IOrdersService
         IEnumerable<Order> orders = await this._ordersRepository.GetAllAsync(queryOptions =>
             queryOptions.AsReadOnly()
                 .WithRelated(o => o.OrderProducts)
-                .AddFilter(o => o.UserId == userId)
+                .SetFilter(o => o.UserId == userId)
                 .AddOrderDesc(o => o.SubmittedOn)
                 .AddOrderDesc(o => o.TotalPrice)
                 .AddOrderAsc(o => o.OrderProducts.Count));

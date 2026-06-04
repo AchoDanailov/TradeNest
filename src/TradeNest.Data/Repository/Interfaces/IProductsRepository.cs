@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using TradeNest.Data.Models;
+using TradeNest.Data.QueryOptions.Interfaces;
 
 namespace TradeNest.Data.Repository.Interfaces;
 
