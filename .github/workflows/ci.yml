@@ -1,0 +1,38 @@
+name: TradeNest CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 8.0.x
+
+    - name: Setup Node
+      uses: actions/setup-node@v4
+      with:
+        node-version: 24.x
+        cache: 'npm'
+        cache-dependency-path: 'src/TradeNest.Web/package-lock.json'
+
+    - name: Restore dependencies
+      run: |
+        npm ci --prefix src/TradeNest.Web
+        dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore
+
+    - name: Test
+      run: dotnet test --no-build --verbosity normal
