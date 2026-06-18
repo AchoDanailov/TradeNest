@@ -2,7 +2,8 @@
 ![C#](https://img.shields.io/badge/C%23-25EE77?style=flat&logoColor=white)
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-512BD4?style=flat&logo=dotnet&logoColor=white)
 ![MVC](https://img.shields.io/badge/MVC-20232A?style=flat&logo=dotnet&logoColor=white)
-![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat&logo=bootstrap&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat&logo=bootstrap&logoColor=white)  
+[![CI](https://img.shields.io/github/actions/workflow/status/AchoDanailov/TradeNest/ci.yml?label=CI&logo=github)](https://github.com/AchoDanailov/TradeNest/actions/workflows/ci.yml)
 
 TradeNest is an all-in-one online marketplace where users can easily explore,
 buy and sell a wide variety of products.
