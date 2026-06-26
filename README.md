@@ -40,7 +40,7 @@ buy and sell a wide variety of products.
   - Adding products to your cart from the catalog page without leaving the catalog page and your current browsing session.
   - Regulating the quantity of a cart product from the cart page.
   - Products management from admin panel (all related operations are fully dynamic).
-  - The entire Admin Panel and potentially the MyProducts(MyNest) section are planned to be rewritten in React and communicate with the backend via RESTfull API Controllers
+  - The entire Admin Panel and potentially the MyProducts(MyNest) section are planned to be rewritten in React and communicate with the backend via RESTfull API
 
 ### Catalog and Products
 - [x] CRUD operations for Products
@@ -53,8 +53,8 @@ buy and sell a wide variety of products.
 - [x] Cart functionality:
    - A place where users can add products, before placing an order.
    - If at any time a given product or the specified quantity of that product added to the cart becomes unavailable the user gets notified and prompted for an action (change quantity, remove from cart) before being allowed to proceed with placing an order.
-- [ ] Payment system integration.
 - [x] Viewing Orders made in the past by the user.
+- [ ] Payment system integration.
 
 ### Seller experience
 - [x] Tracking of SoldProducts, Orders and related data with analytics purposes for the application sellers.
