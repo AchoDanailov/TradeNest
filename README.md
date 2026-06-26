@@ -1,5 +1,6 @@
 # TradeNest — All-In-One Marketplace platform
 ![C#](https://img.shields.io/badge/C%23-25EE77?style=flat&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white)
 ![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-512BD4?style=flat&logo=dotnet&logoColor=white)
 ![MVC](https://img.shields.io/badge/MVC-20232A?style=flat&logo=dotnet&logoColor=white)
 ![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat&logo=bootstrap&logoColor=white)  
@@ -10,27 +11,71 @@ buy and sell a wide variety of products.
 
 ---
 
+## Project Objectives
+- **Reliable commerce**: Make buying and selling secure and reliable from listing to check out.
+- **Quality control**: Ensure listings meet a consistent quality standard before going public.
+- **Trust in seller integrity**: Build a reputation system so users can rate sellers, increasing buyer confidence over time. (still in progress)
+
+---
+
 ## Tech Stack
 - **Backend** – C# & ASP.NET Core MVC.
 - **Database** – SQL Server & Entity Framework Core for data access and data store.
 - **Authentication & Authorization** – Secure user login and registration powered by ASP.NET Core Identity.
-- **User Interface** – Razor Views (MVC), Bootstrap, Typescript and Lit-html.
+- **User Interface** – Razor Views (MVC), Bootstrap, TypeScript and Lit-html.
 
 ---
 
-## Features
+## Features Overview
 
+### Identity
 - [x] Authentication using ASP.NET Identity
 - [x] Role based authorization
+
+### UI & Dynamic UX
+- [x] Razor Views (MVC) throughout most of the application
 - [x] Responsive UI with Bootstrap 5
-- [x] Dynamic loading of content
-- [x] Dynamic and XSS/CSRF protected workflows using SPA techniques, Lit-Html and Bootstrap components.
+- [x] Dynamic loading of content 
+- [x] Dynamic and XSS/CSRF protected workflows using SPA techniques and technologies:
+  - Adding products to your cart from the catalog page without leaving the catalog page and your current browsing session.
+  - Regulating the quantity of a cart product from the cart page.
+  - Products management from admin panel (all related operations are fully dynamic).
+  - The entire Admin Panel and potentially the MyProducts(MyNest) section are planned to be rewritten in React and communicate with the backend via RESTfull API
+
+### Catalog and Products
 - [x] CRUD operations for Products
-- [x] Products quality approval system. Workflow: User creates or modifies listing of a product he owns and sells, admins review and give decision.
-- [x] CRUD operations for Carts and CartProducts
+  - The product can at all times be disabled from the owner/seller.
+- [x] Products quality approval system:
+  - A product needs to receive approval from an admin to be added to the public catalog.
+  - A product can at all times be disapproved from an admin, resulting in the product being removed from the public catalog.
+
+### Shopping experience (Cart, Orders)
+- [x] Cart functionality:
+   - A place where users can add products, before placing an order.
+   - If at any time a given product or the specified quantity of that product added to the cart becomes unavailable the user gets notified and prompted for an action (change quantity, remove from cart) before being allowed to proceed with placing an order.
+- [x] Viewing Orders made in the past by the user.
+- [ ] Payment system integration.
+
+### Seller experience
 - [x] Tracking of SoldProducts, Orders and related data with analytics purposes for the application sellers.
-- [x] MyProducts Dashboard - A place where product sellers can manage their products. Complimented by information about admins reviews, and product sales.
+- [x] Updating important information in a product listing (e.g. title, price, images) will send the listing for a new approval decision from an admin.
+- [x] MyProducts(MyNest) Dashboard
+  - A place where product sellers can manage their products.
+  - Get information about admins reviews.
+  - Get information about product sales.
+- [ ] Receive realtime notifications with relevant information about their products (e.g. sales count, approval status).
+
+### Admin experience
 - [x] Admin Dashboard - A place where admins can manage Users, Roles, Categories, Products.
+
+## Further Reading
+For a deeper dive into the project, check out the following docs:
+
+- 📄 **[SRS](./docs/SRS.md)** — detailed functional and non-functional requirements.
+- 📐 **Design Decisions** — architecture, patterns, and tradeoffs (Is being worked on)
+- 🗂️ **ERD** — entity relationship diagrams. (Is being worked on)
+
+> 💡 We recommend starting with the ERD to get familiar with the data models before diving into the SRS or design decisions — it'll make the rest much easier to follow.
 
 ---
 
@@ -40,7 +85,7 @@ buy and sell a wide variety of products.
 TradeNest/
 │
 ├── docs/
-│   └── SRS/                           # Lightweight specifications (mainly used as reference of the functionality and the workflows)
+│   └── SRS.md                         # Lightweight specifications (mainly used as reference of the functionality)
 │
 ├── .config/
 │   └── dotnet-tools.json              # Manifest file for dotnet tools (e.g. dotnet-ef)
