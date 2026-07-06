@@ -2,7 +2,6 @@
 
 ```mermaid
 erDiagram
-    %% ===== IDENTITY & USERS =====
     ApplicationUser {
         Guid Id PK
         string UserName
@@ -21,117 +20,95 @@ erDiagram
         int AccessFailedCount
         bool PersonalInformationIsDeleted
     }
-
     ApplicationRole {
         Guid Id PK
         string Name
         string NormalizedName
         string ConcurrencyStamp
     }
-
     ApplicationUserRole {
         Guid UserId PK, FK
         Guid RoleId PK, FK
     }
-
     Admin {
         Guid Id PK
-        Guid UserId FK "(1:1, Cascade)"
+        Guid UserId FK
     }
-
-    %% ===== CATALOG =====
+    Cart {
+        Guid Id PK
+        Guid CartOwnerId FK
+    }
     Category {
         Guid Id PK
         string Name
     }
-
     Product {
         Guid Id PK
         string Name
         string Description
         int QuantityInStock
-        decimal CostPrice
+        decimal CostPrice "NULL"
         decimal SellingPrice
-        Guid CategoryId FK 
-        Guid OwnerId FK 
-        Guid ApprovalDecisionMakerId FK 
+        Guid CategoryId FK
+        Guid OwnerId FK
+        Guid ApprovalDecisionMakerId FK "NULL"
         int ApprovalDecision_ApprovalStatus
         string ApprovalDecision_DecisionJustification
-        DateTime ApprovalDecision_TimeOfDecision
-        DateTime CreatedOn 
+        DateTime ApprovalDecision_TimeOfDecision "NULL"
+        DateTime CreatedOn
         bool IsEnabled "default=true"
         bool IsDeleted "default=false"
         byte[] RowVersion
     }
-
     Image {
         Guid Id PK
         string Url
-        bool IsFrontImage 
-        Guid ProductId FK 
+        bool IsFrontImage
+        Guid ProductId FK
     }
-
-    %% ===== CART & WATCHLIST =====
-    Cart {
-        Guid Id PK
-        Guid CartOwnerId FK 
-    }
-
     CartProduct {
-        Guid ProductId PK, FK 
-        Guid CartId PK, FK 
+        Guid ProductId PK, FK
+        Guid CartId PK, FK
         int ProductQuantityAdded
-        DateTime AddedOn 
+        DateTime AddedOn
     }
-
     UserWatchlistProduct {
-        Guid UserId PK, FK 
-        Guid ProductId PK, FK 
+        Guid UserId PK, FK
+        Guid ProductId PK, FK
     }
-
-    %% ===== ORDERS =====
     Order {
         Guid Id PK
-        DateTime SubmittedOn 
+        DateTime SubmittedOn
         decimal TotalPrice
-        Guid UserId FK 
+        Guid UserId FK
     }
-
     OrderProduct {
         Guid Id PK
-        Guid OrderId FK 
+        Guid OrderId FK
         string ProductNameAtOrderTime
-        Guid OriginalProductId FK 
+        Guid OriginalProductId FK "NULL"
         int QuantityOrdered
-        decimal CostPriceAtOrderTime
+        decimal CostPriceAtOrderTime "NULL"
         decimal UnitSellingPriceAtOrderTime
-        decimal TotalProductPriceAtOrderTime 
+        decimal TotalProductPriceAtOrderTime
     }
 
-    %% ===== RELATIONSHIPS =====
-    
-    %% ApplicationUser }|..o{ ApplicationRole : "N:M via ApplicationUserRole"
-    ApplicationUser ||--o{ ApplicationUserRole : "1:N (Cascade)"
-    ApplicationRole ||--o{ ApplicationUserRole : "1:N (Cascade)"
-    
-    ApplicationUser ||--o| Cart : "1:1 (Cascade)"
-    ApplicationUser ||--|| Admin : "1:1 (Cascade)"
-    ApplicationUser ||--o{ Product : "1:N (Restrict)"
-    ApplicationUser ||--o{ Order : "1:N (Restrict)"
-    
-    %% ApplicationUser }o--o{ Product : "Watchlist N:M via UserWatchlistProduct"
-    ApplicationUser ||--o{ UserWatchlistProduct : "1:N (Cascade)"
-    Product ||--o{ UserWatchlistProduct : "1:N (Cascade)"
-    
-    Admin ||--o{ Product : "ApprovalDecisionMaker 1:N (SetNull)"
-    
-    Cart ||--o{ CartProduct : "1:N (Cascade)"
-    Product ||--o{ CartProduct : "1:N (Cascade)"
+    ApplicationUser ||--o{ ApplicationUserRole : "1:N (UserId)"
+    ApplicationRole ||--o{ ApplicationUserRole : "1:N (RoleId)"
+    ApplicationUser ||--o| Admin : "1:1 (UserId)"
+    ApplicationUser ||--o| Cart : "1:1 (CartOwnerId)"
 
-    Category ||--o{ Product : "1:N (Restrict)"
+    Category ||--o{ Product : "1:N (CategoryId)"
+    Product ||--o{ Image : "1:N (ProductId)"
+    ApplicationUser ||--o{ Product : "1:N (OwnerId)"
+    Admin ||--o{ Product : "1:N (ApprovalDecisionMakerId)"
 
-    Product ||--o{ Image : "1:N (Cascade)"
-    
-    Product ||--o{ OrderProduct : "1:N (SetNull)"
-    Order ||--o{ OrderProduct : "1:N (Cascade)"
+    Cart ||--o{ CartProduct : "1:N (CartId)"
+    Product ||--o{ CartProduct : "1:N (ProductId)"
+    ApplicationUser ||--o{ UserWatchlistProduct : "1:N (UserId)"
+    Product ||--o{ UserWatchlistProduct : "1:N (ProductId)"
+
+    ApplicationUser ||--o{ Order : "1:N (UserId)"
+    Order ||--o{ OrderProduct : "1:N (OrderId)"
+    Product ||--o{ OrderProduct : "1:N (OriginalProductId)"
 ```
