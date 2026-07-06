@@ -4,18 +4,18 @@
 erDiagram
     ApplicationUser {
         Guid Id PK
-        string UserName
-        string NormalizedUserName
-        string Email
-        string NormalizedEmail
+        string UserName "NULL"
+        string NormalizedUserName "NULL"
+        string Email "NULL"
+        string NormalizedEmail "NULL"
         bool EmailConfirmed
-        string PasswordHash
-        string SecurityStamp
-        string ConcurrencyStamp
-        string PhoneNumber
+        string PasswordHash "NULL"
+        string SecurityStamp "NULL"
+        string ConcurrencyStamp "NULL"
+        string PhoneNumber "NULL"
         bool PhoneNumberConfirmed
         bool TwoFactorEnabled
-        DateTimeOffset LockoutEnd
+        DateTimeOffset LockoutEnd "NULL"
         bool LockoutEnabled
         int AccessFailedCount
         bool PersonalInformationIsDeleted
@@ -53,7 +53,7 @@ erDiagram
         Guid OwnerId FK
         Guid ApprovalDecisionMakerId FK "NULL"
         int ApprovalDecision_ApprovalStatus
-        string ApprovalDecision_DecisionJustification
+        string ApprovalDecision_DecisionJustification "NULL"
         DateTime ApprovalDecision_TimeOfDecision "NULL"
         DateTime CreatedOn
         bool IsEnabled "default=true"
