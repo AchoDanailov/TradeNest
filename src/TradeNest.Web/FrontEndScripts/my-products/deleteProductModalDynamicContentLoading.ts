@@ -1,6 +1,7 @@
 import { Modal } from "bootstrap"
 
 const deleteModal = document.querySelector<HTMLDivElement>("#deleteModal")!;
+console.log(deleteModal);
 deleteModal.addEventListener("show.bs.modal", (event: Event) => {
     const modalTriggerBtn = (event as Modal.Event).relatedTarget as HTMLButtonElement;
 

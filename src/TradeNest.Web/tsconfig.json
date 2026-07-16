@@ -3,10 +3,7 @@
     "compilerOptions": {
         "target": "ES2022",
         "module": "ESNext",
-<<<<<<< HEAD
         "moduleResolution": "bundler",
-=======
->>>>>>> cd1b6ff (Port js code to TS.)
         "lib": [ "ES2022", "DOM", "DOM.Iterable" ],
         "rootDir": "FrontEndScripts",
         "outDir": "wwwroot/js",
@@ -23,19 +20,15 @@
         "noUnusedParameters": true,
         "erasableSyntaxOnly": true,
         "noFallthroughCasesInSwitch": true,
-        "noUncheckedSideEffectImports": true,
+        "noUncheckedSideEffectImports": true
     },
     "include": [
         "FrontEndScripts/**/*"
     ],
-<<<<<<< HEAD
     "exclude": [
-=======
-    "exclude:": [
->>>>>>> cd1b6ff (Port js code to TS.)
         "node_modules",
         "wwwroot"
-    ],
+    ]
 }
 
 

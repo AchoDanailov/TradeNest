@@ -169,13 +169,13 @@ public class ProductsService : IProductsService
                     
                     if (string.IsNullOrWhiteSpace(search))
                     {
-                        queryOptions.AddFilter(p =>
+                        queryOptions.SetFilter(p =>
                             p.IsDeleted == false &&
                             p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
                     }
                     else
                     {
-                        queryOptions.AddFilter(p =>
+                        queryOptions.SetFilter(p =>
                             p.IsDeleted == false && 
                             p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved &&
                             p.Name.ToLower().Contains(search.ToLower()) ||
@@ -192,7 +192,7 @@ public class ProductsService : IProductsService
 
                     if (!string.IsNullOrWhiteSpace(search))
                     {
-                        queryOptions.AddFilter(p => 
+                        queryOptions.SetFilter(p => 
                             p.Name.ToLower().Contains(search.ToLower()) ||
                             p.Category.Name.ToLower().Contains(search.ToLower()));
                     }
@@ -208,11 +208,11 @@ public class ProductsService : IProductsService
                         if (string.IsNullOrWhiteSpace(search))
                         {
                             queryOptions
-                                .AddFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                                .SetFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
                         }
                         else
                         {
-                            queryOptions.AddFilter(p =>
+                            queryOptions.SetFilter(p =>
                                 p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved &&
                                 p.Name.ToLower().Contains(search.ToLower()) ||
                                 p.Category.Name.ToLower().Contains(search.ToLower()));
@@ -259,13 +259,13 @@ public class ProductsService : IProductsService
                     
                     if (string.IsNullOrWhiteSpace(search))
                     {
-                        queryOptions.AddFilter(p =>
+                        queryOptions.SetFilter(p =>
                             p.IsDeleted == false &&
                             p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
                     }
                     else
                     {
-                        queryOptions.AddFilter(p =>
+                        queryOptions.SetFilter(p =>
                             p.IsDeleted == false &&
                             p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved &&
                             p.Name.ToLower().Contains(search.ToLower()) ||
@@ -282,7 +282,7 @@ public class ProductsService : IProductsService
                     
                     if (!string.IsNullOrWhiteSpace(search))
                     {
-                        queryOptions.AddFilter(p => 
+                        queryOptions.SetFilter(p => 
                             p.Name.ToLower().Contains(search.ToLower()) ||
                             p.Category.Name.ToLower().Contains(search.ToLower()));
                     }
@@ -297,13 +297,13 @@ public class ProductsService : IProductsService
                     
                         if (string.IsNullOrWhiteSpace(search))
                         {
-                            queryOptions.AddFilter(p =>
+                            queryOptions.SetFilter(p =>
                                 p.IsDeleted == false &&
                                 p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
                         }
                         else
                         {
-                            queryOptions.AddFilter(p =>
+                            queryOptions.SetFilter(p =>
                                 p.IsDeleted == false &&
                                 p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved &&
                                 p.Name.ToLower().Contains(search.ToLower()) ||
