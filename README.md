@@ -1,11 +1,23 @@
 # TradeNest — All-In-One Marketplace platform
-![C#](https://img.shields.io/badge/C%23-25EE77?style=flat&logoColor=white) 
-![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-512BD4?style=flat&logo=dotnet&logoColor=white) 
-![MVC](https://img.shields.io/badge/MVC-20232A?style=flat&logo=dotnet&logoColor=white) 
-![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat&logo=bootstrap&logoColor=white) 
+![C#](https://img.shields.io/badge/C%23-25EE77?style=flat&logoColor=white)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-512BD4?style=flat&logo=dotnet&logoColor=white)
+![MVC](https://img.shields.io/badge/MVC-20232A?style=flat&logo=dotnet&logoColor=white)
+![Bootstrap](https://img.shields.io/badge/Bootstrap-7952B3?style=flat&logo=bootstrap&logoColor=white)
 
 TradeNest is an all-in-one online marketplace where users can easily explore,
-buy and sell a wide variety of products.  
+buy and sell a wide variety of products.
+
+---
+
+## Project's Context
+This is a project I developed throughout out SoftUni's Web module with ASP.NET Core.
+
+**Some important things about the development of the project:**
+- I have worked on this project for around 4 months while learning ASP.NET Core.
+- AI usage:
+    - I have used AI in less than 5% of the entire project (100% of it was UI and Unit Tests related).
+    - I have not delegated any of the design, implementation and problem solving to AI.
+    - All images including the logo were generated with AI.
 
 ---
 
@@ -13,50 +25,23 @@ buy and sell a wide variety of products.
 - **Backend** – C# & ASP.NET Core MVC.
 - **Database** – SQL Server & Entity Framework Core for data access and data store.
 - **Authentication & Authorization** – Secure user login and registration powered by ASP.NET Core Identity.
-- **User Interface** – Razor Views (MVC) & Bootstrap.
+- **User Interface** – Razor Views (MVC), Bootstrap, Typescript and Lit-html.
 
 ---
 
-## Quick Start
+## Features
 
-### Prerequisites
-
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0): You'll need the .NET 8 SDK to build and run the project. Newer SDK versions can tipically build .NET 8 projects, but .NET 8 is the official target.
-- [SQL Server 2022 or higher](https://www.microsoft.com/en-us/sql-server/sql-server-downloads): The application uses SQL server 2022.
-
-### Setup
-
-**Clone the repository**
-```bash
-git clone https://github.com/AchoDanailov/TradeNest.git
-```
-
-**Navigate into the project directory**
-```bash
-cd TradeNest
-```
-
-**Restore the tools & dependencies**
-```bash
-dotnet tool restore
-dotnet restore src
-```
-
-**Apply migrations**
-```bash
-dotnet ef database update --project src/TradeNest.Data --startup-project src/TradeNest.Web
-```
-
-**Build and Run the project**
-```bash
-dotnet run --project src/TradeNest.Web
-```
-
-**For development - open your browser and navigate to**
-```bash 
-http://localhost:5188
-```
-You can configure the port if you wish in the `launchSettings.json` file located in `src/TradeNest.Web/Properties`.
+- [x] Authentication using ASP.NET Identity
+- [x] Role based authorization
+- [x] Responsive UI with Bootstrap 5
+- [x] Dynamic loading of content
+- [x] Dynamic and XSS/CSRF protected workflows using SPA techniques, Lit-Html and Bootstrap components.
+- [x] CRUD operations for Products
+- [x] Products quality approval system. Workflow: User creates or modifies listing of a product he owns and sells, admins review and give decision.
+- [x] CRUD operations for Carts and CartProducts
+- [x] Tracking of SoldProducts, Orders and related data with analytics purposes for the application sellers.
+- [x] MyProducts Dashboard - A place where product sellers can manage their products. Complimented by information about admins reviews, and product sales.
+- [x] Admin Dashboard - A place where admins can manage Users, Roles, Categories, Products.
 
 ---
 
@@ -76,25 +61,54 @@ TradeNest/
     ├── TradeNest.Services.Tests/      # Business logic Tests.
     ├── TradeNest.Services.Models/     # Holds DTOs used to transfer data between the service layer and the presentation layer.
     ├── TradeNest.Web/                 # Presentation layer (Controllers, WebApiControllers, Views, Areas, PresentationModel Mapperly mappers)
-    ├── TradeNest.Web.Models/          # Models for transfering data outside application boundaries and to MVC Views.
-    └── TradeNest.Web.Infrastructure/  # Everething the Web Layer relies on: Filters, Middlewares, Extensions, etc...
+    ├── TradeNest.Web.Models/          # Models for transferring data outside application boundaries and to MVC Views.
+    └── TradeNest.Web.Infrastructure/  # Everything the Web Layer relies on: Filters, Middlewares, Extensions, etc...
 ```
 
 ---
 
-## Features
+## Quick Start
 
-- [x] Authentication using ASP.NET Identity
-- [x] Role based authorization
-- [x] Responsive UI with Bootstrap 5
-- [x] Dynamic loading of content
-- [x] Dynamic and XSS/CSRF protected workflows using SPA techniques, Lit-Html and Bootstrap components.
-- [x] CRUD operations for Products
-- [x] Products quality approval system. Workflow: User creates or modifies listing of a product he owns and sells, admins review and give decision.
-- [x] CRUD operations for Carts and CartProducts
-- [x] Tracking of SoldProducts, Orders and related data with analytics purposes for the application sellers.
-- [x] MyProducts Dashboard - A place where product sellers can manage their products. Complimented by information about admins reviews, and product sales. 
-- [x] Admin Dashboard - A place where admins can manage Users, Roles, Categories, Products.
+### Prerequisites
+
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0): You'll need the .NET 8 SDK to build and run the project. Newer SDK versions can typically build .NET 8 projects, but .NET 8 is the official target.
+- [SQL Server 2022 or higher](https://www.microsoft.com/en-us/sql-server/sql-server-downloads): The application uses SQL server 2022.
+- [npm](https://www.npmjs.com/): Required for frontend dependencies.
+
+### Setup
+
+**Clone the repository**
+```bash
+git clone https://github.com/AchoDanailov/TradeNest.git
+```
+
+**Navigate into the project directory**
+```bash
+cd TradeNest
+```
+
+**Restore the tools & dependencies**  
+```bash
+cd src/TradeNest.Web && npm install && cd ../..
+dotnet tool restore
+dotnet restore src
+```
+
+**Apply migrations**
+```bash
+dotnet ef database update --project src/TradeNest.Data --startup-project src/TradeNest.Web
+```
+
+**Build and Run the project**
+```bash
+dotnet run --project src/TradeNest.Web
+```
+
+**For development - open your browser and navigate to**
+```bash
+http://localhost:5188
+```
+You can configure the port if you wish in the `launchSettings.json` file located in `src/TradeNest.Web/Properties`.
 
 ---
 
@@ -116,16 +130,16 @@ Key settings in `appsettings.json`:
 }
 ```
 Here you can configure the connection strings the application uses when
-connecting to it's data stores, authentication options and others application configuration values. 
+connecting to its data stores, authentication options and others application configuration values.
 
 ### Default users credentials you can use for developing and testing:
 
-1. Email: User1@gmail.com  
-Username: User1  
+1. Email: User1@gmail.com
+Username: User1
 Password: Password1
 
-2. Email: User2@gmail.com  
-Username: User2  
+2. Email: User2@gmail.com
+Username: User2
 Password: Password2
 
 3. Email: User3@gmail.com
@@ -145,7 +159,7 @@ tools locally in the `.config/` directory. This allows the developer who is
 cloning the repository to not worry about a potential mismatch between the
 versions of the dotnet sdk and the dotnet-ef tools required for the database
 migrations and other tooling. By running `dotnet tool restore` you are set on that part.
-  
+
 Keep in mind that if you change the version of the SDK you need to change the version of the dotnet
 ef-tools to prevent unexpected behavior. If you have the tools
 globally on your host or you work with the Visual Studio Package Manager Console and
@@ -184,4 +198,3 @@ Contributions are welcome. To contribute:
 ## License
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-All Images used in test data including the logo are generated with an LLM.

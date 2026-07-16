@@ -20,27 +20,27 @@ public class Program
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
-        string connectionString = builder.Configuration["TradeNest:ConnectionString"] 
-                                  ?? builder.Configuration.GetConnectionString("DefaultConnection") 
+        string connectionString = builder.Configuration["TradeNest:ConnectionString"]
+                                  ?? builder.Configuration.GetConnectionString("DefaultConnection")
                                   ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
         builder.Services.AddDbContext<TradeNestDbContext>(options =>
             options.UseSqlServer(connectionString));
 
         builder.Services
-            .AddDefaultIdentity<ApplicationUser>(options => 
+            .AddDefaultIdentity<ApplicationUser>(options =>
                 IdentityOptionsConfiguration(options, builder.Configuration))
             .AddRoles<ApplicationRole>()
             .AddEntityFrameworkStores<TradeNestDbContext>();
 
         builder.Services.AddResponseCompression();
 
-        builder.Services.AddAntiforgery(options => 
+        builder.Services.AddAntiforgery(options =>
             options.HeaderName = "X-XSRF-TOKEN");
 
         builder.Services.ConfigureApplicationCookie(options =>
             ApplicationCookieConfiguration(options, builder.Configuration));
-        
+
         builder.Services.AddScoped<WebApiExceptionFilter>();
 
         builder.Services.AddControllersWithViews();
@@ -53,13 +53,13 @@ public class Program
 
         if (builder.Environment.IsDevelopment())
             builder.Services.RegisterSeeders(typeof(IProductsSeeder).Assembly);
-        
-        builder.Services.RegisterMappings(typeof(IProductsMapper).Assembly, 
+
+        builder.Services.RegisterMappings(typeof(IProductsMapper).Assembly,
             typeof(IProductPresentationModelsMapper).Assembly);
-        
+
         builder.Services.RegisterUserServices(typeof(IProductsService).Assembly);
 
-        
+
         WebApplication app = builder.Build();
 
         app.UseResponseCompression();
@@ -86,16 +86,12 @@ public class Program
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseEndpoints(routeBuilder =>
-        {
-            routeBuilder.MapControllerRoute(
-                name: "area",
-                pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
-            
-            routeBuilder.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
-        });
+        app.MapControllerRoute(
+            name: "area",
+            pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}");
+        app.MapControllerRoute(
+            name: "default",
+            pattern: "{controller=Home}/{action=Index}/{id?}");
 
         app.MapRazorPages();
 
@@ -137,11 +133,11 @@ public class Program
         ConfigurationManager configuration)
     {
         IConfigurationSection section = configuration.GetSection("CookieAuthOptions");
-        
+
         options.Cookie.HttpOnly = section.GetValue<bool>("Cookie:HttpOnly");
         options.Cookie.SameSite = (SameSiteMode)section.GetValue<int>("Cookie:SameSite");
         options.Cookie.SecurePolicy = (CookieSecurePolicy)section.GetValue<int>("Cookie:SecurePolicy");
-        
+
         options.ExpireTimeSpan = TimeSpan.FromMinutes(section.GetValue<int>("ExpireTimeSpan"));
         options.SlidingExpiration = section.GetValue<bool>("SlidingExpiration");
         options.AccessDeniedPath = section.GetValue<string>("AccessDeniedPath");

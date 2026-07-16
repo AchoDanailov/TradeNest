@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Product;
 using TradeNest.Web.Models.Product;
@@ -26,9 +27,9 @@ public class ProductsApiController : BaseApiController
 
     [HttpGet]
     [Route("products/{id}")]
-    [ProducesResponseType(StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<ProductDetailsResponseDto>> GetProductDetailsByIdAsync(
         [FromRoute] string id)
     {
@@ -36,15 +37,15 @@ public class ProductsApiController : BaseApiController
             return BadRequest();
 
         Guid userId = this.GetUserId(throwIfNull: false);
-        
+
         ProductDetailsDto? productDetailsDto = await this._productsService
             .GetProductDetailsByIdAsync(idGuidValue, userId);
         if (productDetailsDto == null)
             return NotFound();
-            
+
         ProductDetailsResponseDto productDetailsResponseDto = this._productsMapper
             .ToProductResponseDto(productDetailsDto);
-            
+
         return Ok(productDetailsResponseDto);
     }
 
@@ -52,7 +53,7 @@ public class ProductsApiController : BaseApiController
     [Route("products/approval/{productId}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)] [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)] [ProducesResponseType(StatusCodes.Status403Forbidden)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<bool>> ModifyApprovalAsync([FromRoute] Guid productId,
         [FromBody] EditProductApprovalStatusRequestDto requestDto)
     {
@@ -66,20 +67,20 @@ public class ProductsApiController : BaseApiController
         Guid userId = this.GetUserId(throwIfNull: true);
         EditApprovalDecisionDto approvalDecisionDto = this._productsMapper
             .FromEditProductApprovalStatusRequestDto(requestDto);
-        
+
         await this._productsService
             .ChangeProductApprovalStatus(userId, productId, approvalDecisionDto);
-        
+
         return Ok(true);
     }
 
     [HttpDelete]
     [Route("products/{id}")]
     [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK)] 
+    [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)] 
-    [ProducesResponseType(StatusCodes.Status403Forbidden)] 
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<bool>> RemoveProductByIdAsync([FromRoute] string id)
     {
         if (!Guid.TryParse(id, out Guid validIdGuidValue))
@@ -102,7 +103,7 @@ public class ProductsApiController : BaseApiController
         [FromQuery] string? search = null)
     {
         Guid userId = this.GetUserId(throwIfNull: true);
-    
+
         IEnumerable<ProductDto2> productDtos;
         if (page != null && limit != null)
         {
@@ -117,7 +118,7 @@ public class ProductsApiController : BaseApiController
 
         IEnumerable<ProductResponseDto> productResponseDtos
             = this._productsMapper.ToProductResponseDtos(productDtos);
-        
+
         int totalSpecifiedProductsCount = await this._productsService
             .GetSpecifiedProductsCountAsync(userId, approved, search);
 
@@ -134,7 +135,7 @@ public class ProductsApiController : BaseApiController
                 XsrfToken = token!,
             }
         };
-        
+
         return Ok(responseDto);
     }
 }

@@ -1,0 +1,19 @@
+{
+  "name": "tradenest.web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "dompurify": "^3.4.1",
+    "lit-html": "^3.3.2",
+    "sweetalert2": "^11.0.17"
+  },
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.10"
+  }
+}

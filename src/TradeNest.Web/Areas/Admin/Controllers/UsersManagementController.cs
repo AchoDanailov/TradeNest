@@ -29,7 +29,7 @@ public class UsersManagementController : BaseAdminController
             returnUrl = Url.Action(nameof(Index), controller: "Home", new { area = "Admin"});
 
         Guid userId = this.GetAdminUserId(throwIfNull: true);
-        
+
         IEnumerable<UserDto> usersDtos = await this._usersService.GetAllUsersAsync(userId);
         IEnumerable<RoleDto> allRoles = await this._usersService.GetAllRolesAsync(userId);
 
@@ -37,7 +37,7 @@ public class UsersManagementController : BaseAdminController
             .ToManageUserViewModels(usersDtos)
             .OrderByDescending(u => u.UserRoles.Any())
             .ThenBy(u => u.UserRoles.FirstOrDefault()?.RoleName ?? string.Empty);
-        
+
         IEnumerable<RoleViewModel> rolesViewModels = this._usersMapper
             .ToRoleViewModels(allRoles);
 
@@ -55,7 +55,7 @@ public class UsersManagementController : BaseAdminController
     {
         if (userToDeleteId == Guid.Empty)
             return BadRequest();
-        
+
         Guid adminUserId = this.GetAdminUserId(throwIfNull: true);
         await this._usersService.DeleteUserByIdAsync(adminUserId, userToDeleteId);
 
@@ -76,12 +76,12 @@ public class UsersManagementController : BaseAdminController
         }
 
         Guid adminUserId = this.GetAdminUserId(throwIfNull: true);
-        
+
         ModifyUserRolesDto modifyUserRolesDto = this._usersMapper
             .FromManageUserFormModel(formModel);
 
         await this._usersService.ModifyUserRolesAsync(adminUserId, modifyUserRolesDto);
-        
+
         return RedirectToAction(
             actionName: nameof(Index),
             controllerName: "UsersManagement",
@@ -92,10 +92,10 @@ public class UsersManagementController : BaseAdminController
     public async Task<IActionResult> ManageAllRoles(string? returnUrl = null)
     {
         Guid adminUserId = this.GetAdminUserId(throwIfNull: true);
-        
+
         if (returnUrl == null || !Url.IsLocalUrl(returnUrl))
             returnUrl = Url.Action(nameof(Index), controller: "UsersManagement", new { area = "Admin"});
-        
+
         IEnumerable<RoleDto> roleDtos = await this._usersService
             .GetAllRolesAsync(adminUserId);
         IEnumerable<RoleViewModel> roleViewModels = this._usersMapper
@@ -114,7 +114,7 @@ public class UsersManagementController : BaseAdminController
     {
         if (roleToDeleteId == Guid.Empty)
             return BadRequest();
-        
+
         Guid adminUserId = this.GetAdminUserId(throwIfNull: true);
         await this._usersService.RemoveRoleAsync(adminUserId, roleToDeleteId);
 

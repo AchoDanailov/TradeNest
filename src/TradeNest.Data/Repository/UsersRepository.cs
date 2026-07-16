@@ -14,11 +14,11 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
 {
     private readonly UserManager<ApplicationUser> _userManager;
     private readonly RoleManager<ApplicationRole> _roleManager;
-    
+
     public UsersRepository(
         TradeNestDbContext dbContext,
-        UserManager<ApplicationUser> userManager, 
-        RoleManager<ApplicationRole> roleManager) 
+        UserManager<ApplicationUser> userManager,
+        RoleManager<ApplicationRole> roleManager)
         : base(dbContext)
     {
         this._userManager = userManager;
@@ -73,12 +73,12 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
 
         return await this._userManager.IsInRoleAsync(user, "Admin");
     }
-    
+
     public async Task<bool> IsUserAdminUserAsync(ApplicationUser user)
     {
         return await this._userManager.IsInRoleAsync(user, "Admin");
     }
-    
+
     public async Task<bool> AddAsync(ApplicationUser user, string password)
     {
         IdentityResult result = await this._userManager.CreateAsync(user, password);
@@ -93,7 +93,9 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
         try
         {
             this.DbContext.Attach(user);
+
             user.PersonalInformationIsDeleted = true;
+            await this.DbContext.SaveChangesAsync();
 
             await this._userManager.SetUserNameAsync(user, null);
             await this._userManager.SetEmailAsync(user, null);
@@ -104,7 +106,6 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
             IEnumerable<string> userRoles = await this._userManager.GetRolesAsync(user);
             await this._userManager.RemoveFromRolesAsync(user, userRoles);
 
-            await this.DbContext.SaveChangesAsync();
             await transaction.CommitAsync();
         }
         catch (Exception ex)
@@ -120,14 +121,14 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
         IEnumerable<string> roleNames)
     {
         roleNames = roleNames.ToArray();
-        
+
         bool result = true;
-        await using IDbContextTransaction transaction 
+        await using IDbContextTransaction transaction
             = await this.DbContext.Database.BeginTransactionAsync();
-        
+
         if (roleNames.Contains("Admin"))
             result &= await this.AddAdminModelForUserAsync(user.Id);
-        
+
         IdentityResult addToRoleResult = await this._userManager.AddToRolesAsync(user, roleNames);
         result &= addToRoleResult.Succeeded;
 
@@ -138,23 +139,23 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
     public async Task<bool> AssignRoleAsync(ApplicationUser user, string roleName)
     {
         bool result = true;
-        await using IDbContextTransaction transaction 
+        await using IDbContextTransaction transaction
             = await this.DbContext.Database.BeginTransactionAsync();
-        
+
         if(roleName == "Admin")
             result &= await this.AddAdminModelForUserAsync(user.Id);
-        
+
         IdentityResult addToRoleResult = await this._userManager.AddToRoleAsync(user, roleName);
         result &= addToRoleResult.Succeeded;
-        
+
         await transaction.CommitAsync();
         return result;
     }
 
-    public async Task<bool> RemoveUserFromRolesAsync(ApplicationUser user, 
+    public async Task<bool> RemoveUserFromRolesAsync(ApplicationUser user,
         IEnumerable<string> roleNames)
     {
-        IdentityResult removeFromRolesResult 
+        IdentityResult removeFromRolesResult
             = await this._userManager.RemoveFromRolesAsync(user, roleNames);
 
         return removeFromRolesResult.Succeeded;
@@ -164,7 +165,7 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
     {
         IdentityResult addToRoleResult = await this._userManager
             .RemoveFromRoleAsync(user, roleName);
-        
+
         return addToRoleResult.Succeeded;
     }
 
@@ -179,7 +180,7 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
         bool result = true;
         await using IDbContextTransaction transaction
             = await this.DbContext.Database.BeginTransactionAsync();
-        
+
         IEnumerable<ApplicationUser> usersInRole = await this._userManager
             .GetUsersInRoleAsync(role.Name!);
         foreach (ApplicationUser user in usersInRole)
@@ -200,7 +201,7 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
     {
         Admin adminModel = new Admin() { UserId = userId };
         await this.DbContext.Admins.AddAsync(adminModel);
-            
+
         int addedCount = await this.DbContext.SaveChangesAsync();
         return addedCount > 0;
     }

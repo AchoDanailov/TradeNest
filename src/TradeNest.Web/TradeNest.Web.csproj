@@ -16,9 +16,17 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.TypeScript.MSBuild" Version="6.0.3">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.23" />
     <PackageReference Include="Riok.Mapperly" ExcludeAssets="runtime" Version="4.3.1" />
   </ItemGroup>
+
+  <Target Name="CompileTypeScript" BeforeTargets="Build">
+    <Exec Command="npx tsc -p tsconfig.json" WorkingDirectory="$(ProjectDir)" />
+  </Target>
 
   <ItemGroup>
     <ProjectReference Include="..\TradeNest.Data\TradeNest.Data.csproj" />
@@ -26,5 +34,5 @@
     <ProjectReference Include="..\TradeNest.Web.Infrastructure\TradeNest.Web.Infrastructure.csproj" />
     <ProjectReference Include="..\TradeNest.Web.Models\TradeNest.Web.Models.csproj" />
   </ItemGroup>
-    
+
 </Project>

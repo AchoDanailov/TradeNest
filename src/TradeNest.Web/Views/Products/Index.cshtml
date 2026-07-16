@@ -5,13 +5,12 @@
     TempData["SearchFilter"] = this.Model.SearchFilter;
 }
 
-
 @section Styles {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 }
 
 <div class="container-lg py-3">
-    
+
     <partial name="_StatusNotificationPartial" />
 
     <div class="row d-flex flex-row my-2">
@@ -20,9 +19,9 @@
                 <h2 class="display-2 text-teal">@ViewData["Title"]</h2>
             </a>
         </div>
-        
+
         <div class="col-5 d-md-none d-flex flex-column align-items-start gap-2">
-            
+
             @if (Model.CategoryFilter != null && Model.CategoryFilter.Value != Guid.Empty)
             {
                 <div class="ms-1 d-md-none">
@@ -51,7 +50,7 @@
                         {
                             continue;
                         }
-                        
+
                         <li class="nav-item">
                             <a asp-area="" asp-controller="Products" asp-action="Index"
                                asp-route-categoryId="@category.Id" class="dropdown-item">
@@ -63,7 +62,7 @@
             </div>
 
             <div>
-                <a asp-controller="Products" asp-action="Create" 
+                <a asp-controller="Products" asp-action="Create"
                    asp-route-returnUrl="@Context.Request.Path"
                    class="btn btn-teal mt-0">Add A New Product</a>
             </div>
@@ -91,9 +90,9 @@
     </div>
 
     <div class="row d-flex gap-1">
-        
+
         <div class="col-md-3 col-xl-2 nav navbar navbar-nav-scroll d-none d-md-flex site-sections-bg border rounded-3 shadow justify-content-center align-content-start flex-grow-0">
-            
+
             @if (Model.CategoryFilter != null && Model.CategoryFilter.Value != Guid.Empty)
             {
                 <div class="text-center mb-4">
@@ -123,10 +122,10 @@
                                 @category.CategoryName
                             </a>
                         </li>
-                        
+
                         continue;
                     }
-                    
+
                     <li class="nav-item">
                         <a asp-area="" asp-controller="Products" asp-action="Index"
                            asp-route-categoryId="@category.Id"
@@ -156,7 +155,7 @@
                                 No products are available at the moment in this category.
                             </h4>
                         }
-                        
+
                         <a class="btn btn-teal btn-lg px-4 mx-auto w-auto"
                            asp-controller="Products" asp-action="Create">
                             Be The First To Sell Your Products
@@ -184,9 +183,6 @@
 <partial name="_ChoseQtyPopoverPartial" />
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.2.7/purify.min.js" integrity="sha512-78KH17QLT5e55GJqP76vutp1D2iAoy06WcYBXB6iBCsmO6wWzx0Qdg8EDpm8mKXv68BcvHOyeeP4wxAL0twJGQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
-    <script src="~/js/common/searchFormValidator.js" asp-append-version="true"></script>
+    <script src="~/js/utils/searchFormValidator.js" asp-append-version="true"></script>
     <script type="module" src="~/js/catalog/chooseProdQtyToAddPopover.js" asp-append-version="true"></script>
 }
