@@ -108,7 +108,7 @@ async function controlsTemplate(context: TableContext) {
     const pageNumbersOnScreen = calculatePageNumbers(currPageNumber, totalPagesCount)
 
     const [firstItemNumOnPage, lastItemNumOnPage]
-        = calculateItemsNumbers(currPageNumber, totalPagesCount, totalItemsCount, itemsCountOnPage);
+        = calculateItemsNumbers(currPageNumber, totalItemsCount, itemsCountOnPage);
 
     return html`
         <p class="text-navy text-muted fs-6 fst-italic d-inline">
@@ -245,21 +245,15 @@ function calculatePageNumbers(currPageNumber: number, totalPagesCount: number) {
 
 function calculateItemsNumbers(
     currPageNumber: number,
-    totalPagesCount: number,
     totalItemsCount: number,
     itemsCountOnPage: number
 ): readonly [firstItemNumOnPage: number, lastItemNumOnPage: number] {
-    const lastItemNumOnPage = Math.min(currPageNumber * itemsCountOnPage, totalItemsCount);
-
-    let firstItemNumOnPage = lastItemNumOnPage - itemsCountOnPage + 1;
-    if (currPageNumber === totalPagesCount) {
-        if (totalItemsCount === 0)
-            firstItemNumOnPage = 0;
-        else if (currPageNumber === 1 && totalItemsCount !== 0)
-            firstItemNumOnPage = 1;
-        else
-            firstItemNumOnPage = lastItemNumOnPage - (lastItemNumOnPage % itemsCountOnPage) + 1;
+    if (totalItemsCount === 0) {
+        return [0, 0];
     }
+
+    const lastItemNumOnPage = Math.min(currPageNumber * itemsCountOnPage, totalItemsCount);
+    const firstItemNumOnPage = (currPageNumber - 1) * itemsCountOnPage + 1;
 
     return [firstItemNumOnPage, lastItemNumOnPage];
 }
