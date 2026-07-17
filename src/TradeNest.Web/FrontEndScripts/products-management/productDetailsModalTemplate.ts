@@ -1,4 +1,4 @@
-import * as bootstrap from "bootstrap";
+import { Modal } from "bootstrap";
 import { html, type TemplateResult } from "lit-html";
 
 import type {
@@ -265,7 +265,7 @@ async function onModifyApproval(
 
     const modalEl = (event.currentTarget as HTMLFormElement)
         .closest(`div.modal#product-details-${productDetails.id}`)!;
-    const modal = bootstrap.Modal.getInstance(modalEl)!;
+    const modal = Modal.getInstance(modalEl)!;
     modal.toggle();
 
     const modifyApprovalResult = await context.modifyProductApproval({

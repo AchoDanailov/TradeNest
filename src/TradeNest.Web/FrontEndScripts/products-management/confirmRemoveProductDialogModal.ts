@@ -1,4 +1,4 @@
-import * as bootstrap from "bootstrap";
+import { Modal } from "bootstrap";
 import { html } from "lit-html";
 
 import type { Product } from "../types/products.ts";
@@ -48,7 +48,7 @@ async function onConfirmRemoveProduct(event: Event, product: Product, context: T
     const deleteProductModalId = `remove-product-${product.id}`;
     const modalEl = (event.currentTarget as HTMLDivElement)!
         .closest(`div#${deleteProductModalId}`)!;
-    const modal = bootstrap.Modal.getInstance(modalEl!);
+    const modal = Modal.getInstance(modalEl!);
     modal?.toggle();
 
     const removeProductResult = await context.removeProduct(product.id);

@@ -1,4 +1,4 @@
-import * as bootstrap from "bootstrap";
+import { Modal } from "bootstrap";
 import { html, render, type TemplateResult } from "lit-html";
 
 import type { Product, ProductsApprovalStatus } from "../types/products.ts";
@@ -206,7 +206,7 @@ async function onViewProductDetailsHandler(productId: string, context: TableCont
 
     const productDetailsModalId = `product-details-${productId}`;
     const modalEl = dialogsSection?.querySelector<HTMLDivElement>(`div#${productDetailsModalId}`);
-    const modal = bootstrap.Modal.getOrCreateInstance(modalEl!);
+    const modal = Modal.getOrCreateInstance(modalEl!);
 
     modalEl?.addEventListener('hidden.bs.modal', () => {
         render(html``, dialogsSection!);
@@ -221,7 +221,7 @@ async function onRemoveProductHandler(product: Product, context: TableContext) {
 
     const deleteProductModalId = `remove-product-${product.id}`;
     const modalEl = dialogsSection?.querySelector<HTMLDivElement>(`div#${deleteProductModalId}`)
-    const modal = bootstrap.Modal.getOrCreateInstance(modalEl!);
+    const modal = Modal.getOrCreateInstance(modalEl!);
 
     modalEl?.addEventListener('hidden.bs.modal', () => {
         render(html``, dialogsSection!);

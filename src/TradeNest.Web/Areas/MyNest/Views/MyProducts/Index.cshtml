@@ -117,7 +117,7 @@
                                            asp-route-returnUrl="@Url.Action("Index", controller: "MyProducts", new { area = "MyNest" })"
                                            class="btn btn-sm btn-outline-secondary">Make Changes</a>
                                         
-                                        <button type="button" class="btn btn-sm btn-outline-danger remove-modal"
+                                        <button type="submit" class="btn btn-sm btn-outline-danger remove-modal"
                                                 data-bs-toggle="modal" data-bs-target="#deleteModal"
                                                 data-product-name="@product.Name" data-product-id="@product.Id">
                                             Remove Product
@@ -234,12 +234,12 @@
 
 <div class="modal fade" id="deleteModal" data-bs-backdrop="static"
      data-bs-keyboard="false" tabindex="-1" 
-     aria-labelledby="staticBackdropLabel"
+     aria-labelledby="deleteModalLabel"
      aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="staticBackdropLabel">
+                <h1 class="modal-title fs-5" id="deleteModalLabel">
                     Confirm Deletion
                 </h1>
                 <button type="button" class="btn-close" 
@@ -265,5 +265,5 @@
 </div>
 
 @section Scripts {
-    <script src="~/js/my-products/deleteProductModalDynamicContentLoading.js" asp-append-version="true"></script>
+    <script type="module" src="~/js/my-products/deleteProductModalDynamicContentLoading.js" asp-append-version="true"></script>
 }

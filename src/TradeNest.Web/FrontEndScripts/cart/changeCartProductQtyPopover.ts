@@ -1,4 +1,4 @@
-import * as bootstrap from "bootstrap";
+import { Popover } from "bootstrap";
 import DOMPurify from "dompurify";
 
 import type { UpdateCartProductQty } from "../types/products.ts";
@@ -12,7 +12,7 @@ const changeQtyButtonEls = document.querySelectorAll(".change-qty-button");
 const popoverTemplateEl = document.querySelector<HTMLDivElement>(".change-qty-popover")!;
 
 changeQtyButtonEls.forEach(changeQtyBtn => {
-    const popoverObj = new bootstrap.Popover(changeQtyBtn, {
+    const popoverObj = new Popover(changeQtyBtn, {
         content: () => popoverTemplateEl.innerHTML,
         placement: "top",
         container: ".cart-container",

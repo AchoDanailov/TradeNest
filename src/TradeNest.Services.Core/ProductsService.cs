@@ -155,15 +155,8 @@ public class ProductsService : IProductsService
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name)
                     .AddOrderAsc(p => p.Category.Name)
-                    .AddOrderAsc(p => p.Id);
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    queryOptions
-                        .SetFilter(p => p.Name.ToLower().Contains(search.ToLower()) ||
-                                        p.Category.Name.ToLower().Contains(search.ToLower()));
-                }
-
-                queryOptions.WithPagination(page, limit);
+                    .AddOrderAsc(p => p.Id)
+                    .WithPagination(page, limit);
             };
 
         IEnumerable<Product> products;
@@ -173,14 +166,37 @@ public class ProductsService : IProductsService
                 .GetAllInclNotApprovedAsync(queryOptions =>
                 {
                     queryOptionsAction(queryOptions);
-                    queryOptions.SetFilter(p =>
-                        p.IsDeleted == false && p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
+                    
+                    if (string.IsNullOrWhiteSpace(search))
+                    {
+                        queryOptions.SetFilter(p =>
+                            p.IsDeleted == false &&
+                            p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
+                    }
+                    else
+                    {
+                        queryOptions.SetFilter(p =>
+                            p.IsDeleted == false && 
+                            p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved &&
+                            p.Name.ToLower().Contains(search.ToLower()) ||
+                            p.Category.Name.ToLower().Contains(search.ToLower()));
+                    }
                 });
         }
         else
         {
             products = await this._productsRepository
-                .GetAllInclNotApprovedAsync(queryOptionsAction);
+                .GetAllInclNotApprovedAsync(queryOptions =>
+                {
+                    queryOptionsAction(queryOptions);
+
+                    if (!string.IsNullOrWhiteSpace(search))
+                    {
+                        queryOptions.SetFilter(p => 
+                            p.Name.ToLower().Contains(search.ToLower()) ||
+                            p.Category.Name.ToLower().Contains(search.ToLower()));
+                    }
+                });
 
             if (approved is false)
             {
@@ -188,8 +204,19 @@ public class ProductsService : IProductsService
                     .GetAllInclNotApprovedAsync(queryOptions =>
                     {
                         queryOptionsAction(queryOptions);
-                        queryOptions
-                            .SetFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                        
+                        if (string.IsNullOrWhiteSpace(search))
+                        {
+                            queryOptions
+                                .SetFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                        }
+                        else
+                        {
+                            queryOptions.SetFilter(p =>
+                                p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved &&
+                                p.Name.ToLower().Contains(search.ToLower()) ||
+                                p.Category.Name.ToLower().Contains(search.ToLower()));
+                        }
                     });
             }
         }
@@ -220,11 +247,6 @@ public class ProductsService : IProductsService
                     .AddOrderDesc(p => p.CreatedOn)
                     .AddOrderAsc(p => p.Name)
                     .AddOrderAsc(p => p.Id);
-                if (!string.IsNullOrWhiteSpace(search))
-                {
-                    queryOptions
-                        .SetFilter(p => p.Name.ToLower().Contains(search.ToLower()));
-                }
             };
 
         IEnumerable<Product> products;
@@ -234,14 +256,37 @@ public class ProductsService : IProductsService
                 .GetAllInclNotApprovedAsync(queryOptions =>
                 {
                     queryOptionsAction(queryOptions);
-                    queryOptions.SetFilter(p =>
-                        p.IsDeleted == false && p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
+                    
+                    if (string.IsNullOrWhiteSpace(search))
+                    {
+                        queryOptions.SetFilter(p =>
+                            p.IsDeleted == false &&
+                            p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved);
+                    }
+                    else
+                    {
+                        queryOptions.SetFilter(p =>
+                            p.IsDeleted == false &&
+                            p.ApprovalDecision.ApprovalStatus == ApprovalStatus.Approved &&
+                            p.Name.ToLower().Contains(search.ToLower()) ||
+                            p.Category.Name.ToLower().Contains(search.ToLower()));
+                    }
                 });
         }
         else
         {
             products = await this._productsRepository
-                .GetAllInclNotApprovedAsync(queryOptionsAction);
+                .GetAllInclNotApprovedAsync(queryOptions =>
+                {
+                    queryOptionsAction(queryOptions);
+                    
+                    if (!string.IsNullOrWhiteSpace(search))
+                    {
+                        queryOptions.SetFilter(p => 
+                            p.Name.ToLower().Contains(search.ToLower()) ||
+                            p.Category.Name.ToLower().Contains(search.ToLower()));
+                    }
+                });
 
             if (approved is false)
             {
@@ -249,8 +294,21 @@ public class ProductsService : IProductsService
                     .GetAllInclNotApprovedAsync(queryOptions =>
                     {
                         queryOptionsAction(queryOptions);
-                        queryOptions
-                            .SetFilter(p => p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                    
+                        if (string.IsNullOrWhiteSpace(search))
+                        {
+                            queryOptions.SetFilter(p =>
+                                p.IsDeleted == false &&
+                                p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved);
+                        }
+                        else
+                        {
+                            queryOptions.SetFilter(p =>
+                                p.IsDeleted == false &&
+                                p.ApprovalDecision.ApprovalStatus != ApprovalStatus.Approved &&
+                                p.Name.ToLower().Contains(search.ToLower()) ||
+                                p.Category.Name.ToLower().Contains(search.ToLower()));
+                        }
                     });
             }
         }

@@ -1,4 +1,4 @@
-import * as bootstrap from "bootstrap";
+import { Popover } from "bootstrap";
 import DOMPurify from "dompurify";
 import Swal, { type SweetAlertOptions } from "sweetalert2";
 
@@ -13,7 +13,7 @@ const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
 const popoverTemplateEl = document.querySelector<HTMLDivElement>(".choose-qty-popover")!;
 
 addToCartButtons.forEach(addToCartBtn => {
-    const popoverObj = new bootstrap.Popover(addToCartBtn, {
+    const popoverObj = new Popover(addToCartBtn, {
         content: () => popoverTemplateEl.innerHTML,
         placement: "top",
         container: ".products-container",
