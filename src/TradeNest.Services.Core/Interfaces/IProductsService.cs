@@ -10,7 +10,7 @@ public interface IProductsService
     /// </summary>
     /// <param name="search">
     /// String value used to search for products that contain this value
-    /// either in their name or in their category.
+    /// either in their name or in their category name.
     /// </param>
     /// <returns>A task that returns the collection of products, empty if none exist.</returns>
     Task<IEnumerable<ProductDto>> GetAllProductsOrderedByDateOfCreationDescAsync(
@@ -22,7 +22,7 @@ public interface IProductsService
     /// <param name="categoryId">The category identifier.</param>
     /// <param name="search">
     /// String value used to search for products that contain this value
-    /// either in their name or in their category.
+    /// either in their name or in their category name.
     /// </param>
     /// <returns>A task that returns the collection of matching products, empty if none found.</returns>
     /// <exception cref="ArgumentException">
@@ -47,23 +47,24 @@ public interface IProductsService
     Task<bool> ProductExistsByIdAsync(Guid id);
 
     /// <summary>
-    /// Retrieves the specified products count in the data store.
+    /// Retrieves the specified products count in the data store that are not archived.
     /// </summary>
     /// <param name="userId">The identifier of the user attempting the operation.</param>
     /// <param name="approved">
     /// Value representing weather the data should be filtered by approval status.
     /// </param>
-    /// <param name="searchQuery">String value to search the products by products name/article title.</param>
+    /// <param name="searchQuery">String value to search the products by products name.</param>
     /// <returns>
     /// Task that holds an integer value representing how many of the specified products were found.
     /// </returns>
+    /// <remarks> This method is intended for admin view. </remarks>
     /// <exception cref="ArgumentException">
     /// Thrown if the provided <paramref name="userId"/> is with value <see cref="Guid.Empty"/>.
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown if the user with the provided <paramref name="userId"/> is not an administrator.
     /// </exception>
-    Task<int> GetSpecifiedProductsCountAsync(Guid userId, bool? approved = null,
+    Task<int> GetSpecifiedProductsCountAdminViewAsync(Guid userId, bool? approved = null,
         string? searchQuery = null);
 
     /// <summary>
@@ -79,6 +80,7 @@ public interface IProductsService
     /// Task that holds a collection of the specified products.
     /// Returns an empty collection if none are found.
     /// </returns>
+    /// <remarks> This method is intended for admin view. </remarks>
     /// <exception cref="ArgumentException">
     /// Thrown if <paramref name="userId"/> is with value <see cref="Guid.Empty"/> or either
     /// <paramref name="page"/> or <paramref name="limit"/> are 0 or negative integer values.
@@ -86,8 +88,8 @@ public interface IProductsService
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown if the user with identifier <paramref name="userId"/> is not an administrator.
     /// </exception>
-    Task<IEnumerable<ProductDto2>> GetProductsDataWithPagination(Guid userId, int page,
-            int limit, bool? approved = null, string? search = null);
+    Task<IEnumerable<ProductWithApprovalStatusDto>> GetProductsDataWithPaginationAdminViewAsync(
+        Guid userId, int page, int limit, bool? approved = null, string? search = null);
 
     /// <summary>
     /// Retrieves products data. The service method provides options for searching and filtering.
@@ -99,14 +101,44 @@ public interface IProductsService
     /// Task that holds a collection of the specified products.
     /// Returns an empty collection if none are found.
     /// </returns>
+    /// <remarks> This method is intended for admin view. </remarks>
     /// <exception cref="ArgumentException">
     /// Thrown if the provided <paramref name="userId"/> is with value <see cref="Guid.Empty"/>.
     /// </exception>
     /// <exception cref="UnauthorizedOperationException">
     /// Thrown if the user with identifier <paramref name="userId"/> is not an administrator.
     /// </exception>
-    Task<IEnumerable<ProductDto2>> GetProductsData(Guid userId, bool? approved = null,
-        string? search = null);
+    Task<IEnumerable<ProductWithApprovalStatusDto>> GetProductsDataAdminViewAsync(Guid userId,
+        bool? approved = null, string? search = null);
+
+    /// <summary>
+    /// Searches for and retrieves an archived product data that has the provided <paramref name="productId"/>.
+    /// </summary>
+    /// <param name="userId">The identifier of the user making the request.</param>
+    /// <param name="productId">The identifier of the archived product that is being searched for.</param>
+    /// <returns>A task containing the archived product or null if not found.</returns>
+    /// <remarks> This method is intended for admin view. </remarks>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the provided <paramref name="userId"/> or <paramref name="productId"/> are with value <see cref="Guid.Empty"/>.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the user with the provided <paramref name="userId"/> is not an administrator.
+    /// </exception>
+    Task<ProductWithApprovalStatusDto?> FindArchivedProductDataAdminViewAsync(Guid userId, Guid productId);
+    
+    /// <summary>
+    /// Retrieves all the archived products.
+    /// </summary>
+    /// <param name="userId">The identifier of the user making the request.</param>
+    /// <returns>A task containing the archived products or an empty collection if none are found.</returns>
+    /// <remarks> This method is intended for admin view. </remarks>
+    /// <exception cref="ArgumentException">
+    /// Thrown when the provided <paramref name="userId"/> is with value <see cref="Guid.Empty"/>.
+    /// </exception>
+    /// <exception cref="UnauthorizedOperationException">
+    /// Thrown if the user with the provided <paramref name="userId"/> is not an administrator.
+    /// </exception>
+    Task<IEnumerable<ProductWithApprovalStatusDto>> GetAllArchivedProductsDataAdminViewAsync(Guid userId);
     
     /// <summary>
     /// Retrieves detailed information for the specified product.

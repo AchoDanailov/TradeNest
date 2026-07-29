@@ -104,23 +104,23 @@ public class ProductsApiController : BaseApiController
     {
         Guid userId = this.GetUserId(throwIfNull: true);
 
-        IEnumerable<ProductDto2> productDtos;
+        IEnumerable<ProductWithApprovalStatusDto> productDtos;
         if (page != null && limit != null)
         {
             productDtos = await this._productsService
-                .GetProductsDataWithPagination(userId, page.Value, limit.Value, approved, search);
+                .GetProductsDataWithPaginationAdminViewAsync(userId, page.Value, limit.Value, approved, search);
         }
         else
         {
             productDtos = await this._productsService
-                .GetProductsData(userId, approved, search);
+                .GetProductsDataAdminViewAsync(userId, approved, search);
         }
 
         IEnumerable<ProductResponseDto> productResponseDtos
             = this._productsMapper.ToProductResponseDtos(productDtos);
 
         int totalSpecifiedProductsCount = await this._productsService
-            .GetSpecifiedProductsCountAsync(userId, approved, search);
+            .GetSpecifiedProductsCountAdminViewAsync(userId, approved, search);
 
         string? token = this._antiforgery
             .GetTokens(ControllerContext.HttpContext)
