@@ -1,6 +1,6 @@
 import { Popover } from "bootstrap";
 import DOMPurify from "dompurify";
-import Swal, { type SweetAlertOptions } from "sweetalert2";
+import Swal from "sweetalert2";
 
 import type { RequestCartProductQty } from "../types/products.ts";
 
@@ -27,17 +27,24 @@ addToCartButtons.forEach(addToCartBtn => {
         event.preventDefault();
 
         const productId = addToCartBtn.getAttribute("data-product-id") as string;
-
-        const currProdDetails = await getCurrProdDetails(productId);
-        if(!currProdDetails)  {
+        if (!productId) {
+            await showErrorSwal("Something went wrong! Please try adding the product from its details page!");
             return;
         }
 
-        popoverTemplateEl.querySelector<HTMLSpanElement>(".curr-prod-qty")!.textContent
-            = currProdDetails.quantityInStock as unknown as string;
+        const currProdDetails = await getCurrProdDetails(productId);
+        if(!currProdDetails)  {
+            await showErrorSwal();
+            return;
+        }
+
+        popoverTemplateEl
+            .querySelector<HTMLSpanElement>(".curr-prod-qty")!
+            .textContent = `${currProdDetails.quantityInStock}`
 
         const prodInCart = await cartsService.getProdInCart(productId);
         if(!prodInCart) {
+            await showErrorSwal();
             return;
         }
 
@@ -116,11 +123,15 @@ addToCartButtons.forEach(addToCartBtn => {
             popoverObj.hide();
 
             const productId = addToCartBtn.getAttribute("data-product-id");
+            if (!productId) {
+                await showErrorSwal();
+                return;
+            }
 
-            const requestedProductQtyPayload = {
+            const requestedProductQtyPayload: RequestCartProductQty = {
                 productId: productId,
                 quantity: Number(qtyInputField.value),
-            } as RequestCartProductQty;
+            };
 
             const requestVerificationToken = document
                 .querySelectorAll<HTMLInputElement>("input[name=__RequestVerificationToken]")[0]!
@@ -137,7 +148,6 @@ addToCartButtons.forEach(addToCartBtn => {
                 icon: "success",
                 title: "Congratulations!",
                 text: "Product added to your cart successfully!",
-                draggable: true,
                 confirmButtonColor: "#0FAF9A",
                 confirmButtonText: "Continue browsing products",
                 denyButtonColor: "#198754",
@@ -145,7 +155,7 @@ addToCartButtons.forEach(addToCartBtn => {
                 showDenyButton: true,
                 showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
                 hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` },
-            } as SweetAlertOptions).then((result) => {
+            }).then((result) => {
                 if (result.isConfirmed)
                     window.location.href = "/Catalog";
                 else if (result.isDenied)

@@ -1,7 +1,6 @@
 import { html, render, type TemplateResult } from "lit-html";
 
 import type { ProductsApprovalStatus } from "../types/products.ts";
-import type { StateConfig } from "../types/tableContext.ts";
 import { toggleHighlight } from "../utils/domUtils.js";
 import showProductsTable from "./productsTable.js";
 import getNewContextInstance from "./tableContext.js";
@@ -43,7 +42,7 @@ async function showProducts(approvalStatus: ProductsApprovalStatus): Promise<voi
         productsApprovalStatus: approvalStatus,
         startPageNumber: START_PAGE_NUMBER,
         productsPerPageCount: PRODUCTS_PER_PAGE_COUNT,
-    } as StateConfig);
+    });
 
     await showProductsTable(newContext);
 }

@@ -89,8 +89,8 @@ async function onClearSearchForm(context: TableContext) {
 async function onSearchFormSubmitHandler(event: Event, context: TableContext) {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget as HTMLFormElement | undefined);
-    const searchQuery = formData.get("search") as FormDataEntryValue as string;
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const searchQuery = formData.get("search") as string;
     if(searchQuery.trim() === "" && context.getCurrSearchQuery() === "") {
         return;
     }
@@ -170,11 +170,11 @@ async function onPageNumBtnClick(context: TableContext, pageNumber: number) {
 }
 
 function productTableRowTemplate(product: Product, context: TableContext) {
-    const approvalStatusTdMap = {
+    const approvalStatusTdMap: Record<ProductsApprovalStatus, () => readonly [dot: string, content: string, styles: string]> = {
         "Approved": () => ["🟢", "Approved", "text-success fw-semibold"],
         "WaitingApproval": () => ["🟡", "Waiting Approval", "text-warning fw-semibold"],
         "Disapproved": () => ["🔴", "Disapproved", "text-danger fw-semibold"],
-    } as Record<ProductsApprovalStatus, () => readonly [dot: string, content: string, styles: string]>;
+    };
 
     const [dot, content, styles] = approvalStatusTdMap[product!.approvalStatus]!();
 

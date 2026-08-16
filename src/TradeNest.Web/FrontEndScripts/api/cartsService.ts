@@ -5,11 +5,11 @@ import type {
 } from "../types/products.ts";
 import type { CartsService } from "../types/services.ts";
 
-const cartsService = {
+const cartsService: CartsService = {
     getProdInCart,
     addToCart,
-    updateCartProductQty,
-} as CartsService
+    updateCartProductQty
+}
 
 export default cartsService;
 
