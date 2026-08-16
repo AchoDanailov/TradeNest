@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.Antiforgery;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Antiforgery;
 
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Product;
@@ -77,10 +77,8 @@ public class ProductsApiController : BaseApiController
     [HttpDelete]
     [Route("products/{id}")]
     [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status403Forbidden)]
+    [ProducesResponseType(StatusCodes.Status200OK)] [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)] [ProducesResponseType(StatusCodes.Status403Forbidden)]
     public async Task<ActionResult<bool>> RemoveProductByIdAsync([FromRoute] string id)
     {
         if (!Guid.TryParse(id, out Guid validIdGuidValue))

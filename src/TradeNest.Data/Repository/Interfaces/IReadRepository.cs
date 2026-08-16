@@ -3,6 +3,7 @@ using TradeNest.Data.QueryOptions.Interfaces;
 
 namespace TradeNest.Data.Repository.Interfaces;
 
+// TODO: Remove the hybrid repository (IReadRepository<T>) and move to per entity repository.
 public interface IReadRepository<T> : IDisposable
     where T : class, new()
 {

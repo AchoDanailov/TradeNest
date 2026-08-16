@@ -1,12 +1,12 @@
 using System.Reflection;
 using System.Text.Json;
 
+using TradeNest.GCommon.Exceptions;
+using static TradeNest.GCommon.ErrorMessages;
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Data.Seeding.Dtos;
 using TradeNest.Data.Seeding.Interfaces;
-using TradeNest.GCommon.Exceptions;
-using static TradeNest.GCommon.ErrorMessages;
 
 namespace TradeNest.Data.Seeding;
 
@@ -31,12 +31,12 @@ public class AdminsSeeder : BaseEntitySeeder, IAdminsSeeder
         
         string? dataAsJsonString = await GetSeedDataFromFileAsync();
         if (dataAsJsonString == null)
-            throw new ArgumentException(string.Format(FileNotFound, pathToFile));
+            throw new ArgumentException(string.Format(FileNotFoundMessage, pathToFile));
         
         IEnumerable<AdminImportDto>? adminDtos =
             JsonSerializer.Deserialize<IEnumerable<AdminImportDto>>(dataAsJsonString);
         if (adminDtos == null)
-            throw new InvalidOperationException(string.Format(SeedingError, this.GetType().Name));
+            throw new InvalidOperationException(string.Format(SeedingErrorMessage, this.GetType().Name));
 
         IEnumerable<Admin> adminsInDb = (await this._adminsRepository
                 .GetAllAsync(queryOptions => queryOptions.AsReadOnly()))
@@ -46,7 +46,7 @@ public class AdminsSeeder : BaseEntitySeeder, IAdminsSeeder
         foreach (AdminImportDto adminDto in adminDtos)
         {
             if (!IsValid(adminDto))
-                throw new ArgumentException(string.Format(SeedingError, this.GetType().Name));
+                throw new ArgumentException(string.Format(SeedingErrorMessage, this.GetType().Name));
 
             if (adminDto.Id == Guid.Empty || adminDto.UserId == Guid.Empty)
             {

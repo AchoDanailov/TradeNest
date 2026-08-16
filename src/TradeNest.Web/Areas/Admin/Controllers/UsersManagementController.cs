@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 
-using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Role;
 using TradeNest.Services.Models.User;
 using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.Models.Role;
 using TradeNest.Web.Models.User;
+using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
 namespace TradeNest.Web.Areas.Admin.Controllers;
 

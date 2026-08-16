@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
-using TradeNest.Data.Models;
+
 using static TradeNest.GCommon.ErrorMessages;
+using TradeNest.Data.Models;
 using TradeNest.Data.Seeding.Interfaces;
 
 namespace TradeNest.Data.Seeding;
@@ -30,7 +31,7 @@ public class RolesSeeder : IRolesSeeder
             IdentityResult res = await this._roleManager.CreateAsync(newRole);
             if (!res.Succeeded)
             {
-                throw new InvalidOperationException(string.Format(SeedingError,
+                throw new InvalidOperationException(string.Format(SeedingErrorMessage,
                     this.GetType().Name));
             }
         }   

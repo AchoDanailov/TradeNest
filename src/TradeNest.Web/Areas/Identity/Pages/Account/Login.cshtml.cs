@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
-using static TradeNest.GCommon.EntityValidationConstants.User;
 using TradeNest.Data.Models;
+using static TradeNest.GCommon.EntityValidationConstants.User;
 
 namespace TradeNest.Web.Areas.Identity.Pages.Account;
 

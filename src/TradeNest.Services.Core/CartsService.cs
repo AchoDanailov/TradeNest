@@ -66,7 +66,6 @@ public class CartsService : ICartsService
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
         if(productId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
-        
         if (prodQtyToAdd <= 0)
         {
             throw new ArgumentException(

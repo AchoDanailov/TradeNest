@@ -25,7 +25,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
             .Include(p => p.Images)
             .Include(p => p.Owner)
             .Include(p => p.ApprovalDecisionMaker)
-            .ThenInclude(p => p!.User);
+            .ThenInclude(a => a!.User); // => In cases of ApprovalDecisionMaker = null this does not fail. It just returns null! (always access property safely)
         if (asReadOnly)
             queryable = queryable.AsNoTracking();
 
@@ -110,7 +110,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
             .ToArrayAsync();
     }
 
-    public async Task<int> GetSpecifiedProductsCount(bool? approved = null,
+    public async Task<int> GetSpecifiedProductsCountAsync(bool? approved = null,
         string? search = null)
     {
         IQueryable<Product> queryable = this.DbContext.Products

@@ -3,13 +3,11 @@ using Microsoft.AspNetCore.Mvc;
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Cart;
 using TradeNest.Services.Models.Order;
-using TradeNest.Services.Models.Product;
 using TradeNest.GCommon.Exceptions;
 using static TradeNest.GCommon.ErrorMessages;
 using TradeNest.Web.Mappers.Interfaces;
 using TradeNest.Web.Models.Order;
 using TradeNest.Web.Models.Cart;
-using TradeNest.Web.Models.Product;
 using static TradeNest.Web.Utilities.Messages.StatusNotificationMessages;
 
 namespace TradeNest.Web.Controllers;
