@@ -1,9 +1,9 @@
 using System.Reflection;
 using System.Text.Json;
 
-using TradeNest.Data.Models;
 using TradeNest.GCommon.Exceptions;
 using static TradeNest.GCommon.ErrorMessages;
+using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Data.Seeding.Dtos;
 using TradeNest.Data.Seeding.Interfaces;
@@ -31,18 +31,18 @@ public class CartsSeeder : BaseEntitySeeder, ICartsSeeder
 
         string? dataAsJsonString = await this.GetSeedDataFromFileAsync();
         if (dataAsJsonString == null)
-            throw new ArgumentException(string.Format(FileNotFound, pathToFile));
+            throw new ArgumentException(string.Format(FileNotFoundMessage, pathToFile));
 
         IEnumerable<CartImportDto>? cartDtos =
             JsonSerializer.Deserialize<IEnumerable<CartImportDto>>(dataAsJsonString);
         if (cartDtos == null)
-            throw new InvalidOperationException(string.Format(SeedingError, this.GetType().Name));
+            throw new InvalidOperationException(string.Format(SeedingErrorMessage, this.GetType().Name));
 
         ICollection<Cart> cartsToImport = new List<Cart>();
         foreach (CartImportDto cartDto in cartDtos)
         {
             if (!IsValid(cartDto))
-                throw new ArgumentException(string.Format(SeedingError, this.GetType().Name));
+                throw new ArgumentException(string.Format(SeedingErrorMessage, this.GetType().Name));
 
             bool cartExists = await this._cartsRepository
                 .ExistsAsync(c => c.Id == cartDto.Id && c.CartOwnerId == cartDto.CartOwnerId);

@@ -65,19 +65,19 @@ public class OrdersService : IOrdersService
     {
         try
         {
-            return await this.TrySubmitOrder(userId);
+            return await this.TrySubmitOrderAsync(userId);
         }
         catch (DataConcurrencyConflictException)
         {
-            return await this.RetrySubmitOrder(userId);
+            return await this.RetrySubmitOrderAsync(userId);
         }
     }
     
-    private async Task<SubmitOrderResultDto> RetrySubmitOrder(Guid userId)
+    private async Task<SubmitOrderResultDto> RetrySubmitOrderAsync(Guid userId)
     {
         try
         {
-            return await this.TrySubmitOrder(userId);
+            return await this.TrySubmitOrderAsync(userId);
         }
         catch (DataConcurrencyConflictException concurrencyEx)
         {
@@ -85,7 +85,7 @@ public class OrdersService : IOrdersService
         }
     }
 
-    private async Task<SubmitOrderResultDto> TrySubmitOrder(Guid userId)
+    private async Task<SubmitOrderResultDto> TrySubmitOrderAsync(Guid userId)
     {
         if(userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));

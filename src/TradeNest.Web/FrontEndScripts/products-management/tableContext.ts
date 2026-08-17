@@ -8,7 +8,7 @@ const DEFAULT_PRODUCTS_APPROVAL_STATUS = "Approved";
 const DEFAULT_START_PAGE_NUMBER = 1;
 const DEFAULT_PRODUCTS_PER_PAGE_COUNT = 5;
 
-export default function getNewContextInstance(stateConfig?: StateConfig) {
+export default function getNewContextInstance(stateConfig?: StateConfig): TableContext {
     const state = {
         productsApprovalStatus: stateConfig?.productsApprovalStatus ?? DEFAULT_PRODUCTS_APPROVAL_STATUS,
         currPageNumber: stateConfig?.startPageNumber ?? DEFAULT_START_PAGE_NUMBER,
@@ -81,5 +81,5 @@ export default function getNewContextInstance(stateConfig?: StateConfig) {
         getProductDetails,
         modifyProductApproval,
         removeProduct,
-    } as TableContext
+    }
 }

@@ -18,12 +18,12 @@ public partial class ProductsMapper : IProductsMapper
 
     public partial IEnumerable<ProductDto> ToProductDtos(IEnumerable<Product> products);
 
-    [MapProperty(nameof(Product.Owner.UserName), nameof(ProductDto2.OwnerName))]
-    [MapProperty(nameof(Product.ApprovalDecision.ApprovalStatus), nameof(ProductDto2.ApprovalStatus))]
-    [MapProperty(nameof(Product.Category.Name), nameof(ProductDto2.CategoryName))]
-    public partial ProductDto2 ToProductDto2(Product product);
+    [MapProperty(nameof(Product.Owner.UserName), nameof(ProductWithApprovalStatusDto.OwnerName))]
+    [MapProperty(nameof(Product.ApprovalDecision.ApprovalStatus), nameof(ProductWithApprovalStatusDto.ApprovalStatus))]
+    [MapProperty(nameof(Product.Category.Name), nameof(ProductWithApprovalStatusDto.CategoryName))]
+    public partial ProductWithApprovalStatusDto ToProductWithApprovalStatusDto(Product product);
 
-    public partial IEnumerable<ProductDto2> ToProductDtos2(IEnumerable<Product> product);
+    public partial IEnumerable<ProductWithApprovalStatusDto> ToProductWithApprovalStatusDtos(IEnumerable<Product> product);
 
     #pragma warning disable RMG012
     [MapProperty(nameof(Product.ApprovalDecision), nameof(ProductDetailsDto.ApprovalDecision))]

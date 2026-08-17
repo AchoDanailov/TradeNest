@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 
 using Microsoft.EntityFrameworkCore;
+
 using TradeNest.Data.QueryOptions;
 using TradeNest.Data.QueryOptions.Interfaces;
 using TradeNest.Data.Repository.Interfaces;

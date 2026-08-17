@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 using TradeNest.Services.Core.Interfaces;
 using TradeNest.Services.Models.Category;

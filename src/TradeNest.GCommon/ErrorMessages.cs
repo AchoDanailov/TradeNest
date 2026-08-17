@@ -26,12 +26,12 @@ public static class ErrorMessages
     public const string RemoteValidationErrorMessage
         = "Remote validation exception occurred. Controller: {0}, Action: {1}.";
 
-    public const string FileNotFound = "File with path {0} was not found.";
+    public const string FileNotFoundMessage = "File with path {0} was not found.";
 
     public const string ProductCreatedOnAfterApprovalTimeOfDecision
         = "Created on can not be after time of decision. productDtoId: {0}";
     
-    public const string SeedingError
+    public const string SeedingErrorMessage
         = "The {0} seeding process failed. Please view the result of the operation or the inner exception.";
 
     public const string UserIsAlreadyAnAdminMessage = "A user can only be one admin.";

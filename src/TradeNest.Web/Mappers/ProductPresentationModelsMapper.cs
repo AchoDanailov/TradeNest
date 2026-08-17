@@ -19,8 +19,8 @@ public partial class ProductPresentationModelsMapper : IProductPresentationModel
     public partial IEnumerable<ProductViewModel> ToProductViewModels(
         IEnumerable<ProductDto> productDtos);
 
-    public partial ProductResponseDto ToProductResponseDto(ProductDto2 productDto);
-    public partial IEnumerable<ProductResponseDto> ToProductResponseDtos(IEnumerable<ProductDto2> productDtos);
+    public partial ProductResponseDto ToProductResponseDto(ProductWithApprovalStatusDto productDto);
+    public partial IEnumerable<ProductResponseDto> ToProductResponseDtos(IEnumerable<ProductWithApprovalStatusDto> productDtos);
 
     public partial ProductDetailsViewModel ToProductDetailsViewModel(
         ProductDetailsDto productDetailsDto, string returnUrl);

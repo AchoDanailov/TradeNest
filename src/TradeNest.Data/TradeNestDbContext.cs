@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -6,7 +7,6 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 using TradeNest.Data.Models;
 using TradeNest.Data.Models.Enums;
-using TradeNest.GCommon.Exceptions;
 
 namespace TradeNest.Data;
 
@@ -31,6 +31,7 @@ public class TradeNestDbContext : IdentityDbContext<ApplicationUser, Application
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        //NOTE: ".Entries<TEntity>()" calls ".DetectChanges()" underneath
         IEnumerable<EntityEntry<Product>> productsToModifyIsEnabledProperty = this.ChangeTracker
             .Entries<Product>()
             .Where(entry => InStockStatusChanged(entry) || HasChangedApprovalStatus(entry))
