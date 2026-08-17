@@ -164,6 +164,102 @@ public class ProductsServiceTests
             Is.All.EqualTo(arrangedData.category.CategoryName));
     }
 
+    [Test]
+    public void FindArchivedProductDataAdminViewAsync_IfNotAdminUser_ThrowsUnauthorizedOperationException()
+    {
+        Guid notAdminUserId = Guid.NewGuid();
+        Guid rndProdGuid = Guid.NewGuid();
+        
+        this._adminsRepositoryMock
+            .Setup(a => a.IsUserAdminByUserIdAsync(notAdminUserId))
+            .ReturnsAsync(false);
+
+        Assert.ThrowsAsync<UnauthorizedOperationException>(() =>
+            this._productsService.FindArchivedProductDataAdminViewAsync(notAdminUserId, rndProdGuid));
+    }
+
+    [Test]
+    public async Task FindArchivedProductDataAdminViewAsync_WorksCorrectly()
+    {
+        // Arrange
+        Guid targetId = Guid.NewGuid();
+        Guid adminUserId = Guid.NewGuid();
+        IEnumerable<Product> products = new Product[]
+        {
+            new Product()
+            {
+                Id = targetId,
+            },
+        };
+        
+        this._adminsRepositoryMock
+            .Setup(a => a.IsUserAdminByUserIdAsync(adminUserId))
+            .ReturnsAsync(true);
+        
+        this._productsRepositoryMock
+            .Setup(pr => pr.GetAllInclArchivedAndNotApprovedAsync(It.IsAny<Action<IQueryOptions<Product>>>()))
+            .ReturnsAsync(products);
+
+        this._productsMapperMock
+            .Setup(pm => pm.ToProductWithApprovalStatusDto(It.IsAny<Product>()))
+            .Returns(new ProductWithApprovalStatusDto() { Id = products.First().Id });
+
+        // Act
+        ProductWithApprovalStatusDto? product = await this._productsService
+            .FindArchivedProductDataAdminViewAsync(adminUserId, targetId);
+        
+        // Assert
+        Assert.That(products.First().Id, Is.EqualTo(product!.Id));
+    }
+        
+    [Test]
+    public void GetAllArchivedProductsDataAdminViewAsync_IfNotAdminUser_ThrowsUnauthorizedOperationException()
+    {
+        Guid notAdminUserId = Guid.NewGuid();
+        Guid rndProdGuid = Guid.NewGuid();
+        
+        this._adminsRepositoryMock
+            .Setup(a => a.IsUserAdminByUserIdAsync(notAdminUserId))
+            .ReturnsAsync(false);
+
+        Assert.ThrowsAsync<UnauthorizedOperationException>(() =>
+            this._productsService.FindArchivedProductDataAdminViewAsync(notAdminUserId, rndProdGuid));
+    }
+    
+    [Test]
+    public async Task GetAllArchivedProductsDataAdminViewAsync_WorksCorrectly()
+    {
+        // Arrange
+        Guid targetId = Guid.NewGuid();
+        Guid adminUserId = Guid.NewGuid();
+        IEnumerable<Product> products = new Product[]
+        {
+            new Product()
+            {
+                Id = targetId,
+            },
+        };
+        
+        this._adminsRepositoryMock
+            .Setup(a => a.IsUserAdminByUserIdAsync(adminUserId))
+            .ReturnsAsync(true);
+        
+        this._productsRepositoryMock
+            .Setup(pr => pr.GetAllInclArchivedAndNotApprovedAsync(It.IsAny<Action<IQueryOptions<Product>>>()))
+            .ReturnsAsync(products);
+
+        this._productsMapperMock
+            .Setup(pm => pm.ToProductWithApprovalStatusDto(It.IsAny<Product>()))
+            .Returns(new ProductWithApprovalStatusDto() { Id = products.First().Id });
+
+        // Act
+        ProductWithApprovalStatusDto? product = await this._productsService
+            .FindArchivedProductDataAdminViewAsync(adminUserId, targetId);
+        
+        // Assert
+        Assert.That(products.First().Id, Is.EqualTo(product!.Id));
+    }
+    
     private ValueTuple<ValueTuple<Guid, string>, IEnumerable<Product>>
         ArrangeForGetAllProductsByCategoryIdAsyncTests(string? categoryName = null)
     {
@@ -251,7 +347,7 @@ public class ProductsServiceTests
     public void GetSpecifiedProductsCountAsync_OnPassedUserIdEmptyGuid_ThrowsArgumentException()
     {
         Assert.ThrowsAsync<ArgumentException>(async () =>
-            await this._productsService.GetSpecifiedProductsCountAsync(Guid.Empty));
+            await this._productsService.GetSpecifiedProductsCountAdminViewAsync(Guid.Empty));
     }
 
     [Test]
@@ -264,7 +360,7 @@ public class ProductsServiceTests
             .ReturnsAsync(false);
         
         Assert.ThrowsAsync<UnauthorizedOperationException>(async () =>
-            await this._productsService.GetSpecifiedProductsCountAsync(notUserAdminId));
+            await this._productsService.GetSpecifiedProductsCountAdminViewAsync(notUserAdminId));
     }
 
     [TestCase(null, null)]
@@ -285,7 +381,7 @@ public class ProductsServiceTests
             .ReturnsAsync(true);
         
         this._productsRepositoryMock
-            .Setup(pr => pr.GetSpecifiedProductsCount(
+            .Setup(pr => pr.GetSpecifiedProductsCountAsync(
                 It.IsAny<bool?>(),
                 It.IsAny<string?>()))
             .ReturnsAsync(() =>
@@ -306,7 +402,7 @@ public class ProductsServiceTests
         
         // Act 
         int actual = await this._productsService
-            .GetSpecifiedProductsCountAsync(Guid.NewGuid(), approved, searchQuery);
+            .GetSpecifiedProductsCountAdminViewAsync(Guid.NewGuid(), approved, searchQuery);
         
         // Assert
         int expected;

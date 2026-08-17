@@ -2,7 +2,7 @@ using TradeNest.Services.Models.Enums;
 
 namespace TradeNest.Services.Models.Product;
 
-public class ProductDto2 
+public class ProductWithApprovalStatusDto 
 {
     public Guid Id { get; set; }
 

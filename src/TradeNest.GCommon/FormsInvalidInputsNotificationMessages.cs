@@ -8,8 +8,8 @@ public static class FormsInvalidInputsNotificationMessages
     public static class Product
     {
         public const string ProductIdRequired = "Something went wrong; we couldn't identify the product you're trying to edit.";
-        public const string ProductNameRequired = "Please provide a name for the product.";
-        public const string ProductNameLength = "The product name should be between {2} and {1} characters long.";
+        public const string ProductNameRequired = "Please provide a title for the product.";
+        public const string ProductNameLength = "The product title should be between {2} and {1} characters long.";
 
         public const string DescriptionRequired = "A description is required so buyers know what they are getting.";
         public const string DescriptionLength = "The description should be between {2} and {1} characters long.";

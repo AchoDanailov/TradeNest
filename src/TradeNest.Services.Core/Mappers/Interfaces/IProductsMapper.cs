@@ -8,8 +8,8 @@ public interface IProductsMapper
     ProductDto ToProductDto(Product product);
     IEnumerable<ProductDto> ToProductDtos(IEnumerable<Product> products);
     
-     ProductDto2 ToProductDto2(Product product);
-     IEnumerable<ProductDto2> ToProductDtos2(IEnumerable<Product> product);
+     ProductWithApprovalStatusDto ToProductWithApprovalStatusDto(Product product);
+     IEnumerable<ProductWithApprovalStatusDto> ToProductWithApprovalStatusDtos(IEnumerable<Product> product);
 
     ProductDetailsDto ToProductDetailsDto(Product product, bool isOwner);
 

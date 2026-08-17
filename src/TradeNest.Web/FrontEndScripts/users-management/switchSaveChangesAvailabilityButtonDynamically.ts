@@ -2,11 +2,12 @@ const allManageRolesModals = document.querySelectorAll(".manage-roles-modal")!;
 
 allManageRolesModals.forEach(manageRolesModal => {
     manageRolesModal.addEventListener("change", () => {
-        const allActionButtons = manageRolesModal.querySelectorAll(".action-btn");
+        const allActionButtons: NodeListOf<HTMLInputElement> 
+            = manageRolesModal.querySelectorAll(".action-btn");
 
         let oneIsPressed = false;
         for (const actionButton of allActionButtons) {
-            if((actionButton as HTMLInputElement).checked){
+            if (actionButton.checked) {
                 oneIsPressed = true;
                 break;
             }

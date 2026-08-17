@@ -1,4 +1,4 @@
-import Swal, { type SweetAlertOptions, type SweetAlertResult } from "sweetalert2";
+import Swal, { type SweetAlertResult } from "sweetalert2";
 import type { ProductsApprovalStatus } from "../types/products.ts";
 
 export function toggleHighlight(approvalStatus: ProductsApprovalStatus): void {
@@ -14,16 +14,15 @@ export function toggleHighlight(approvalStatus: ProductsApprovalStatus): void {
     }
 }
 
-export function showErrorSwal(): Promise<SweetAlertResult> {
+export function showErrorSwal(text?: string): Promise<SweetAlertResult> {
     return Swal.fire({
         icon: "error",
         title: "Oops...",
-        text: "Something went wrong! Please try again.",
+        text: text ?? "Something went wrong! Please try again.",
         confirmButtonColor: "#0FAF9A",
-        draggable: true,
         showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
         hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` }
-    } as SweetAlertOptions);
+    });
 }
 
 export function showPlainSuccessSwal(text?: string): Promise<SweetAlertResult> {
@@ -31,9 +30,8 @@ export function showPlainSuccessSwal(text?: string): Promise<SweetAlertResult> {
         icon: "success",
         title: "Success",
         text: text ?? "The operation has passed successfully.",
-        draggable: true,
         confirmButtonColor: "#0FAF9A",
         showClass: { popup: ` animate__animated animate__fadeInUp animate__faster ` },
         hideClass: { popup: ` animate__animated animate__fadeOutDown animate__faster ` },
-    } as SweetAlertOptions)
+    });
 }

@@ -7,12 +7,12 @@ import type {
 } from "../types/products.ts";
 import type { ProductsService } from "../types/services.ts";
 
-const productsService = {
+const productsService: ProductsService = {
     getCurrPageProducts,
     getCurrProdDetails,
     changeProductApprovalStatus,
-    removeProduct,
-} as ProductsService
+    removeProduct
+} 
 
 export default productsService;
 

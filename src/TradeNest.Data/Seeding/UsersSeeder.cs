@@ -29,17 +29,17 @@ public class UsersSeeder : BaseEntitySeeder, IUsersSeeder
 
         string? dataAsJsonString = await this.GetSeedDataFromFileAsync();
         if (dataAsJsonString == null)
-            throw new ArgumentException(string.Format(FileNotFound, pathToFile));
+            throw new ArgumentException(string.Format(FileNotFoundMessage, pathToFile));
 
         IEnumerable<UserImportDto>? userDtos =
             JsonSerializer.Deserialize<IEnumerable<UserImportDto>>(dataAsJsonString);
         if (userDtos == null)
-            throw new InvalidOperationException(string.Format(SeedingError, this.GetType().Name));
+            throw new InvalidOperationException(string.Format(SeedingErrorMessage, this.GetType().Name));
 
         foreach (UserImportDto userDto in userDtos)
         {
             if (!IsValid(userDto))
-                throw new ArgumentException(string.Format(SeedingError, this.GetType().Name));
+                throw new ArgumentException(string.Format(SeedingErrorMessage, this.GetType().Name));
 
             if (userDto.Id == Guid.Empty)
             {

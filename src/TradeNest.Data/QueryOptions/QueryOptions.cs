@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
 
-using TradeNest.Data.QueryOptions.Interfaces;
 using static TradeNest.GCommon.ApplicationConstants;
+using TradeNest.Data.QueryOptions.Interfaces;
 
 namespace TradeNest.Data.QueryOptions;
 

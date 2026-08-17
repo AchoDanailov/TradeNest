@@ -2,7 +2,6 @@ import { Modal } from "bootstrap";
 import { html, type TemplateResult } from "lit-html";
 
 import type {
-    EditProductApprovalStatus,
     ProductDetails,
     ProductsApprovalStatus
 } from "../types/products.ts";
@@ -239,9 +238,14 @@ async function onModifyApproval(
 ): Promise<void> {
     event.preventDefault();
 
-    const formData = new FormData(event.currentTarget as HTMLFormElement | undefined);
-    const newApprovalStatus = formData.get(`approvalStatus-${productDetails.id}`);
-    const decisionJustification = formData.get(`decision-justification-${productDetails.id}`);
+    const formData = new FormData(event.currentTarget as HTMLFormElement);
+    const newApprovalStatus = formData.get(`approvalStatus-${productDetails.id}`) as string;
+    const decisionJustification = formData.get(`decision-justification-${productDetails.id}`) as string;
+    
+    if (!newApprovalStatus || !decisionJustification) {
+        showErrorSwal()
+            .then(async () => await showProductsTable(context));
+    }
 
     let isSameData = false;
     if(newApprovalStatus === productDetails.approvalDecision.approvalStatus) {
@@ -272,10 +276,9 @@ async function onModifyApproval(
         productId: productDetails.id,
         approvalStatus: newApprovalStatus,
         decisionJustification: decisionJustification,
-    } as EditProductApprovalStatus);
+    });
     if(!modifyApprovalResult) {
-        showErrorSwal()
-            .then(async () => await showProductsTable(context));
+        showErrorSwal().then(async () => await showProductsTable(context));
     } else {
         showPlainSuccessSwal("The product approval status has been changed successfully.")
             .then(async () => await showProductsTable(context));

@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
 

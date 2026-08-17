@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
+using TradeNest.GCommon.Exceptions;
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository.Interfaces;
-using TradeNest.GCommon.Exceptions;
 
 namespace TradeNest.Data.Repository;
 
@@ -92,11 +92,13 @@ public class UsersRepository : BaseReadRepository<ApplicationUser>, IUsersReposi
 
         try
         {
+            // guarantees user is attached in the context
             this.DbContext.Attach(user);
 
             user.PersonalInformationIsDeleted = true;
             await this.DbContext.SaveChangesAsync();
 
+            // each UserManager method invokes "SaveChanges()" internally
             await this._userManager.SetUserNameAsync(user, null);
             await this._userManager.SetEmailAsync(user, null);
             await this._userManager.UpdateNormalizedUserNameAsync(user);

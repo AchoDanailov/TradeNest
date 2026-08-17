@@ -26,13 +26,19 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
         e.preventDefault();
 
         const productId = changeQtyBtn.getAttribute("data-product-id");
-        const currProdDetails = await getCurrProdDetails(productId as string);
+        if (!productId) {
+            await showErrorSwal();
+            return;
+        }
+
+        const currProdDetails = await getCurrProdDetails(productId);
         if(!currProdDetails) {
+            await showErrorSwal();
             return;
         }
 
         const currProductQtySpan = popoverTemplateEl.querySelector<HTMLSpanElement>(".curr-prod-qty")!;
-        currProductQtySpan.textContent = currProdDetails.quantityInStock as unknown as string;
+        currProductQtySpan.textContent = `${currProdDetails.quantityInStock}`;
 
         popoverObj.show();
     });
@@ -86,11 +92,17 @@ changeQtyButtonEls.forEach(changeQtyBtn => {
             const productId = changeQtyBtn.getAttribute("data-product-id");
             const cartId = changeQtyBtn.getAttribute("data-cart-id");
 
-            const updatedCartProdPayload = {
+            if(!productId || !cartId) {
+                popoverObj.hide();
+                await showErrorSwal();
+                return;
+            }
+
+            const updatedCartProdPayload: UpdateCartProductQty = {
                 cartId: cartId,
                 productId: productId,
                 quantity: Number(qtyInputField.value),
-            } as UpdateCartProductQty;
+            };
 
             const requestVerificationToken = document
                 .querySelectorAll<HTMLInputElement>("input[name=__RequestVerificationToken]")[0]!

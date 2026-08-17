@@ -1,10 +1,10 @@
 using System.Reflection;
 using System.Text.Json;
 
-using TradeNest.Data.Models;
-using TradeNest.Data.Models.Enums;
 using TradeNest.GCommon.Exceptions;
 using static TradeNest.GCommon.ErrorMessages;
+using TradeNest.Data.Models;
+using TradeNest.Data.Models.Enums;
 using TradeNest.Data.Repository.Interfaces;
 using TradeNest.Data.Seeding.Dtos;
 using TradeNest.Data.Seeding.Interfaces;
@@ -35,18 +35,18 @@ public class ProductsSeeder : BaseEntitySeeder, IProductsSeeder
         
         string? dataAsJsonString = await this.GetSeedDataFromFileAsync();
         if (dataAsJsonString == null)
-            throw new ArgumentException(string.Format(FileNotFound, pathToFile));
+            throw new ArgumentException(string.Format(FileNotFoundMessage, pathToFile));
         
         IEnumerable<ProductImportDto>? productDtos =
             JsonSerializer.Deserialize<IEnumerable<ProductImportDto>>(dataAsJsonString);
         if (productDtos == null)
-            throw new InvalidOperationException(string.Format(SeedingError, this.GetType().Name));
+            throw new InvalidOperationException(string.Format(SeedingErrorMessage, this.GetType().Name));
 
         ICollection<Product> productsToImport = new List<Product>();
         foreach (ProductImportDto productDto in productDtos)
         {
             if (!IsValid(productDto))
-                throw new ArgumentException(string.Format(SeedingError, this.GetType().Name));
+                throw new ArgumentException(string.Format(SeedingErrorMessage, this.GetType().Name));
 
             if (productDto.Id == Guid.Empty ||
                 productDto.CategoryId == Guid.Empty ||

@@ -109,7 +109,7 @@ public class ProductsService : IProductsService
             .ExistsAsync(p => p.Id == id);
     }
 
-    public async Task<int> GetSpecifiedProductsCountAsync(Guid userId, bool? approved = null,
+    public async Task<int> GetSpecifiedProductsCountAdminViewAsync(Guid userId, bool? approved = null,
         string? searchQuery = null)
     {
         if (userId == Guid.Empty)
@@ -120,11 +120,15 @@ public class ProductsService : IProductsService
             throw new UnauthorizedOperationException(userId, nameof(Product), "All identifiers");
 
         return await this._productsRepository
-            .GetSpecifiedProductsCount(approved, searchQuery);
+            .GetSpecifiedProductsCountAsync(approved, searchQuery);
     }
 
-    public async Task<IEnumerable<ProductDto2>> GetProductsDataWithPagination(Guid userId,
-        int page, int limit, bool? approved = null, string? search = null)
+    public async Task<IEnumerable<ProductWithApprovalStatusDto>> GetProductsDataWithPaginationAdminViewAsync(
+        Guid userId,
+        int page,
+        int limit,
+        bool? approved = null,
+        string? search = null)
     {
         if(userId == Guid.Empty)
             throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
@@ -221,10 +225,10 @@ public class ProductsService : IProductsService
             }
         }
 
-        return this._productsMapper.ToProductDtos2(products);
+        return this._productsMapper.ToProductWithApprovalStatusDtos(products);
     }
 
-    public async Task<IEnumerable<ProductDto2>> GetProductsData(
+    public async Task<IEnumerable<ProductWithApprovalStatusDto>> GetProductsDataAdminViewAsync(
         Guid userId,
         bool? approved = null,
         string? search = null)
@@ -313,7 +317,46 @@ public class ProductsService : IProductsService
             }
         }
 
-        return this._productsMapper.ToProductDtos2(products);
+        return this._productsMapper.ToProductWithApprovalStatusDtos(products);
+    }
+
+    public async Task<ProductWithApprovalStatusDto?> FindArchivedProductDataAdminViewAsync(Guid userId, 
+        Guid productId)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+        if (productId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(productId)));
+        
+        bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
+        if (!isAdmin)
+            throw new UnauthorizedOperationException(userId, nameof(Product), productId);
+
+        Product? product = (await this._productsRepository
+                .GetAllInclArchivedAndNotApprovedAsync(queryOptions =>
+                    queryOptions.SetFilter(p => p.Id == productId && p.IsDeleted == true)))
+            .SingleOrDefault();
+        if (product == null)
+            return null;
+        
+        return this._productsMapper.ToProductWithApprovalStatusDto(product);
+    }
+    
+    public async Task<IEnumerable<ProductWithApprovalStatusDto>> GetAllArchivedProductsDataAdminViewAsync(
+        Guid userId)
+    {
+        if (userId == Guid.Empty)
+            throw new ArgumentException(string.Format(IdCantBeEmptyMessage, nameof(userId)));
+        
+        bool isAdmin = await this._adminsRepository.IsUserAdminByUserIdAsync(userId);
+        if (!isAdmin)
+            throw new UnauthorizedOperationException(userId, nameof(Product), "All identifiers");
+
+        IEnumerable<Product> products = await this._productsRepository
+            .GetAllInclArchivedAndNotApprovedAsync(queryOptions => 
+                queryOptions.SetFilter(p => p.IsDeleted == true));
+        
+        return this._productsMapper.ToProductWithApprovalStatusDtos(products);
     }
 
     public async Task<ProductDetailsDto?> GetProductDetailsByIdAsync(Guid id, Guid? userId = null)

@@ -1,7 +1,9 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static TradeNest.GCommon.EntityValidationConstants.CommonValidationConstants;
+
 using Microsoft.EntityFrameworkCore;
+
+using static TradeNest.GCommon.EntityValidationConstants.CommonValidationConstants;
 
 namespace TradeNest.Data.Models;
 

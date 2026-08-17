@@ -10,8 +10,8 @@ public interface IProductPresentationModelsMapper
     ProductViewModel ToProductViewModel(ProductDto productDto);
     IEnumerable<ProductViewModel> ToProductViewModels(IEnumerable<ProductDto> productDtos);
 
-    ProductResponseDto ToProductResponseDto(ProductDto2 productDto);
-    IEnumerable<ProductResponseDto> ToProductResponseDtos(IEnumerable<ProductDto2> productDtos);
+    ProductResponseDto ToProductResponseDto(ProductWithApprovalStatusDto productDto);
+    IEnumerable<ProductResponseDto> ToProductResponseDtos(IEnumerable<ProductWithApprovalStatusDto> productDtos);
 
     ProductDetailsViewModel ToProductDetailsViewModel(ProductDetailsDto productDetailsDto,
         string returnUrl);
