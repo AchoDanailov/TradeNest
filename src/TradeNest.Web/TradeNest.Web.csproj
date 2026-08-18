@@ -24,10 +24,6 @@
     <PackageReference Include="Riok.Mapperly" ExcludeAssets="runtime" Version="4.3.1" />
   </ItemGroup>
 
-  <Target Name="CompileTypeScript" BeforeTargets="Build">
-    <Exec Command="npx tsc -p tsconfig.json" WorkingDirectory="$(ProjectDir)" />
-  </Target>
-
   <ItemGroup>
     <ProjectReference Include="..\TradeNest.Data\TradeNest.Data.csproj" />
     <ProjectReference Include="..\TradeNest.Services.Core\TradeNest.Services.Core.csproj" />
