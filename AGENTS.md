@@ -23,10 +23,10 @@ TradeNest.GCommon/            — Constants (EntityValidationConstants, Applicat
 # First-time restore (order matters: npm install before build)
 dotnet tool restore && dotnet restore && cd src/TradeNest.Web && npm install && cd ../..
 
-# Build — NOTE: runs `npx tsc` via MSBuild target (.csproj:27-29), so Node + node_modules are required
+# Build — NOTE: TypeScript compiles automatically via the `Microsoft.TypeScript.MSBuild` package (bundled TS 6.0.3). Output is written to `wwwroot/js` and is gitignored. Node + node_modules are required for npm deps.
 dotnet build
 
-# Run (dev server on http://localhost:5188)
+# Run (dev server on http://localhost:5188; TS compiles as part of the build)
 dotnet run --project src/TradeNest.Web
 
 # Apply migrations (dotnet-ef pinned in .config/dotnet-tools.json)
@@ -37,9 +37,6 @@ dotnet test
 dotnet test tests/unit/TradeNest.Services.Tests
 dotnet test tests/unit/TradeNest.Data.Tests
 dotnet test tests/integration/TradeNest.Data.IntegrationTests
-
-# TypeScript only (skip the full dotnet build)
-npx tsc -p src/TradeNest.Web/tsconfig.json
 ```
 
 ## DI Registration (assembly scanning — naming convention is mandatory)
