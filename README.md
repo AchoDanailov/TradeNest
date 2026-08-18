@@ -72,10 +72,9 @@ buy and sell a wide variety of products.
 For a deeper dive into the project, check out the following docs:
 
 - 📄 **[SRS](./docs/SRS.md)** — detailed functional and non-functional requirements.
-- 📐 **Design Decisions** — architecture, patterns, and tradeoffs (Is being worked on)
-- 🗂️ **ERD** — entity relationship diagrams. (Is being worked on)
+- 🗂️ **[ERD](./docs/ERD.md)** — entity relationship diagram.
 
-> 💡 We recommend starting with the ERD to get familiar with the data models before diving into the SRS or design decisions — it'll make the rest much easier to follow.
+> 💡 We recommend starting with the ERD to get familiar with the data models before diving into the SRS or design decisions.
 
 ---
 
@@ -85,7 +84,8 @@ For a deeper dive into the project, check out the following docs:
 TradeNest/
 │
 ├── docs/
-│   └── SRS.md                         # Lightweight specifications (mainly used as reference of the functionality)
+│   ├── SRS.md                         # Lightweight specifications (mainly used as reference of the functionality)
+│   └── ERD.md                         # Entity Relationship Diagram of the data models
 │
 ├── .config/
 │   └── dotnet-tools.json              # Manifest file for dotnet tools (e.g. dotnet-ef)
