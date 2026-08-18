@@ -18,7 +18,6 @@
   - [Product Catalog](#1-product-catalog-publicuser-view)
   - [Selling Products](#2-selling-products-userseller-view)
   - [Product Approval Workflow](#3-product-approval-workflow)
-  - [Product Statistics (Seller)](#4-product-statistics-seller)
 - [Shopping Experience Requirements](#shopping-experience-requirements)
   - [Shopping Cart Management](#1-shopping-cart-management)
   - [Product Availability & Notifications](#2-product-availability--notifications)
@@ -79,7 +78,7 @@ This module defines the functional requirements for administrative oversight.
 ### 3. User Management
 *   **F.R. 3.1**: Administrators shall be able to view a comprehensive list of all registered users.
 *   **F.R. 3.2**: Administrators shall be able to view and modify user roles (e.g., promoting a User to an Admin).
-*   **F.R. 3.3**: Administrators shall be able to lock/suspend user accounts for disciplinary reasons.
+*   **F.R. 3.3**: Administrators shall be able to suspend user accounts for disciplinary reasons.
 
 ### 4. Platform Analytics (Admin View)
 *   **F.R. 4.1**: Administrators shall have a high-level view of platform activity, including total users, total products, and total categories.
@@ -90,27 +89,26 @@ This module defines the functional requirements for administrative oversight.
 This module details the requirements for browsing the product catalog and the lifecycle of product listings from creation to public visibility.
 
 ### 1. Product Catalog (Public View)
-*   **F.R. 1.1**: The system shall display a public catalog of all **approved** products.
+*   **F.R. 1.1**: The system shall display a public catalog of all **approved** products. If a product is not approved (either **pending** or **disapproved**) it shall not be visible on the public catalog.
 *   **F.R. 1.2**: Users shall be able to filter the catalog by product category.
 *   **F.R. 1.3**: Users shall be able to search for products using a text-based search that matches product names or category names.
-*   **F.R. 1.4**: The system shall allow users to view detailed information for any product, including its name, description, price, category, images, and the seller's information.
+*   **F.R. 1.4**: The system shall allow regular users to view detailed information for any approved product, including its name, description, price, category, images, and the seller's information.
 *   **F.R. 1.5**: The system shall highlight "Best Seller" products based on the number of successful orders.
 
 ### 2. Selling Products (User/Seller View)
-*   **F.R. 2.1**: Users shall be able to create new product listings by providing a name, description, category, price (cost and selling), and at least one image.
+*   **F.R. 2.1**: Users shall be able to create new product listings by providing a name, description, category, price (cost and selling), and images.
 *   **F.R. 2.2**: Users shall be able to edit their own product listings. Any significant modification (e.g., price change, image update, listing title) shall trigger a re-approval process.
 *   **F.R. 2.3**: Users shall be able to delete their own product listings. Deletion is typically "soft" to preserve historical order data.
-*   **F.R. 2.4**: Users shall have access to a "MyProducts" dashboard to manage their listings and view their current approval status (Pending, Approved, Disapproved).
+*   **F.R. 2.4**: Users shall have access to a "My Nest" dashboard to manage their listings and view their current approval status (Pending, Approved, Disapproved).
+*   **F.R. 2.5**: Users shall be able to display total sales and total surplus (selling price - cost price) for each of their products, given they have provided product **cost price** either in the product listing creation process or by later editing the listing.
+*   **F.R. 2.6**: Sellers shall be able to see how many times each of their products has been ordered.
+*   **F.R. 2.7**: Sellers shall be able to trigger availability of their products, by changing a product's "IsEnabled" status. A product that is **approved** but **disabled** shall be visible on the public catalog, but it shall not be available for sale.
 
 ### 3. Product Approval Workflow
 *   **F.R. 3.1**: Newly created or modified product listings shall be placed in a "Pending" state and shall NOT be visible in the public catalog.
 *   **F.R. 3.2**: Administrators shall be able to review pending products and either **Approve** or **Disapprove** them.
 *   **F.R. 3.3**: Administrators shall provide an optional reason/comment when disapproving a product to guide the seller on necessary changes.
-*   **F.R. 3.4**: Once approved, the product shall become visible in the public catalog.
-
-### 4. Product Statistics (Seller)
-*   **F.R. 4.1**: The system shall calculate and display total sales and total surplus (selling price - cost price) for each of the seller's products, given they have provided product **cost price** either in the product listing creation process or by later editing the listing.
-*   **F.R. 4.2**: Sellers shall be able to see how many times each of their products has been ordered.
+*   **F.R. 3.4**: Once approved, the product shall become visible in the public catalog. If a product is with status **Pending** or **Disapproved** it is not allowed to be vissible on the public catalog.
 
 ---
 
@@ -122,15 +120,16 @@ This module covers the functional requirements for the shopping cart, stock vali
 *   **F.R. 1.2**: Users shall be able to add approved products to their cart from the catalog or product details page.
 *   **F.R. 1.3**: Users shall NOT be able to add their own products to their shopping cart.
 *   **F.R. 1.4**: Users shall be able to update the quantity of items in their cart or remove items entirely, this shall be available both from the product details page and the user cart page.
-*   **F.R. 1.5**: The system shall validate that the requested quantity does not exceed the available stock in real-time.
+*   **F.R. 1.5**: The system shall validate that the requested quantity does not exceed the available stock. 
 
 ### 2. Product Availability & Notifications
-*   **F.R. 2.1**: The system shall notify the user if a product in their cart becomes unavailable (e.g., sold out, disabled by seller, or disapproved by admin).
+*   **F.R. 2.1**: The system shall notify the user if a product in their cart becomes unavailable (e.g., sold out, disabled by seller).
 *   **F.R. 2.2**: If a product in the cart is no longer available, the system shall prevent the user from proceeding to checkout until the issue is resolved (e.g., item removed or quantity adjusted).
 *   **F.R. 2.3**: The cart shall display clear error messages if a product's status changes while it is in the cart.
+*   **F.R. 2.4**: If a product in the cart has lost its approval it shall be removed from the user's cart automatically.
 
 ### 3. Order Submission (Checkout)
-*   **F.R. 3.1**: Users shall be able to submit their cart to create a formal Order.
+*   **F.R. 3.1**: Users shall be able to submit their cart to create an Order.
 *   **F.R. 3.2**: Upon order submission, the system shall atomically:
     *   Verify final stock availability for all items.
     *   Deduct the ordered quantities from the product stock.
