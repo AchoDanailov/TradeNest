@@ -6,7 +6,6 @@ using TradeNest.Data.Repository;
 
 namespace TradeNest.Data.IntegrationTests.Repositories;
 
-[TestFixture]
 public class CategoriesRepositoryTests : RepositoryTestsBase
 {
     private CategoriesRepository _repository = null!;

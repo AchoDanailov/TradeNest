@@ -5,7 +5,6 @@ using TradeNest.Data.Repository;
 
 namespace TradeNest.Data.IntegrationTests.Repositories;
 
-[TestFixture]
 public class ProductsRepositoryTests : RepositoryTestsBase
 {
     private ProductsRepository _repository = null!;

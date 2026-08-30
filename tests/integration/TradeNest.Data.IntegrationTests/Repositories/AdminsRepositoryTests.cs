@@ -1,16 +1,16 @@
 using Microsoft.AspNetCore.Identity;
 using Moq;
 using NUnit.Framework;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository;
 
 namespace TradeNest.Data.IntegrationTests.Repositories;
 
-[TestFixture]
 public class AdminsRepositoryTests : RepositoryTestsBase
 {
-    private AdminsRepository _repository = null!;
-    private Mock<UserManager<ApplicationUser>> _userManagerMock = null!;
+    private AdminsRepository _repository;
+    private Mock<UserManager<ApplicationUser>> _userManagerMock;
 
     [SetUp]
     public void SetUp()
