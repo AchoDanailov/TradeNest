@@ -1,13 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Moq;
 using NUnit.Framework;
-
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository;
+using TradeNest.Tests.Common;
 
-namespace TradeNest.Data.IntegrationTests.Repositories;
+namespace TradeNest.Data.IntegrationTests.RepositoriesTests;
 
-public class UsersRepositoryTests : RepositoryTestsBase
+public class UsersRepositoryTests : IntegrationTestsBase
 {
     private UsersRepository _usersRepository;
     private Mock<UserManager<ApplicationUser>> _userManager;
@@ -55,8 +55,8 @@ public class UsersRepositoryTests : RepositoryTestsBase
     public async Task DeleteAsync_WorksCorrectly(string? role)
     {
         // Arrange
-        string email = Guid.NewGuid().ToString();
-        string userName = Guid.NewGuid().ToString();
+        string email = $"{RandomStringGenerator.RandomString(10)}@test.com";
+        string userName = RandomStringGenerator.RandomString(6, 15);
         ApplicationUser user = new ApplicationUser()
         {
             Id = Guid.NewGuid(),

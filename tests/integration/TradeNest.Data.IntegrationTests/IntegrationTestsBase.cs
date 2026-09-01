@@ -6,7 +6,7 @@ using TradeNest.Data.IntegrationTests.Infrastructure;
 namespace TradeNest.Data.IntegrationTests;
 
 [TestFixture]
-public abstract class RepositoryTestsBase
+public abstract class IntegrationTestsBase
 {
     protected TradeNestDbContext DbContext { get; private set; }
 

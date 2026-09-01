@@ -17,7 +17,9 @@ internal sealed class MsSqlDbContainer
             {
                 if (_dbContainer == null)
                 {
+                    // NOTE: Setting db name is required so the tests don't run in master db which can lead to bugs (like trying to drop master db between tests, which will lead to exceptions)
                     _dbContainer = new MsSqlBuilder("mcr.microsoft.com/mssql/server:2022-latest")
+                        .WithDatabase("TradeNestTestDb") 
                         .Build();
                 }
             }
