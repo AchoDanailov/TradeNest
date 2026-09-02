@@ -109,7 +109,7 @@ TradeNest/
 │   ├── integration/                   # Integration Tests 
 │   │   └── TradeNest.Data.IntegrationTests/  
 │   │
-│   └── e2e/                           # End to end tests
+│   └── TradeNest.Tests.Common/        # Everything common only used in the tests.
 ```
 
 ---
@@ -121,6 +121,7 @@ TradeNest/
 - [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0): You'll need the .NET 8 SDK to build and run the project. Newer SDK versions can typically build .NET 8 projects, but .NET 8 is the official target.
 - [SQL Server 2022 or higher](https://www.microsoft.com/en-us/sql-server/sql-server-downloads): The application uses SQL server 2022.
 - [npm](https://www.npmjs.com/): Required for frontend dependencies.
+- [Docker](https://www.docker.com/): Some tests use Testcontainers for setting up test infrastructure. Docker is required to run them successfully locally.
 
 ### Setup
 

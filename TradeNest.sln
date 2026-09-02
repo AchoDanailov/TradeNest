@@ -60,6 +60,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "integration", "integration"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Data.IntegrationTests", "tests\integration\TradeNest.Data.IntegrationTests\TradeNest.Data.IntegrationTests.csproj", "{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TradeNest.Tests.Common", "tests\TradeNest.Tests.Common\TradeNest.Tests.Common.csproj", "{A81EABB8-477D-4689-A884-5AA35D69FB1E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -88,6 +90,7 @@ Global
 		{A201FF97-FEA4-4515-BB62-98E6F259E974} = {D33D1E52-5C82-4FF9-97A2-FDBAACC7D41B}
 		{7B960692-72D2-48C7-A18E-38A16BD8FA23} = {0D44396B-5F26-4E8D-8C98-DE686233E361}
 		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA} = {7B960692-72D2-48C7-A18E-38A16BD8FA23}
+		{A81EABB8-477D-4689-A884-5AA35D69FB1E} = {0D44396B-5F26-4E8D-8C98-DE686233E361}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{839C63FE-08C8-4BA0-970B-D0A226C304C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -138,5 +141,9 @@ Global
 		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB0AFEC5-B324-4675-A1B4-0E3C29C132AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A81EABB8-477D-4689-A884-5AA35D69FB1E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A81EABB8-477D-4689-A884-5AA35D69FB1E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A81EABB8-477D-4689-A884-5AA35D69FB1E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A81EABB8-477D-4689-A884-5AA35D69FB1E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

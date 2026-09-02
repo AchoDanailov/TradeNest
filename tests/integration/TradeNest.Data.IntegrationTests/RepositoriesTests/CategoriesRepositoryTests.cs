@@ -3,38 +3,39 @@ using NUnit.Framework;
 
 using TradeNest.Data.Models;
 using TradeNest.Data.Repository;
+using static TradeNest.Tests.Common.RandomStringGenerator;
 
-namespace TradeNest.Data.IntegrationTests.Repositories;
+namespace TradeNest.Data.IntegrationTests.RepositoriesTests;
 
-[TestFixture]
-public class CategoriesRepositoryTests : RepositoryTestsBase
+public class CategoriesRepositoryTests : IntegrationTestsBase
 {
     private CategoriesRepository _repository = null!;
 
     [SetUp]
     public void SetUp()
     {
-        _repository = new CategoriesRepository(DbContext);
+        this._repository = new CategoriesRepository(DbContext);
     }
 
     [TearDown]
     public void TearDown()
     {
-        _repository.Dispose();
+        this._repository.Dispose();
     }
 
     [Test]
     public async Task AddAsync_ShouldAddCategoryToDatabase()
     {
         // Arrange
-        var category = new Category { Name = "New Category" };
+        Category category = new Category { Name = RandomString(3, 15) };
 
         // Act
-        var result = await _repository.AddAsync(category);
+        bool result = await _repository.AddAsync(category);
 
         // Assert
         Assert.True(result);
-        var dbCategory = await DbContext.Categories.FirstOrDefaultAsync(c => c.Name == "New Category");
+        Category? dbCategory = await DbContext.Categories
+            .FirstOrDefaultAsync(c => c.Name == category.Name);
         Assert.NotNull(dbCategory);
     }
 
@@ -42,15 +43,15 @@ public class CategoriesRepositoryTests : RepositoryTestsBase
     public async Task DeleteCategoryAsync_ShouldRemoveCategory()
     {
         // Arrange
-        var category = new Category { Name = "To Delete" };
+        Category category = new Category { Id = Guid.NewGuid(), Name = RandomString(3, 15) };
         await SeedAsync(category);
 
         // Act
-        var result = await _repository.DeleteCategoryAsync(category);
+        bool result = await _repository.DeleteCategoryAsync(category);
 
         // Assert
         Assert.True(result);
-        var dbCategory = await DbContext.Categories.FindAsync(category.Id);
+        Category? dbCategory = await DbContext.Categories.FindAsync(category.Id);
         Assert.Null(dbCategory);
     }
 
@@ -64,7 +65,9 @@ public class CategoriesRepositoryTests : RepositoryTestsBase
         );
 
         // Act
-        var result = await _repository.GetAllAsync(options => options.SetFilter(c => c.Name == "Books"));
+        IEnumerable<Category> result = (await _repository
+                .GetAllAsync(options => options.SetFilter(c => c.Name == "Books")))
+            .ToArray();
 
         // Assert
         Assert.That(result.Count(), Is.EqualTo(1));
