@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 
 using TradeNest.Data.Seeding.Interfaces;
+using TradeNest.Data;
 
 namespace TradeNest.Web.Infrastructure.Extensions;
 
@@ -10,6 +11,9 @@ public static class WebApplicationExtensions
     public static IApplicationBuilder UseSeeding(this IApplicationBuilder app)
     {
         using IServiceScope scope = app.ApplicationServices.CreateScope();
+        
+        TradeNestDbContext dbContext = scope.ServiceProvider.GetRequiredService<TradeNestDbContext>();
+        dbContext.Database.EnsureCreated();
 
         SeedRolesAsync(scope)
             .GetAwaiter()
