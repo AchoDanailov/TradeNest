@@ -5,18 +5,52 @@ using Microsoft.EntityFrameworkCore;
 using TradeNest.Data;
 using TradeNest.Web.IntegrationTests.Extensions;
 using TradeNest.Web.IntegrationTests.Models;
+using TradeNest.Web.IntegrationTests.TestsServices;
 
 namespace TradeNest.Web.IntegrationTests;
 
-internal class TradeNestTestsWebApplicationFactory<TProgram> 
+public class TradeNestTestsWebApplicationFactory<TProgram> 
     : WebApplicationFactory<TProgram> where TProgram : class
 {
     private readonly string _databaseConnectionString;
 
-    internal TradeNestTestsWebApplicationFactory(string databaseConnectionString)
+    public TradeNestTestsWebApplicationFactory(string databaseConnectionString)
         : base()
     {
         this._databaseConnectionString = databaseConnectionString;
+    }
+    
+    /// <summary>
+    /// Method used to configure an InMemory Web Host used to test against.
+    /// The web test host has all the SUT's services already registered and configured.
+    /// </summary>
+    /// <param name="builder">
+    /// <see cref="IWebHostBuilder"/> instance used to add, replace, setup, and configure services for testing purposes.
+    /// </param>
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureTestServices(services =>
+        {
+            // docs: https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-10.0&pivots=nunit
+            ServiceDescriptor? serviceDescriptor = services.FirstOrDefault(d =>
+                d.ServiceType == typeof(DbContextOptions<TradeNestDbContext>));
+            if (serviceDescriptor != null)
+            {
+                services.Remove(serviceDescriptor);
+            }
+            
+            services.AddDbContext<TradeNestDbContext>(options =>
+                options.UseSqlServer(this._databaseConnectionString));
+
+            using ServiceProvider serviceProvider = services
+                .BuildServiceProvider();
+            using TradeNestDbContext dbContext = serviceProvider
+                .GetRequiredService<TradeNestDbContext>();
+            dbContext.Database.EnsureCreated();
+        });
+
+        builder.ConfigureAntiforgeryTokenResource();
+        builder.UseEnvironment("Development");
     }
     
     /// <summary>
@@ -32,36 +66,15 @@ internal class TradeNestTestsWebApplicationFactory<TProgram>
             .GetFromJsonAsync<AntiforgeryTokens>(AntiforgeryTokenController.GetTokensUri); 
         return tokens!;
     }
-    
-    // this builder is the same builder of the SUT's WebApplication builder before builder.Build() is called but after the configurations happen in Program.cs
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.ConfigureTestServices(services =>
-        {
-            // docs: https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-10.0&pivots=nunit
-            ServiceDescriptor? serviceDescriptor = services.FirstOrDefault(d =>
-                d.ServiceType == typeof(DbContextOptions<TradeNestDbContext>));
-            if (serviceDescriptor != null)
-            {
-                services.Remove(serviceDescriptor);
-            }
-            
-            services.AddDbContext<TradeNestDbContext>(options =>
-                options.UseSqlServer(this._databaseConnectionString));
-        });
-
-        builder.ConfigureAntiforgeryTokenResource();
-    }
 
     protected override void Dispose(bool disposing)
     {
         if (!disposing)
         {
-            using (IServiceScope scope = this.Services.CreateScope())
-            {
-                TradeNestDbContext dbContext = scope.ServiceProvider.GetRequiredService<TradeNestDbContext>();
-                dbContext.Database.EnsureDeleted();
-            }
+            using IServiceScope scope = this.Services.CreateScope();
+            using TradeNestDbContext dbContext = scope.ServiceProvider
+                .GetRequiredService<TradeNestDbContext>();
+            dbContext.Database.EnsureDeleted();
         }
         
         base.Dispose(disposing);

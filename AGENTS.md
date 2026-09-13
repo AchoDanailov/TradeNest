@@ -7,9 +7,9 @@
 
 ## Architecture (N-tier)
 ```
-TradeNest.Web/              — Controllers (MVC + *ApiController), Areas, Views, presentation mappers
-TradeNest.Web.Models/       — ViewModels & DTOs for web boundary
-TradeNest.Web.Infrastructure/ — Filters (WebApiExceptionFilter), DI extensions
+TradeNest.Web/               — Controllers (MVC + *ApiController), Areas, Views, presentation mappers
+TradeNest.Web.Models/        — ViewModels & DTOs for web boundary
+TradeNest.Web.Infrastructure/ — Web-layer building blocks (own project): Filters (WebApiExceptionFilter), DI extension method classes
 TradeNest.Services.Core/    — Business logic, service interfaces & Mapperly mappers
 TradeNest.Services.Models/  — Service-layer DTOs
 TradeNest.Data/             — EF Core DbContext, migrations, repositories, seeders, QueryOptions
@@ -37,10 +37,11 @@ dotnet test
 dotnet test tests/unit/TradeNest.Services.Tests
 dotnet test tests/unit/TradeNest.Data.Tests
 dotnet test tests/integration/TradeNest.Data.IntegrationTests
+dotnet test tests/integration/TradeNest.Web.IntegrationTests
 ```
 
 ## DI Registration (assembly scanning — naming convention mandatory)
-Auto-wired in `WebApplicationBuilderExtensions.cs` (invoked `Program.cs:52-61`). No manual wiring:
+Auto-wired in `WebApplicationBuilderExtensions.cs` (invoked `Program.cs:52-60`). No manual wiring:
 - `I*Service` → `*Service` (scoped)
 - `I*Repository` → `*Repository` (scoped); generic interfaces skipped
 - `I*Mapper` → `*Mapper` (singleton)
@@ -76,9 +77,11 @@ Area route (`Program.cs:89-91`) before default (`Program.cs:92-94`):
 - Test logins: `User1`-`User3` / `Password1`-`Password3`, `Admin1` / `Admin1Password`.
 
 ## Testing
-- `dotnet test` needs no SQL Server: integration tests use EF Core InMemory (`TradeNestTestDb`).
+- **Integration tests require Docker** (`dotnet test` runs them): both `TradeNest.Data.IntegrationTests` and `TradeNest.Web.IntegrationTests` boot a SQL Server 2022 container (`mcr.microsoft.com/mssql/server:2022-latest`) via Testcontainers before the suite starts (`SetUpFixture.cs`). Without Docker these projects fail.
+- Unit tests (`Services.Tests`, `Data.Tests`) run with no SQL/Docker; `Data.Tests` uses EF Core InMemory.
+- `TradeNest.Web.IntegrationTests` spins up `WebApplicationFactory<Program>` for full HTTP request/response flow (base address `https://localhost`), sharing the same Testcontainers SQL Server as the data tests.
+- `tests/TradeNest.Tests.Common/` holds shared test helpers.
 - Repository queries use fluent `QueryOptions<T>` (`SetFilter`, `WithRelated`, `AddOrderAsc/Desc`, `WithPagination`, `AsReadOnly`).
-- `tests/e2e/` empty — Playwright pending.
 
 ## CI (`.github/workflows/ci.yml`)
-Push to any branch + PRs to `main`: `npm ci --prefix src/TradeNest.Web` → `dotnet restore` → `dotnet build --no-restore` → `dotnet test --no-build`
+Push to any branch + PRs to `main`: `npm ci --prefix src/TradeNest.Web` → `dotnet restore` → `dotnet build --no-restore` → `dotnet test --no-build`. The `dotnet test` step boots the Testcontainers SQL Server; GitHub-hosted runners have Docker preinstalled so no extra setup is needed.
