@@ -23,6 +23,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\..\src\TradeNest.Web\TradeNest.Web.csproj" />
+        <ProjectReference Include="..\..\TradeNest.Tests.Common\TradeNest.Tests.Common.csproj" />
     </ItemGroup>
 
 </Project>
