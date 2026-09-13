@@ -5,6 +5,12 @@ namespace TradeNest.Web.IntegrationTests.Common;
 /// </summary>
 internal static class TestsConstants
 {
+    internal static class WebApplicationFactory
+    {
+        internal const string DevelopmentEnvironment = "Development";
+        internal const string ProductionEnvironment = "Production";
+    }
+    
     internal static class Auth
     {
         internal const string Scheme = "TestScheme";

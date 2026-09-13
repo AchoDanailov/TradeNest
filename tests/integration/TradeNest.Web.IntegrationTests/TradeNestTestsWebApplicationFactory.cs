@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.EntityFrameworkCore;
 
 using TradeNest.Data;
+using TradeNest.Web.IntegrationTests.Common;
 using TradeNest.Web.IntegrationTests.Extensions;
 using TradeNest.Web.IntegrationTests.Models;
 using TradeNest.Web.IntegrationTests.TestsServices;
@@ -50,7 +51,7 @@ public class TradeNestTestsWebApplicationFactory<TProgram>
         });
 
         builder.ConfigureAntiforgeryTokenResource();
-        builder.UseEnvironment("Development");
+        builder.UseEnvironment(TestsConstants.WebApplicationFactory.DevelopmentEnvironment);
     }
     
     /// <summary>
