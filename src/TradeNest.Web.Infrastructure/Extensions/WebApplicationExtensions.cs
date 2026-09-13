@@ -12,9 +12,6 @@ public static class WebApplicationExtensions
     {
         using IServiceScope scope = app.ApplicationServices.CreateScope();
         
-        TradeNestDbContext dbContext = scope.ServiceProvider.GetRequiredService<TradeNestDbContext>();
-        dbContext.Database.EnsureCreated();
-
         SeedRolesAsync(scope)
             .GetAwaiter()
             .GetResult();
