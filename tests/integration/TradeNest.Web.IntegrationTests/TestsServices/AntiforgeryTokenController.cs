@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 using TradeNest.Web.IntegrationTests.Models;
 
-namespace TradeNest.Web.IntegrationTests;
+namespace TradeNest.Web.IntegrationTests.TestsServices;
 
 /// <summary>
 /// A class representing a controller for an HTTP GET resource that returns
@@ -43,7 +43,7 @@ public sealed class AntiforgeryTokenController : Controller
         ArgumentNullException.ThrowIfNull(antiforgery);
         ArgumentNullException.ThrowIfNull(options);
 
-        AntiforgeryTokenSet tokens = antiforgery.GetTokens(this.HttpContext);
+        AntiforgeryTokenSet tokens = antiforgery.GetAndStoreTokens(this.HttpContext);
 
         AntiforgeryTokens model = new AntiforgeryTokens()
         {

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.TestHost;
+using TradeNest.Web.IntegrationTests.TestsServices;
 
 namespace TradeNest.Web.IntegrationTests.Extensions;
 
