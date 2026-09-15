@@ -79,14 +79,14 @@ public class AuthTests : WebIntegrationTestsBase
         Dictionary<string, string> formData = new Dictionary<string, string>()
         {
             ["ProductName"] = RandomStringGenerator.RandomString(10),
-            ["SellingPrice"] = "10",
-            ["CostPrice"] = "10",
-            ["CategoryId"] = "1a2b3c4d-5e6f-7890-abcd-ef0123456789",
+            ["SellingPrice"] = $"{Random.Shared.Next((int)EntityValidationConstants.Product.MinSellingPriceValue, (int)EntityValidationConstants.Product.MaxSellingPriceValue)}",
+            ["CostPrice"] = $"{Random.Shared.Next((int)EntityValidationConstants.Product.MinCostPriceValue, (int)EntityValidationConstants.Product.MaxCostPriceValue)}",
+            ["CategoryId"] = "1a2b3c4d-5e6f-7890-abcd-ef0123456789", // in the seed data: Category { "Id": "a1b2c3d4-e5f6-7890-1234-567890abcdef", "Name": "Books" },
             ["IsEnabled"] = "True",
-            ["QuantityInStock"] = "5",
+            ["QuantityInStock"] = $"{Random.Shared.Next(EntityValidationConstants.Product.MinQuantityInStockValue, EntityValidationConstants.Product.MaxQuantityInStockValue)}",
             ["Description"] = RandomStringGenerator.RandomString(20),
-            ["FrontImageUrl"] = "https://example.com/front.jpg",
-            ["ExtraImagesUrls"] = "https://example.com/extra1.jpg\nhttps://example.com/extra2.jpg",
+            ["FrontImageUrl"] = $"https://{RandomStringGenerator.RandomString(20)}",
+            ["ExtraImagesUrls"] = $"https://{RandomStringGenerator.RandomString(20)}\nhttps://{RandomStringGenerator.RandomString(20)}",
         };
         using FormUrlEncodedContent content = new FormUrlEncodedContent(formData);
         
