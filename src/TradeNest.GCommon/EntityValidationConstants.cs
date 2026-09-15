@@ -52,7 +52,7 @@ public static class EntityValidationConstants
         public const byte PasswordMaxLengthValue = 100;
 
         public const byte UserNameOrEmailMaxLengthValue = 255;
-        public const byte UserNameOrEmailMinLengthValue = 5;
+        public const byte UserNameOrEmailMinLengthValue = 3;
     }
 
     public static class CommonValidationConstants

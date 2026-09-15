@@ -21,6 +21,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
     {
         IQueryable<Product> queryable = this.DbContext.Products
             .IgnoreQueryFilters()
+            .Where(p => p.IsDeleted == false)
             .Include(p => p.Category)
             .Include(p => p.Images)
             .Include(p => p.Owner)

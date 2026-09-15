@@ -107,7 +107,8 @@ TradeNest/
 │   │   └── TradeNest.Data.Tests/      # Unit Tests for data layer classes (Repositories, QueryOptions, Helpers, etc...)
 │   │
 │   ├── integration/                   # Integration Tests 
-│   │   └── TradeNest.Data.IntegrationTests/  
+│   │   ├── TradeNest.Data.IntegrationTests/  
+│   │   └── TradeNest.Web.IntegrationTests/
 │   │
 │   └── TradeNest.Tests.Common/        # Everything common only used in the tests.
 ```
