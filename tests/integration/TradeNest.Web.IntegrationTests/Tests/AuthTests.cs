@@ -1,15 +1,11 @@
 using System.Net;
-using System.Net.Http.Headers;
 
-using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.AspNetCore.TestHost;
 using NUnit.Framework;
 
+using TradeNest.GCommon;
 using TradeNest.Tests.Common;
-using TradeNest.Web.IntegrationTests.Common;
 using TradeNest.Web.IntegrationTests.Models;
-using TradeNest.Web.IntegrationTests.TestsServices;
 
 namespace TradeNest.Web.IntegrationTests.Tests;
 
@@ -18,6 +14,7 @@ public class AuthTests : WebIntegrationTestsBase
     [Test]
     public async Task Get_ToResourceThatRequiresAuthenticatedUser_ShouldRedirectToLoginPage()
     {
+        // Arrange
         const string URL = "/Products/Create";
 
         using HttpClient client = this.Factory
@@ -26,8 +23,11 @@ public class AuthTests : WebIntegrationTestsBase
                 AllowAutoRedirect = false,
                 BaseAddress = new Uri("https://localhost")
             });
+        
+        // Act
         using HttpResponseMessage res = await client.GetAsync(URL);
 
+        // Assert
         Assert.That(res.StatusCode, Is.EqualTo(HttpStatusCode.Redirect));
         Assert.That(res.Headers.Location!.OriginalString.Contains("Identity/Account/Login"), Is.True);
     } 
@@ -35,6 +35,7 @@ public class AuthTests : WebIntegrationTestsBase
     [Test]
     public async Task Post_CreateProduct_WithAuthenticatedUser_ShouldCreateProduct()
     {
+        // Arrange
         const string URL = "/Products/Create";
 
         using HttpClient client = this.SetupAuthenticatedHttpClient();
@@ -45,20 +46,22 @@ public class AuthTests : WebIntegrationTestsBase
         {
             [tokens.FormFieldName] = tokens.RequestToken,
             ["ProductName"] = RandomStringGenerator.RandomString(10),
-            ["SellingPrice"] = "10",
-            ["CostPrice"] = "10",
-            ["CategoryId"] = "1a2b3c4d-5e6f-7890-abcd-ef0123456789",
+            ["SellingPrice"] = $"{Random.Shared.Next((int)EntityValidationConstants.Product.MinSellingPriceValue, (int)EntityValidationConstants.Product.MaxSellingPriceValue)}",
+            ["CostPrice"] = $"{Random.Shared.Next((int)EntityValidationConstants.Product.MinCostPriceValue, (int)EntityValidationConstants.Product.MaxCostPriceValue)}",
+            ["CategoryId"] = "1a2b3c4d-5e6f-7890-abcd-ef0123456789", // in the seed data: Category { "Id": "a1b2c3d4-e5f6-7890-1234-567890abcdef", "Name": "Books" },
             ["IsEnabled"] = "True",
-            ["QuantityInStock"] = "5",
+            ["QuantityInStock"] = $"{Random.Shared.Next(EntityValidationConstants.Product.MinQuantityInStockValue, EntityValidationConstants.Product.MaxQuantityInStockValue)}",
             ["Description"] = RandomStringGenerator.RandomString(20),
-            ["FrontImageUrl"] = "https://example.com/front.jpg",
-            ["ExtraImagesUrls"] = "https://example.com/extra1.jpg\nhttps://example.com/extra2.jpg",
+            ["FrontImageUrl"] = $"https://{RandomStringGenerator.RandomString(20)}",
+            ["ExtraImagesUrls"] = $"https://{RandomStringGenerator.RandomString(20)}\nhttps://{RandomStringGenerator.RandomString(20)}",
         };
-
         using FormUrlEncodedContent content = new FormUrlEncodedContent(formData);
+        
+        // Act
         using HttpResponseMessage res = await client.PostAsync(URL, content);
         using HttpResponseMessage prodDetails = await client.GetAsync(res.Headers.Location);
         
+        // Assert
         Assert.That(res.StatusCode, Is.EqualTo(HttpStatusCode.Found));
         Assert.That(res.Headers.Location!.OriginalString, Does.Contain("Products/Details"));
         Assert.That(await prodDetails.Content.ReadAsStringAsync(), Does.Contain(formData["ProductName"]));
@@ -67,6 +70,7 @@ public class AuthTests : WebIntegrationTestsBase
     [Test]
     public async Task Post_WithAuthUserButNoAntiforgeryTokens_ShouldReturnBadRequest()
     {
+        // Arrange
         const string URL = "/Products/Create";
 
         using HttpClient client = this.SetupAuthenticatedHttpClient(
@@ -85,14 +89,18 @@ public class AuthTests : WebIntegrationTestsBase
             ["ExtraImagesUrls"] = "https://example.com/extra1.jpg\nhttps://example.com/extra2.jpg",
         };
         using FormUrlEncodedContent content = new FormUrlEncodedContent(formData);
+        
+        // Act
         using HttpResponseMessage res = await client.PostAsync(URL, content);
         
+        // Assert
         Assert.That(res.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
     }
 
     [Test]
     public async Task Post_RegisterUser_ShouldWorkCorrectly()
     {
+        // Arrange
         const string REGISTER_URL = "Identity/Account/Register";
         
         using HttpClient client = this.Factory.CreateClient(new WebApplicationFactoryClientOptions()
@@ -114,35 +122,13 @@ public class AuthTests : WebIntegrationTestsBase
         };
         using FormUrlEncodedContent registerFormUrlContent = new FormUrlEncodedContent(registerFormData);
         
+        // Act
         using HttpResponseMessage res = await client.PostAsync(REGISTER_URL, registerFormUrlContent);
         
+        // Assert
         Assert.That(res.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         Assert.That(
             await res.Content.ReadAsStringAsync(),
             Contains.Substring($"Hello {registerFormData["Input.UserName"]}"));
-    }
-    
-    private HttpClient SetupAuthenticatedHttpClient(
-        WebApplicationFactoryClientOptions? clientOptions = null)
-    {
-        HttpClient client = this.Factory
-            .WithWebHostBuilder(builder =>
-            {
-                builder.ConfigureTestServices(services =>
-                {
-                    services.AddAuthentication(defaultScheme: TestsConstants.Auth.Scheme)
-                        .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>(TestsConstants.Auth.Scheme, options => { });
-                });
-            })
-            .CreateClient(clientOptions ?? new WebApplicationFactoryClientOptions()
-            {
-                AllowAutoRedirect = false,
-                BaseAddress = new Uri("https://localhost")
-            });    
-        
-        client.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue(scheme: TestsConstants.Auth.Scheme);
-
-        return client;
     }
 }

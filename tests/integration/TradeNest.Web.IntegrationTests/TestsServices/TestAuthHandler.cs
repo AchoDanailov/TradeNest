@@ -12,6 +12,7 @@ namespace TradeNest.Web.IntegrationTests.TestsServices;
 /// Authentication handler that can be registered with a given authentication scheme, and used
 /// in an authentication service.
 /// </summary>
+/// <remarks>The userId of the authenticated user </remarks>
 public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
     public TestAuthHandler(
@@ -26,7 +27,7 @@ public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions
     /// Method that creates claims, claims principal and ticket for that principal,
     /// then proceeds to authenticate the ticket.
     /// </summary>
-    /// <returns>Task holding an <see cref="AuthenticateResult.Success"/> object.</returns>
+    /// <returns>Task holding an <see cref="AuthenticateResult"/> object with the Succeeded property set to true.</returns>
     protected override Task<AuthenticateResult> HandleAuthenticateAsync()
     {
         IEnumerable<Claim> claims = new Claim[]
