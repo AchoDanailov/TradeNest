@@ -10,6 +10,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.23" />
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.23" />
@@ -24,10 +25,7 @@
         <ProjectReference Include="..\..\..\src\TradeNest.Data.Models\TradeNest.Data.Models.csproj" />
         <ProjectReference Include="..\..\..\src\TradeNest.GCommon\TradeNest.GCommon.csproj" />
         <ProjectReference Include="..\..\..\src\TradeNest.Data.Common\TradeNest.Data.Common.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Using Include="NUnit.Framework"/>
+        <ProjectReference Include="..\..\TradeNest.Tests.Common\TradeNest.Tests.Common.csproj" />
     </ItemGroup>
 
 </Project>

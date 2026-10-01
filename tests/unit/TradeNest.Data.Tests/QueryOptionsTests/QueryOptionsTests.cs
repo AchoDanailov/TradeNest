@@ -1,10 +1,12 @@
 using System.Linq.Expressions;
 
+using NUnit.Framework;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.QueryOptions;
 using TradeNest.Data.QueryOptions.Interfaces;
 
-namespace TradeNest.Data.Tests.Common;
+namespace TradeNest.Data.Tests.QueryOptionsTests;
 
 /* Unit Tests for <see cref="QueryOptions"/>.
 Keep In mind that QueryOptions is essentially just a DTO for expressions and

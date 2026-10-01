@@ -166,7 +166,7 @@ public class ProductsRepository : BaseReadRepository<Product>, IProductsReposito
         await this.DbContext.Products.AddRangeAsync(products);
         int res = await this.DbContext.SaveChangesAsync();
 
-        return res >= 1;
+        return res >= products.Count();
     }
 
     public async Task<bool> UpdateAsync(Product product)
