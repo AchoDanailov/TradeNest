@@ -18,21 +18,19 @@ public class AdminRepositoryTests : BaseRepositoriesTest
     private IEnumerable<Admin> _testAdmins;
 
     [SetUp]
-    public async Task SetUp()
+    public async Task SetUpAdminRepository()
     {
         Mock<IUserStore<ApplicationUser>> store = new Mock<IUserStore<ApplicationUser>>();
         this._userManagerMock = new Mock<UserManager<ApplicationUser>>(store.Object, null!, null!, null!, null!, null!, null!, null!, null!);
         this._adminsRepository = new AdminsRepository(DbContext, _userManagerMock.Object);
 
         (this._testUsers, this._testAdmins) = SetUpThreeAdminUsers();
-        await base.SetUp();
     }
 
     [TearDown]
-    public async Task TearDown()
+    public async Task TearDownAdminRepository()
     {
         this._adminsRepository.Dispose();
-        await base.TearDown();
     }
 
     [Test]

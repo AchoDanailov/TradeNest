@@ -1,8 +1,6 @@
-using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Identity.Client;
 using NUnit.Framework;
-using NUnit.Framework.Constraints;
+
 using TradeNest.Data.Models;
 using TradeNest.Data.Models.Enums;
 using TradeNest.Data.Repository;
@@ -15,17 +13,15 @@ public class ProductsRepositoryTests : BaseRepositoriesTest
     private ProductsRepository _productsRepository;
 
     [SetUp]
-    public async Task SetUp()
+    public async Task SetUpProductsRepository()
     {
         this._productsRepository = new ProductsRepository(this.DbContext);
-        await base.SetUp();
     }
 
     [TearDown]
-    public async Task TearDown()
+    public async Task TearDownProductsRepository()
     {
         this._productsRepository.Dispose();
-        await base.TearDown();
     }
 
     [Test]

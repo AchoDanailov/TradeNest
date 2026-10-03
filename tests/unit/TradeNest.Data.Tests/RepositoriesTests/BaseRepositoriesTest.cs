@@ -17,6 +17,7 @@ public abstract class BaseRepositoriesTest
             .Options;
 
         this.DbContext = new TradeNestDbContext(options);
+        await this.DbContext.Database.EnsureDeletedAsync();
         await this.DbContext.Database.EnsureCreatedAsync();
     }
 

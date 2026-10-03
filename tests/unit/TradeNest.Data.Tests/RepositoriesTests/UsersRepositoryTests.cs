@@ -16,24 +16,24 @@ public class UsersRepositoryTests : BaseRepositoriesTest
     private Mock<RoleManager<ApplicationRole>> _roleManagerMock;
 
     [SetUp]
-    public async Task SetUp()
+    public async Task SetUpUsersRepository()
     {
-        this._userManagerMock = new Mock<UserManager<ApplicationUser>>();
-        this._roleManagerMock = new Mock<RoleManager<ApplicationRole>>();
+        Mock<IUserStore<ApplicationUser>> userStoreMock = new Mock<IUserStore<ApplicationUser>>();
+        Mock<IRoleStore<ApplicationRole>> roleStoreMock = new Mock<IRoleStore<ApplicationRole>>();
+
+        this._userManagerMock = new Mock<UserManager<ApplicationUser>>(userStoreMock.Object, null!, null!, null!, null!, null!, null!, null!, null!);
+        this._roleManagerMock = new Mock<RoleManager<ApplicationRole>>(roleStoreMock.Object, null!, null!, null!, null!);
 
         this._usersRepository = new UsersRepository(
             this.DbContext,
             this._userManagerMock.Object,
             this._roleManagerMock.Object);
-
-        await base.SetUp();
     }
 
     [TearDown]
-    public async Task TearDown()
+    public async Task TearDownUsersRepository()
     {
         this._usersRepository.Dispose();
-        await base.SetUp();
     }
 
     [Test]
@@ -192,6 +192,9 @@ public class UsersRepositoryTests : BaseRepositoriesTest
         await this.SeedAsync(user);
 
         this._userManagerMock
+            .Setup(um => um.FindByIdAsync(It.IsAny<string>()))
+            .ReturnsAsync(user);
+        this._userManagerMock
             .Setup(um => um.IsInRoleAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
             .ReturnsAsync(true);
 
@@ -246,7 +249,7 @@ public class UsersRepositoryTests : BaseRepositoriesTest
         await this.SeedAsync(user);
 
         this._userManagerMock
-            .Setup(um => um.CreateAsync(It.IsAny<ApplicationUser>()))
+            .Setup(um => um.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
             .ReturnsAsync(IdentityResult.Success);
 
         // Act
@@ -265,7 +268,7 @@ public class UsersRepositoryTests : BaseRepositoriesTest
         await this.SeedAsync(user);
 
         this._userManagerMock
-            .Setup(um => um.CreateAsync(It.IsAny<ApplicationUser>()))
+            .Setup(um => um.CreateAsync(It.IsAny<ApplicationUser>(), It.IsAny<string>()))
             .ReturnsAsync(IdentityResult.Failed());
 
         // Act

@@ -12,32 +12,28 @@ public class CategoriesRepositoryTests : BaseRepositoriesTest
     private CategoriesRepository _categoriesRepository;
 
     [SetUp]
-    public async Task SetUp()
+    public async Task SetUpCategoriesRepository()
     {
         this._categoriesRepository = new CategoriesRepository(this.DbContext);
-        await base.SetUp();
     }
 
     [TearDown]
-    public async Task TearDown()
+    public async Task TearDownCategoriesRepository()
     {
         this._categoriesRepository.Dispose();
-        await base.TearDown();
     }
 
     [Test]
-    public async Task AddAsync_WhenExists_ReturnsFalse()
+    public async Task AddAsync_WhenExists_ShouldThrow()
     {
         // Arrange
         Category category = new Category() { Id = Guid.NewGuid() };
         await this.SeedAsync(category);
         this.DbContext.Entry(category).State = EntityState.Detached;
 
-        // Act
-        bool res = await this._categoriesRepository.AddAsync(category);
-
-        // Assert
-        Assert.That(res, Is.False);
+        // Assert & Act
+        Assert.ThrowsAsync<ArgumentException>(async () =>
+            await this._categoriesRepository.AddAsync(category));
     }
 
     [Test]
@@ -58,14 +54,11 @@ public class CategoriesRepositoryTests : BaseRepositoriesTest
     }
 
     [Test]
-    public async Task DeleteCategoryAsync_WhenDoesNotExist_ReturnsFalse()
+    public async Task DeleteCategoryAsync_WhenDoesNotExist_ShouldThrow()
     {
-        // Arrange && Act
-        bool res = await this._categoriesRepository
-            .DeleteCategoryAsync(It.IsAny<Category>());
-
-        // Assert
-        Assert.That(res, Is.False);
+        // Arrange & Act & Assert
+        Assert.ThrowsAsync<ArgumentNullException>(async () => 
+            await this._categoriesRepository.DeleteCategoryAsync(It.IsAny<Category>()));
     }
 
     [Test]
